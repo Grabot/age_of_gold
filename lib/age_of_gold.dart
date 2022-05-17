@@ -24,8 +24,12 @@ class AgeOfGold extends FlameGame
 
   double frameTimes = 0.0;
   int frames = 0;
+  int variant = 0;
 
   late final World _world;
+
+  double maxZoom = 4;
+  double minZoom = 1;
 
   @override
   Future<void> onLoad() async {
@@ -52,6 +56,14 @@ class AgeOfGold extends FlameGame
   @override
   void onScroll(PointerScrollInfo info) {
     super.onScroll(info);
+    double zoomIncrease = (info.raw.scrollDelta.dy/1000);
+    camera.zoom *= (1 - zoomIncrease);
+    if (camera.zoom <= minZoom) {
+      camera.zoom = minZoom;
+    } else if (camera.zoom >= maxZoom) {
+      camera.zoom = maxZoom;
+    }
+    print("current zoom: ${camera.zoom}");
   }
 
   @override
@@ -86,6 +98,14 @@ class AgeOfGold extends FlameGame
 
     frameTimes += dt;
     frames += 1;
+
+    if ((frameTimes > 0 && frameTimes <= 0.5) && variant != 0) {
+      variant = 0;
+      _world.updateVariant(variant);
+    } else if ((frameTimes > 0.5 && frameTimes <= 1) && variant != 1) {
+      variant = 1;
+      _world.updateVariant(variant);
+    }
     if (frameTimes > 1) {
       print("fps: $frames");
       print("cameraPosition: $cameraPosition");

@@ -31,6 +31,9 @@ class World extends Component {
     renderHexagons(canvas, cameraPosition, hexagonList, screen, rotate, currentVariant);
   }
 
+  updateVariant(int variant) {
+    currentVariant = variant;
+  }
 
   updateWorld(Vector2 cameraPos, double zoomLevel, Vector2 worldSize) {
     cameraPosition = cameraPos;
