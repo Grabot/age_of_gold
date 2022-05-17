@@ -15,11 +15,13 @@ class AgeOfGold extends FlameGame
   Vector2 cameraPosition = Vector2.zero();
   Vector2 cameraVelocity = Vector2.zero();
 
-  Vector2 dragAccelerateJoy = Vector2.zero();
   Vector2 dragAccelerateKey = Vector2.zero();
 
   Vector2 dragFrom = Vector2.zero();
   Vector2 dragTo = Vector2.zero();
+
+  double frameTimes = 0.0;
+  int frames = 0;
 
   @override
   Future<void> onLoad() async {
@@ -70,28 +72,40 @@ class AgeOfGold extends FlameGame
     super.onDragEnd(pointerId, info);
   }
 
-  double frameTimes = 0.0;
-  int frames = 0;
-  int variant = 0;
   @override
   void update(double dt) {
     super.update(dt);
-    updateCameraPosition();
 
     frameTimes += dt;
     frames += 1;
     if (frameTimes > 1) {
       print("fps: $frames");
+      print("cameraPosition: $cameraPosition");
       frameTimes = 0;
       frames = 0;
     }
+
+    dragTo += dragAccelerateKey;
     cameraPosition.add(cameraVelocity * dt * 10);
+    updateMapScroll();
   }
 
-  void updateCameraPosition() {
-    dragTo += dragAccelerateJoy;
-    dragTo += dragAccelerateKey;
+  void updateMapScroll() {
+    if ((dragTo.x - cameraPosition.x).abs() < 0.2) {
+      cameraPosition.x = dragTo.x;
+      cameraVelocity.x = 0;
+    } else {
+      cameraVelocity.x = (dragTo.x - cameraPosition.x);
+    }
+
+    if ((dragTo.y - cameraPosition.y).abs() < 0.2) {
+      cameraPosition.y = dragTo.y;
+      cameraVelocity.y = 0;
+    } else {
+      cameraVelocity.y = (dragTo.y - cameraPosition.y);
+    }
   }
+
 
   @override
   KeyEventResult onKeyEvent(
