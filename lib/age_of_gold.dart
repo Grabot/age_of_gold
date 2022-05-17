@@ -4,6 +4,8 @@ import 'package:flame/input.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/services.dart';
 
+import 'package:age_of_gold/world/world.dart';
+
 class AgeOfGold extends FlameGame
     with
         HasTappables,
@@ -23,12 +25,18 @@ class AgeOfGold extends FlameGame
   double frameTimes = 0.0;
   int frames = 0;
 
+  late final World _world;
+
   @override
   Future<void> onLoad() async {
     await super.onLoad();
 
+
     camera.followVector2(cameraPosition, relativeOffset: Anchor.center);
     camera.zoom = 1;
+
+    _world = World();
+    add(_world);
   }
 
   @override
@@ -85,6 +93,8 @@ class AgeOfGold extends FlameGame
       frames = 0;
     }
 
+    _world.updateWorld(cameraPosition, camera.zoom, size);
+
     dragTo += dragAccelerateKey;
     cameraPosition.add(cameraVelocity * dt * 10);
     updateMapScroll();
@@ -105,7 +115,6 @@ class AgeOfGold extends FlameGame
       cameraVelocity.y = (dragTo.y - cameraPosition.y);
     }
   }
-
 
   @override
   KeyEventResult onKeyEvent(
