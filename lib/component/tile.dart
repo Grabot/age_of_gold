@@ -74,35 +74,11 @@ class Tile {
     return tileType;
   }
 
-  updateTile(SpriteBatch spriteBatch, int rotate, int variant) {
+  updateBaseTile(SpriteBatch baseBatch, int rotate) {
 
-    if (tileType == -1) {
-      return;
-    }
-
-    if (tileType == 0) {
-      if (variant % 2 == 0) {
-        type = flatSmallWater1;
-      } else {
-        type = flatSmallWater2;
-      }
-    } else {
-      type = flatSmallGrass1;
-    }
-
-    if (rotate == 0 || rotate == 2) {
-      spriteBatch.add(
-          source: type,
-          offset: getPos(rotate),
-          scale: scaleX
-      );
-    } else {
-      spriteBatch.add(
-          source: pointSmallGrass1,
-          offset: getPos(rotate),
-          scale: scaleY
-      );
-    }
   }
 
+  updateBaseVariation1(SpriteBatch batchVariation1, int rotate) {
+
+  }
 }

@@ -10,15 +10,15 @@ class Hexagon {
 
   late Vector2 center;
 
-  late SpriteBatch spriteBatch1;
-  late SpriteBatch spriteBatch2;
+  late SpriteBatch batchBase;
+  late SpriteBatch batchBaseVariation1;
 
   List<Tile> hexagonTiles = [];
 
   late int hexQArray;
   late int hexRArray;
 
-  Hexagon(this.spriteBatch1, this.spriteBatch2, this.center, this.rotation, this.hexQArray, this.hexRArray);
+  Hexagon(this.batchBase, this.batchBaseVariation1, this.center, this.rotation, this.hexQArray, this.hexRArray);
 
   addTileToHexagon(Tile tile) {
     hexagonTiles.add(tile);
@@ -30,13 +30,13 @@ class Hexagon {
   }
 
   updateHexagon(int rotate, int variation) {
-    spriteBatch1.clear();
+    batchBase.clear();
     for (Tile tile in hexagonTiles) {
-      tile.updateTile(spriteBatch1, rotate, 0);
+      tile.updateBaseTile(batchBase, rotate);
     }
-    spriteBatch2.clear();
+    batchBaseVariation1.clear();
     for (Tile tile in hexagonTiles) {
-      tile.updateTile(spriteBatch2, rotate, 1);
+      tile.updateBaseVariation1(batchBaseVariation1, rotate);
     }
   }
 
@@ -45,10 +45,9 @@ class Hexagon {
   }
 
   renderHexagon(Canvas canvas, int variation) {
-    if (variation == 0) {
-      spriteBatch1.render(canvas, blendMode: BlendMode.srcOver);
-    } else {
-      spriteBatch2.render(canvas, blendMode: BlendMode.srcOver);
+    batchBase.render(canvas, blendMode: BlendMode.srcOver);
+    if (variation == 1) {
+      batchBaseVariation1.render(canvas, blendMode: BlendMode.srcOver);
     }
   }
 

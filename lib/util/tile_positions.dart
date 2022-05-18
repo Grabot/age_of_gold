@@ -14,11 +14,11 @@ Future getHexagons(List<List<Tile?>> tiles, int rotate, HexagonList hexagonList)
   int hexQ = qRot + (hexagonList.hexagons.length / 2).ceil();
   int hexR = rRot + (hexagonList.hexagons[0].length / 2).ceil();
 
-  SpriteBatch batch_1 = await SpriteBatch.load('flat_1.png');
-  SpriteBatch batch_2 = await SpriteBatch.load('flat_2.png');
+  SpriteBatch baseBatch = await SpriteBatch.load('flat_base.png');
+  SpriteBatch variationBatch1 = await SpriteBatch.load('flat_variation_1.png');
 
   Hexagon hexagon = createHexagon(hexQ, hexR,
-      tiles, qRot, rRot, sRot, hexagonList.radius, rotate, batch_1, batch_2);
+      tiles, qRot, rRot, sRot, hexagonList.radius, rotate, baseBatch, variationBatch1);
   hexagon.updateHexagon(0, 0);
   hexagonList.hexagons[hexQ][hexR] = hexagon;
 }

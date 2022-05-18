@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 
 import 'package:age_of_gold/world/world.dart';
 
+// flutter run -d chrome --release --web-hostname localhost --web-port 7357
 class AgeOfGold extends FlameGame
     with
         HasTappables,
