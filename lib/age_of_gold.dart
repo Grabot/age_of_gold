@@ -1,3 +1,4 @@
+import 'package:age_of_gold/util/socket_services.dart';
 import 'package:flutter/material.dart';
 import 'package:flame/game.dart';
 import 'package:flame/input.dart';
@@ -35,7 +36,7 @@ class AgeOfGold extends FlameGame
   @override
   Future<void> onLoad() async {
     await super.onLoad();
-
+    SocketServices socket = SocketServices();
 
     camera.followVector2(cameraPosition, relativeOffset: Anchor.center);
     camera.zoom = 1;

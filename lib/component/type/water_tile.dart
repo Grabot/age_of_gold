@@ -10,7 +10,7 @@ class WaterTile extends Tile {
 
   @override
   updateBaseTile(SpriteBatch baseBatch, int rotate) {
-    print("update water");
+    // print("update water");
     baseBatch.add(
         source: flatSmallWater1,
         offset: getPos(rotate),
@@ -20,7 +20,7 @@ class WaterTile extends Tile {
 
   @override
   updateBaseVariation1(SpriteBatch baseBatch, int rotate) {
-    print("add variation water");
+    // print("add variation water");
     baseBatch.add(
         source: flatSmallWater2,
         offset: getPos(rotate),
