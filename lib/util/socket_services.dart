@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
+import '../component/tile.dart';
 import '../constants/base_url.dart';
+import 'hexagon_list.dart';
 
 
 class SocketServices extends ChangeNotifier {
   late IO.Socket socket;
+  late HexagonList hexagonList;
 
   static final SocketServices _instance = SocketServices._internal();
 
@@ -15,6 +18,10 @@ class SocketServices extends ChangeNotifier {
 
   factory SocketServices() {
     return _instance;
+  }
+
+  void setHexagonList(HexagonList hexagonList) {
+    this.hexagonList = hexagonList;
   }
 
   startSockConnection() {
@@ -41,14 +48,40 @@ class SocketServices extends ChangeNotifier {
     socket.open();
   }
 
-  void joinRoomSolo(int broId) {
-    print("join room solo!");
-    this.socket.emit(
+  void joinRoomSolo(int userId) {
+    socket.emit(
       "join",
       {
+        'userId': userId,
+      },
+    );
+    // After we have joined the room, we also want to listen to server events
+    socket.on('send_hexagon_fail', (data) {
+      print("send_hexagon_fail: $data");
+      print(data);
+    });
+    socket.on('send_hexagon_success', (data) {
+      addHexagon(data);
+      notifyListeners();
+    });
+  }
+
+  getHexagon(int q, int r, int s, int userId) {
+    socket.emit(
+      "get_hexagon",
+      {
+        'q': q,
+        'r': r,
+        's': s,
+        'userId': userId
       },
     );
   }
 
-
+  addHexagon(data) {
+    for (var tile in data["tiles"]) {
+      // TODO: make sure the q, r, s are correct
+      Tile tile = Tile(0, 0, 0, 0);
+    }
+  }
 }
