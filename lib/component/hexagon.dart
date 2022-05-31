@@ -54,4 +54,17 @@ class Hexagon {
   String toString() {
     return "hex q: $hexQArray r: $hexRArray on pos: $center}";
   }
+
+
+  Hexagon.fromJson(data) {
+    // Fix spritebatches, maybe turn them to Futures?
+    // batchBase = SpriteBatch.load('flat_base.png');
+    // batchBaseVariation1 = SpriteBatch.load('flat_variation_1.png');
+    center = Vector2(0, 0);
+    rotation = 0;
+    print("creating hexagon from json ${data['q']} ${data['r']}");
+    hexQArray = data['q'];
+    hexRArray = data['r'];
+    print("batchBaseVariation1: $batchBaseVariation1");
+  }
 }

@@ -43,7 +43,7 @@ class HexagonList {
 
   retrieveHexagons() {
     print("going to retrieve a hexagon");
-    socketServices.getHexagon(0, 0, 0, 0);
+    socketServices.getHexagon(0, 0, 0);
   }
 
   socketListener() {

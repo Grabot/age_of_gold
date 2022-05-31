@@ -4,7 +4,7 @@ import 'package:flame/game.dart';
 import 'package:flame/input.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/services.dart';
-
+import 'package:universal_html/html.dart' as html;
 import 'package:age_of_gold/world/world.dart';
 
 // flutter run -d chrome --release --web-hostname localhost --web-port 7357
@@ -37,13 +37,19 @@ class AgeOfGold extends FlameGame
   Future<void> onLoad() async {
     await super.onLoad();
     SocketServices socket = SocketServices();
-    socket.joinRoomSolo(0);
+    socket.setUserId(0);
+    socket.joinRoom();
 
     camera.followVector2(cameraPosition, relativeOffset: Anchor.center);
     camera.zoom = 1;
 
     _world = World();
     add(_world);
+
+
+    html.window.onBeforeUnload.listen((event) async {
+      socket.leaveRoom();
+    });
   }
 
   @override
@@ -51,7 +57,7 @@ class AgeOfGold extends FlameGame
     super.render(canvas);
   }
 
-  @override
+@override
   void onMouseMove(PointerHoverInfo info) {
     super.onMouseMove(info);
   }

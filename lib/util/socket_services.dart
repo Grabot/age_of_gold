@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
+import '../component/hexagon.dart';
 import '../component/tile.dart';
 import '../constants/base_url.dart';
 import 'hexagon_list.dart';
@@ -10,6 +11,9 @@ class SocketServices extends ChangeNotifier {
   late IO.Socket socket;
   late HexagonList hexagonList;
 
+  // We will use this to store the user's id, might change it later.
+  int userId = -1;
+
   static final SocketServices _instance = SocketServices._internal();
 
   SocketServices._internal() {
@@ -18,6 +22,10 @@ class SocketServices extends ChangeNotifier {
 
   factory SocketServices() {
     return _instance;
+  }
+
+  void setUserId(int id) {
+    userId = id;
   }
 
   void setHexagonList(HexagonList hexagonList) {
@@ -42,13 +50,13 @@ class SocketServices extends ChangeNotifier {
     });
 
     socket.on('message_event', (data) {
-      // print(data);
+      print("message_event: $data");
     });
 
     socket.open();
   }
 
-  void joinRoomSolo(int userId) {
+  void joinRoom() {
     socket.emit(
       "join",
       {
@@ -61,12 +69,22 @@ class SocketServices extends ChangeNotifier {
       print(data);
     });
     socket.on('send_hexagon_success', (data) {
+      print("send_hexagon_success");
       addHexagon(data);
       notifyListeners();
     });
   }
 
-  getHexagon(int q, int r, int s, int userId) {
+  void leaveRoom() {
+    if (socket.connected) {
+      socket.emit("leave", {
+        'userId': userId,
+      });
+    }
+  }
+
+  getHexagon(int q, int r, int s) {
+    print("getting hexagon with userId: $userId");
     socket.emit(
       "get_hexagon",
       {
@@ -79,9 +97,15 @@ class SocketServices extends ChangeNotifier {
   }
 
   addHexagon(data) {
-    for (var tile in data["tiles"]) {
+    Hexagon hexagon = Hexagon.fromJson(data);
+    for (var tileData in data["tiles"]) {
       // TODO: make sure the q, r, s are correct
-      Tile tile = Tile(0, 0, 0, 0);
+      Tile tile = Tile(
+          tileData["q"],
+          tileData["r"],
+          tileData["s"],
+          tileData["type"]
+      );
     }
   }
 }

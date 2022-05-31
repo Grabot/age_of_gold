@@ -21,8 +21,6 @@ class Tile {
   double scaleX = 1;
   double scaleY = 1.05;
 
-  late Rect type;
-
   Hexagon? hexagon;
 
   // We assume the condition r + s + q = 0 is true.
@@ -34,7 +32,6 @@ class Tile {
     yTr2 *= -1; // The y axis gets positive going down, so we flip it.
     double yPos = yTr1 + yTr2 - ySize;
     position = Vector2(xPos, yPos);
-    type = Rect.zero;
   }
 
   setHexagon(Hexagon hexagonTile) {
