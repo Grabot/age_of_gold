@@ -7,6 +7,7 @@ import '../component/tile.dart';
 
 Future getHexagons(List<List<Tile?>> tiles, int rotate, HexagonList hexagonList) async {
 
+  // TODO: Possibly outdated
   int qRot = 0;
   int rRot = 0;
   int sRot = 0;
@@ -14,23 +15,22 @@ Future getHexagons(List<List<Tile?>> tiles, int rotate, HexagonList hexagonList)
   int hexQ = qRot + (hexagonList.hexagons.length / 2).ceil();
   int hexR = rRot + (hexagonList.hexagons[0].length / 2).ceil();
 
-  SpriteBatch baseBatch = await SpriteBatch.load('flat_base.png');
-  SpriteBatch variationBatch1 = await SpriteBatch.load('flat_variation_1.png');
-
   Hexagon hexagon = createHexagon(hexQ, hexR,
-      tiles, qRot, rRot, sRot, hexagonList.radius, rotate, baseBatch, variationBatch1);
-  hexagon.updateHexagon(0, 0);
+      tiles, qRot, rRot, sRot, hexagonList.radius, rotate);
+  hexagon.updateHexagon(0);
   hexagonList.hexagons[hexQ][hexR] = hexagon;
 }
 
 
-Hexagon createHexagon(int hexQ, int hexR, List<List<Tile?>> tiles, int q, int r, int s, int radius, int rotate, SpriteBatch batch1, SpriteBatch batch2) {
+Hexagon createHexagon(int hexQ, int hexR, List<List<Tile?>> tiles, int q, int r, int s, int radius, int rotate) {
+
+  // TODO: Possibly outdated
   int qArray = q + (tiles.length / 2).ceil();
   int rArray = r + (tiles[0].length / 2).ceil();
   Tile? centerTile = tiles[qArray][rArray];
   int sArray = centerTile!.s;
 
-  Hexagon hexagon = Hexagon(batch1, batch2, centerTile.getPos(rotate), rotate, hexQ, hexR);
+  Hexagon hexagon = Hexagon(0, centerTile.getPos(rotate), rotate, hexQ, hexR);
   for (int qTile = -radius; qTile <= radius; qTile++) {
     for (int rTile = -radius; rTile <= radius; rTile++) {
 
@@ -41,7 +41,7 @@ Hexagon createHexagon(int hexQ, int hexR, List<List<Tile?>> tiles, int q, int r,
 
         if (tile != null) {
           if ((sArray - tile.s) >= -radius && (sArray - tile.s) <= radius) {
-            hexagon.addTileToHexagon(tile);
+            hexagon.addTile(tile);
             tile.setHexagon(hexagon);
           }
         }

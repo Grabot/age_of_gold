@@ -6,21 +6,33 @@ import 'package:flame/sprite.dart';
 
 class Hexagon {
 
+  late int hexagonId;
+
   late int rotation;
 
   late Vector2 center;
 
-  late SpriteBatch batchBase;
-  late SpriteBatch batchBaseVariation1;
+  SpriteBatch? batchBase;
+  SpriteBatch? batchBaseVariation1;
 
   List<Tile> hexagonTiles = [];
 
   late int hexQArray;
   late int hexRArray;
+  late int hexSArray;
 
-  Hexagon(this.batchBase, this.batchBaseVariation1, this.center, this.rotation, this.hexQArray, this.hexRArray);
+  Hexagon(this.hexagonId, this.center, this.rotation, this.hexQArray, this.hexRArray) {
+    SpriteBatch.load('flat_base.png').then((SpriteBatch batch) {
+      batchBase = batch;
+    });
+    SpriteBatch.load('flat_variation_1.png').then((SpriteBatch batch) {
+      batchBaseVariation1 = batch;
+    });
 
-  addTileToHexagon(Tile tile) {
+    hexSArray = (hexQArray + hexRArray) * -1;
+  }
+
+  addTile(Tile tile) {
     hexagonTiles.add(tile);
   }
 
@@ -29,14 +41,18 @@ class Hexagon {
     hexagonTiles.sort((a, b) => a.getPos(rotation).y.compareTo(b.getPos(rotation).y));
   }
 
-  updateHexagon(int rotate, int variation) {
-    batchBase.clear();
-    for (Tile tile in hexagonTiles) {
-      tile.updateBaseTile(batchBase, rotate);
+  updateHexagon(int rotate) {
+    if (batchBase != null) {
+      batchBase!.clear();
+      for (Tile tile in hexagonTiles) {
+        tile.updateBaseTile(batchBase!, rotate);
+      }
     }
-    batchBaseVariation1.clear();
-    for (Tile tile in hexagonTiles) {
-      tile.updateBaseVariation1(batchBaseVariation1, rotate);
+    if (batchBaseVariation1 != null) {
+      batchBaseVariation1!.clear();
+      for (Tile tile in hexagonTiles) {
+        tile.updateBaseVariation1(batchBaseVariation1!, rotate);
+      }
     }
   }
 
@@ -45,9 +61,13 @@ class Hexagon {
   }
 
   renderHexagon(Canvas canvas, int variation) {
-    batchBase.render(canvas, blendMode: BlendMode.srcOver);
+    if (batchBase != null) {
+      batchBase!.render(canvas, blendMode: BlendMode.srcOver);
+    }
     if (variation == 1) {
-      batchBaseVariation1.render(canvas, blendMode: BlendMode.srcOver);
+      if (batchBaseVariation1 != null) {
+        batchBaseVariation1!.render(canvas, blendMode: BlendMode.srcOver);
+      }
     }
   }
 
@@ -57,14 +77,19 @@ class Hexagon {
 
 
   Hexagon.fromJson(data) {
-    // Fix spritebatches, maybe turn them to Futures?
-    // batchBase = SpriteBatch.load('flat_base.png');
-    // batchBaseVariation1 = SpriteBatch.load('flat_variation_1.png');
+    SpriteBatch.load('flat_base.png').then((SpriteBatch batch) {
+      batchBase = batch;
+      updateHexagon(0);
+    });
+    SpriteBatch.load('flat_variation_1.png').then((SpriteBatch batch) {
+      batchBaseVariation1 = batch;
+      updateHexagon(0);
+    });
+    hexagonId = data['id'];
     center = Vector2(0, 0);
     rotation = 0;
-    print("creating hexagon from json ${data['q']} ${data['r']}");
+    print("creating hexagon from json with id: $hexagonId and q: ${data['q']} and r: ${data['r']}");
     hexQArray = data['q'];
     hexRArray = data['r'];
-    print("batchBaseVariation1: $batchBaseVariation1");
   }
 }

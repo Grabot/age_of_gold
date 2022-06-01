@@ -3,6 +3,7 @@ import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 import '../component/hexagon.dart';
 import '../component/tile.dart';
+import '../component/type/grass_tile.dart';
 import '../constants/base_url.dart';
 import 'hexagon_list.dart';
 
@@ -99,13 +100,22 @@ class SocketServices extends ChangeNotifier {
   addHexagon(data) {
     Hexagon hexagon = Hexagon.fromJson(data);
     for (var tileData in data["tiles"]) {
-      // TODO: make sure the q, r, s are correct
-      Tile tile = Tile(
+      GrassTile tile = GrassTile(
+          tileData["id"],
           tileData["q"],
           tileData["r"],
-          tileData["s"],
           tileData["type"]
       );
+      hexagon.addTile(tile);
     }
+    int qHalf = (hexagonList.hexagons.length / 2).floor();
+    int rHalf = (hexagonList.hexagons.length / 2).floor();
+    hexagonList.hexagons[qHalf][rHalf] = hexagon;
+
+    int hexQ = (hexagonList.hexagons.length / 2).ceil();
+    int hexR = (hexagonList.hexagons[0].length / 2).ceil();
+
+    hexagon.updateHexagon(0);
+    hexagonList.hexagons[hexQ][hexR] = hexagon;
   }
 }

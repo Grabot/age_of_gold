@@ -1,16 +1,15 @@
 import 'dart:math';
-import 'dart:ui';
+
 import 'package:age_of_gold/component/hexagon.dart';
 import 'package:flame/components.dart';
 import 'package:flame/extensions.dart';
 import 'package:flame/sprite.dart';
 
-import 'get_texture.dart';
+import '../util/global.dart';
 
 class Tile {
 
-  double xSize = 17;
-  double ySize = 8;
+  late int tileId;
 
   late Vector2 position;
   late int q;
@@ -24,7 +23,7 @@ class Tile {
   Hexagon? hexagon;
 
   // We assume the condition r + s + q = 0 is true.
-  Tile(this.q, this.r, this.s, this.tileType) {
+  Tile(this.tileId, this.q, this.r, this.tileType) {
     double xPos = xSize * 3 / 2 * q - xSize;
     double yTr1 = ySize * (sqrt(3) / 2 * q);
     yTr1 *= -1; // The y axis gets positive going down, so we flip it.
@@ -32,6 +31,8 @@ class Tile {
     yTr2 *= -1; // The y axis gets positive going down, so we flip it.
     double yPos = yTr1 + yTr2 - ySize;
     position = Vector2(xPos, yPos);
+
+    s = (q + r) * -1;
   }
 
   setHexagon(Hexagon hexagonTile) {
@@ -77,5 +78,14 @@ class Tile {
 
   updateBaseVariation1(SpriteBatch batchVariation1, int rotate) {
 
+  }
+
+  Tile.fromJson(data) {
+    tileId = data['id'];
+    position = Vector2(0, 0);
+
+    q = data['q'];
+    r = data['r'];
+    s = (q + r) * -1;
   }
 }
