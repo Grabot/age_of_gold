@@ -13,10 +13,13 @@ renderHexagons(Canvas canvas, Vector2 camera, HexagonList hexagonList, Rect scre
   int r = tileProperties[1];
   int s = tileProperties[2];
 
-  int qHalf = (hexagonList.hexagons.length / 2).floor();
-  int rHalf = (hexagonList.hexagons.length / 2).floor();
-  Hexagon? cameraHexagon = hexagonList.hexagons[qHalf][rHalf];
-  if (cameraHexagon != null) {
-    cameraHexagon.renderHexagon(canvas, variation);
+  int qHalf = (hexagonList.tiles.length / 2).floor();
+  int rHalf = (hexagonList.tiles.length / 2).floor();
+  Tile? cameraTile = hexagonList.tiles[qHalf + q][rHalf + r];
+  if (cameraTile != null) {
+    Hexagon? cameraHexagon = cameraTile.hexagon;
+    if (cameraHexagon != null) {
+      cameraHexagon.renderHexagon(canvas, variation);
+    }
   }
 }

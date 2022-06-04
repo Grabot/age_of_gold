@@ -15,7 +15,6 @@ class HexagonList {
   late List<List<Tile?>> tiles;
   late List<List<Hexagon?>> hexagons;
   late SocketServices socketServices;
-  int radius = 4;
 
   HexagonList._internal() {
 
@@ -44,6 +43,12 @@ class HexagonList {
   retrieveHexagons() {
     print("going to retrieve a hexagon");
     socketServices.getHexagon(0, 0, 0);
+    socketServices.getHexagon(9, -4, -5);
+    socketServices.getHexagon(4, 5, -9);
+    socketServices.getHexagon(-5, 9, -4);
+    socketServices.getHexagon(5, -9, 4);
+    socketServices.getHexagon(-4, -5, 9);
+    socketServices.getHexagon(-9, 4, 5);
   }
 
   socketListener() {

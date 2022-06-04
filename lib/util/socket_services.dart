@@ -99,6 +99,8 @@ class SocketServices extends ChangeNotifier {
 
   addHexagon(data) {
     Hexagon hexagon = Hexagon.fromJson(data);
+    int tileQ = (hexagonList.tiles.length / 2).ceil();
+    int tileR = (hexagonList.tiles[0].length / 2).ceil();
     for (var tileData in data["tiles"]) {
       GrassTile tile = GrassTile(
           tileData["id"],
@@ -107,15 +109,12 @@ class SocketServices extends ChangeNotifier {
           tileData["type"]
       );
       hexagon.addTile(tile);
+      hexagonList.tiles[tileQ + tile.q][tileR + tile.r] = tile;
     }
-    int qHalf = (hexagonList.hexagons.length / 2).floor();
-    int rHalf = (hexagonList.hexagons.length / 2).floor();
-    hexagonList.hexagons[qHalf][rHalf] = hexagon;
-
     int hexQ = (hexagonList.hexagons.length / 2).ceil();
     int hexR = (hexagonList.hexagons[0].length / 2).ceil();
 
     hexagon.updateHexagon(0);
-    hexagonList.hexagons[hexQ][hexR] = hexagon;
+    hexagonList.hexagons[hexQ + hexagon.hexQArray][hexR + hexagon.hexRArray] = hexagon;
   }
 }

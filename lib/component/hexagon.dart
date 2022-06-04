@@ -34,6 +34,7 @@ class Hexagon {
 
   addTile(Tile tile) {
     hexagonTiles.add(tile);
+    tile.hexagon = this;
   }
 
   // We sort it on the y axis, so they are drawn from the top down.

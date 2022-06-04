@@ -4,6 +4,7 @@ import 'package:age_of_gold/component/tile.dart';
 import 'package:age_of_gold/util/hexagon_list.dart';
 import 'package:flame/sprite.dart';
 import '../component/tile.dart';
+import 'global.dart';
 
 Future getHexagons(List<List<Tile?>> tiles, int rotate, HexagonList hexagonList) async {
 
@@ -15,14 +16,13 @@ Future getHexagons(List<List<Tile?>> tiles, int rotate, HexagonList hexagonList)
   int hexQ = qRot + (hexagonList.hexagons.length / 2).ceil();
   int hexR = rRot + (hexagonList.hexagons[0].length / 2).ceil();
 
-  Hexagon hexagon = createHexagon(hexQ, hexR,
-      tiles, qRot, rRot, sRot, hexagonList.radius, rotate);
+  Hexagon hexagon = createHexagon(hexQ, hexR, tiles, qRot, rRot, sRot, rotate);
   hexagon.updateHexagon(0);
   hexagonList.hexagons[hexQ][hexR] = hexagon;
 }
 
 
-Hexagon createHexagon(int hexQ, int hexR, List<List<Tile?>> tiles, int q, int r, int s, int radius, int rotate) {
+Hexagon createHexagon(int hexQ, int hexR, List<List<Tile?>> tiles, int q, int r, int s, int rotate) {
 
   // TODO: Possibly outdated
   int qArray = q + (tiles.length / 2).ceil();
