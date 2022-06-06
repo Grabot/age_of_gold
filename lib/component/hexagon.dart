@@ -21,6 +21,13 @@ class Hexagon {
   late int hexRArray;
   late int hexSArray;
 
+  Hexagon? left;
+  Hexagon? right;
+  Hexagon? topLeft;
+  Hexagon? topRight;
+  Hexagon? bottomLeft;
+  Hexagon? bottomRight;
+
   Hexagon(this.hexagonId, this.center, this.rotation, this.hexQArray, this.hexRArray) {
     SpriteBatch.load('flat_base.png').then((SpriteBatch batch) {
       batchBase = batch;

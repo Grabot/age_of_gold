@@ -108,13 +108,14 @@ class SocketServices extends ChangeNotifier {
           tileData["r"],
           tileData["type"]
       );
+      tile.hexagon = hexagon;
       hexagon.addTile(tile);
       hexagonList.tiles[tileQ + tile.q][tileR + tile.r] = tile;
     }
-    // int hexQ = (hexagonList.hexagons.length / 2).ceil();
-    // int hexR = (hexagonList.hexagons[0].length / 2).ceil();
+    int hexQ = (hexagonList.hexagons.length / 2).ceil();
+    int hexR = (hexagonList.hexagons[0].length / 2).ceil();
 
     hexagon.updateHexagon(0);
-    hexagonList.hexagons[hexagon.hexQArray] = hexagon;
+    hexagonList.hexagons[hexQ + hexagon.hexQArray][hexR + hexagon.hexRArray] = hexagon;
   }
 }

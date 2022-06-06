@@ -2,7 +2,6 @@ import 'package:age_of_gold/component/hexagon.dart';
 import 'package:age_of_gold/component/tile.dart';
 import 'package:age_of_gold/component/type/grass_tile.dart';
 import 'package:age_of_gold/util/socket_services.dart';
-import 'package:age_of_gold/util/tile_positions.dart';
 import 'package:flame/components.dart';
 
 import '../component/type/dirt_tile.dart';
@@ -13,7 +12,7 @@ class HexagonList {
   static final HexagonList _instance = HexagonList._internal();
 
   late List<List<Tile?>> tiles;
-  late List<Hexagon?> hexagons;
+  late List<List<Hexagon?>> hexagons;
   late SocketServices socketServices;
 
   int currentQ = 0;
@@ -32,11 +31,12 @@ class HexagonList {
         1000,
             (_) => List.filled(1000, null, growable: true),
         growable: true);
-    // TODO: Find a better way to store hexagons?
-    hexagons = List.filled(250, null, growable: true);
+    hexagons = List.generate(
+        250,
+            (_) => List.filled(250, null, growable: true),
+        growable: true);
 
     retrieveHexagons();
-    // getHexagons(tiles, 0, this);
   }
 
   factory HexagonList() {
@@ -46,12 +46,12 @@ class HexagonList {
   retrieveHexagons() {
     print("going to retrieve a hexagon");
     socketServices.getHexagon(0, 0, 0);
-    socketServices.getHexagon(9, -4, -5);
-    socketServices.getHexagon(4, 5, -9);
-    socketServices.getHexagon(-5, 9, -4);
-    socketServices.getHexagon(5, -9, 4);
-    socketServices.getHexagon(-4, -5, 9);
-    socketServices.getHexagon(-9, 4, 5);
+    socketServices.getHexagon(1, 0, -1);
+    // socketServices.getHexagon(1, -1, 0);
+    // socketServices.getHexagon(0, -1, 1);
+    // socketServices.getHexagon(0, 1, -1);
+    // socketServices.getHexagon(-1, 1, 0);
+    socketServices.getHexagon(-1, 0, 1);
   }
 
   socketListener() {
