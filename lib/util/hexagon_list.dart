@@ -16,6 +16,12 @@ class HexagonList {
   late List<List<Hexagon?>> hexagons;
   late SocketServices socketServices;
 
+  int currentQ = 0;
+  int currentR = 0;
+
+  int qOffset = 0;
+  int rOffset = 0;
+
   HexagonList._internal() {
 
     socketServices = SocketServices();
@@ -24,13 +30,12 @@ class HexagonList {
     List<List<int>> worldDetail = worldDetailSmall;
     tiles = List.generate(
         1000,
-            (_) => List.filled(1000, null),
-        growable: false);
-
+            (_) => List.filled(1000, null, growable: true),
+        growable: true);
     hexagons = List.generate(
         250,
             (_) => List.filled(250, null),
-        growable: false);
+        growable: true);
 
     retrieveHexagons();
     // getHexagons(tiles, 0, this);
