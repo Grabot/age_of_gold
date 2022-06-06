@@ -1,11 +1,11 @@
 import 'dart:ui';
 import 'package:age_of_gold/component/tile.dart';
+import 'package:age_of_gold/util/global.dart';
 import 'package:age_of_gold/util/hexagon_list.dart';
 import 'package:age_of_gold/util/tapped_map.dart';
 import 'package:flame/components.dart';
 
 import '../component/hexagon.dart';
-import 'package:matrix2d/matrix2d.dart';
 
 renderHexagons(Canvas canvas, Vector2 camera, HexagonList hexagonList, Rect screen, int rotate, int variation) {
 
@@ -15,15 +15,18 @@ renderHexagons(Canvas canvas, Vector2 camera, HexagonList hexagonList, Rect scre
   int s = tileProperties[2];
   if (q != hexagonList.currentQ) {
     int qDiff = (q - hexagonList.currentQ);
-    print("qDiff: $qDiff");
-    if (qDiff == 1 || qDiff == -1) {
-      if (q - hexagonList.currentQ == -1) {
-        hexagonList.tiles.removeAt(hexagonList.tiles.length - 1);
+    if (qDiff == tileOffset || qDiff == -tileOffset) {
+      List<List<Tile?>> newTiles = [];
+      for (int i = 0; i < tileOffset; i++) {
+        newTiles.add(List.filled(hexagonList.tiles.length, null, growable: true));
+      }
+      if (qDiff == -tileOffset) {
+        hexagonList.tiles.removeRange(hexagonList.tiles.length - (tileOffset + 1), hexagonList.tiles.length - 1);
         // We fill it with empty values first, once they are retrieved these entries are filled
-        hexagonList.tiles.insert(0, List.filled(hexagonList.tiles.length + 1, null, growable: true));
-      } else if (q - hexagonList.currentQ == 1) {
-        hexagonList.tiles.removeAt(0);
-        hexagonList.tiles.insert(hexagonList.tiles.length, List.filled(hexagonList.tiles.length + 1, null, growable: true));
+        hexagonList.tiles.insertAll(0, newTiles);
+      } else if (qDiff == tileOffset) {
+        hexagonList.tiles.removeRange(0, tileOffset);
+        hexagonList.tiles.insertAll(hexagonList.tiles.length, newTiles);
       } else {
         print("something went wrong! q");
       }
@@ -35,17 +38,20 @@ renderHexagons(Canvas canvas, Vector2 camera, HexagonList hexagonList, Rect scre
   }
   if (r != hexagonList.currentR) {
     int rDiff = (r - hexagonList.currentR);
-    print("rDiff: $rDiff");
-    if (rDiff == 1 || rDiff == -1) {
-      if (r - hexagonList.currentR == -1) {
+    if (rDiff == tileOffset || rDiff == -tileOffset) {
+      List<Tile?> newTiles = [];
+      for (int i = 0; i < tileOffset; i++) {
+        newTiles.add(null);
+      }
+      if (rDiff == -tileOffset) {
         for (int i = 0; i < hexagonList.tiles.length; i++) {
-          hexagonList.tiles[i].insert(0, null);
-          hexagonList.tiles[i].removeAt(hexagonList.tiles[i].length - 1);
+          hexagonList.tiles[i].removeRange(hexagonList.tiles[i].length - (tileOffset + 1), hexagonList.tiles[i].length - 1);
+          hexagonList.tiles[i].insertAll(0, newTiles);
         }
-      } else if (r - hexagonList.currentR == 1) {
+      } else if (rDiff == tileOffset) {
         for (int i = 0; i < hexagonList.tiles.length; i++) {
-          hexagonList.tiles[i].insert(hexagonList.tiles[i].length - 1, null);
-          hexagonList.tiles[i].removeAt(0);
+          hexagonList.tiles[i].removeRange(0, tileOffset);
+          hexagonList.tiles[i].insertAll(hexagonList.tiles[i].length - 1, newTiles);
         }
       } else {
         print("something went wrong! r");
@@ -55,7 +61,6 @@ renderHexagons(Canvas canvas, Vector2 camera, HexagonList hexagonList, Rect scre
     } else {
       hexagonList.rOffset = rDiff;
     }
-    // print("current R: ${hexagonList.currentR}");
   }
 
   int qHalf = (hexagonList.tiles.length / 2).floor();
