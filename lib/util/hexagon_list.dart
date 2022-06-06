@@ -13,7 +13,7 @@ class HexagonList {
   static final HexagonList _instance = HexagonList._internal();
 
   late List<List<Tile?>> tiles;
-  late List<List<Hexagon?>> hexagons;
+  late List<Hexagon?> hexagons;
   late SocketServices socketServices;
 
   int currentQ = 0;
@@ -32,10 +32,8 @@ class HexagonList {
         1000,
             (_) => List.filled(1000, null, growable: true),
         growable: true);
-    hexagons = List.generate(
-        250,
-            (_) => List.filled(250, null),
-        growable: true);
+    // TODO: Find a better way to store hexagons?
+    hexagons = List.filled(250, null, growable: true);
 
     retrieveHexagons();
     // getHexagons(tiles, 0, this);

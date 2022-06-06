@@ -13,6 +13,21 @@ renderHexagons(Canvas canvas, Vector2 camera, HexagonList hexagonList, Rect scre
   int q = tileProperties[0];
   int r = tileProperties[1];
   int s = tileProperties[2];
+
+  checkOffset(q, r, hexagonList);
+
+  int qHalf = (hexagonList.tiles.length / 2).floor();
+  int rHalf = (hexagonList.tiles.length / 2).floor();
+  Tile? cameraTile = hexagonList.tiles[qHalf + hexagonList.qOffset][rHalf + hexagonList.rOffset];
+  if (cameraTile != null) {
+    Hexagon? cameraHexagon = cameraTile.hexagon;
+    if (cameraHexagon != null) {
+      cameraHexagon.renderHexagon(canvas, variation);
+    }
+  }
+}
+
+checkOffset(int q, int r, HexagonList hexagonList) {
   if (q != hexagonList.currentQ) {
     int qDiff = (q - hexagonList.currentQ);
     if (qDiff == tileOffset || qDiff == -tileOffset) {
@@ -60,16 +75,6 @@ renderHexagons(Canvas canvas, Vector2 camera, HexagonList hexagonList, Rect scre
       hexagonList.rOffset = 0;
     } else {
       hexagonList.rOffset = rDiff;
-    }
-  }
-
-  int qHalf = (hexagonList.tiles.length / 2).floor();
-  int rHalf = (hexagonList.tiles.length / 2).floor();
-  Tile? cameraTile = hexagonList.tiles[qHalf + hexagonList.qOffset][rHalf + hexagonList.rOffset];
-  if (cameraTile != null) {
-    Hexagon? cameraHexagon = cameraTile.hexagon;
-    if (cameraHexagon != null) {
-      cameraHexagon.renderHexagon(canvas, variation);
     }
   }
 }
