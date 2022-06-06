@@ -23,6 +23,31 @@ renderHexagons(Canvas canvas, Vector2 camera, HexagonList hexagonList, Rect scre
     Hexagon? cameraHexagon = cameraTile.hexagon;
     if (cameraHexagon != null) {
       cameraHexagon.renderHexagon(canvas, variation);
+      // Debug for testing neighbour hexagons
+      Hexagon? leftHexagon = cameraHexagon.left;
+      if (leftHexagon != null) {
+        leftHexagon.renderHexagon(canvas, variation);
+      }
+      Hexagon? rightHexagon = cameraHexagon.right;
+      if (rightHexagon != null) {
+        rightHexagon.renderHexagon(canvas, variation);
+      }
+      Hexagon? topRight = cameraHexagon.topRight;
+      if (topRight != null) {
+        topRight.renderHexagon(canvas, variation);
+      }
+      Hexagon? bottomLeft = cameraHexagon.bottomLeft;
+      if (bottomLeft != null) {
+        bottomLeft.renderHexagon(canvas, variation);
+      }
+      Hexagon? topLeft = cameraHexagon.topLeft;
+      if (topLeft != null) {
+        topLeft.renderHexagon(canvas, variation);
+      }
+      Hexagon? bottomRight = cameraHexagon.bottomRight;
+      if (bottomRight != null) {
+        bottomRight.renderHexagon(canvas, variation);
+      }
     }
   }
 }

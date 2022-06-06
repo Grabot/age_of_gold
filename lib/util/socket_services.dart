@@ -117,5 +117,46 @@ class SocketServices extends ChangeNotifier {
 
     hexagon.updateHexagon(0);
     hexagonList.hexagons[hexQ + hexagon.hexQArray][hexR + hexagon.hexRArray] = hexagon;
+    // check if the left hexagon is initialized and if it does not have it's right hexagon initialized
+    if (hexagonList.hexagons[hexQ + hexagon.hexQArray - 1][hexR + hexagon.hexRArray] != null
+        && hexagonList.hexagons[hexQ + hexagon.hexQArray - 1][hexR + hexagon.hexRArray]!.right == null) {
+      // If that is the case than set these two hexagons as neighbors
+      hexagonList.hexagons[hexQ + hexagon.hexQArray - 1][hexR + hexagon.hexRArray]!.right = hexagon;
+      hexagon.left = hexagonList.hexagons[hexQ + hexagon.hexQArray - 1][hexR + hexagon.hexRArray];
+    }
+    // check if the right hexagon is initialized and if it does not have it's left hexagon initialized
+    if (hexagonList.hexagons[hexQ + hexagon.hexQArray + 1][hexR + hexagon.hexRArray] != null
+        && hexagonList.hexagons[hexQ + hexagon.hexQArray + 1][hexR + hexagon.hexRArray]!.left == null) {
+      hexagonList.hexagons[hexQ + hexagon.hexQArray + 1][hexR + hexagon.hexRArray]!.left = hexagon;
+      hexagon.right = hexagonList.hexagons[hexQ + hexagon.hexQArray + 1][hexR + hexagon.hexRArray];
+    }
+    // check if the top right hexagon is initialized and if it does not have it's bottom left hexagon initialized
+    if (hexagonList.hexagons[hexQ + hexagon.hexQArray + 1][hexR + hexagon.hexRArray - 1] != null
+        && hexagonList.hexagons[hexQ + hexagon.hexQArray + 1][hexR + hexagon.hexRArray - 1]!.bottomLeft == null) {
+      // If that is the case than set these two hexagons as neighbors
+      hexagonList.hexagons[hexQ + hexagon.hexQArray + 1][hexR + hexagon.hexRArray - 1]!.bottomLeft = hexagon;
+      hexagon.topRight = hexagonList.hexagons[hexQ + hexagon.hexQArray + 1][hexR + hexagon.hexRArray - 1];
+    }
+    // check if the bottom left hexagon is initialized and if it does not have it's top right hexagon initialized
+    if (hexagonList.hexagons[hexQ + hexagon.hexQArray - 1][hexR + hexagon.hexRArray + 1] != null
+        && hexagonList.hexagons[hexQ + hexagon.hexQArray - 1][hexR + hexagon.hexRArray + 1]!.topRight == null) {
+      // If that is the case than set these two hexagons as neighbors
+      hexagonList.hexagons[hexQ + hexagon.hexQArray - 1][hexR + hexagon.hexRArray + 1]!.topRight = hexagon;
+      hexagon.bottomLeft = hexagonList.hexagons[hexQ + hexagon.hexQArray - 1][hexR + hexagon.hexRArray + 1];
+    }
+    // check if the top left hexagon is initialized and if it does not have it's bottom right hexagon initialized
+    if (hexagonList.hexagons[hexQ + hexagon.hexQArray][hexR + hexagon.hexRArray - 1] != null
+        && hexagonList.hexagons[hexQ + hexagon.hexQArray][hexR + hexagon.hexRArray - 1]!.topLeft == null) {
+      // If that is the case than set these two hexagons as neighbors
+      hexagonList.hexagons[hexQ + hexagon.hexQArray][hexR + hexagon.hexRArray - 1]!.topLeft = hexagon;
+      hexagon.bottomRight = hexagonList.hexagons[hexQ + hexagon.hexQArray][hexR + hexagon.hexRArray - 1];
+    }
+    // check if the bottom right hexagon is initialized and if it does not have it's bottom top left initialized
+    if (hexagonList.hexagons[hexQ + hexagon.hexQArray][hexR + hexagon.hexRArray + 1] != null
+        && hexagonList.hexagons[hexQ + hexagon.hexQArray][hexR + hexagon.hexRArray + 1]!.bottomRight == null) {
+      // If that is the case than set these two hexagons as neighbors
+      hexagonList.hexagons[hexQ + hexagon.hexQArray][hexR + hexagon.hexRArray + 1]!.bottomRight = hexagon;
+      hexagon.topLeft = hexagonList.hexagons[hexQ + hexagon.hexQArray][hexR + hexagon.hexRArray + 1];
+    }
   }
 }
