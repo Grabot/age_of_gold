@@ -28,12 +28,12 @@ class HexagonList {
     socketServices.addListener(socketListener);
     List<List<int>> worldDetail = worldDetailSmall;
     tiles = List.generate(
-        100,
-            (_) => List.filled(100, null, growable: true),
+        1000,
+            (_) => List.filled(1000, null, growable: true),
         growable: true);
     hexagons = List.generate(
-        25,
-            (_) => List.filled(25, null, growable: true),
+        250,
+            (_) => List.filled(250, null, growable: true),
         growable: true);
 
     retrieveHexagons();
@@ -45,13 +45,12 @@ class HexagonList {
 
   retrieveHexagons() {
     print("going to retrieve a hexagon");
-    socketServices.getHexagon(0, 0, 0);
-    socketServices.getHexagon(1, 0, -1);
-    socketServices.getHexagon(1, -1, 0);
-    socketServices.getHexagon(0, -1, 1);
-    socketServices.getHexagon(0, 1, -1);
-    socketServices.getHexagon(-1, 1, 0);
-    socketServices.getHexagon(-1, 0, 1);
+    for (int q = -10; q < 10; q++) {
+      for (int r = -10; r < 10; r++) {
+        int s = (q + r) * -1;
+        socketServices.getHexagon(q, r, s);
+      }
+    }
   }
 
   socketListener() {
