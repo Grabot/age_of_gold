@@ -19,35 +19,80 @@ renderHexagons(Canvas canvas, Vector2 camera, HexagonList hexagonList, Rect scre
   int qHalf = (hexagonList.tiles.length / 2).floor();
   int rHalf = (hexagonList.tiles.length / 2).floor();
   Tile? cameraTile = hexagonList.tiles[qHalf + hexagonList.qOffset][rHalf + hexagonList.rOffset];
-  if (cameraTile != null) {
+    if (cameraTile != null) {
     Hexagon? cameraHexagon = cameraTile.hexagon;
     if (cameraHexagon != null) {
-      cameraHexagon.renderHexagon(canvas, variation);
-      // Debug for testing neighbour hexagons
-      Hexagon? leftHexagon = cameraHexagon.left;
-      if (leftHexagon != null) {
-        leftHexagon.renderHexagon(canvas, variation);
+      Hexagon? currentHexagon = cameraHexagon;
+      bool goingRight = true;
+      // To draw in possibly isometric we draw from top down.
+      // First we go to the top.
+      // double currentX = cameraHexagon.getPos(0).x;
+      double currentY = cameraHexagon.getPos(0).y;
+      while (currentY > screen.top) {
+        if (currentHexagon != null) {
+          currentY = currentHexagon.getPos(0).y;
+          if (goingRight) {
+            currentHexagon = currentHexagon.topRight;
+            goingRight = false;
+          } else {
+            currentHexagon = currentHexagon.topLeft;
+            goingRight = true;
+          }
+        } else {
+          break;
+        }
       }
-      Hexagon? rightHexagon = cameraHexagon.right;
-      if (rightHexagon != null) {
-        rightHexagon.renderHexagon(canvas, variation);
+      if (currentHexagon != null) {
+        currentHexagon.renderHexagon(canvas, variation);
+        goingRight = true;
       }
-      Hexagon? topRight = cameraHexagon.topRight;
-      if (topRight != null) {
-        topRight.renderHexagon(canvas, variation);
+      // We draw all the way back down for the possible isometric stuff.
+      while (currentY < screen.bottom) {
+        if (currentHexagon != null) {
+          currentHexagon.renderHexagon(canvas, variation);
+          // Draw left and draw right
+          drawLeft(canvas, variation, currentHexagon, screen);
+          drawRight(canvas, variation, currentHexagon, screen);
+          currentY = currentHexagon.getPos(0).y;
+          if (goingRight) {
+            currentHexagon = currentHexagon.bottomRight;
+            goingRight = false;
+          } else {
+            currentHexagon = currentHexagon.bottomLeft;
+            goingRight = true;
+          }
+        } else {
+          break;
+        }
       }
-      Hexagon? bottomLeft = cameraHexagon.bottomLeft;
-      if (bottomLeft != null) {
-        bottomLeft.renderHexagon(canvas, variation);
-      }
-      Hexagon? topLeft = cameraHexagon.topLeft;
-      if (topLeft != null) {
-        topLeft.renderHexagon(canvas, variation);
-      }
-      Hexagon? bottomRight = cameraHexagon.bottomRight;
-      if (bottomRight != null) {
-        bottomRight.renderHexagon(canvas, variation);
-      }
+    }
+  }
+}
+
+drawLeft(Canvas canvas, int variation, Hexagon currentHexagon, Rect screen) {
+  double currentLeft = currentHexagon.getPos(0).x;
+  Hexagon? goingLeft = currentHexagon;
+  while (currentLeft > screen.left) {
+    if (goingLeft != null) {
+      goingLeft.renderHexagon(canvas, variation);
+      currentLeft = goingLeft.getPos(0).x;
+      goingLeft = goingLeft.left;
+    } else {
+      break;
+    }
+  }
+}
+
+drawRight(Canvas canvas, int variation, Hexagon currentHexagon, Rect screen) {
+  double currentRight = currentHexagon.getPos(0).x;
+  Hexagon? goingRight = currentHexagon;
+  while (currentRight < screen.right) {
+    if (goingRight != null) {
+      goingRight.renderHexagon(canvas, variation);
+      currentRight = goingRight.getPos(0).x;
+      goingRight = goingRight.right;
+    } else {
+      break;
     }
   }
 }
