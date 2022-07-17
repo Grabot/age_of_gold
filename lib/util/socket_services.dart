@@ -85,7 +85,7 @@ class SocketServices extends ChangeNotifier {
   }
 
   getHexagon(int q, int r, int s) {
-    print("getting hexagon with userId: $userId");
+    // print("getting hexagon with userId: $userId");
     socket.emit(
       "get_hexagon",
       {

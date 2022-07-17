@@ -32,8 +32,8 @@ class HexagonList {
             (_) => List.filled(1000, null, growable: true),
         growable: true);
     hexagons = List.generate(
-        250,
-            (_) => List.filled(250, null, growable: true),
+        22,
+            (_) => List.filled(22, null, growable: true),
         growable: true);
 
     retrieveHexagons();
@@ -44,7 +44,7 @@ class HexagonList {
   }
 
   retrieveHexagons() {
-    print("going to retrieve a hexagon");
+    // socketServices.getHexagon(0, 0, 0);
     for (int q = -10; q < 10; q++) {
       for (int r = -10; r < 10; r++) {
         int s = (q + r) * -1;

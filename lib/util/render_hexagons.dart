@@ -16,53 +16,16 @@ renderHexagons(Canvas canvas, Vector2 camera, HexagonList hexagonList, Rect scre
 
   checkOffset(q, r, hexagonList);
 
-  int qHalf = (hexagonList.tiles.length / 2).floor();
-  int rHalf = (hexagonList.tiles.length / 2).floor();
-  Tile? cameraTile = hexagonList.tiles[qHalf + hexagonList.qOffset][rHalf + hexagonList.rOffset];
-    if (cameraTile != null) {
-    Hexagon? cameraHexagon = cameraTile.hexagon;
-    if (cameraHexagon != null) {
-      Hexagon? currentHexagon = cameraHexagon;
-      bool goingRight = true;
-      // To draw in possibly isometric we draw from top down.
-      // First we go to the top.
-      // double currentX = cameraHexagon.getPos(0).x;
-      double currentY = cameraHexagon.getPos(0).y;
-      while (currentY > screen.top) {
-        if (currentHexagon != null) {
-          currentY = currentHexagon.getPos(0).y;
-          if (goingRight) {
-            currentHexagon = currentHexagon.topRight;
-            goingRight = false;
-          } else {
-            currentHexagon = currentHexagon.topLeft;
-            goingRight = true;
-          }
-        } else {
-          break;
-        }
-      }
+  for (int top = 0; top < hexagonList.hexagons.length - 1; top++) {
+    Hexagon? currentHexagon;
+    for (int right = hexagonList.hexagons.length - 1; right >= 0; right--) {
+      currentHexagon = hexagonList.hexagons[right][top];
       if (currentHexagon != null) {
-        currentHexagon.renderHexagon(canvas, variation);
-        goingRight = true;
-      }
-      // We draw all the way back down for the possible isometric stuff.
-      while (currentY < screen.bottom) {
-        if (currentHexagon != null) {
+        if (currentHexagon.center.x > (screen.left + 100)
+            && currentHexagon.center.x < (screen.right - 200)
+            && currentHexagon.center.y > (screen.top + 100)
+            && currentHexagon.center.y < (screen.bottom - 100)) {
           currentHexagon.renderHexagon(canvas, variation);
-          // Draw left and draw right
-          drawLeft(canvas, variation, currentHexagon, screen);
-          drawRight(canvas, variation, currentHexagon, screen);
-          currentY = currentHexagon.getPos(0).y;
-          if (goingRight) {
-            currentHexagon = currentHexagon.bottomRight;
-            goingRight = false;
-          } else {
-            currentHexagon = currentHexagon.bottomLeft;
-            goingRight = true;
-          }
-        } else {
-          break;
         }
       }
     }
@@ -98,8 +61,12 @@ drawRight(Canvas canvas, int variation, Hexagon currentHexagon, Rect screen) {
 }
 
 checkOffset(int q, int r, HexagonList hexagonList) {
+  // The large hexagons have a q and r defined from -4 to 4, so 9 large
+  // with and height (it will look wider because the tiles are flattened
+  // for possible isometric graphics). 9 is defined in `tileOffset`
   if (q != hexagonList.currentQ) {
     int qDiff = (q - hexagonList.currentQ);
+    // TODO: multiples of tileOffset?
     if (qDiff == tileOffset || qDiff == -tileOffset) {
       List<List<Tile?>> newTiles = [];
       for (int i = 0; i < tileOffset; i++) {

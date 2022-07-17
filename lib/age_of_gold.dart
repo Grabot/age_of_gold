@@ -6,6 +6,7 @@ import 'package:flame/components.dart';
 import 'package:flutter/services.dart';
 import 'package:universal_html/html.dart' as html;
 import 'package:age_of_gold/world/world.dart';
+import 'dart:ui' hide TextStyle;
 
 // flutter run -d chrome --release --web-hostname localhost --web-port 7357
 class AgeOfGold extends FlameGame
@@ -26,12 +27,21 @@ class AgeOfGold extends FlameGame
 
   double frameTimes = 0.0;
   int frames = 0;
+  int fps = 0;
   int variant = 0;
 
   late final World _world;
 
   double maxZoom = 4;
   double minZoom = 1;
+
+  TextPaint textPaint = TextPaint(
+    style: const TextStyle(
+      fontSize: 48.0,
+      fontFamily: 'Awesome Font',
+      color: Colors.white
+    ),
+  );
 
   @override
   Future<void> onLoad() async {
@@ -55,6 +65,7 @@ class AgeOfGold extends FlameGame
   @override
   void render(Canvas canvas) {
     super.render(canvas);
+    textPaint.render(canvas, "Age of Gold!\nFPS: $fps", Vector2(10, 10));
   }
 
 @override
@@ -116,6 +127,7 @@ class AgeOfGold extends FlameGame
       _world.updateVariant(variant);
     }
     if (frameTimes > 1) {
+      fps = frames;
       print("fps: $frames");
       print("cameraPosition: $cameraPosition");
       frameTimes = 0;
