@@ -21,12 +21,12 @@ renderHexagons(Canvas canvas, Vector2 camera, HexagonList hexagonList, Rect scre
     for (int right = hexagonList.hexagons.length - 1; right >= 0; right--) {
       currentHexagon = hexagonList.hexagons[right][top];
       if (currentHexagon != null) {
-        if (currentHexagon.center.x > (screen.left + 100)
-            && currentHexagon.center.x < (screen.right - 200)
-            && currentHexagon.center.y > (screen.top + 100)
-            && currentHexagon.center.y < (screen.bottom - 100)) {
+        // if (currentHexagon.center.x > (screen.left + 100)
+        //     && currentHexagon.center.x < (screen.right - 200)
+        //     && currentHexagon.center.y > (screen.top + 100)
+        //     && currentHexagon.center.y < (screen.bottom - 100)) {
           currentHexagon.renderHexagon(canvas, variation);
-        }
+        // }
       }
     }
   }
@@ -84,6 +84,47 @@ checkOffset(int q, int r, HexagonList hexagonList) {
       }
       hexagonList.currentQ = q;
       hexagonList.qOffset = 0;
+
+      // Offset hexagonlist with 1 (or 2) q
+      int tileQ = (hexagonList.tiles.length / 2).ceil();
+      int tileR = (hexagonList.tiles[0].length / 2).ceil();
+      // We also check the r offset, for the q the offset is 0
+      Tile? hexagonTile = hexagonList.tiles[tileQ + q][tileR + r + hexagonList.rOffset];
+      if (hexagonTile != null) {
+        Hexagon? currentHexagon = hexagonTile.hexagon;
+        if (currentHexagon != null) {
+          int qDiffHex = currentHexagon.hexQArray - hexagonList.currentHexQ;
+          int rDiffHex = currentHexagon.hexRArray - hexagonList.currentHexR;
+          List<Hexagon?> newHexagons = List.filled(hexagonList.hexagons.length, null, growable: true);
+          print("offsetting Q");
+          if (qDiffHex == 2) {
+            print("offsetting Q 2");
+            hexagonList.hexagons.removeAt(0);
+            hexagonList.hexagons.removeAt(0);
+            hexagonList.hexagons.insert(hexagonList.hexagons.length, newHexagons);
+            hexagonList.hexagons.insert(hexagonList.hexagons.length, newHexagons);
+          } else if (qDiffHex == -2) {
+            print("offsetting Q -2");
+            hexagonList.hexagons.removeAt(hexagonList.hexagons.length - 1);
+            hexagonList.hexagons.removeAt(hexagonList.hexagons.length - 1);
+            hexagonList.hexagons.insert(0, newHexagons);
+            hexagonList.hexagons.insert(0, newHexagons);
+          }
+
+          hexagonList.currentHexQ = currentHexagon.hexQArray;
+          hexagonList.qHexOffset = 0;
+        }
+      }
+      // // TODO: The tiles and hexagons are different! Find a conversion thing or check the hexagon from the tile.
+      // List<Hexagon?> newHexagons = List.filled(hexagonList.hexagons.length, null, growable: true);
+      // if (qDiff == -tileOffset) {
+      //   hexagonList.hexagons.removeAt(hexagonList.hexagons.length - 1);
+      //   // We fill it with empty value first, once they are retrieved these entries are filled
+      //   hexagonList.hexagons.insert(0, newHexagons);
+      // } else if (qDiff == tileOffset) {
+      //   hexagonList.hexagons.removeAt(0);
+      //   hexagonList.hexagons.insert(hexagonList.hexagons.length, newHexagons);
+      // }
     } else {
       hexagonList.qOffset = qDiff;
     }
@@ -110,6 +151,60 @@ checkOffset(int q, int r, HexagonList hexagonList) {
       }
       hexagonList.currentR = r;
       hexagonList.rOffset = 0;
+
+      // // Offset hexagonlist with 1 r
+      // print("offsetting R");
+      // // Offset hexagonlist with 1 (or 2) r
+      // int tileQ = (hexagonList.tiles.length / 2).ceil();
+      // int tileR = (hexagonList.tiles[0].length / 2).ceil();
+      // // We also check the r offset, for the r the offset is 0
+      // Tile? hexagonTile = hexagonList.tiles[tileQ + q + hexagonList.qHexOffset][tileR + r];
+      // if (hexagonTile != null) {
+      //   Hexagon? currentHexagon = hexagonTile.hexagon;
+      //   if (currentHexagon != null) {
+      //     int qDiffHex = hexagonList.currentHexQ + currentHexagon.hexQArray;
+      //     int rDiffHex = hexagonList.currentHexR + currentHexagon.hexRArray;
+      //     if (rDiffHex == -1) {
+      //       for (int i = 0; i < hexagonList.hexagons.length; i++) {
+      //         hexagonList.hexagons[i].removeAt(0);
+      //         hexagonList.hexagons[i].insert(hexagonList.hexagons[i].length - 1, null);
+      //       }
+      //     }
+      //     else if (rDiffHex == -2) {
+      //       for (int i = 0; i < hexagonList.hexagons.length; i++) {
+      //         hexagonList.hexagons[i].removeAt(0);
+      //         hexagonList.hexagons[i].removeAt(0);
+      //         hexagonList.hexagons[i].insert(hexagonList.hexagons[i].length - 1, null);
+      //         hexagonList.hexagons[i].insert(hexagonList.hexagons[i].length - 1, null);
+      //       }
+      //     }
+      //     else if (rDiff == 1) {
+      //       for (int i = 0; i < hexagonList.hexagons.length; i++) {
+      //         hexagonList.hexagons[i].removeAt(hexagonList.hexagons[i].length - 1);
+      //         hexagonList.hexagons[i].insert(0, null);
+      //       }
+      //     } else if (rDiff == 2) {
+      //       for (int i = 0; i < hexagonList.hexagons.length; i++) {
+      //         hexagonList.hexagons[i].removeAt(hexagonList.hexagons[i].length - 1);
+      //         hexagonList.hexagons[i].removeAt(hexagonList.hexagons[i].length - 1);
+      //         hexagonList.hexagons[i].insert(0, null);
+      //         hexagonList.hexagons[i].insert(0, null);
+      //       }
+      //     }
+      //   }
+      // }
+      // if (rDiff == -tileOffset) {
+      //   // TODO: It seemed to be good once it's done the other way around from the tiles? Is the tiles wrong? Check this!
+      //   for (int i = 0; i < hexagonList.hexagons.length; i++) {
+      //     hexagonList.hexagons[i].removeAt(0);
+      //     hexagonList.hexagons[i].insert(hexagonList.hexagons[i].length - 1, null);
+      //   }
+      // } else if (rDiff == tileOffset) {
+      //   for (int i = 0; i < hexagonList.hexagons.length; i++) {
+      //     hexagonList.hexagons[i].removeAt(hexagonList.hexagons[i].length - 1);
+      //     hexagonList.hexagons[i].insert(0, null);
+      //   }
+      // }
     } else {
       hexagonList.rOffset = rDiff;
     }

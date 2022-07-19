@@ -21,6 +21,12 @@ class HexagonList {
   int qOffset = 0;
   int rOffset = 0;
 
+  int currentHexQ = 0;
+  int currentHexR = 0;
+
+  int qHexOffset = 0;
+  int rHexOffset = 0;
+
   HexagonList._internal() {
 
     socketServices = SocketServices();
@@ -32,8 +38,8 @@ class HexagonList {
             (_) => List.filled(1000, null, growable: true),
         growable: true);
     hexagons = List.generate(
-        22,
-            (_) => List.filled(22, null, growable: true),
+        10,
+            (_) => List.filled(10, null, growable: true),
         growable: true);
 
     retrieveHexagons();
@@ -45,10 +51,14 @@ class HexagonList {
 
   retrieveHexagons() {
     // socketServices.getHexagon(0, 0, 0);
-    for (int q = -10; q < 10; q++) {
-      for (int r = -10; r < 10; r++) {
-        int s = (q + r) * -1;
-        socketServices.getHexagon(q, r, s);
+    int tileQ = (hexagons.length / 2).ceil();
+    int tileR = (hexagons[0].length / 2).ceil();
+    for (int q = 0; q < hexagons.length - 1; q++) {
+      for (int r = 0; r < hexagons[0].length - 1; r++) {
+        int q_2 = q - tileQ;
+        int r_2 = r - tileR;
+        int s = (q_2 + r_2) * -1;
+        socketServices.getHexagon(q_2, r_2, s);
       }
     }
   }
