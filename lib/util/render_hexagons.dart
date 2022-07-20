@@ -2,19 +2,20 @@ import 'dart:ui';
 import 'package:age_of_gold/component/tile.dart';
 import 'package:age_of_gold/util/global.dart';
 import 'package:age_of_gold/util/hexagon_list.dart';
+import 'package:age_of_gold/util/socket_services.dart';
 import 'package:age_of_gold/util/tapped_map.dart';
 import 'package:flame/components.dart';
 
 import '../component/hexagon.dart';
 
-renderHexagons(Canvas canvas, Vector2 camera, HexagonList hexagonList, Rect screen, int rotate, int variation) {
+renderHexagons(Canvas canvas, Vector2 camera, HexagonList hexagonList, Rect screen, int rotate, int variation, SocketServices socketServices) {
 
   List<int> tileProperties = getTileFromPos(camera.x, camera.y, 0);
   int q = tileProperties[0];
   int r = tileProperties[1];
   int s = tileProperties[2];
 
-  checkOffset(q, r, hexagonList);
+  checkOffset(q, r, hexagonList, socketServices);
 
   for (int top = 0; top < hexagonList.hexagons.length - 1; top++) {
     Hexagon? currentHexagon;
@@ -60,7 +61,7 @@ drawRight(Canvas canvas, int variation, Hexagon currentHexagon, Rect screen) {
   }
 }
 
-checkOffset(int q, int r, HexagonList hexagonList) {
+checkOffset(int q, int r, HexagonList hexagonList, SocketServices socketServices) {
   // The large hexagons have a q and r defined from -4 to 4, so 9 large
   // with and height (it will look wider because the tiles are flattened
   // for possible isometric graphics). 9 is defined in `tileOffset`
@@ -95,24 +96,55 @@ checkOffset(int q, int r, HexagonList hexagonList) {
         if (currentHexagon != null) {
           int qDiffHex = currentHexagon.hexQArray - hexagonList.currentHexQ;
           int rDiffHex = currentHexagon.hexRArray - hexagonList.currentHexR;
-          List<Hexagon?> newHexagons = List.filled(hexagonList.hexagons.length, null, growable: true);
-          print("offsetting Q");
-          if (qDiffHex == 2) {
-            print("offsetting Q 2");
-            hexagonList.hexagons.removeAt(0);
-            hexagonList.hexagons.removeAt(0);
-            hexagonList.hexagons.insert(hexagonList.hexagons.length, newHexagons);
-            hexagonList.hexagons.insert(hexagonList.hexagons.length, newHexagons);
-          } else if (qDiffHex == -2) {
-            print("offsetting Q -2");
-            hexagonList.hexagons.removeAt(hexagonList.hexagons.length - 1);
-            hexagonList.hexagons.removeAt(hexagonList.hexagons.length - 1);
-            hexagonList.hexagons.insert(0, newHexagons);
-            hexagonList.hexagons.insert(0, newHexagons);
-          }
 
+          // We have already calculated the diff. We set the current Q for the new retrieved hexagons
           hexagonList.currentHexQ = currentHexagon.hexQArray;
           hexagonList.qHexOffset = 0;
+
+          print("offsetting Q");
+          if (qDiffHex == 1) {
+            print("offsetting Q 1");
+            hexagonList.hexagons.removeAt(0);
+            hexagonList.hexagons.insert(hexagonList.hexagons.length, List.filled(hexagonList.hexagons.length, null, growable: true));
+
+            int tileQ = (hexagonList.hexagons.length / 2).ceil();
+            int tileR = (hexagonList.hexagons[0].length / 2).ceil();
+            // Retrieve the new hexagons that can be added to the list!
+            for (int rSock = 0; rSock < hexagonList.hexagons.length; rSock ++) {
+              int qNew = hexagonList.hexagons.length - 1 - tileQ + hexagonList.currentHexQ;
+              int rNew = rSock - tileR;
+              int sNew = (qNew + rNew) * -1;
+              socketServices.getHexagon(qNew, rNew, sNew);
+            }
+          } else if (qDiffHex == 2) {
+            print("offsetting Q 2");
+            hexagonList.hexagons.insert(hexagonList.hexagons.length, List.filled(hexagonList.hexagons.length, null, growable: true));
+            hexagonList.hexagons.insert(hexagonList.hexagons.length, List.filled(hexagonList.hexagons.length, null, growable: true));
+            hexagonList.hexagons.removeAt(0);
+            hexagonList.hexagons.removeAt(0);
+            // socketServices.getHexagon(0, 0, 0);
+            int tileQ = (hexagonList.hexagons.length / 2).ceil();
+            int tileR = (hexagonList.hexagons[0].length / 2).ceil();
+            // Retrieve the new hexagons that can be added to the list!
+            for (int rSock = 0; rSock < hexagonList.hexagons.length; rSock ++) {
+              int qNew = hexagonList.hexagons.length - 1 - tileQ + hexagonList.currentHexQ - 1;
+              int rNew = rSock - tileR;
+              int sNew = (qNew + rNew) * -1;
+              socketServices.getHexagon(qNew, rNew, sNew);
+
+              int qNew_2 = hexagonList.hexagons.length - 1 - tileQ + hexagonList.currentHexQ;
+              int rNew_2 = rSock - tileR;
+              int sNew_2 = (qNew_2 + rNew_2) * -1;
+              socketServices.getHexagon(qNew_2, rNew_2, sNew_2);
+            }
+          } else if (qDiffHex == -2) {
+            print("offsetting Q -2");
+            // hexagonList.hexagons.removeAt(hexagonList.hexagons.length - 1);
+            // hexagonList.hexagons.removeAt(hexagonList.hexagons.length - 1);
+            // hexagonList.hexagons.insert(0, newHexagons);
+            // hexagonList.hexagons.insert(0, newHexagons);
+          }
+
         }
       }
       // // TODO: The tiles and hexagons are different! Find a conversion thing or check the hexagon from the tile.

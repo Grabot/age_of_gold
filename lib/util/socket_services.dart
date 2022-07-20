@@ -10,7 +10,6 @@ import 'hexagon_list.dart';
 
 class SocketServices extends ChangeNotifier {
   late IO.Socket socket;
-  late HexagonList hexagonList;
 
   // We will use this to store the user's id, might change it later.
   int userId = -1;
@@ -27,10 +26,6 @@ class SocketServices extends ChangeNotifier {
 
   void setUserId(int id) {
     userId = id;
-  }
-
-  void setHexagonList(HexagonList hexagonList) {
-    this.hexagonList = hexagonList;
   }
 
   startSockConnection() {
@@ -98,6 +93,7 @@ class SocketServices extends ChangeNotifier {
   }
 
   addHexagon(data) {
+    HexagonList hexagonList = HexagonList();
     Hexagon hexagon = Hexagon.fromJson(data);
     int tileQ = (hexagonList.tiles.length / 2).ceil();
     int tileR = (hexagonList.tiles[0].length / 2).ceil();
@@ -123,10 +119,12 @@ class SocketServices extends ChangeNotifier {
     int hexR = (hexagonList.hexagons[0].length / 2).ceil();
 
     hexagon.updateHexagon(0);
-    hexagonList.hexagons[hexQ + hexagon.hexQArray][hexR + hexagon.hexRArray] = hexagon;
+    int qHex = hexQ + hexagon.hexQArray - hexagonList.currentHexQ;
+    int rHex = hexR + hexagon.hexRArray - hexagonList.currentHexR;
+    hexagonList.hexagons[qHex][rHex] = hexagon;
     // check if the left hexagon is initialized and if it does not have it's right hexagon initialized
-    int qHexLeft = hexQ + hexagon.hexQArray - 1;
-    int rHexLeft = hexR + hexagon.hexRArray;
+    int qHexLeft = qHex - 1;
+    int rHexLeft = rHex;
     if (qHexLeft >= 0) {
       if (hexagonList.hexagons[qHexLeft][rHexLeft] != null
           && hexagonList.hexagons[qHexLeft][rHexLeft]!.right == null) {
@@ -136,8 +134,8 @@ class SocketServices extends ChangeNotifier {
       }
     }
     // check if the right hexagon is initialized and if it does not have it's left hexagon initialized
-    int qHexRight = hexQ + hexagon.hexQArray + 1;
-    int rHexRight = hexR + hexagon.hexRArray;
+    int qHexRight = qHex + 1;
+    int rHexRight = rHex;
     if (qHexRight < hexagonList.hexagons.length) {
       if (hexagonList.hexagons[qHexRight][rHexRight] != null
           && hexagonList.hexagons[qHexRight][rHexRight]!.left == null) {
@@ -146,9 +144,9 @@ class SocketServices extends ChangeNotifier {
       }
     }
     // check if the top right hexagon is initialized and if it does not have it's bottom left hexagon initialized
-    int qHexTopRight = hexQ + hexagon.hexQArray + 1;
-    int rHexTopRight = hexR + hexagon.hexRArray - 1;
-    if (rHexTopRight >= 0 && rHexTopRight < hexagonList.hexagons.length) {
+    int qHexTopRight = qHex + 1;
+    int rHexTopRight = rHex - 1;
+    if (rHexTopRight >= 0 && qHexTopRight < hexagonList.hexagons.length) {
       if (hexagonList.hexagons[qHexTopRight][rHexTopRight] != null
           && hexagonList.hexagons[qHexTopRight][rHexTopRight]!.bottomLeft ==
               null) {
@@ -158,8 +156,8 @@ class SocketServices extends ChangeNotifier {
       }
     }
     // check if the bottom left hexagon is initialized and if it does not have it's top right hexagon initialized
-    int qHexBottomLeft = hexQ + hexagon.hexQArray - 1;
-    int rHexBottomLeft = hexR + hexagon.hexRArray + 1;
+    int qHexBottomLeft = qHex - 1;
+    int rHexBottomLeft = rHex + 1;
     if (qHexBottomLeft >= 0 && rHexBottomLeft < hexagonList.hexagons.length) {
       if (hexagonList.hexagons[qHexBottomLeft][rHexBottomLeft] != null &&
           hexagonList.hexagons[qHexBottomLeft][rHexBottomLeft]!.topRight ==
@@ -172,8 +170,8 @@ class SocketServices extends ChangeNotifier {
       }
     }
     // check if the bottom right hexagon is initialized and if it does not have it's bottom top left initialized
-    int qHexBottomRight = hexQ + hexagon.hexQArray;
-    int rHexBottomRight = hexR + hexagon.hexRArray - 1;
+    int qHexBottomRight = qHex;
+    int rHexBottomRight = rHex - 1;
     if (rHexBottomRight >= 0) {
       if (hexagonList.hexagons[qHexBottomRight][rHexBottomRight] != null &&
           hexagonList.hexagons[qHexBottomRight][rHexBottomRight]!.bottomRight ==
@@ -186,8 +184,8 @@ class SocketServices extends ChangeNotifier {
       }
     }
     // check if the top left hexagon is initialized and if it does not have it's bottom right hexagon initialized
-    int qHexTopLeft = hexQ + hexagon.hexQArray;
-    int rHexTopLeft = hexR + hexagon.hexRArray + 1;
+    int qHexTopLeft = qHex;
+    int rHexTopLeft = rHex + 1;
     if (rHexTopLeft < hexagonList.hexagons.length) {
       if (hexagonList.hexagons[qHexTopLeft][rHexTopLeft] != null
           && hexagonList.hexagons[qHexTopLeft][rHexTopLeft]!.topLeft == null) {

@@ -2,6 +2,7 @@ import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import 'package:age_of_gold/util/render_hexagons.dart';
 import '../util/hexagon_list.dart';
+import '../util/socket_services.dart';
 
 class World extends Component {
 
@@ -15,20 +16,27 @@ class World extends Component {
 
   int currentVariant = 0;
 
+  late SocketServices socketServices;
+
   @override
   Future<void> onLoad() async {
     super.onLoad();
 
+    socketServices = SocketServices();
+    socketServices.addListener(socketListener);
+
     rotate = 0;
 
     hexagonList = HexagonList();
+    hexagonList.setSocketService(socketServices);
+    hexagonList.retrieveHexagons();
   }
 
   @override
   void render(Canvas canvas) {
     super.render(canvas);
 
-    renderHexagons(canvas, cameraPosition, hexagonList, screen, rotate, currentVariant);
+    renderHexagons(canvas, cameraPosition, hexagonList, screen, rotate, currentVariant, socketServices);
   }
 
   updateVariant(int variant) {
@@ -49,5 +57,9 @@ class World extends Component {
     double topScreen = cameraPosition.y - (worldSize.y / 2) - borderOffset;
     double bottomScreen = cameraPosition.y + (worldSize.y / 2) + borderOffset - hudBottom;
     screen = Rect.fromLTRB(leftScreen, topScreen, rightScreen, bottomScreen);
+  }
+
+  socketListener() {
+    print("socket listener");
   }
 }

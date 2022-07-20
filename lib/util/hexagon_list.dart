@@ -29,9 +29,6 @@ class HexagonList {
 
   HexagonList._internal() {
 
-    socketServices = SocketServices();
-    socketServices.setHexagonList(this);
-    socketServices.addListener(socketListener);
     List<List<int>> worldDetail = worldDetailSmall;
     tiles = List.generate(
         1000,
@@ -41,29 +38,27 @@ class HexagonList {
         10,
             (_) => List.filled(10, null, growable: true),
         growable: true);
-
-    retrieveHexagons();
   }
 
   factory HexagonList() {
     return _instance;
   }
 
+  setSocketService(SocketServices socketServices) {
+    this.socketServices = socketServices;
+  }
+
   retrieveHexagons() {
     // socketServices.getHexagon(0, 0, 0);
     int tileQ = (hexagons.length / 2).ceil();
     int tileR = (hexagons[0].length / 2).ceil();
-    for (int q = 0; q < hexagons.length - 1; q++) {
-      for (int r = 0; r < hexagons[0].length - 1; r++) {
+    for (int q = 0; q < hexagons.length; q++) {
+      for (int r = 0; r < hexagons[0].length; r++) {
         int q_2 = q - tileQ;
         int r_2 = r - tileR;
         int s = (q_2 + r_2) * -1;
         socketServices.getHexagon(q_2, r_2, s);
       }
     }
-  }
-
-  socketListener() {
-    print("socket listener");
   }
 }
