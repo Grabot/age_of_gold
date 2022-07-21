@@ -38,8 +38,8 @@ class HexagonList {
             (_) => List.filled(1000, null, growable: true),
         growable: true);
     hexagons = List.generate(
-        6,
-            (_) => List.filled(6, null, growable: true),
+        8,
+            (_) => List.filled(8, null, growable: true),
         growable: true);
 
     tileQ = (tiles.length / 2).ceil();
@@ -62,8 +62,7 @@ class HexagonList {
       for (int r = 0; r < hexagons[0].length; r++) {
         int q_2 = q - tileQ;
         int r_2 = r - tileR;
-        int s = (q_2 + r_2) * -1;
-        socketServices.getHexagon(q_2, r_2, s);
+        socketServices.getHexagon(q_2, r_2);
       }
     }
   }

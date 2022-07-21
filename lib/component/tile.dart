@@ -9,7 +9,7 @@ import '../util/global.dart';
 
 class Tile {
 
-  late int tileId;
+  // late int tileId;
 
   late Vector2 position;
   late int q;
@@ -23,7 +23,7 @@ class Tile {
   Hexagon? hexagon;
 
   // We assume the condition r + s + q = 0 is true.
-  Tile(this.tileId, this.q, this.r, this.tileType) {
+  Tile(this.q, this.r, this.tileType) {
     double xPos = xSize * 3 / 2 * q - xSize;
     double yTr1 = ySize * (sqrt(3) / 2 * q);
     yTr1 *= -1; // The y axis gets positive going down, so we flip it.
@@ -81,7 +81,6 @@ class Tile {
   }
 
   Tile.fromJson(data) {
-    tileId = data['id'];
     position = Vector2(0, 0);
 
     q = data['q'];

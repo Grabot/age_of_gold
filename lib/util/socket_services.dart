@@ -83,6 +83,11 @@ class SocketServices extends ChangeNotifier {
       addHexagon(data);
       notifyListeners();
     });
+    socket.on('send_hexagons_success', (data) {
+      print("send_hexagons_success");
+      addHexagons(data);
+      notifyListeners();
+    });
   }
 
   void leaveRoom() {
@@ -93,7 +98,7 @@ class SocketServices extends ChangeNotifier {
     }
   }
 
-  getHexagon(int q, int r, int s) {
+  getHexagon(int q, int r) {
     // print("getting hexagon with userId: $userId");
     addHexagonRetrieve();
     socket.emit(
@@ -101,10 +106,30 @@ class SocketServices extends ChangeNotifier {
       {
         'q': q,
         'r': r,
-        's': s,
         'userId': userId
       },
     );
+  }
+
+  getHexagonsQ(int qBegin, int qEnd, int rRow) {
+    // print("getting hexagon with userId: $userId");
+
+    // addHexagonRetrieve();
+    socket.emit(
+      "get_hexagons_q",
+      {
+        'q_begin': qBegin,
+        'q_end': qEnd,
+        'r_row': rRow,
+        'userId': userId
+      },
+    );
+  }
+
+  addHexagons(data) {
+    for (int i = 0; i < data.length; i++) {
+      addHexagon(data[i]);
+    }
   }
 
   addHexagon(data) {
@@ -115,7 +140,6 @@ class SocketServices extends ChangeNotifier {
     int index = 0;
     for (var tileData in data["tiles"]) {
       GrassTile tile = GrassTile(
-          tileData["id"],
           tileData["q"],
           tileData["r"],
           tileData["type"]

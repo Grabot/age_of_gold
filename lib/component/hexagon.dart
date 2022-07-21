@@ -6,7 +6,7 @@ import 'package:flame/sprite.dart';
 
 class Hexagon {
 
-  late int hexagonId;
+  // late int hexagonId;
 
   late int rotation;
 
@@ -28,7 +28,7 @@ class Hexagon {
   Hexagon? bottomLeft;
   Hexagon? bottomRight;
 
-  Hexagon(this.hexagonId, this.center, this.rotation, this.hexQArray, this.hexRArray) {
+  Hexagon(this.center, this.rotation, this.hexQArray, this.hexRArray) {
     SpriteBatch.load('flat_base.png').then((SpriteBatch batch) {
       batchBase = batch;
     });
@@ -93,10 +93,10 @@ class Hexagon {
       batchBaseVariation1 = batch;
       updateHexagon(0);
     });
-    hexagonId = data['id'];
+
     center = Vector2(0, 0);
     rotation = 0;
-    print("creating hexagon from json with id: $hexagonId and q: ${data['q']} and r: ${data['r']}");
+    print("creating hexagon from json with q: ${data['q']} and r: ${data['r']}");
     hexQArray = data['q'];
     hexRArray = data['r'];
   }

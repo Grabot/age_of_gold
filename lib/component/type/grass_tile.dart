@@ -6,7 +6,7 @@ import '../tile.dart';
 
 class GrassTile extends Tile {
 
-  GrassTile(super.q, super.r, super.s, super.tileType);
+  GrassTile(super.q, super.r, super.tileType);
 
   @override
   updateBaseTile(SpriteBatch baseBatch, int rotate) {
