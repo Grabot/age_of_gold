@@ -38,8 +38,8 @@ class HexagonList {
             (_) => List.filled(1000, null, growable: true),
         growable: true);
     hexagons = List.generate(
-        8,
-            (_) => List.filled(8, null, growable: true),
+        24,
+            (_) => List.filled(24, null, growable: true),
         growable: true);
 
     tileQ = (tiles.length / 2).ceil();
@@ -55,16 +55,53 @@ class HexagonList {
   }
 
   retrieveHexagons() {
-    // socketServices.getHexagon(0, 0, 0);
+    // // Start from the center and retrieve the hexagon outwards
+    // // socketServices.getHexagon(0, 0, 0);
     int tileQ = (hexagons.length / 2).ceil();
     int tileR = (hexagons[0].length / 2).ceil();
-    for (int q = 0; q < hexagons.length; q++) {
-      for (int r = 0; r < hexagons[0].length; r++) {
-        int q_2 = q - tileQ;
-        int r_2 = r - tileR;
-        socketServices.getHexagon(q_2, r_2);
+    int q = 0;
+    int r = 0;
+
+    bool done = false;
+    socketServices.getHexagon(q, r);
+    for (int cycle = 0; cycle < hexagons.length * 2; cycle+=2) {
+      for (int first = 1; first < cycle; first++) {
+        q -= 1;
+        socketServices.getHexagon(q, r);
+      }
+
+      for (int second = 1; second < cycle; second++) {
+        r -= 1;
+        socketServices.getHexagon(q, r);
+      }
+
+      if (q == -tileQ && r == -tileR) {
+        done = true;
+      }
+
+      for (int third = 1; third < cycle + 1; third++) {
+        q += 1;
+        socketServices.getHexagon(q, r);
+        if (done && q == (tileQ - 1)) {
+          return;
+        }
+      }
+
+      for (int fourth = 1; fourth < cycle + 1; fourth++) {
+        r += 1;
+        socketServices.getHexagon(q, r);
       }
     }
+
+    print("test");
+    // }
+    // for (int q = 0; q < hexagons.length; q++) {
+    //   int qNew = q - tileQ;
+    //   int rBegin = 0 - tileR;
+    //   int rEnd = hexagons[0].length - 1 - tileR;
+    //
+    //   socketServices.getHexagonsR(rBegin, rEnd, qNew);
+    // }
   }
 
   Tile? getTileFromCoordinates(int q, int r) {

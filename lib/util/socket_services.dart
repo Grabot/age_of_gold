@@ -54,8 +54,9 @@ class SocketServices extends ChangeNotifier {
     socket.open();
   }
 
-  addHexagonRetrieve() {
-    hexagonsToRetrieve += 1;
+  addHexagonRetrieve(int total) {
+    print("adding $total hexagons");
+    hexagonsToRetrieve += total;
   }
 
   retrievedHexagon() {
@@ -100,7 +101,7 @@ class SocketServices extends ChangeNotifier {
 
   getHexagon(int q, int r) {
     // print("getting hexagon with userId: $userId");
-    addHexagonRetrieve();
+    addHexagonRetrieve(1);
     socket.emit(
       "get_hexagon",
       {
@@ -114,13 +115,28 @@ class SocketServices extends ChangeNotifier {
   getHexagonsQ(int qBegin, int qEnd, int rRow) {
     // print("getting hexagon with userId: $userId");
 
-    // addHexagonRetrieve();
+    addHexagonRetrieve(qEnd - qBegin + 1);
     socket.emit(
       "get_hexagons_q",
       {
         'q_begin': qBegin,
         'q_end': qEnd,
         'r_row': rRow,
+        'userId': userId
+      },
+    );
+  }
+
+  getHexagonsR(int rBegin, int rEnd, int qRow) {
+    // print("getting hexagon with userId: $userId");
+
+    addHexagonRetrieve(rEnd - rBegin + 1);
+    socket.emit(
+      "get_hexagons_r",
+      {
+        'r_begin': rBegin,
+        'r_end': rEnd,
+        'q_row': qRow,
         'userId': userId
       },
     );
