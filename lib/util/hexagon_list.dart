@@ -35,8 +35,8 @@ class HexagonList {
             (_) => List.filled(1000, null, growable: true),
         growable: true);
     hexagons = List.generate(
-        10,
-            (_) => List.filled(10, null, growable: true),
+        20,
+            (_) => List.filled(20, null, growable: true),
         growable: true);
   }
 
