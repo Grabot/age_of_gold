@@ -88,7 +88,8 @@ class AgeOfGold extends FlameGame
 
   @override
   void onTapUp(int pointerId, TapUpInfo info) {
-    print("on tapped up! ${info.eventPosition.global}");
+    Vector2 tapPos = Vector2(info.eventPosition.game.x, info.eventPosition.game.y);
+    _world.onTappedUp(tapPos);
     super.onTapUp(pointerId, info);
   }
 
@@ -165,13 +166,13 @@ class AgeOfGold extends FlameGame
     final isKeyDown = event is RawKeyDownEvent;
 
     if (event.logicalKey == LogicalKeyboardKey.keyA) {
-      dragAccelerateKey.x = isKeyDown ? -10 : 0;
+      dragAccelerateKey.x = isKeyDown ? -5 : 0;
     } else if (event.logicalKey == LogicalKeyboardKey.keyD) {
-      dragAccelerateKey.x = isKeyDown ? 10 : 0;
+      dragAccelerateKey.x = isKeyDown ? 5 : 0;
     } else if (event.logicalKey == LogicalKeyboardKey.keyW) {
-      dragAccelerateKey.y = isKeyDown ? -10 : 0;
+      dragAccelerateKey.y = isKeyDown ? -5 : 0;
     } else if (event.logicalKey == LogicalKeyboardKey.keyS) {
-      dragAccelerateKey.y = isKeyDown ? 10 : 0;
+      dragAccelerateKey.y = isKeyDown ? 5 : 0;
     }
 
     return KeyEventResult.handled;

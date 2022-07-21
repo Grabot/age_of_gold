@@ -27,6 +27,9 @@ class HexagonList {
   int qHexOffset = 0;
   int rHexOffset = 0;
 
+  int tileQ = 0;
+  int tileR = 0;
+
   HexagonList._internal() {
 
     List<List<int>> worldDetail = worldDetailSmall;
@@ -35,9 +38,12 @@ class HexagonList {
             (_) => List.filled(1000, null, growable: true),
         growable: true);
     hexagons = List.generate(
-        20,
-            (_) => List.filled(20, null, growable: true),
+        6,
+            (_) => List.filled(6, null, growable: true),
         growable: true);
+
+    tileQ = (tiles.length / 2).ceil();
+    tileR = (tiles[0].length / 2).ceil();
   }
 
   factory HexagonList() {
@@ -60,5 +66,11 @@ class HexagonList {
         socketServices.getHexagon(q_2, r_2, s);
       }
     }
+  }
+
+  Tile? getTileFromCoordinates(int q, int r) {
+    int qTile = tileQ + q - currentQ;
+    int rTile = tileR + r - currentR;
+    return tiles[qTile][rTile];
   }
 }

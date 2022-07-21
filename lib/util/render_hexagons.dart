@@ -5,6 +5,7 @@ import 'package:age_of_gold/util/hexagon_list.dart';
 import 'package:age_of_gold/util/socket_services.dart';
 import 'package:age_of_gold/util/tapped_map.dart';
 import 'package:flame/components.dart';
+import 'package:flutter/material.dart';
 
 import '../component/hexagon.dart';
 
@@ -29,6 +30,19 @@ renderHexagons(Canvas canvas, Vector2 camera, HexagonList hexagonList, Rect scre
           currentHexagon.renderHexagon(canvas, variation);
         // }
       }
+    }
+  }
+
+  Tile? hexagonTile = hexagonList.getTileFromCoordinates(q, r);
+  if (hexagonTile != null) {
+    Hexagon? currentHexagon = hexagonTile.hexagon;
+    final shapeBounds = Rect.fromLTRB(hexagonTile.getPos(0).x - 10, hexagonTile.getPos(0).y - 10, hexagonTile.getPos(0).x + 10, hexagonTile.getPos(0).y + 10);
+    final paint = Paint()..color = Colors.blue;
+    canvas.drawRect(shapeBounds, paint);
+    if (currentHexagon != null) {
+      final shapeBounds = Rect.fromLTRB(currentHexagon.center.x - 10, currentHexagon.center.y - 10, currentHexagon.center.x + 10, currentHexagon.center.y + 10);
+      final paint = Paint()..color = Colors.red;
+      canvas.drawRect(shapeBounds, paint);
     }
   }
 }
@@ -65,8 +79,6 @@ checkOffset(int q, int r, HexagonList hexagonList, SocketServices socketServices
   // The large hexagons have a q and r defined from -4 to 4, so 9 large
   // with and height (it will look wider because the tiles are flattened
   // for possible isometric graphics). 9 is defined in `tileOffset`
-  int tileQ = (hexagonList.tiles.length / 2).ceil();
-  int tileR = (hexagonList.tiles[0].length / 2).ceil();
 
   bool hexagonOffsetDone = false;
 
@@ -91,21 +103,22 @@ checkOffset(int q, int r, HexagonList hexagonList, SocketServices socketServices
       hexagonList.currentQ = q;
       hexagonList.qOffset = 0;
 
-      // We also check the r offset, for the q the offset is 0
-      Tile? hexagonTile = hexagonList.tiles[tileQ + q][tileR + r + hexagonList.rOffset];
-      if (hexagonTile != null) {
-        Hexagon? currentHexagon = hexagonTile.hexagon;
-        if (currentHexagon != null) {
-          int qDiffHex = currentHexagon.hexQArray - hexagonList.currentHexQ;
-          int rDiffHex = currentHexagon.hexRArray - hexagonList.currentHexR;
+      if (socketServices.canRetrieveHexagons()) {
+        Tile? hexagonTile = hexagonList.getTileFromCoordinates(q, r);
+        if (hexagonTile != null) {
+          Hexagon? currentHexagon = hexagonTile.hexagon;
+          if (currentHexagon != null) {
+            int qDiffHex = currentHexagon.hexQArray - hexagonList.currentHexQ;
+            int rDiffHex = currentHexagon.hexRArray - hexagonList.currentHexR;
 
-          // We have already calculated the diff. We set the current Q and R for the new retrieved hexagons
-          hexagonList.currentHexQ = currentHexagon.hexQArray;
-          hexagonList.currentHexR = currentHexagon.hexRArray;
+            // We have already calculated the diff. We set the current Q and R for the new retrieved hexagons
+            hexagonList.currentHexQ = currentHexagon.hexQArray;
+            hexagonList.currentHexR = currentHexagon.hexRArray;
 
-          checkRDiffHexagons(currentHexagon, rDiffHex, hexagonList, socketServices);
-          checkQDiffHexagons(currentHexagon, qDiffHex, hexagonList, socketServices);
-          hexagonOffsetDone = true;
+            checkRDiffHexagons(currentHexagon, rDiffHex, hexagonList, socketServices);
+            checkQDiffHexagons(currentHexagon, qDiffHex, hexagonList, socketServices);
+            hexagonOffsetDone = true;
+          }
         }
       }
     } else {
@@ -135,21 +148,23 @@ checkOffset(int q, int r, HexagonList hexagonList, SocketServices socketServices
       hexagonList.currentR = r;
       hexagonList.rOffset = 0;
 
-      if (!hexagonOffsetDone) {
-        // We also check the r offset, for the q the offset is 0
-        Tile? hexagonTile = hexagonList.tiles[tileQ + q][tileR + r + hexagonList.rOffset];
-        if (hexagonTile != null) {
-          Hexagon? currentHexagon = hexagonTile.hexagon;
-          if (currentHexagon != null) {
-            int qDiffHex = currentHexagon.hexQArray - hexagonList.currentHexQ;
-            int rDiffHex = currentHexagon.hexRArray - hexagonList.currentHexR;
+      if (socketServices.canRetrieveHexagons()) {
+        if (!hexagonOffsetDone) {
+          Tile? hexagonTile = hexagonList.getTileFromCoordinates(q, r);
+          // Tile? hexagonTile = hexagonList.tiles[tileQ + q + hexagonList.qOffset][tileR + r + hexagonList.rOffset];
+          if (hexagonTile != null) {
+            Hexagon? currentHexagon = hexagonTile.hexagon;
+            if (currentHexagon != null) {
+              int qDiffHex = currentHexagon.hexQArray - hexagonList.currentHexQ;
+              int rDiffHex = currentHexagon.hexRArray - hexagonList.currentHexR;
 
-            // We have already calculated the diff. We set the current Q and R for the new retrieved hexagons
-            hexagonList.currentHexQ = currentHexagon.hexQArray;
-            hexagonList.currentHexR = currentHexagon.hexRArray;
+              // We have already calculated the diff. We set the current Q and R for the new retrieved hexagons
+              hexagonList.currentHexQ = currentHexagon.hexQArray;
+              hexagonList.currentHexR = currentHexagon.hexRArray;
 
-            checkRDiffHexagons(currentHexagon, rDiffHex, hexagonList, socketServices);
-            checkQDiffHexagons(currentHexagon, qDiffHex, hexagonList, socketServices);
+              checkRDiffHexagons(currentHexagon, rDiffHex, hexagonList, socketServices);
+              checkQDiffHexagons(currentHexagon, qDiffHex, hexagonList, socketServices);
+            }
           }
         }
       }
@@ -165,6 +180,7 @@ checkRDiffHexagons(Hexagon currentHexagon, int rDiffHex, HexagonList hexagonList
 
   print("offsetting R $rDiffHex");
   if (rDiffHex > 0) {
+    print("getting positive offset r, current hexagons to retrieve: ${socketServices.hexagonsToRetrieve}");
     // The diff is positive
     for (int i = 0; i < rDiffHex; i++) {
       for (int i = 0; i < hexagonList.hexagons[0].length; i++) {
@@ -181,6 +197,7 @@ checkRDiffHexagons(Hexagon currentHexagon, int rDiffHex, HexagonList hexagonList
       }
     }
   } else if (rDiffHex < 0) {
+    print("getting negative offset r, current hexagons to retrieve: ${socketServices.hexagonsToRetrieve}");
     for (int i = 0; i < rDiffHex * -1; i++) {
       for (int i = 0; i < hexagonList.hexagons[0].length; i++) {
         hexagonList.hexagons[i].removeAt(hexagonList.hexagons[i].length - 1);
@@ -207,6 +224,7 @@ checkQDiffHexagons(Hexagon currentHexagon, int qDiffHex, HexagonList hexagonList
 
   print("offsetting Q $qDiffHex");
   if (qDiffHex > 0) {
+    print("getting positive offset q, current hexagons to retrieve: ${socketServices.hexagonsToRetrieve}");
     // The diff is positive
     for (int i = 0; i < qDiffHex; i++) {
       List<Hexagon?> row = List.filled(hexagonList.hexagons.length, null, growable: true);
@@ -222,6 +240,7 @@ checkQDiffHexagons(Hexagon currentHexagon, int qDiffHex, HexagonList hexagonList
       }
     }
   } else if (qDiffHex < 0) {
+    print("getting negative offset q, current hexagons to retrieve: ${socketServices.hexagonsToRetrieve}");
     for (int i = 0; i < qDiffHex * -1; i++) {
       List<Hexagon?> row = List.filled(hexagonList.hexagons.length, null, growable: true);
       hexagonList.hexagons.insert(0, row);

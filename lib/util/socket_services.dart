@@ -14,6 +14,8 @@ class SocketServices extends ChangeNotifier {
   // We will use this to store the user's id, might change it later.
   int userId = -1;
 
+  int hexagonsToRetrieve = 0;
+
   static final SocketServices _instance = SocketServices._internal();
 
   SocketServices._internal() {
@@ -52,6 +54,18 @@ class SocketServices extends ChangeNotifier {
     socket.open();
   }
 
+  addHexagonRetrieve() {
+    hexagonsToRetrieve += 1;
+  }
+
+  retrievedHexagon() {
+    hexagonsToRetrieve -= 1;
+  }
+
+  canRetrieveHexagons() {
+    return hexagonsToRetrieve == 0;
+  }
+
   void joinRoom() {
     socket.emit(
       "join",
@@ -81,6 +95,7 @@ class SocketServices extends ChangeNotifier {
 
   getHexagon(int q, int r, int s) {
     // print("getting hexagon with userId: $userId");
+    addHexagonRetrieve();
     socket.emit(
       "get_hexagon",
       {
@@ -113,7 +128,7 @@ class SocketServices extends ChangeNotifier {
       index += 1;
       tile.hexagon = hexagon;
       hexagon.addTile(tile);
-      hexagonList.tiles[tileQ + tile.q][tileR + tile.r] = tile;
+      hexagonList.tiles[tileQ + tile.q - hexagonList.currentQ][tileR + tile.r - hexagonList.currentR] = tile;
     }
     int hexQ = (hexagonList.hexagons.length / 2).ceil();
     int hexR = (hexagonList.hexagons[0].length / 2).ceil();
@@ -122,6 +137,9 @@ class SocketServices extends ChangeNotifier {
     int qHex = hexQ + hexagon.hexQArray - hexagonList.currentHexQ;
     int rHex = hexR + hexagon.hexRArray - hexagonList.currentHexR;
     hexagonList.hexagons[qHex][rHex] = hexagon;
+
+    retrievedHexagon();
+
     // check if the left hexagon is initialized and if it does not have it's right hexagon initialized
     int qHexLeft = qHex - 1;
     int rHexLeft = rHex;
