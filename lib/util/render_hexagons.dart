@@ -23,12 +23,12 @@ renderHexagons(Canvas canvas, Vector2 camera, HexagonList hexagonList, Rect scre
     for (int right = hexagonList.hexagons.length - 1; right >= 0; right--) {
       currentHexagon = hexagonList.hexagons[right][top];
       if (currentHexagon != null) {
-        if (currentHexagon.center.x > (screen.left + 100)
-            && currentHexagon.center.x < (screen.right - 200)
-            && currentHexagon.center.y > (screen.top + 100)
-            && currentHexagon.center.y < (screen.bottom - 100)) {
+        // if (currentHexagon.center.x > (screen.left + 100)
+        //     && currentHexagon.center.x < (screen.right - 200)
+        //     && currentHexagon.center.y > (screen.top + 100)
+        //     && currentHexagon.center.y < (screen.bottom - 100)) {
           currentHexagon.renderHexagon(canvas, variation);
-        }
+        // }
       }
     }
   }

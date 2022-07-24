@@ -32,10 +32,9 @@ class HexagonList {
 
   HexagonList._internal() {
 
-    List<List<int>> worldDetail = worldDetailSmall;
     tiles = List.generate(
-        1000,
-            (_) => List.filled(1000, null, growable: true),
+        360,
+            (_) => List.filled(360, null, growable: true),
         growable: true);
     hexagons = List.generate(
         24,
@@ -62,6 +61,7 @@ class HexagonList {
     int q = 0;
     int r = 0;
 
+    // Some simple algorithm to load the map from the center outwards.
     bool done = false;
     socketServices.getHexagon(q, r);
     for (int cycle = 0; cycle < hexagons.length * 2; cycle+=2) {
@@ -92,16 +92,6 @@ class HexagonList {
         socketServices.getHexagon(q, r);
       }
     }
-
-    print("test");
-    // }
-    // for (int q = 0; q < hexagons.length; q++) {
-    //   int qNew = q - tileQ;
-    //   int rBegin = 0 - tileR;
-    //   int rEnd = hexagons[0].length - 1 - tileR;
-    //
-    //   socketServices.getHexagonsR(rBegin, rEnd, qNew);
-    // }
   }
 
   Tile? getTileFromCoordinates(int q, int r) {
