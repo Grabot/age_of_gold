@@ -28,6 +28,9 @@ class Hexagon {
   Hexagon? bottomLeft;
   Hexagon? bottomRight;
 
+  late int wrapQ = 0;
+  late int wrapR = 0;
+
   Hexagon(this.center, this.rotation, this.hexQArray, this.hexRArray) {
     SpriteBatch.load('flat_base.png').then((SpriteBatch batch) {
       batchBase = batch;
@@ -37,6 +40,22 @@ class Hexagon {
     });
 
     hexSArray = (hexQArray + hexRArray) * -1;
+  }
+
+  setWrapQ(int wrapQ) {
+    this.wrapQ = wrapQ;
+  }
+
+  int getWrapQ() {
+    return wrapQ;
+  }
+
+  setWrapR(int wrapR) {
+    this.wrapR = wrapR;
+  }
+
+  int getWrapR() {
+    return wrapR;
   }
 
   addTile(Tile tile) {

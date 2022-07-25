@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:age_of_gold/util/global.dart';
 import 'package:flutter/material.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
@@ -137,19 +138,63 @@ class SocketServices extends ChangeNotifier {
   addHexagon(data) {
     HexagonList hexagonList = HexagonList();
     Hexagon hexagon = Hexagon.fromJson(data);
+    if (data.containsKey("wraparound")) {
+      print("het werkt!");
+      print(data["wraparound"]);
+      hexagon.setWrapQ(data["wraparound"]["q"]);
+      hexagon.setWrapR(data["wraparound"]["r"]);
+      if (hexagon.getWrapQ() > 0 && hexagon.getWrapR() == 0) {
+        print("found a q wrap hex!");
+        hexagon.hexQArray += (mapSize * 2 + 1) * hexagon.getWrapQ();
+      } else if (hexagon.getWrapQ() == 0 && hexagon.getWrapR() > 0) {
+        print("found a r wrap hex!");
+        hexagon.hexRArray += (mapSize * 2 + 1) * hexagon.getWrapR();
+      } else if (hexagon.getWrapQ() > 0 && hexagon.getWrapR() > 0) {
+        hexagon.hexQArray += (mapSize * 2 + 1) * hexagon.getWrapQ();
+        hexagon.hexRArray += (mapSize * 2 + 1) * hexagon.getWrapR();
+      }
+    }
     int tileQ = (hexagonList.tiles.length / 2).ceil();
     int tileR = (hexagonList.tiles[0].length / 2).ceil();
     int index = 0;
     for (var tileData in data["tiles"]) {
+      int tileDataQ = tileData["q"];
+      int tileDataR = tileData["r"];
+      if (hexagon.getWrapQ() > 0 && hexagon.getWrapR() == 0) {
+        // print("setting new q for tiles!");
+        // We have wrapped around the map in the q direction. If we go right:
+        // q_for_tiles += 9
+        // r_for_tiles -= 4
+        // This is done a total of 2 * map_size + 1
+        tileDataQ += (mapSize * 2 + 1) * 9 * hexagon.getWrapQ();
+        tileDataR += (mapSize * 2 + 1) * -4 * hexagon.getWrapQ();
+      } else if (hexagon.getWrapQ() == 0 && hexagon.getWrapR() > 0) {
+        // print("setting new r for tiles!");
+        // Wrapped around the map in the r direction. If we go right down:
+        // q_for_tiles += 5
+        // r_for_tiles -= 9
+        tileDataQ += (mapSize * 2 + 1) * 5 * hexagon.getWrapR();
+        tileDataR += (mapSize * 2 + 1) * -9 * hexagon.getWrapR();
+      } else if (hexagon.getWrapQ() > 0 && hexagon.getWrapR() > 0) {
+        // Wrapped around the map in the q and r direction.
+        // q_for_tiles += 5 + 9 = 14
+        // r_for_tiles -= 9 - 4 = -13
+        tileDataQ += (mapSize * 2 + 1) * 9 * hexagon.getWrapQ();
+        tileDataR += (mapSize * 2 + 1) * -4 * hexagon.getWrapQ();
+
+        tileDataQ += (mapSize * 2 + 1) * 5 * hexagon.getWrapR();
+        tileDataR += (mapSize * 2 + 1) * -9 * hexagon.getWrapR();
+      }
       GrassTile tile = GrassTile(
-          tileData["q"],
-          tileData["r"],
+          tileDataQ,
+          tileDataR,
           tileData["type"]
       );
       if (index == 30) {
         // The 31th tile from the list will be the center.
         // We set this as hexagon position
         hexagon.center = tile.getPos(0);
+        print("center tile q: ${tile.q} r: ${tile.r}");
       }
       index += 1;
       tile.hexagon = hexagon;
@@ -162,6 +207,7 @@ class SocketServices extends ChangeNotifier {
     int rHex = hexagonList.hexR + hexagon.hexRArray - hexagonList.currentHexR;
     hexagonList.hexagons[qHex][rHex] = hexagon;
 
+    print("hexagon center: ${hexagon.center}  q: ${hexagon.hexQArray} r: ${hexagon.hexRArray}");
     // check if the left hexagon is initialized and if it does not have it's right hexagon initialized
     int qHexLeft = qHex - 1;
     int rHexLeft = rHex;

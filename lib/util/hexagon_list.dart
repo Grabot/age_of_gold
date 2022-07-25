@@ -36,7 +36,7 @@ class HexagonList {
   HexagonList._internal() {
     tiles = List.generate(360, (_) => List.filled(360, null, growable: true),
         growable: true);
-    hexagons = List.generate(10, (_) => List.filled(10, null, growable: true),
+    hexagons = List.generate(12, (_) => List.filled(12, null, growable: true),
         growable: true);
 
     tileQ = (tiles.length / 2).ceil();
@@ -55,8 +55,7 @@ class HexagonList {
   }
 
   retrieveHexagons() {
-    // // Start from the center and retrieve the hexagon outwards
-    // // socketServices.getHexagon(0, 0, 0);
+    // Start from the center and retrieve the hexagon outwards
     int q = 0;
     int r = 0;
 

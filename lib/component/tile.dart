@@ -30,6 +30,11 @@ class Tile {
     double yTr2 = ySize * (sqrt(3) * r);
     yTr2 *= -1; // The y axis gets positive going down, so we flip it.
     double yPos = yTr1 + yTr2 - ySize;
+
+    // slight offset to put the center in the center and not a corner.
+    xPos += xSize;
+    yPos += ySize;
+
     position = Vector2(xPos, yPos);
 
     s = (q + r) * -1;
