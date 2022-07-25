@@ -143,13 +143,13 @@ class SocketServices extends ChangeNotifier {
       print(data["wraparound"]);
       hexagon.setWrapQ(data["wraparound"]["q"]);
       hexagon.setWrapR(data["wraparound"]["r"]);
-      if (hexagon.getWrapQ() > 0 && hexagon.getWrapR() == 0) {
+      if (hexagon.getWrapQ() != 0 && hexagon.getWrapR() == 0) {
         print("found a q wrap hex!");
         hexagon.hexQArray += (mapSize * 2 + 1) * hexagon.getWrapQ();
-      } else if (hexagon.getWrapQ() == 0 && hexagon.getWrapR() > 0) {
+      } else if (hexagon.getWrapQ() == 0 && hexagon.getWrapR() != 0) {
         print("found a r wrap hex!");
         hexagon.hexRArray += (mapSize * 2 + 1) * hexagon.getWrapR();
-      } else if (hexagon.getWrapQ() > 0 && hexagon.getWrapR() > 0) {
+      } else if (hexagon.getWrapQ() != 0 && hexagon.getWrapR() != 0) {
         hexagon.hexQArray += (mapSize * 2 + 1) * hexagon.getWrapQ();
         hexagon.hexRArray += (mapSize * 2 + 1) * hexagon.getWrapR();
       }
@@ -160,7 +160,7 @@ class SocketServices extends ChangeNotifier {
     for (var tileData in data["tiles"]) {
       int tileDataQ = tileData["q"];
       int tileDataR = tileData["r"];
-      if (hexagon.getWrapQ() > 0 && hexagon.getWrapR() == 0) {
+      if (hexagon.getWrapQ() != 0 && hexagon.getWrapR() == 0) {
         // print("setting new q for tiles!");
         // We have wrapped around the map in the q direction. If we go right:
         // q_for_tiles += 9
@@ -168,14 +168,14 @@ class SocketServices extends ChangeNotifier {
         // This is done a total of 2 * map_size + 1
         tileDataQ += (mapSize * 2 + 1) * 9 * hexagon.getWrapQ();
         tileDataR += (mapSize * 2 + 1) * -4 * hexagon.getWrapQ();
-      } else if (hexagon.getWrapQ() == 0 && hexagon.getWrapR() > 0) {
+      } else if (hexagon.getWrapQ() == 0 && hexagon.getWrapR() != 0) {
         // print("setting new r for tiles!");
         // Wrapped around the map in the r direction. If we go right down:
         // q_for_tiles += 5
         // r_for_tiles -= 9
         tileDataQ += (mapSize * 2 + 1) * 5 * hexagon.getWrapR();
         tileDataR += (mapSize * 2 + 1) * -9 * hexagon.getWrapR();
-      } else if (hexagon.getWrapQ() > 0 && hexagon.getWrapR() > 0) {
+      } else if (hexagon.getWrapQ() != 0 && hexagon.getWrapR() != 0) {
         // Wrapped around the map in the q and r direction.
         // q_for_tiles += 5 + 9 = 14
         // r_for_tiles -= 9 - 4 = -13
