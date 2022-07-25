@@ -1,10 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 import '../component/hexagon.dart';
 import '../component/tile.dart';
 import '../component/type/grass_tile.dart';
-import '../constants/base_url.dart';
+import '../constants/url_base.dart';
 import 'hexagon_list.dart';
 
 
@@ -14,7 +16,7 @@ class SocketServices extends ChangeNotifier {
   // We will use this to store the user's id, might change it later.
   int userId = -1;
 
-  int hexagonsToRetrieve = 0;
+  // int hexagonsToRetrieve = 0;
 
   static final SocketServices _instance = SocketServices._internal();
 
@@ -54,20 +56,8 @@ class SocketServices extends ChangeNotifier {
     socket.open();
   }
 
-  addHexagonRetrieve(int total) {
-    print("adding $total hexagons");
-    hexagonsToRetrieve += total;
-  }
-
-  retrievedHexagon() {
-    hexagonsToRetrieve -= 1;
-  }
-
-  canRetrieveHexagons() {
-    return hexagonsToRetrieve == 0;
-  }
-
   void joinRoom() {
+    print("joining room");
     socket.emit(
       "join",
       {
@@ -99,9 +89,9 @@ class SocketServices extends ChangeNotifier {
     }
   }
 
-  getHexagon(int q, int r) {
-    // print("getting hexagon with userId: $userId");
-    addHexagonRetrieve(1);
+  getHexagon(int q, int r, HexagonList hexagonList) {
+    print("getting hexagon q: $q r: $r  with userId: $userId");
+
     socket.emit(
       "get_hexagon",
       {
@@ -112,10 +102,8 @@ class SocketServices extends ChangeNotifier {
     );
   }
 
-  getHexagonsQ(int qBegin, int qEnd, int rRow) {
+  getHexagonsQ(int qBegin, int qEnd, int rRow, HexagonList hexagonList) {
     // print("getting hexagon with userId: $userId");
-
-    addHexagonRetrieve(qEnd - qBegin + 1);
     socket.emit(
       "get_hexagons_q",
       {
@@ -127,10 +115,8 @@ class SocketServices extends ChangeNotifier {
     );
   }
 
-  getHexagonsR(int rBegin, int rEnd, int qRow) {
+  getHexagonsR(int rBegin, int rEnd, int qRow, HexagonList hexagonList) {
     // print("getting hexagon with userId: $userId");
-
-    addHexagonRetrieve(rEnd - rBegin + 1);
     socket.emit(
       "get_hexagons_r",
       {
@@ -170,15 +156,11 @@ class SocketServices extends ChangeNotifier {
       hexagon.addTile(tile);
       hexagonList.tiles[tileQ + tile.q - hexagonList.currentQ][tileR + tile.r - hexagonList.currentR] = tile;
     }
-    int hexQ = (hexagonList.hexagons.length / 2).ceil();
-    int hexR = (hexagonList.hexagons[0].length / 2).ceil();
 
     hexagon.updateHexagon(0);
-    int qHex = hexQ + hexagon.hexQArray - hexagonList.currentHexQ;
-    int rHex = hexR + hexagon.hexRArray - hexagonList.currentHexR;
+    int qHex = hexagonList.hexQ + hexagon.hexQArray - hexagonList.currentHexQ;
+    int rHex = hexagonList.hexR + hexagon.hexRArray - hexagonList.currentHexR;
     hexagonList.hexagons[qHex][rHex] = hexagon;
-
-    retrievedHexagon();
 
     // check if the left hexagon is initialized and if it does not have it's right hexagon initialized
     int qHexLeft = qHex - 1;

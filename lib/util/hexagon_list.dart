@@ -30,19 +30,20 @@ class HexagonList {
   int tileQ = 0;
   int tileR = 0;
 
-  HexagonList._internal() {
+  int hexQ = 0;
+  int hexR = 0;
 
-    tiles = List.generate(
-        360,
-            (_) => List.filled(360, null, growable: true),
+  HexagonList._internal() {
+    tiles = List.generate(360, (_) => List.filled(360, null, growable: true),
         growable: true);
-    hexagons = List.generate(
-        24,
-            (_) => List.filled(24, null, growable: true),
+    hexagons = List.generate(10, (_) => List.filled(10, null, growable: true),
         growable: true);
 
     tileQ = (tiles.length / 2).ceil();
     tileR = (tiles[0].length / 2).ceil();
+
+    hexQ = (hexagons.length / 2).ceil();
+    hexR = (hexagons[0].length / 2).ceil();
   }
 
   factory HexagonList() {
@@ -56,40 +57,38 @@ class HexagonList {
   retrieveHexagons() {
     // // Start from the center and retrieve the hexagon outwards
     // // socketServices.getHexagon(0, 0, 0);
-    int tileQ = (hexagons.length / 2).ceil();
-    int tileR = (hexagons[0].length / 2).ceil();
     int q = 0;
     int r = 0;
 
     // Some simple algorithm to load the map from the center outwards.
     bool done = false;
-    socketServices.getHexagon(q, r);
-    for (int cycle = 0; cycle < hexagons.length * 2; cycle+=2) {
+    socketServices.getHexagon(q, r, this);
+    for (int cycle = 0; cycle < hexagons.length * 2; cycle += 2) {
       for (int first = 1; first < cycle; first++) {
         q -= 1;
-        socketServices.getHexagon(q, r);
+        socketServices.getHexagon(q, r, this);
       }
 
       for (int second = 1; second < cycle; second++) {
         r -= 1;
-        socketServices.getHexagon(q, r);
+        socketServices.getHexagon(q, r, this);
       }
 
-      if (q == -tileQ && r == -tileR) {
+      if (q == -hexQ && r == -hexR) {
         done = true;
       }
 
       for (int third = 1; third < cycle + 1; third++) {
         q += 1;
-        socketServices.getHexagon(q, r);
-        if (done && q == (tileQ - 1)) {
+        socketServices.getHexagon(q, r, this);
+        if (done && q == (hexQ - 1)) {
           return;
         }
       }
 
       for (int fourth = 1; fourth < cycle + 1; fourth++) {
         r += 1;
-        socketServices.getHexagon(q, r);
+        socketServices.getHexagon(q, r, this);
       }
     }
   }
