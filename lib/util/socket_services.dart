@@ -75,11 +75,6 @@ class SocketServices extends ChangeNotifier {
       addHexagon(data);
       notifyListeners();
     });
-    socket.on('send_hexagons_success', (data) {
-      print("send_hexagons_success");
-      addHexagons(data);
-      notifyListeners();
-    });
   }
 
   void leaveRoom() {
@@ -103,54 +98,16 @@ class SocketServices extends ChangeNotifier {
     );
   }
 
-  getHexagonsQ(int qBegin, int qEnd, int rRow, HexagonList hexagonList) {
-    // print("getting hexagon with userId: $userId");
-    socket.emit(
-      "get_hexagons_q",
-      {
-        'q_begin': qBegin,
-        'q_end': qEnd,
-        'r_row': rRow,
-        'userId': userId
-      },
-    );
-  }
-
-  getHexagonsR(int rBegin, int rEnd, int qRow, HexagonList hexagonList) {
-    // print("getting hexagon with userId: $userId");
-    socket.emit(
-      "get_hexagons_r",
-      {
-        'r_begin': rBegin,
-        'r_end': rEnd,
-        'q_row': qRow,
-        'userId': userId
-      },
-    );
-  }
-
-  addHexagons(data) {
-    for (int i = 0; i < data.length; i++) {
-      addHexagon(data[i]);
-    }
-  }
-
   addHexagon(data) {
     HexagonList hexagonList = HexagonList();
     Hexagon hexagon = Hexagon.fromJson(data);
     if (data.containsKey("wraparound")) {
-      print("het werkt!");
-      print(data["wraparound"]);
       hexagon.setWrapQ(data["wraparound"]["q"]);
       hexagon.setWrapR(data["wraparound"]["r"]);
-      if (hexagon.getWrapQ() != 0 && hexagon.getWrapR() == 0) {
-        print("found a q wrap hex!");
+      if (hexagon.getWrapQ() != 0) {
         hexagon.hexQArray += (mapSize * 2 + 1) * hexagon.getWrapQ();
-      } else if (hexagon.getWrapQ() == 0 && hexagon.getWrapR() != 0) {
-        print("found a r wrap hex!");
-        hexagon.hexRArray += (mapSize * 2 + 1) * hexagon.getWrapR();
-      } else if (hexagon.getWrapQ() != 0 && hexagon.getWrapR() != 0) {
-        hexagon.hexQArray += (mapSize * 2 + 1) * hexagon.getWrapQ();
+      }
+      if (hexagon.getWrapR() != 0) {
         hexagon.hexRArray += (mapSize * 2 + 1) * hexagon.getWrapR();
       }
     }
@@ -160,30 +117,15 @@ class SocketServices extends ChangeNotifier {
     for (var tileData in data["tiles"]) {
       int tileDataQ = tileData["q"];
       int tileDataR = tileData["r"];
-      if (hexagon.getWrapQ() != 0 && hexagon.getWrapR() == 0) {
-        // print("setting new q for tiles!");
-        // We have wrapped around the map in the q direction. If we go right:
-        // q_for_tiles += 9
-        // r_for_tiles -= 4
-        // This is done a total of 2 * map_size + 1
-        tileDataQ += (mapSize * 2 + 1) * 9 * hexagon.getWrapQ();
-        tileDataR += (mapSize * 2 + 1) * -4 * hexagon.getWrapQ();
-      } else if (hexagon.getWrapQ() == 0 && hexagon.getWrapR() != 0) {
-        // print("setting new r for tiles!");
-        // Wrapped around the map in the r direction. If we go right down:
-        // q_for_tiles += 5
-        // r_for_tiles -= 9
-        tileDataQ += (mapSize * 2 + 1) * 5 * hexagon.getWrapR();
-        tileDataR += (mapSize * 2 + 1) * -9 * hexagon.getWrapR();
-      } else if (hexagon.getWrapQ() != 0 && hexagon.getWrapR() != 0) {
-        // Wrapped around the map in the q and r direction.
-        // q_for_tiles += 5 + 9 = 14
-        // r_for_tiles -= 9 - 4 = -13
-        tileDataQ += (mapSize * 2 + 1) * 9 * hexagon.getWrapQ();
-        tileDataR += (mapSize * 2 + 1) * -4 * hexagon.getWrapQ();
-
-        tileDataQ += (mapSize * 2 + 1) * 5 * hexagon.getWrapR();
-        tileDataR += (mapSize * 2 + 1) * -9 * hexagon.getWrapR();
+      if (data.containsKey("wraparound")) {
+        if (hexagon.getWrapQ() != 0) {
+          tileDataQ += (mapSize * 2 + 1) * 9 * hexagon.getWrapQ();
+          tileDataR += (mapSize * 2 + 1) * -4 * hexagon.getWrapQ();
+        }
+        if (hexagon.getWrapR() != 0) {
+          tileDataQ += (mapSize * 2 + 1) * 5 * hexagon.getWrapR();
+          tileDataR += (mapSize * 2 + 1) * -9 * hexagon.getWrapR();
+        }
       }
       GrassTile tile = GrassTile(
           tileDataQ,
