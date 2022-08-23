@@ -75,6 +75,10 @@ class SocketServices extends ChangeNotifier {
       addHexagon(data);
       notifyListeners();
     });
+    socket.on('send_message_success', (data) {
+      print("received a message");
+      print(data);
+    });
   }
 
   void leaveRoom() {
@@ -86,14 +90,13 @@ class SocketServices extends ChangeNotifier {
   }
 
   getHexagon(int q, int r, HexagonList hexagonList) {
-    print("getting hexagon q: $q r: $r  with userId: $userId");
+    print("getting hexagon q: $q r: $r");
 
     socket.emit(
       "get_hexagon",
       {
         'q': q,
-        'r': r,
-        'userId': userId
+        'r': r
       },
     );
   }
@@ -136,7 +139,6 @@ class SocketServices extends ChangeNotifier {
         // The 31th tile from the list will be the center.
         // We set this as hexagon position
         hexagon.center = tile.getPos(0);
-        print("center tile q: ${tile.q} r: ${tile.r}");
       }
       index += 1;
       tile.hexagon = hexagon;
@@ -147,9 +149,13 @@ class SocketServices extends ChangeNotifier {
     hexagon.updateHexagon(0);
     int qHex = hexagonList.hexQ + hexagon.hexQArray - hexagonList.currentHexQ;
     int rHex = hexagonList.hexR + hexagon.hexRArray - hexagonList.currentHexR;
+    if (qHex < 0 || qHex >= hexagonList.hexagons.length
+        || rHex < 0 || rHex >= hexagonList.hexagons[0].length) {
+      print("no longer in the screen");
+      return;
+    }
     hexagonList.hexagons[qHex][rHex] = hexagon;
 
-    print("hexagon center: ${hexagon.center}  q: ${hexagon.hexQArray} r: ${hexagon.hexRArray}");
     // check if the left hexagon is initialized and if it does not have it's right hexagon initialized
     int qHexLeft = qHex - 1;
     int rHexLeft = rHex;

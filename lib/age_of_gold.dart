@@ -51,7 +51,7 @@ class AgeOfGold extends FlameGame
     socket.joinRoom();
 
     camera.followVector2(cameraPosition, relativeOffset: Anchor.center);
-    camera.zoom = 1;
+    camera.zoom = 4;
 
     _world = World();
     add(_world);

@@ -89,11 +89,11 @@ class Hexagon {
 
   renderHexagon(Canvas canvas, int variation) {
     if (batchBase != null) {
-      batchBase!.render(canvas, blendMode: BlendMode.srcOver);
+      batchBase!.render(canvas);
     }
     if (variation == 1) {
       if (batchBaseVariation1 != null) {
-        batchBaseVariation1!.render(canvas, blendMode: BlendMode.srcOver);
+        batchBaseVariation1!.render(canvas);
       }
     }
   }
