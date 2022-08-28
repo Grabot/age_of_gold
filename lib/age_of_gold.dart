@@ -30,7 +30,7 @@ class AgeOfGold extends FlameGame
   int fps = 0;
   int variant = 0;
 
-  late final World _world;
+  World? _world;
 
   double maxZoom = 4;
   double minZoom = 1;
@@ -51,15 +51,16 @@ class AgeOfGold extends FlameGame
     socket.joinRoom();
 
     camera.followVector2(cameraPosition, relativeOffset: Anchor.center);
-    camera.zoom = 4;
+    camera.zoom = 1;
 
     _world = World();
-    add(_world);
-
+    add(_world!);
 
     html.window.onBeforeUnload.listen((event) async {
       socket.leaveRoom();
     });
+
+    checkHexagonArraySize();
   }
 
   @override
@@ -68,7 +69,7 @@ class AgeOfGold extends FlameGame
     textPaint.render(canvas, "Age of Gold!\nFPS: $fps", Vector2(10, 10));
   }
 
-@override
+  @override
   void onMouseMove(PointerHoverInfo info) {
     super.onMouseMove(info);
   }
@@ -84,12 +85,14 @@ class AgeOfGold extends FlameGame
       camera.zoom = maxZoom;
     }
     print("current zoom: ${camera.zoom}");
+
+    checkHexagonArraySize();
   }
 
   @override
   void onTapUp(int pointerId, TapUpInfo info) {
     Vector2 tapPos = Vector2(info.eventPosition.game.x, info.eventPosition.game.y);
-    _world.onTappedUp(tapPos);
+    _world!.onTappedUp(tapPos);
     super.onTapUp(pointerId, info);
   }
 
@@ -122,10 +125,10 @@ class AgeOfGold extends FlameGame
 
     if ((frameTimes > 0 && frameTimes <= 0.5) && variant != 0) {
       variant = 0;
-      _world.updateVariant(variant);
+      _world!.updateVariant(variant);
     } else if ((frameTimes > 0.5 && frameTimes <= 1) && variant != 1) {
       variant = 1;
-      _world.updateVariant(variant);
+      _world!.updateVariant(variant);
     }
     if (frameTimes > 1) {
       fps = frames;
@@ -135,7 +138,7 @@ class AgeOfGold extends FlameGame
       frames = 0;
     }
 
-    _world.updateWorld(cameraPosition, camera.zoom, size);
+    _world!.updateWorld(cameraPosition, camera.zoom, size);
 
     dragTo += dragAccelerateKey;
     cameraPosition.add(cameraVelocity * dt * 10);
@@ -183,7 +186,35 @@ class AgeOfGold extends FlameGame
     // This needs to be done to position the HUD margin components correctly.
     double previousZoom = camera.zoom;
     camera.zoom = 1;
+    print("canvasSize: $canvasSize");
     super.onGameResize(canvasSize);
     camera.zoom = previousZoom;
+    checkHexagonArraySize();
   }
+
+  checkHexagonArraySize() {
+    double currentZoom = camera.zoom;
+    double currentWidth = camera.canvasSize.x;
+    double currentHeight = camera.canvasSize.y;
+    if (_world != null) {
+      if (currentZoom > 3.5 && (currentWidth < 2000 && currentHeight < 1100)) {
+        _world!.setHexagonArraySize(6);
+      } else if (currentZoom > 3.5 && (currentWidth > 2000 || currentHeight > 1100)) {
+        _world!.setHexagonArraySize(10);
+      } else if ((currentZoom < 3.5 && currentZoom > 2.5) && (currentWidth < 2000 && currentHeight < 1100)) {
+        _world!.setHexagonArraySize(8);
+      } else if ((currentZoom < 3.5 && currentZoom > 2.5) && (currentWidth > 2000 || currentHeight > 1100)) {
+        _world!.setHexagonArraySize(12);
+      } else if ((currentZoom < 2.5 && currentZoom > 1.5) && (currentWidth < 2000 && currentHeight < 1100)) {
+        _world!.setHexagonArraySize(12);
+      } else if ((currentZoom < 2.5 && currentZoom > 1.5) && (currentWidth > 2000 || currentHeight > 1100)) {
+        _world!.setHexagonArraySize(16);
+      } else if ((currentZoom < 1.5 && currentZoom > 0.5) && (currentWidth < 2000 && currentHeight < 1100)) {
+        _world!.setHexagonArraySize(16);
+      } else if ((currentZoom < 1.5 && currentZoom > 0.5) && (currentWidth > 2000 || currentHeight > 1100)) {
+        _world!.setHexagonArraySize(24);
+      }
+    }
+  }
+
 }

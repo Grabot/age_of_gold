@@ -89,7 +89,7 @@ class SocketServices extends ChangeNotifier {
     }
   }
 
-  getHexagon(int q, int r, HexagonList hexagonList) {
+  getHexagon(int q, int r) {
     print("getting hexagon q: $q r: $r");
 
     socket.emit(
@@ -114,8 +114,8 @@ class SocketServices extends ChangeNotifier {
         hexagon.hexRArray += (mapSize * 2 + 1) * hexagon.getWrapR();
       }
     }
-    int tileQ = (hexagonList.tiles.length / 2).ceil();
-    int tileR = (hexagonList.tiles[0].length / 2).ceil();
+    int tileQ = hexagonList.tileQ;
+    int tileR = hexagonList.tileR;
     int index = 0;
     for (var tileData in data["tiles"]) {
       int tileDataQ = tileData["q"];

@@ -111,4 +111,8 @@ class World extends Component {
   socketListener() {
     print("socket listener");
   }
+
+  setHexagonArraySize(int arraySize) {
+    hexagonList.changeArraySize(arraySize);
+  }
 }
