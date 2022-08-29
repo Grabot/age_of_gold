@@ -22,8 +22,10 @@ class AgeOfGold extends FlameGame
 
   Vector2 dragAccelerateKey = Vector2.zero();
 
-  Vector2 dragFrom = Vector2.zero();
   Vector2 dragTo = Vector2.zero();
+
+  Vector2 dragFrom = Vector2.zero();
+  Vector2 cameraPositionFrom = Vector2.zero();
 
   double frameTimes = 0.0;
   int frames = 0;
@@ -51,7 +53,7 @@ class AgeOfGold extends FlameGame
     socket.joinRoom();
 
     camera.followVector2(cameraPosition, relativeOffset: Anchor.center);
-    camera.zoom = 1;
+    camera.zoom = 4;
 
     _world = World();
     add(_world!);
@@ -101,19 +103,91 @@ class AgeOfGold extends FlameGame
     super.onTapDown(pointerId, info);
   }
 
+  Vector2 multiTouch1 = Vector2.zero();
+  Vector2 multiTouch2 = Vector2.zero();
+
   @override
   void onDragStart(int pointerId, DragStartInfo info) {
     super.onDragStart(pointerId, info);
+    if (singleTap) {
+      multiTap = true;
+      multiPointer2Id = pointerId;
+    } else {
+      singleTap = true;
+      multiPointer1Id = pointerId;
+    }
+    dragFrom = info.eventPosition.game;
+    cameraPositionFrom = cameraPosition.clone();
   }
 
   @override
   void onDragUpdate(int pointerId, DragUpdateInfo info) {
     super.onDragUpdate(pointerId, info);
+
+    if (multiTap) {
+      if (pointerId == multiPointer1Id) {
+        multiPointer1 = info.eventPosition.game;
+      } else if (pointerId == multiPointer2Id) {
+        multiPointer2 = info.eventPosition.game;
+      } else {
+        // A third finger is touching the screen?
+      }
+      if ((multiPointer1.x != 0 && multiPointer1.y != 0) && (multiPointer2.x != 0 && multiPointer2.y != 0))  {
+        handlePinchZoom();
+      }
+    } else {
+      Vector2 temp = info.eventPosition.game.clone();
+      temp.sub(dragFrom);
+      dragFrom = info.eventPosition.game;
+      dragTo.sub(temp);
+    }
+    // Vector2 temp = info.eventPosition.game.clone();
+    // temp.sub(dragFrom);
+    // Vector2 cameraDiff = cameraPosition.clone();
+    // cameraDiff.sub(cameraPositionFrom);
+    // print("camera diff: $cameraDiff  temp: $temp");
+    // dragTo.sub(temp);
+  }
+
+  bool singleTap = false;
+  bool multiTap = false;
+  int multiPointer1Id = -1;
+  int multiPointer2Id = -1;
+  Vector2 multiPointer1 = Vector2.zero();
+  Vector2 multiPointer2 = Vector2.zero();
+  double multiPointerDist = 0.0;
+
+  void handlePinchZoom() {
+    double currentDistance = multiPointer1.distanceTo(multiPointer2);
+    double zoomIncrease = (currentDistance - multiPointerDist);
+    print("zoom increase: $zoomIncrease");
+    double cameraZoom = 1;
+    if (zoomIncrease > -50 && zoomIncrease <= -1) {
+      cameraZoom += (zoomIncrease / 400);
+    } else if (zoomIncrease < 50 && zoomIncrease >= 1) {
+      cameraZoom += (zoomIncrease / 400);
+    }
+    camera.zoom *= cameraZoom;
+    if (camera.zoom <= 1) {
+      camera.zoom = 1;
+    } else if (camera.zoom >= 4) {
+      camera.zoom = 4;
+    }
+    multiPointerDist = currentDistance;
   }
 
   @override
   void onDragEnd(int pointerId, DragEndInfo info) {
     super.onDragEnd(pointerId, info);
+    singleTap = false;
+    if (multiTap) {
+      multiTap = false;
+    }
+    multiPointer1Id = -1;
+    multiPointer2Id = -1;
+    multiPointer1 = Vector2.zero();
+    multiPointer2 = Vector2.zero();
+    multiPointerDist = 0.0;
   }
 
   @override
@@ -151,6 +225,11 @@ class AgeOfGold extends FlameGame
       cameraVelocity.x = 0;
     } else {
       cameraVelocity.x = (dragTo.x - cameraPosition.x);
+      if (cameraVelocity.x > 100) {
+        cameraVelocity.x = 100;
+      } else if (cameraVelocity.x < -100) {
+        cameraVelocity.x = -100;
+      }
     }
 
     if ((dragTo.y - cameraPosition.y).abs() < 0.2) {
@@ -158,6 +237,11 @@ class AgeOfGold extends FlameGame
       cameraVelocity.y = 0;
     } else {
       cameraVelocity.y = (dragTo.y - cameraPosition.y);
+      if (cameraVelocity.y > 100) {
+        cameraVelocity.y = 100;
+      } else if (cameraVelocity.y < -100) {
+        cameraVelocity.y = -100;
+      }
     }
   }
 
