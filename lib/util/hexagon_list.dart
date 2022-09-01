@@ -25,10 +25,12 @@ class HexagonList {
   int hexR = 0;
 
   HexagonList._internal() {
-    tiles = List.generate(360, (_) => List.filled(360, null, growable: true),
-        growable: true);
-    hexagons = List.generate(6, (_) => List.filled(6, null, growable: true),
-        growable: true);
+    int initialHexSize = 8;
+    int initialTileSize = initialHexSize * 14 + 50;
+    tiles = List.generate(initialTileSize, (_) =>
+        List.filled(initialTileSize, null, growable: true), growable: true);
+    hexagons = List.generate(initialHexSize, (_) =>
+        List.filled(initialHexSize, null, growable: true), growable: true);
 
     tileQ = (tiles.length / 2).ceil();
     tileR = (tiles[0].length / 2).ceil();
@@ -90,12 +92,10 @@ class HexagonList {
   }
 
   changeArraySize(int arraySize) {
-    print("changing array size! $arraySize");
     if (hexagons.length != arraySize) {
-      print("we have to change stuff!");
+      int arraySizeTile = arraySize * 14 + 50;
       if (hexagons.length < arraySize) {
         while (hexagons.length < arraySize) {
-          print("we need to add stuff");
           for (int i = 0; i < hexagons.length; i++) {
             hexagons[i].insert(hexagons[i].length, null);
             hexagons[i].insert(0, null);
@@ -108,9 +108,22 @@ class HexagonList {
           hexagons.insert(0, row2);
           fillNewArrayEdges();
           // The size has changed now, so reset the hexQ and hexR variables.
+          // We need these to retrieve new Hexagons so we set it in the while.
           hexQ = (hexagons.length / 2).ceil();
           hexR = (hexagons[0].length / 2).ceil();
         }
+        while (tiles.length < arraySizeTile) {
+          for (int i = 0; i < tiles.length; i++) {
+            tiles[i].insert(tiles[i].length, null);
+            tiles[i].insert(0, null);
+          }
+          List<Tile?> row1 = List.filled(tiles[0].length, null, growable: true);
+          List<Tile?> row2 = List.filled(tiles[0].length, null, growable: true);
+          tiles.insert(tiles.length, row1);
+          tiles.insert(0, row2);
+        }
+        tileQ = (tiles.length / 2).ceil();
+        tileR = (tiles[0].length / 2).ceil();
       } else {
         while (hexagons.length > arraySize) {
           hexagons.removeAt(hexagons.length - 1);
@@ -119,44 +132,53 @@ class HexagonList {
             hexagons[i].removeAt(0);
             hexagons[i].removeAt(hexagons[i].length - 1);
           }
-          // The size has changed now, so reset the hexQ and hexR variables.
-          hexQ = (hexagons.length / 2).ceil();
-          hexR = (hexagons[0].length / 2).ceil();
         }
+        while (tiles.length > arraySizeTile) {
+          tiles.removeAt(tiles.length - 1);
+          tiles.removeAt(0);
+          for (int i = 0; i < tiles[0].length; i++) {
+            tiles[i].removeAt(0);
+            tiles[i].removeAt(tiles[i].length - 1);
+          }
+        }
+        // The size has changed now, so reset the Q and R variables.
+        hexQ = (hexagons.length / 2).ceil();
+        hexR = (hexagons[0].length / 2).ceil();
+
+        tileQ = (tiles.length / 2).ceil();
+        tileR = (tiles[0].length / 2).ceil();
       }
-    } else {
-      print("no change needed");
     }
   }
 
   fillNewArrayEdges() {
-    List test = [];
+    List newHexes = [];
 
     for (int qSock = 0; qSock < hexagons[0].length; qSock ++) {
       int qNew1 = qSock - 1 - hexQ + currentHexQ;
       int rNew1 = 0 - 1 - hexR + currentHexR;
-      test.add([qNew1, rNew1]);
+      newHexes.add([qNew1, rNew1]);
       int qNew2 = qSock - hexQ + currentHexQ - 1;
       int rNew2 = hexagons[0].length - 2 - hexR + currentHexR;
-      test.add([qNew2, rNew2]);
+      newHexes.add([qNew2, rNew2]);
     }
 
     for (int rSock = 0; rSock < hexagons.length; rSock ++) {
       int qNew1 = 0 - 1 - hexQ + currentHexQ;
       int rNew1 = rSock - 1 - hexR + currentHexR;
-      test.add([qNew1, rNew1]);
+      newHexes.add([qNew1, rNew1]);
       int qNew2 = hexagons.length - 2 - hexQ + currentHexQ;
       int rNew2 = rSock - 1 - hexR + currentHexR;
-      test.add([qNew2, rNew2]);
+      newHexes.add([qNew2, rNew2]);
     }
 
-    if (test.isNotEmpty) {
+    if (newHexes.isNotEmpty) {
       List hexToRetrieveUnique = [];
-      for (int x = 0; x < test.length; x++) {
+      for (int x = 0; x < newHexes.length; x++) {
         bool noRepeat = true;
-        List value1 = test[x];
-        for (int y = x + 1; y < test.length; y++) {
-          List value2 = test[y];
+        List value1 = newHexes[x];
+        for (int y = x + 1; y < newHexes.length; y++) {
+          List value2 = newHexes[y];
           if (value1[0] == value2[0] && value1[1] == value2[1]) {
             noRepeat = false;
             break;

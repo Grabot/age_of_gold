@@ -25,7 +25,14 @@ class AgeOfGold extends FlameGame
   Vector2 dragTo = Vector2.zero();
 
   Vector2 dragFrom = Vector2.zero();
-  Vector2 cameraPositionFrom = Vector2.zero();
+
+  bool singleTap = false;
+  bool multiTap = false;
+  int multiPointer1Id = -1;
+  int multiPointer2Id = -1;
+  Vector2 multiPointer1 = Vector2.zero();
+  Vector2 multiPointer2 = Vector2.zero();
+  double multiPointerDist = 0.0;
 
   double frameTimes = 0.0;
   int frames = 0;
@@ -103,9 +110,6 @@ class AgeOfGold extends FlameGame
     super.onTapDown(pointerId, info);
   }
 
-  Vector2 multiTouch1 = Vector2.zero();
-  Vector2 multiTouch2 = Vector2.zero();
-
   @override
   void onDragStart(int pointerId, DragStartInfo info) {
     super.onDragStart(pointerId, info);
@@ -117,7 +121,6 @@ class AgeOfGold extends FlameGame
       multiPointer1Id = pointerId;
     }
     dragFrom = info.eventPosition.game;
-    cameraPositionFrom = cameraPosition.clone();
   }
 
   @override
@@ -136,26 +139,12 @@ class AgeOfGold extends FlameGame
         handlePinchZoom();
       }
     } else {
-      Vector2 temp = info.eventPosition.game.clone();
-      temp.sub(dragFrom);
+      Vector2 currentPos = info.eventPosition.game.clone();
+      currentPos.sub(dragFrom);
       dragFrom = info.eventPosition.game;
-      dragTo.sub(temp);
+      dragTo.sub(currentPos);
     }
-    // Vector2 temp = info.eventPosition.game.clone();
-    // temp.sub(dragFrom);
-    // Vector2 cameraDiff = cameraPosition.clone();
-    // cameraDiff.sub(cameraPositionFrom);
-    // print("camera diff: $cameraDiff  temp: $temp");
-    // dragTo.sub(temp);
   }
-
-  bool singleTap = false;
-  bool multiTap = false;
-  int multiPointer1Id = -1;
-  int multiPointer2Id = -1;
-  Vector2 multiPointer1 = Vector2.zero();
-  Vector2 multiPointer2 = Vector2.zero();
-  double multiPointerDist = 0.0;
 
   void handlePinchZoom() {
     double currentDistance = multiPointer1.distanceTo(multiPointer2);
@@ -194,6 +183,16 @@ class AgeOfGold extends FlameGame
   void update(double dt) {
     super.update(dt);
 
+    updateFps(dt);
+
+    _world!.updateWorld(cameraPosition, camera.zoom, size);
+
+    dragTo += dragAccelerateKey;
+    cameraPosition.add(cameraVelocity * dt * 10);
+    updateMapScroll();
+  }
+
+  updateFps(double dt) {
     frameTimes += dt;
     frames += 1;
 
@@ -211,12 +210,6 @@ class AgeOfGold extends FlameGame
       frameTimes = 0;
       frames = 0;
     }
-
-    _world!.updateWorld(cameraPosition, camera.zoom, size);
-
-    dragTo += dragAccelerateKey;
-    cameraPosition.add(cameraVelocity * dt * 10);
-    updateMapScroll();
   }
 
   void updateMapScroll() {
@@ -282,21 +275,21 @@ class AgeOfGold extends FlameGame
     double currentHeight = camera.canvasSize.y;
     if (_world != null) {
       if (currentZoom > 3.5 && (currentWidth < 2000 && currentHeight < 1100)) {
-        _world!.setHexagonArraySize(6);
-      } else if (currentZoom > 3.5 && (currentWidth > 2000 || currentHeight > 1100)) {
-        _world!.setHexagonArraySize(10);
-      } else if ((currentZoom < 3.5 && currentZoom > 2.5) && (currentWidth < 2000 && currentHeight < 1100)) {
         _world!.setHexagonArraySize(8);
+      } else if (currentZoom > 3.5 && (currentWidth > 2000 || currentHeight > 1100)) {
+        _world!.setHexagonArraySize(12);
+      } else if ((currentZoom < 3.5 && currentZoom > 2.5) && (currentWidth < 2000 && currentHeight < 1100)) {
+        _world!.setHexagonArraySize(10);
       } else if ((currentZoom < 3.5 && currentZoom > 2.5) && (currentWidth > 2000 || currentHeight > 1100)) {
-        _world!.setHexagonArraySize(12);
+        _world!.setHexagonArraySize(14);
       } else if ((currentZoom < 2.5 && currentZoom > 1.5) && (currentWidth < 2000 && currentHeight < 1100)) {
-        _world!.setHexagonArraySize(12);
+        _world!.setHexagonArraySize(14);
       } else if ((currentZoom < 2.5 && currentZoom > 1.5) && (currentWidth > 2000 || currentHeight > 1100)) {
-        _world!.setHexagonArraySize(16);
+        _world!.setHexagonArraySize(18);
       } else if ((currentZoom < 1.5 && currentZoom > 0.5) && (currentWidth < 2000 && currentHeight < 1100)) {
-        _world!.setHexagonArraySize(16);
+        _world!.setHexagonArraySize(18);
       } else if ((currentZoom < 1.5 && currentZoom > 0.5) && (currentWidth > 2000 || currentHeight > 1100)) {
-        _world!.setHexagonArraySize(24);
+        _world!.setHexagonArraySize(26);
       }
     }
   }

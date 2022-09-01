@@ -92,11 +92,11 @@ checkOffset(int q, int r, HexagonList hexagonList, SocketServices socketServices
         for (int i = 0; i < tileOffset; i++) {
           newTiles.add(List.filled(hexagonList.tiles.length, null, growable: true));
         }
-        if (qDiff == -tileOffset) {
+        if (qDiff <= -tileOffset) {
           hexagonList.tiles.removeRange(hexagonList.tiles.length - (tileOffset + 1), hexagonList.tiles.length - 1);
           // We fill it with empty values first, once they are retrieved these entries are filled
           hexagonList.tiles.insertAll(0, newTiles);
-        } else if (qDiff == tileOffset) {
+        } else if (qDiff >= tileOffset) {
           hexagonList.tiles.removeRange(0, tileOffset);
           hexagonList.tiles.insertAll(hexagonList.tiles.length, newTiles);
         } else {
@@ -140,12 +140,12 @@ checkOffset(int q, int r, HexagonList hexagonList, SocketServices socketServices
         for (int i = 0; i < tileOffset; i++) {
           newTiles.add(null);
         }
-        if (rDiff == -tileOffset) {
+        if (rDiff <= -tileOffset) {
           for (int i = 0; i < hexagonList.tiles.length; i++) {
             hexagonList.tiles[i].removeRange(hexagonList.tiles[i].length - (tileOffset + 1), hexagonList.tiles[i].length - 1);
             hexagonList.tiles[i].insertAll(0, newTiles);
           }
-        } else if (rDiff == tileOffset) {
+        } else if (rDiff >= tileOffset) {
           for (int i = 0; i < hexagonList.tiles.length; i++) {
             hexagonList.tiles[i].removeRange(0, tileOffset);
             hexagonList.tiles[i].insertAll(hexagonList.tiles[i].length - 1, newTiles);
@@ -207,7 +207,7 @@ checkOffset(int q, int r, HexagonList hexagonList, SocketServices socketServices
 
 List checkRDiffHexagons(Hexagon currentHexagon, int rDiffHex, HexagonList hexagonList, SocketServices socketServices) {
 
-  List test = [];
+  List rDiffHexagons = [];
   print("offsetting R $rDiffHex");
   if (rDiffHex > 0) {
     // The diff is positive
@@ -221,7 +221,7 @@ List checkRDiffHexagons(Hexagon currentHexagon, int rDiffHex, HexagonList hexago
       for (int qSock = 0; qSock < hexagonList.hexagons[0].length; qSock ++) {
         int qNew = qSock - hexagonList.hexQ + hexagonList.currentHexQ;
         int rNew = hexagonList.hexagons[0].length - 1 - hexagonList.hexR + hexagonList.currentHexR - i;
-        test.add([qNew, rNew]);
+        rDiffHexagons.add([qNew, rNew]);
         // socketServices.getHexagon(qNew, rNew, hexagonList);
       }
     }
@@ -238,19 +238,19 @@ List checkRDiffHexagons(Hexagon currentHexagon, int rDiffHex, HexagonList hexago
       for (int qSock = 0; qSock < hexagonList.hexagons[0].length; qSock ++) {
         int qNew = qSock - hexagonList.hexQ + hexagonList.currentHexQ;
         int rNew = 0 - hexagonList.hexR + hexagonList.currentHexR + i;
-        test.add([qNew, rNew]);
+        rDiffHexagons.add([qNew, rNew]);
         // socketServices.getHexagon(qNew, rNew, hexagonList);
       }
     }
   } else {
     print("R diff is 0");
   }
-  return test;
+  return rDiffHexagons;
 }
 
 List checkQDiffHexagons(Hexagon currentHexagon, int qDiffHex, HexagonList hexagonList, SocketServices socketServices) {
 
-  List test = [];
+  List qDiffHexagons = [];
   print("offsetting Q $qDiffHex");
   if (qDiffHex > 0) {
     // The diff is positive
@@ -263,7 +263,7 @@ List checkQDiffHexagons(Hexagon currentHexagon, int qDiffHex, HexagonList hexago
       for (int rSock = 0; rSock < hexagonList.hexagons.length; rSock ++) {
         int qNew = hexagonList.hexagons.length - 1 - hexagonList.hexQ + hexagonList.currentHexQ - i;
         int rNew = rSock - hexagonList.hexR + hexagonList.currentHexR;
-        test.add([qNew, rNew]);
+        qDiffHexagons.add([qNew, rNew]);
         // socketServices.getHexagon(qNew, rNew, hexagonList);
       }
     }
@@ -277,12 +277,12 @@ List checkQDiffHexagons(Hexagon currentHexagon, int qDiffHex, HexagonList hexago
       for (int rSock = 0; rSock < hexagonList.hexagons.length; rSock ++) {
         int qNew = 0 - hexagonList.hexQ + hexagonList.currentHexQ + i;
         int rNew = rSock - hexagonList.hexR + hexagonList.currentHexR;
-        test.add([qNew, rNew]);
+        qDiffHexagons.add([qNew, rNew]);
         // socketServices.getHexagon(qNew, rNew, hexagonList);
       }
     }
   } else {
     print("Q diff exactly 0");
   }
-  return test;
+  return qDiffHexagons;
 }
