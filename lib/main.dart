@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flame/flame.dart';
 import 'age_of_gold.dart';
 import 'dart:async';
+import 'package:age_of_gold/user_interface/chat_box.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,8 +20,12 @@ Future<void> main() async {
             game: game,
             overlayBuilderMap: const {
               'chatBox': _chatBoxBuilder,
+              'miniMap': _miniMapBuilder
             },
-            initialActiveOverlays: const ['chatBox'],
+            initialActiveOverlays: const [
+              'chatBox',
+              'miniMap'
+            ],
         ),
       )
     )
@@ -28,13 +33,20 @@ Future<void> main() async {
 }
 
 Widget _chatBoxBuilder(BuildContext buildContext, AgeOfGold game) {
+  return chatBoxWidget();
+}
+
+Widget _miniMapBuilder(BuildContext buildContext, AgeOfGold game) {
   return Center(
-    child: Container(
-      width: 400,
-      height: 100,
-      color: Colors.orange,
-      child: const Center(
-        child: Text('Flutter component field'),
+    child: Align(
+      alignment: FractionalOffset.topRight,
+      child: Container(
+        width: 400,
+        height: 100,
+        color: Colors.orange,
+        child: const Center(
+          child: Text('Possible Flutter Minimap'),
+        ),
       ),
     ),
   );
