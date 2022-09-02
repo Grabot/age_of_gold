@@ -16,6 +16,10 @@ class AgeOfGold extends FlameGame
         ScrollDetector,
         MouseMovementDetector,
         KeyboardEvents {
+
+  FocusNode gameFocus;
+  AgeOfGold(this.gameFocus);
+
   // The camera position will always be in the center of the screen
   Vector2 cameraPosition = Vector2.zero();
   Vector2 cameraVelocity = Vector2.zero();
@@ -44,6 +48,8 @@ class AgeOfGold extends FlameGame
   double maxZoom = 4;
   double minZoom = 1;
 
+  bool chatFocus = false;
+
   TextPaint textPaint = TextPaint(
     style: const TextStyle(
       fontSize: 48.0,
@@ -70,6 +76,14 @@ class AgeOfGold extends FlameGame
     });
 
     checkHexagonArraySize();
+  }
+
+  chatBoxFocus(bool chatFocus) {
+    print("focus? $chatFocus");
+    this.chatFocus = chatFocus;
+    if (!chatFocus) {
+      gameFocus.requestFocus();
+    }
   }
 
   @override
@@ -243,19 +257,24 @@ class AgeOfGold extends FlameGame
       RawKeyEvent event,
       Set<LogicalKeyboardKey> keysPressed,
       ) {
+
     final isKeyDown = event is RawKeyDownEvent;
 
-    if (event.logicalKey == LogicalKeyboardKey.keyA) {
-      dragAccelerateKey.x = isKeyDown ? -5 : 0;
-    } else if (event.logicalKey == LogicalKeyboardKey.keyD) {
-      dragAccelerateKey.x = isKeyDown ? 5 : 0;
-    } else if (event.logicalKey == LogicalKeyboardKey.keyW) {
-      dragAccelerateKey.y = isKeyDown ? -5 : 0;
-    } else if (event.logicalKey == LogicalKeyboardKey.keyS) {
-      dragAccelerateKey.y = isKeyDown ? 5 : 0;
-    }
+    if (chatFocus && isKeyDown) {
+      return KeyEventResult.ignored;
+    } else {
+      if (event.logicalKey == LogicalKeyboardKey.keyA) {
+        dragAccelerateKey.x = isKeyDown ? -5 : 0;
+      } else if (event.logicalKey == LogicalKeyboardKey.keyD) {
+        dragAccelerateKey.x = isKeyDown ? 5 : 0;
+      } else if (event.logicalKey == LogicalKeyboardKey.keyW) {
+        dragAccelerateKey.y = isKeyDown ? -5 : 0;
+      } else if (event.logicalKey == LogicalKeyboardKey.keyS) {
+        dragAccelerateKey.y = isKeyDown ? 5 : 0;
+      }
 
-    return KeyEventResult.handled;
+      return KeyEventResult.handled;
+    }
   }
 
   @override

@@ -7,33 +7,35 @@ import 'package:age_of_gold/user_interface/chat_box.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Flame.device.setLandscape();
+  // await Flame.device.setLandscape();
 
   Flame.images.loadAll(<String>[]);
 
-  final game = AgeOfGold();
 
-  runApp(MaterialApp(
+  FocusNode gameFocus = FocusNode();
+  final game = AgeOfGold(gameFocus);
+  runApp(
+      MaterialApp(
         home: Scaffold(
           // appBar: AppBar(title: Text('Age of gold')),
           body: GameWidget(
+            focusNode: gameFocus,
             game: game,
             overlayBuilderMap: const {
               'chatBox': _chatBoxBuilder,
               'miniMap': _miniMapBuilder
             },
             initialActiveOverlays: const [
-              'chatBox',
-              'miniMap'
+              'chatBox'
             ],
         ),
-      )
+      ),
     )
   );
 }
 
 Widget _chatBoxBuilder(BuildContext buildContext, AgeOfGold game) {
-  return chatBoxWidget();
+  return ChatBox(key: UniqueKey(), game: game);
 }
 
 Widget _miniMapBuilder(BuildContext buildContext, AgeOfGold game) {
