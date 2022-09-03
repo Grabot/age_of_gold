@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:age_of_gold/util/socket_services.dart';
 import 'package:flutter/material.dart';
 import 'package:flame/game.dart';
@@ -58,12 +60,17 @@ class AgeOfGold extends FlameGame
     ),
   );
 
+  List<String> randomNames = ["Sander", "Max", "Nanne", "Chris", "Steve", "Harry", "Whazor", "Tessa"];
+  late String userName;
+
   @override
   Future<void> onLoad() async {
     await super.onLoad();
     SocketServices socket = SocketServices();
     socket.setUserId(0);
     socket.joinRoom();
+
+    userName = randomNames[Random().nextInt(randomNames.length)];
 
     camera.followVector2(cameraPosition, relativeOffset: Anchor.center);
     camera.zoom = 4;
@@ -89,7 +96,7 @@ class AgeOfGold extends FlameGame
   @override
   void render(Canvas canvas) {
     super.render(canvas);
-    textPaint.render(canvas, "Age of Gold!\nFPS: $fps", Vector2(10, 10));
+    textPaint.render(canvas, "Age of Gold!\nFPS: $fps\nUser: $userName", Vector2(10, 10));
   }
 
   @override

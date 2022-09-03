@@ -1,7 +1,9 @@
 class Message {
   late int id;
-  late int senderId;
+  late String senderName;
   late String body;
+  late DateTime timestamp;
+  late bool me;
 
-  Message(this.id, this.senderId, this.body);
+  Message(this.id, this.senderName, this.body, this.me, this.timestamp);
 }
