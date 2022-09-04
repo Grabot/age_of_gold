@@ -2,6 +2,8 @@
 import 'package:flutter/material.dart';
 
 import '../age_of_gold.dart';
+import '../util/socket_services.dart';
+import 'chat_messages.dart';
 import 'user_interface_components/message.dart';
 import 'package:intl/intl.dart';
 
@@ -23,26 +25,22 @@ class ChatBoxState extends State<ChatBox> {
   final FocusNode _focusChatBox = FocusNode();
   var messageScrollController = ScrollController();
 
-  List<Message> messages = [];
-
   TextEditingController chatFieldController = TextEditingController();
+
+  SocketServices socket = SocketServices();
+  late ChatMessages chatMessages;
 
   @override
   void initState() {
-    DateTime example = DateTime.now();
-    messages.add(Message(1, "Max", "message test 1message test 1 message test 1 message test 1 message test 1 message test 1 message test 1message test 1 message test 1", false, example));
-    messages.add(Message(2, "Max", "message test 2 message test 2 message test 2 message test 2 message test 2 message test 2 message test 2 message test 2 message test 2 message test 2", false, example));
-    messages.add(Message(3, "Harry", "message test 3", false, example));
-    messages.add(Message(4, "Steve", "message test 4", false, example));
-    messages.add(Message(5, "Tessa", "message test 5", false, example));
-    messages.add(Message(6, "Marlou", "message test 6", false, example));
-    messages.add(Message(7, "Marlou", "message test 7", false, example));
-    messages.add(Message(8, "Kristi", "message test 8", false, example));
-    messages.add(Message(9, "Test", "message test 9", false, example));
-    messages.add(Message(10, "Test2", "message test 10", false, example));
-    messages.add(Message(11, "Test2", "message test 11", false, example));
+    chatMessages = ChatMessages();
+    socket.checkMessages(chatMessages);
+    socket.addListener(socketListener);
     _focusChatBox.addListener(_onFocusChange);
     super.initState();
+  }
+
+  socketListener() {
+    setState(() {});
   }
 
   void _onFocusChange() {
@@ -73,28 +71,67 @@ class ChatBoxState extends State<ChatBox> {
     );
   }
 
+  sendMessage(String message) {
+    socket.sendMessage(message);
+    chatFieldController.text = "";
+  }
+
   Widget chatBoxTextField() {
-    return TextFormField(
-      focusNode: _focusChatBox,
-      controller: chatFieldController,
-      decoration: const InputDecoration(
-        border: UnderlineInputBorder(),
-        labelText: 'Type your message',
-      ),
+    return Row(
+      children: [
+        SizedBox(
+          width: 365,
+          height: 50,
+          child: TextFormField(
+            validator: (val) {
+              if (val == null ||
+                  val.isEmpty ||
+                  val.trimRight().isEmpty) {
+                return "Can't send an empty message";
+              }
+              return null;
+            },
+            onFieldSubmitted: (value) {
+              sendMessage(value);
+            },
+            keyboardType: TextInputType.multiline,
+            focusNode: _focusChatBox,
+            controller: chatFieldController,
+            decoration: const InputDecoration(
+              border: UnderlineInputBorder(),
+              labelText: 'Type your message',
+            ),
+          ),
+        ),
+        GestureDetector(
+          onTap: () {
+            sendMessage(chatFieldController.text);
+          },
+          child: Container(
+            height: 35,
+            width: 35,
+            padding: const EdgeInsets.symmetric(horizontal: 6),
+            child: const Icon(
+              Icons.send,
+              color: Colors.white,
+            )
+          ),
+        )
+      ]
     );
   }
 
   Widget messageList() {
-    return messages.isNotEmpty
+    return chatMessages.chatMessages.isNotEmpty
         ? ListView.builder(
-        itemCount: messages.length,
+        itemCount: chatMessages.chatMessages.length,
         reverse: true,
         controller: messageScrollController,
         itemBuilder: (context, index) {
-          final reversedIndex = messages.length - 1 - index;
+          final reversedIndex = chatMessages.chatMessages.length - 1 - index;
           return MessageTile(
               key: UniqueKey(),
-              message: messages[reversedIndex]);
+              message: chatMessages.chatMessages[reversedIndex]);
         })
         : Container();
   }
@@ -132,7 +169,7 @@ class _MessageTileState extends State<MessageTile> {
             text: "[${DateFormat('HH:mm')
                 .format(widget.message.timestamp)}] ",
             style:
-            TextStyle(color: Colors.white54, fontSize: 12),
+            const TextStyle(color: Colors.white54, fontSize: 12),
           ),
           TextSpan(
             text: "${widget.message.senderName}: ",

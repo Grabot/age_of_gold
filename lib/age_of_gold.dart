@@ -63,10 +63,11 @@ class AgeOfGold extends FlameGame
   List<String> randomNames = ["Sander", "Max", "Nanne", "Chris", "Steve", "Harry", "Whazor", "Tessa"];
   late String userName;
 
+  SocketServices socket = SocketServices();
+
   @override
   Future<void> onLoad() async {
     await super.onLoad();
-    SocketServices socket = SocketServices();
     socket.setUserId(0);
     socket.joinRoom();
 
@@ -82,7 +83,12 @@ class AgeOfGold extends FlameGame
       socket.leaveRoom();
     });
 
+    socket.addListener(socketListener);
     checkHexagonArraySize();
+  }
+
+  socketListener() {
+    print("socket did something! 1");
   }
 
   chatBoxFocus(bool chatFocus) {

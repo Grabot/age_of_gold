@@ -8,6 +8,7 @@ import '../component/hexagon.dart';
 import '../component/tile.dart';
 import '../component/type/grass_tile.dart';
 import '../constants/url_base.dart';
+import '../user_interface/chat_messages.dart';
 import 'hexagon_list.dart';
 
 
@@ -73,12 +74,30 @@ class SocketServices extends ChangeNotifier {
     socket.on('send_hexagon_success', (data) {
       print("send_hexagon_success");
       addHexagon(data);
-      notifyListeners();
     });
+  }
+
+  late ChatMessages chatMessages;
+  void checkMessages(ChatMessages chatMessages) {
+    this.chatMessages = chatMessages;
     socket.on('send_message_success', (data) {
       print("received a message");
-      print(data);
+      receivedMessage(data);
+      notifyListeners();
     });
+  }
+
+  void receivedMessage(String message) {
+    chatMessages.addMessage(message);
+  }
+
+  void sendMessage(String message) {
+    if (socket.connected) {
+      socket.emit("send_message", {
+        'user_id': userId,
+        'message': message
+      });
+    }
   }
 
   void leaveRoom() {
