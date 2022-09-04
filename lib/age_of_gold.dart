@@ -68,10 +68,11 @@ class AgeOfGold extends FlameGame
   @override
   Future<void> onLoad() async {
     await super.onLoad();
-    socket.setUserId(0);
-    socket.joinRoom();
 
     userName = randomNames[Random().nextInt(randomNames.length)];
+
+    socket.setUser(0, userName);
+    socket.joinRoom();
 
     camera.followVector2(cameraPosition, relativeOffset: Anchor.center);
     camera.zoom = 4;

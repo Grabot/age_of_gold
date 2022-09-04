@@ -81,6 +81,7 @@ class World extends Component {
     Tile? mouseTileTest = hexagonList.getTileFromCoordinates(q, r);
     if (mouseTileTest != null) {
       mouseTile = mouseTileTest;
+      print("tile tapped  q: ${mouseTileTest.q} r: ${mouseTileTest.r}");
     }
   }
 

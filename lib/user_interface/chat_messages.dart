@@ -14,16 +14,15 @@ class ChatMessages {
   }
 
   initializeChatMessages() {
-    print("here we keep track of the messages");
     DateTime currentTime = DateTime.now();
     String message = "Welcome to the global chat!";
     Message newMessage = Message(1, "Server", message, false, currentTime);
     chatMessages.add(newMessage);
   }
 
-  addMessage(String message) {
+  addMessage(String userName, String message) {
     DateTime currentTime = DateTime.now();
-    Message newMessage = Message(1, "Server", message, false, currentTime);
+    Message newMessage = Message(1, userName, message, false, currentTime);
     chatMessages.add(newMessage);
   }
 }

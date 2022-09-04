@@ -17,8 +17,7 @@ class SocketServices extends ChangeNotifier {
 
   // We will use this to store the user's id, might change it later.
   int userId = -1;
-
-  // int hexagonsToRetrieve = 0;
+  String userName = "";
 
   static final SocketServices _instance = SocketServices._internal();
 
@@ -30,8 +29,9 @@ class SocketServices extends ChangeNotifier {
     return _instance;
   }
 
-  void setUserId(int id) {
+  void setUser(int id, String name) {
     userId = id;
+    userName = name;
   }
 
   startSockConnection() {
@@ -58,6 +58,26 @@ class SocketServices extends ChangeNotifier {
     socket.open();
   }
 
+  void joinHexRoom(int q, int r) {
+    socket.emit(
+      "join_hex",
+      {
+        'q': q,
+        'r': r,
+      },
+    );
+  }
+
+  void leaveHexRoom(int q, int r) {
+    socket.emit(
+      "leave_hex",
+      {
+        'q': q,
+        'r': r,
+      },
+    );
+  }
+
   void joinRoom() {
     print("joining room");
     socket.emit(
@@ -82,19 +102,20 @@ class SocketServices extends ChangeNotifier {
     this.chatMessages = chatMessages;
     socket.on('send_message_success', (data) {
       print("received a message");
-      receivedMessage(data);
+      receivedMessage(data["user_name"], data["message"]);
       notifyListeners();
     });
   }
 
-  void receivedMessage(String message) {
-    chatMessages.addMessage(message);
+  void receivedMessage(String userName, String message) {
+    print("received message $userName, message: $message");
+    chatMessages.addMessage(userName, message);
   }
 
   void sendMessage(String message) {
     if (socket.connected) {
       socket.emit("send_message", {
-        'user_id': userId,
+        'user_name': userName,
         'message': message
       });
     }
@@ -109,7 +130,7 @@ class SocketServices extends ChangeNotifier {
   }
 
   getHexagon(int q, int r) {
-    print("getting hexagon q: $q r: $r");
+    joinHexRoom(q, r);
 
     socket.emit(
       "get_hexagon",

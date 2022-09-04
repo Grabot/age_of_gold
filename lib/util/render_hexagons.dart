@@ -81,6 +81,7 @@ checkOffset(int q, int r, HexagonList hexagonList, SocketServices socketServices
   // for possible isometric graphics). 9 is defined in `tileOffset`
 
   List hexToRetrieve = [];
+  List hexToRemove = [];
   if (q != hexagonList.currentQ) {
     int qDiff = (q - hexagonList.currentQ);
     if (qDiff >= tileOffset || qDiff <= -tileOffset) {
@@ -114,8 +115,12 @@ checkOffset(int q, int r, HexagonList hexagonList, SocketServices socketServices
             hexagonList.currentHexQ = currentHexagon.hexQArray;
             hexagonList.currentHexR = currentHexagon.hexRArray;
 
-            hexToRetrieve.addAll(checkRDiffHexagons(currentHexagon, rDiffHex, hexagonList, socketServices));
-            hexToRetrieve.addAll(checkQDiffHexagons(currentHexagon, qDiffHex, hexagonList, socketServices));
+            List hexesR = checkRDiffHexagons(currentHexagon, rDiffHex, hexagonList, socketServices);
+            hexToRetrieve.addAll(hexesR[0]);
+            hexToRemove.addAll(hexesR[1]);
+            List hexesQ = checkQDiffHexagons(currentHexagon, qDiffHex, hexagonList, socketServices);
+            hexToRetrieve.addAll(hexesQ[0]);
+            hexToRemove.addAll(hexesQ[1]);
           }
         }
       }
@@ -166,8 +171,12 @@ checkOffset(int q, int r, HexagonList hexagonList, SocketServices socketServices
             hexagonList.currentHexQ = currentHexagon.hexQArray;
             hexagonList.currentHexR = currentHexagon.hexRArray;
 
-            hexToRetrieve.addAll(checkRDiffHexagons(currentHexagon, rDiffHex, hexagonList, socketServices));
-            hexToRetrieve.addAll(checkQDiffHexagons(currentHexagon, qDiffHex, hexagonList, socketServices));
+            List hexesR = checkRDiffHexagons(currentHexagon, rDiffHex, hexagonList, socketServices);
+            hexToRetrieve.addAll(hexesR[0]);
+            hexToRemove.addAll(hexesR[1]);
+            List hexesQ = checkQDiffHexagons(currentHexagon, qDiffHex, hexagonList, socketServices);
+            hexToRetrieve.addAll(hexesQ[0]);
+            hexToRemove.addAll(hexesQ[1]);
           }
         }
         hexagonList.currentR = r;
@@ -203,11 +212,33 @@ checkOffset(int q, int r, HexagonList hexagonList, SocketServices socketServices
       socketServices.getHexagon(hexToRetrieveUnique[x][0], hexToRetrieveUnique[x][1]);
     }
   }
+
+  if (hexToRemove.isNotEmpty) {
+    List hexToRemoveUnique = [];
+    for (int x = 0; x < hexToRemove.length; x++) {
+      bool noRepeat = true;
+      List value1 = hexToRemove[x];
+      for (int y = x + 1; y < hexToRemove.length; y++) {
+        List value2 = hexToRemove[y];
+        if (value1[0] == value2[0] && value1[1] == value2[1]) {
+          noRepeat = false;
+          break;
+        }
+      }
+      if (noRepeat) {
+        hexToRemoveUnique.add(value1);
+      }
+    }
+    for (int x = 0; x < hexToRemoveUnique.length; x++) {
+      socketServices.leaveHexRoom(hexToRemoveUnique[x][0], hexToRemoveUnique[x][1]);
+    }
+  }
 }
 
-List checkRDiffHexagons(Hexagon currentHexagon, int rDiffHex, HexagonList hexagonList, SocketServices socketServices) {
+List<List> checkRDiffHexagons(Hexagon currentHexagon, int rDiffHex, HexagonList hexagonList, SocketServices socketServices) {
 
   List rDiffHexagons = [];
+  List rDiffOldHexagons = [];
   print("offsetting R $rDiffHex");
   if (rDiffHex > 0) {
     // The diff is positive
@@ -222,7 +253,8 @@ List checkRDiffHexagons(Hexagon currentHexagon, int rDiffHex, HexagonList hexago
         int qNew = qSock - hexagonList.hexQ + hexagonList.currentHexQ;
         int rNew = hexagonList.hexagons[0].length - 1 - hexagonList.hexR + hexagonList.currentHexR - i;
         rDiffHexagons.add([qNew, rNew]);
-        // socketServices.getHexagon(qNew, rNew, hexagonList);
+
+        rDiffOldHexagons.add([qNew, rNew - hexagonList.hexagons[0].length]);
       }
     }
   } else if (rDiffHex < 0) {
@@ -239,18 +271,20 @@ List checkRDiffHexagons(Hexagon currentHexagon, int rDiffHex, HexagonList hexago
         int qNew = qSock - hexagonList.hexQ + hexagonList.currentHexQ;
         int rNew = 0 - hexagonList.hexR + hexagonList.currentHexR + i;
         rDiffHexagons.add([qNew, rNew]);
-        // socketServices.getHexagon(qNew, rNew, hexagonList);
+
+        rDiffOldHexagons.add([qNew, rNew + hexagonList.hexagons[0].length]);
       }
     }
   } else {
     print("R diff is 0");
   }
-  return rDiffHexagons;
+  return [rDiffHexagons, rDiffOldHexagons];
 }
 
-List checkQDiffHexagons(Hexagon currentHexagon, int qDiffHex, HexagonList hexagonList, SocketServices socketServices) {
+List<List> checkQDiffHexagons(Hexagon currentHexagon, int qDiffHex, HexagonList hexagonList, SocketServices socketServices) {
 
   List qDiffHexagons = [];
+  List qDiffOldHexagons = [];
   print("offsetting Q $qDiffHex");
   if (qDiffHex > 0) {
     // The diff is positive
@@ -264,7 +298,8 @@ List checkQDiffHexagons(Hexagon currentHexagon, int qDiffHex, HexagonList hexago
         int qNew = hexagonList.hexagons.length - 1 - hexagonList.hexQ + hexagonList.currentHexQ - i;
         int rNew = rSock - hexagonList.hexR + hexagonList.currentHexR;
         qDiffHexagons.add([qNew, rNew]);
-        // socketServices.getHexagon(qNew, rNew, hexagonList);
+
+        qDiffOldHexagons.add([qNew - hexagonList.hexagons.length, rNew]);
       }
     }
   } else if (qDiffHex < 0) {
@@ -278,11 +313,12 @@ List checkQDiffHexagons(Hexagon currentHexagon, int qDiffHex, HexagonList hexago
         int qNew = 0 - hexagonList.hexQ + hexagonList.currentHexQ + i;
         int rNew = rSock - hexagonList.hexR + hexagonList.currentHexR;
         qDiffHexagons.add([qNew, rNew]);
-        // socketServices.getHexagon(qNew, rNew, hexagonList);
+
+        qDiffOldHexagons.add([qNew + hexagonList.hexagons.length, rNew]);
       }
     }
   } else {
     print("Q diff exactly 0");
   }
-  return qDiffHexagons;
+  return [qDiffHexagons, qDiffOldHexagons];
 }

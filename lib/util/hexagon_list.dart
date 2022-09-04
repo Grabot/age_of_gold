@@ -132,6 +132,7 @@ class HexagonList {
             hexagons[i].removeAt(0);
             hexagons[i].removeAt(hexagons[i].length - 1);
           }
+          removeArrayEdges();
         }
         while (tiles.length > arraySizeTile) {
           tiles.removeAt(tiles.length - 1);
@@ -147,6 +148,54 @@ class HexagonList {
 
         tileQ = (tiles.length / 2).ceil();
         tileR = (tiles[0].length / 2).ceil();
+      }
+    }
+  }
+
+  removeArrayEdges() {
+    // This is only needed to leave the hex rooms from the socket connection.
+    List oldHexes = [];
+
+    for (int qSock = -2; qSock < hexagons[0].length; qSock ++) {
+      // We start from -2 because the array is too small by 2
+      int qNew1 = qSock - hexQ + currentHexQ + 2;
+      int rNew1 = 0 - hexR + currentHexR;
+      oldHexes.add([qNew1, rNew1]);
+      int qNew2 = qSock - hexQ + currentHexQ + 2;
+      // The length is off by 2 and we add 1 more to get the correct row
+      int rNew2 = hexagons[0].length - hexR + currentHexR + 1;
+      print("q: $qNew2 r: $rNew2");
+      oldHexes.add([qNew2, rNew2]);
+    }
+
+    for (int rSock = -2; rSock < hexagons.length; rSock ++) {
+      int qNew1 = 0 - hexQ + currentHexQ;
+      int rNew1 = rSock - hexR + currentHexR + 2;
+      oldHexes.add([qNew1, rNew1]);
+      int qNew2 = hexagons.length - hexQ + currentHexQ + 1;
+      int rNew2 = rSock - hexR + currentHexR + 2;
+      oldHexes.add([qNew2, rNew2]);
+    }
+
+    if (oldHexes.isNotEmpty) {
+      List hexToLeaveUnique = [];
+      for (int x = 0; x < oldHexes.length; x++) {
+        bool noRepeat = true;
+        List value1 = oldHexes[x];
+        for (int y = x + 1; y < oldHexes.length; y++) {
+          List value2 = oldHexes[y];
+          if (value1[0] == value2[0] && value1[1] == value2[1]) {
+            noRepeat = false;
+            break;
+          }
+        }
+        if (noRepeat) {
+          hexToLeaveUnique.add(value1);
+        }
+      }
+      for (int x = 0; x < hexToLeaveUnique.length; x++) {
+        socketServices.leaveHexRoom(
+            hexToLeaveUnique[x][0], hexToLeaveUnique[x][1]);
       }
     }
   }
