@@ -1,0 +1,56 @@
+import 'dart:math';
+import 'dart:typed_data';
+import 'dart:ui';
+import 'package:flame/components.dart';
+import 'package:flutter/material.dart';
+
+import '../component/tile.dart';
+import 'global.dart';
+
+Vector2 pointyHexCorner(double i, Vector2 center) {
+  double angleDeg = 60 * i;
+
+  double angleRad = pi/180 * angleDeg;
+  double pointX = center.x + (xSize * cos(angleRad)) + xSize;
+  double pointY = center.y + (ySize * sin(angleRad)) + ySize;
+  // Not sure why but the tile is offset by 1 bottom left, so we adjust it.
+  pointX -= (xSize + (xSize/2));
+  pointY -= (ySize/2) * sqrt(3);
+  return Vector2(pointX, pointY);
+}
+
+drawTileSelection(Tile selectedTile, Canvas canvas) {
+  Vector2 point1 = pointyHexCorner(0, selectedTile.getPos(0));
+  Vector2 point2 = pointyHexCorner(1, selectedTile.getPos(0));
+  Vector2 point3 = pointyHexCorner(2, selectedTile.getPos(0));
+  Vector2 point4 = pointyHexCorner(3, selectedTile.getPos(0));
+  Vector2 point5 = pointyHexCorner(4, selectedTile.getPos(0));
+  Vector2 point6 = pointyHexCorner(5, selectedTile.getPos(0));
+
+  var points = Float32List.fromList(
+      [
+        point1.x, point1.y,
+        point2.x, point2.y,
+        point3.x, point3.y,
+        point4.x, point4.y,
+        point5.x, point5.y,
+        point6.x, point6.y,
+        point1.x, point1.y
+      ]);
+
+  Paint selectedPaint = Paint()
+    ..maskFilter = const MaskFilter.blur(BlurStyle.solid, 5)
+    ..style = PaintingStyle.stroke
+    ..color = const Color.fromRGBO(255, 255, 0, 1.0)
+    ..strokeWidth = 1;
+
+  canvas.drawRawPoints(
+      PointMode.polygon,
+      points,
+      selectedPaint
+  );
+}
+
+tileSelected(Tile selectedTile, Canvas canvas) {
+  drawTileSelection(selectedTile, canvas);
+}

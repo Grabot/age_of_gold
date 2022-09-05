@@ -1,3 +1,4 @@
+import 'package:age_of_gold/user_interface/tile_box.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:flame/flame.dart';
@@ -13,6 +14,7 @@ Future<void> main() async {
 
 
   FocusNode gameFocus = FocusNode();
+  // final tileBox = TileBox(key: UniqueKey(), game: game);
   final game = AgeOfGold(gameFocus);
   runApp(
       MaterialApp(
@@ -23,7 +25,7 @@ Future<void> main() async {
             game: game,
             overlayBuilderMap: const {
               'chatBox': _chatBoxBuilder,
-              'miniMap': _miniMapBuilder
+              'tileBox': _tileBoxBuilder
             },
             initialActiveOverlays: const [
               'chatBox'
@@ -32,36 +34,14 @@ Future<void> main() async {
       ),
     )
   );
+
 }
 
 Widget _chatBoxBuilder(BuildContext buildContext, AgeOfGold game) {
   return ChatBox(key: UniqueKey(), game: game);
 }
 
-Widget _miniMapBuilder(BuildContext buildContext, AgeOfGold game) {
-  return Center(
-    child: Align(
-      alignment: FractionalOffset.topRight,
-      child: Container(
-        width: 400,
-        height: 100,
-        color: Colors.orange,
-        child: const Center(
-          child: Text('Possible Flutter Minimap'),
-        ),
-      ),
-    ),
-  );
+Widget _tileBoxBuilder(BuildContext buildContext, AgeOfGold game) {
+  return TileBox(key: UniqueKey(), game: game);
 }
 
-// Future<void> main() async {
-//   WidgetsFlutterBinding.ensureInitialized();
-//   await Flame.device.setLandscape();
-//
-//   Flame.images.loadAll(<String>[
-//   ]);
-//
-//   final game = AgeOfGold();
-//
-//   runApp(GameWidget(game: game));
-// }

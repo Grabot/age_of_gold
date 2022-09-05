@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:age_of_gold/user_interface/selected_tile_info.dart';
+import 'package:age_of_gold/user_interface/tile_box.dart';
 import 'package:age_of_gold/util/socket_services.dart';
 import 'package:flutter/material.dart';
 import 'package:flame/game.dart';
@@ -68,7 +70,6 @@ class AgeOfGold extends FlameGame
   @override
   Future<void> onLoad() async {
     await super.onLoad();
-
     userName = randomNames[Random().nextInt(randomNames.length)];
 
     socket.setUser(0, userName);
@@ -130,6 +131,9 @@ class AgeOfGold extends FlameGame
   void onTapUp(int pointerId, TapUpInfo info) {
     Vector2 tapPos = Vector2(info.eventPosition.game.x, info.eventPosition.game.y);
     _world!.onTappedUp(tapPos);
+    if (!overlays.isActive('tileBox')) {
+      overlays.add('tileBox');
+    }
     super.onTapUp(pointerId, info);
   }
 
@@ -149,6 +153,7 @@ class AgeOfGold extends FlameGame
       multiPointer1Id = pointerId;
     }
     dragFrom = info.eventPosition.game;
+    // _world!.resetClick();
   }
 
   @override
@@ -277,6 +282,7 @@ class AgeOfGold extends FlameGame
     if (chatFocus && isKeyDown) {
       return KeyEventResult.ignored;
     } else {
+      // _world!.resetClick();
       if (event.logicalKey == LogicalKeyboardKey.keyA) {
         dragAccelerateKey.x = isKeyDown ? -5 : 0;
       } else if (event.logicalKey == LogicalKeyboardKey.keyD) {
