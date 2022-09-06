@@ -6,4 +6,4 @@ int radius = 4;
 // We define an offset, this would be when you should retrieve new hexagons
 int tileOffset = radius * 2 + 1;
 
-int mapSize = 20;
+int mapSize = 200;
