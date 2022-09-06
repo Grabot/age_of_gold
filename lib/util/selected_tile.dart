@@ -13,9 +13,6 @@ Vector2 pointyHexCorner(double i, Vector2 center) {
   double angleRad = pi/180 * angleDeg;
   double pointX = center.x + (xSize * cos(angleRad)) + xSize;
   double pointY = center.y + (ySize * sin(angleRad)) + ySize;
-  // Not sure why but the tile is offset by 1 bottom left, so we adjust it.
-  pointX -= (xSize + (xSize/2));
-  pointY -= (ySize/2) * sqrt(3);
   return Vector2(pointX, pointY);
 }
 

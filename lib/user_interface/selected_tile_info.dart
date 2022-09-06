@@ -19,9 +19,25 @@ class SelectedTileInfo extends ChangeNotifier {
     return _instance;
   }
 
+  String getTileType() {
+    if (selectedTile != null) {
+      if (selectedTile!.tileType == 0) {
+        return "Grass";
+      } else if (selectedTile!.tileType == 1) {
+        return "Water";
+      } else if (selectedTile!.tileType == 2) {
+        return "Dirt";
+      } else {
+        return "Type unknown";
+      }
+    } else {
+      return "";
+    }
+  }
+
   String tileInfo() {
     if (selectedTile != null) {
-      return "q: ${selectedTile!.q} r: ${selectedTile!.r}";
+      return "q: ${selectedTile!.tileQ} r: ${selectedTile!.tileR}";
     } else {
       return "no tile selected";
     }

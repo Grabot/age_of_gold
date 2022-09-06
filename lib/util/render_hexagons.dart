@@ -33,18 +33,19 @@ renderHexagons(Canvas canvas, Vector2 camera, HexagonList hexagonList, Rect scre
     }
   }
 
-  Tile? hexagonTile = hexagonList.getTileFromCoordinates(q, r);
-  if (hexagonTile != null) {
-    Hexagon? currentHexagon = hexagonTile.hexagon;
-    final shapeBounds = Rect.fromLTRB(hexagonTile.getPos(0).x - 10, hexagonTile.getPos(0).y - 10, hexagonTile.getPos(0).x + 10, hexagonTile.getPos(0).y + 10);
-    final paint = Paint()..color = Colors.blue;
-    canvas.drawRect(shapeBounds, paint);
-    if (currentHexagon != null) {
-      final shapeBounds = Rect.fromLTRB(currentHexagon.center.x - 10, currentHexagon.center.y - 10, currentHexagon.center.x + 10, currentHexagon.center.y + 10);
-      final paint = Paint()..color = Colors.red;
-      canvas.drawRect(shapeBounds, paint);
-    }
-  }
+  // Debugging
+  // Tile? hexagonTile = hexagonList.getTileFromCoordinates(q, r);
+  // if (hexagonTile != null) {
+  //   Hexagon? currentHexagon = hexagonTile.hexagon;
+  //   final shapeBounds = Rect.fromLTRB(hexagonTile.getPos(0).x - 10, hexagonTile.getPos(0).y - 10, hexagonTile.getPos(0).x + 10, hexagonTile.getPos(0).y + 10);
+  //   final paint = Paint()..color = Colors.blue;
+  //   canvas.drawRect(shapeBounds, paint);
+  //   if (currentHexagon != null) {
+  //     final shapeBounds = Rect.fromLTRB(currentHexagon.center.x - 10, currentHexagon.center.y - 10, currentHexagon.center.x + 10, currentHexagon.center.y + 10);
+  //     final paint = Paint()..color = Colors.red;
+  //     canvas.drawRect(shapeBounds, paint);
+  //   }
+  // }
 }
 
 drawLeft(Canvas canvas, int variation, Hexagon currentHexagon, Rect screen) {

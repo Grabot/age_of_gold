@@ -40,7 +40,9 @@ class ChatBoxState extends State<ChatBox> {
   }
 
   socketListener() {
-    setState(() {});
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   void _onFocusChange() {

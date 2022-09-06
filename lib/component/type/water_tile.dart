@@ -6,7 +6,7 @@ import '../tile.dart';
 
 class WaterTile extends Tile {
 
-  WaterTile(super.q, super.r, super.tileType);
+  WaterTile(super.q, super.r, super.tileType, super.tileQ, super.tileR);
 
   @override
   updateBaseTile(SpriteBatch baseBatch, int rotate) {

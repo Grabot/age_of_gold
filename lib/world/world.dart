@@ -54,9 +54,9 @@ class World extends Component {
     paint.style = PaintingStyle.stroke;
     canvas.drawRect(screen, paint);
 
-    final shapeBounds = Rect.fromLTRB(cameraPosition.x - 10, cameraPosition.y - 10, cameraPosition.x + 10, cameraPosition.y + 10);
-    final paintCenterCamera = Paint()..color = Colors.green;
-    canvas.drawRect(shapeBounds, paintCenterCamera);
+    // final shapeBounds = Rect.fromLTRB(cameraPosition.x - 10, cameraPosition.y - 10, cameraPosition.x + 10, cameraPosition.y + 10);
+    // final paintCenterCamera = Paint()..color = Colors.green;
+    // canvas.drawRect(shapeBounds, paintCenterCamera);
 
     if (mouseTile != null) {
       tileSelected(mouseTile!, canvas);

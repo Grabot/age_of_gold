@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:age_of_gold/component/type/dirt_tile.dart';
 import 'package:age_of_gold/util/global.dart';
 import 'package:flutter/material.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
@@ -7,6 +8,7 @@ import 'package:socket_io_client/socket_io_client.dart' as IO;
 import '../component/hexagon.dart';
 import '../component/tile.dart';
 import '../component/type/grass_tile.dart';
+import '../component/type/water_tile.dart';
 import '../constants/url_base.dart';
 import '../user_interface/chat_messages.dart';
 import 'hexagon_list.dart';
@@ -107,6 +109,32 @@ class SocketServices extends ChangeNotifier {
     });
   }
 
+  void checkTile() {
+    socket.on('change_tile_type_success', (data) {
+      print("tile type changed successfully");
+      print(data);
+      notifyListeners();
+    });
+    socket.on('change_tile_type_failed', (data) {
+      print("tile type changed failed");
+      print(data);
+      notifyListeners();
+    });
+  }
+
+  void changeTileType(int q, int r, int tileType, int wrapQ, int wrapR) {
+    // The q and r will correspond to the correct tile,
+    // we send the wrap variables of the hexagon too in case
+    // the user is currently wrapped around the map
+    socket.emit("change_tile_type", {
+      "q": q,
+      "r": r,
+      "type": tileType,
+      "wrap_q": wrapQ,
+      "wrap_r": wrapR
+    });
+  }
+
   void receivedMessage(String userName, String message) {
     print("received message $userName, message: $message");
     chatMessages.addMessage(userName, message);
@@ -170,11 +198,33 @@ class SocketServices extends ChangeNotifier {
           tileDataR += (mapSize * 2 + 1) * -9 * hexagon.getWrapR();
         }
       }
-      GrassTile tile = GrassTile(
-          tileDataQ,
-          tileDataR,
-          tileData["type"]
-      );
+      // If the type is 0
+      Tile? tile;
+      if (tileData["type"] == 1) {
+        tile = WaterTile(
+            tileDataQ,
+            tileDataR,
+            tileData["type"],
+            tileData["q"],
+            tileData["r"]
+        );
+      } else if (tileData["type"] == 2) {
+        tile = DirtTile(
+            tileDataQ,
+            tileDataR,
+            tileData["type"],
+            tileData["q"],
+            tileData["r"]
+        );
+      } else {
+        tile = GrassTile(
+            tileDataQ,
+            tileDataR,
+            tileData["type"],
+            tileData["q"],
+            tileData["r"]
+        );
+      }
       if (index == 30) {
         // The 31th tile from the list will be the center.
         // We set this as hexagon position

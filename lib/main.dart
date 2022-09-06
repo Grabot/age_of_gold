@@ -28,7 +28,8 @@ Future<void> main() async {
               'tileBox': _tileBoxBuilder
             },
             initialActiveOverlays: const [
-              'chatBox'
+              'chatBox',
+              'tileBox'
             ],
         ),
       ),

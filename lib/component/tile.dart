@@ -9,13 +9,16 @@ import '../util/global.dart';
 
 class Tile {
 
-  // late int tileId;
-
   late Vector2 position;
   late int q;
   late int r;
   late int s;
   late int tileType;
+
+  // If the map is wrapped around the q will reflect the position accurately
+  // But we still save the wrapped Q to show the user and to use it to change.
+  late int tileQ;
+  late int tileR;
 
   double scaleX = 1;
   double scaleY = 1.05;
@@ -23,7 +26,7 @@ class Tile {
   Hexagon? hexagon;
 
   // We assume the condition r + s + q = 0 is true.
-  Tile(this.q, this.r, this.tileType) {
+  Tile(this.q, this.r, this.tileType, this.tileQ, this.tileR) {
     double xPos = xSize * 3 / 2 * q - xSize;
     double yTr1 = ySize * (sqrt(3) / 2 * q);
     yTr1 *= -1; // The y axis gets positive going down, so we flip it.

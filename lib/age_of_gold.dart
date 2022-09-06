@@ -62,7 +62,7 @@ class AgeOfGold extends FlameGame
     ),
   );
 
-  List<String> randomNames = ["Sander", "Max", "Nanne", "Chris", "Steve", "Harry", "Whazor", "Tessa"];
+  List<String> randomNames = ["Max", "Nanne", "Chris", "Steve", "Harry", "Whazor", "Tessa"];
   late String userName;
 
   SocketServices socket = SocketServices();
@@ -131,9 +131,6 @@ class AgeOfGold extends FlameGame
   void onTapUp(int pointerId, TapUpInfo info) {
     Vector2 tapPos = Vector2(info.eventPosition.game.x, info.eventPosition.game.y);
     _world!.onTappedUp(tapPos);
-    if (!overlays.isActive('tileBox')) {
-      overlays.add('tileBox');
-    }
     super.onTapUp(pointerId, info);
   }
 
@@ -291,6 +288,11 @@ class AgeOfGold extends FlameGame
         dragAccelerateKey.y = isKeyDown ? -5 : 0;
       } else if (event.logicalKey == LogicalKeyboardKey.keyS) {
         dragAccelerateKey.y = isKeyDown ? 5 : 0;
+      }
+
+      if (event.logicalKey == LogicalKeyboardKey.home) {
+        userName = "Sander";
+        socket.setUser(0, userName);
       }
 
       return KeyEventResult.handled;
