@@ -12,6 +12,7 @@ import '../component/type/water_tile.dart';
 import '../constants/url_base.dart';
 import '../user_interface/chat_messages.dart';
 import 'hexagon_list.dart';
+import 'package:collection/collection.dart';
 
 
 class SocketServices extends ChangeNotifier {
@@ -112,8 +113,7 @@ class SocketServices extends ChangeNotifier {
   void checkTile() {
     socket.on('change_tile_type_success', (data) {
       print("tile type changed successfully");
-      print(data);
-      notifyListeners();
+      changeTile(data);
     });
     socket.on('change_tile_type_failed', (data) {
       print("tile type changed failed");
@@ -185,7 +185,7 @@ class SocketServices extends ChangeNotifier {
     int tileQ = hexagonList.tileQ;
     int tileR = hexagonList.tileR;
     int index = 0;
-    for (var tileData in data["tiles"]) {
+    for (var tileData in jsonDecode(data["tiles"])) {
       int tileDataQ = tileData["q"];
       int tileDataR = tileData["r"];
       if (data.containsKey("wraparound")) {
@@ -199,32 +199,7 @@ class SocketServices extends ChangeNotifier {
         }
       }
       // If the type is 0
-      Tile? tile;
-      if (tileData["type"] == 1) {
-        tile = WaterTile(
-            tileDataQ,
-            tileDataR,
-            tileData["type"],
-            tileData["q"],
-            tileData["r"]
-        );
-      } else if (tileData["type"] == 2) {
-        tile = DirtTile(
-            tileDataQ,
-            tileDataR,
-            tileData["type"],
-            tileData["q"],
-            tileData["r"]
-        );
-      } else {
-        tile = GrassTile(
-            tileDataQ,
-            tileDataR,
-            tileData["type"],
-            tileData["q"],
-            tileData["r"]
-        );
-      }
+      Tile tile = setTileType(tileData["type"], tileDataQ, tileDataR, tileData);
       if (index == 30) {
         // The 31th tile from the list will be the center.
         // We set this as hexagon position
@@ -317,6 +292,59 @@ class SocketServices extends ChangeNotifier {
         hexagonList.hexagons[qHexTopLeft][rHexTopLeft]!.topLeft = hexagon;
         hexagon.bottomRight = hexagonList.hexagons[qHexTopLeft][rHexTopLeft];
       }
+    }
+  }
+
+  changeTile(data) {
+    HexagonList hexagonList = HexagonList();
+    // We just need the q and r to find the tile and change type on the old tile
+    int newTileQ = data["q"];
+    int newTileR = data["r"];
+    int newTileType = data["type"];
+
+    int tileQ = hexagonList.tileQ;
+    int tileR = hexagonList.tileR;
+    Tile? prevTile = hexagonList.tiles[tileQ + newTileQ - hexagonList.currentQ]
+        [tileR + newTileR - hexagonList.currentR];
+    if (prevTile != null) {
+      // It has to exist before we replace it.
+      Hexagon currentHex = prevTile.hexagon!;
+      currentHex.hexagonTiles.removeWhere(
+              (element) => element.q == data["q"] && element.r == data["r"]);
+
+      Tile newTile = setTileType(newTileType, data["q"], data["r"], data);
+      newTile.hexagon = currentHex;
+      currentHex.addTile(newTile);
+      newTile.hexagon!.updateHexagon(0);
+      newTile.hexagon!.sortTiles();
+    }
+  }
+
+  Tile setTileType(int tileType, int tileDataQ, int tileDataR, var tileData) {
+    if (tileType == 1) {
+      return WaterTile(
+          tileDataQ,
+          tileDataR,
+          tileData["type"],
+          tileData["q"],
+          tileData["r"]
+      );
+    } else if (tileType == 2) {
+      return DirtTile(
+          tileDataQ,
+          tileDataR,
+          tileData["type"],
+          tileData["q"],
+          tileData["r"]
+      );
+    } else {
+      return GrassTile(
+          tileDataQ,
+          tileDataR,
+          tileData["type"],
+          tileData["q"],
+          tileData["r"]
+      );
     }
   }
 }

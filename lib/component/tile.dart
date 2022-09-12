@@ -12,7 +12,6 @@ class Tile {
   late Vector2 position;
   late int q;
   late int r;
-  late int s;
   late int tileType;
 
   // If the map is wrapped around the q will reflect the position accurately
@@ -27,6 +26,10 @@ class Tile {
 
   // We assume the condition r + s + q = 0 is true.
   Tile(this.q, this.r, this.tileType, this.tileQ, this.tileR) {
+    setPosition();
+  }
+
+  setPosition() {
     double xPos = xSize * 3 / 2 * q - xSize;
     double yTr1 = ySize * (sqrt(3) / 2 * q);
     yTr1 *= -1; // The y axis gets positive going down, so we flip it.
@@ -39,8 +42,6 @@ class Tile {
     yPos += ySize;
 
     position = Vector2(xPos, yPos);
-
-    s = (q + r) * -1;
   }
 
   setHexagon(Hexagon hexagonTile) {
@@ -91,8 +92,12 @@ class Tile {
   Tile.fromJson(data) {
     position = Vector2(0, 0);
 
+    tileType = data["type"];
+
     q = data['q'];
     r = data['r'];
-    s = (q + r) * -1;
+
+    tileQ = data["q"];
+    tileR = data["r"];
   }
 }

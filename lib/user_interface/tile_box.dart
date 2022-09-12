@@ -90,13 +90,13 @@ class TileBoxState extends State<TileBox> {
             Wrap(
               children: [
                 tileButton("Grass",
-                    Image.asset('images/tiles/grass_flat_1.png', scale: 0.8),
+                    Image.asset('assets/images/tiles/grass_flat_1.png', scale: 0.8),
                     0),
                 tileButton("Water",
-                    Image.asset('images/tiles/water_flat_1.png', scale: 0.8),
+                    Image.asset('assets/images/tiles/water_flat_1.png', scale: 0.8),
                     1),
                 tileButton("Dirt",
-                    Image.asset('images/tiles/dirt_flat_1.png', scale: 0.8), 2)
+                    Image.asset('assets/images/tiles/dirt_flat_1.png', scale: 0.8), 2)
               ],
             ),
           ]
@@ -109,13 +109,13 @@ class TileBoxState extends State<TileBox> {
   Widget getImage() {
     if (selectedTileInfo.selectedTile != null) {
       if (selectedTileInfo.selectedTile!.tileType == 0) {
-        return Image.asset('images/tiles/grass_flat_1.png', scale: 0.3);
+        return Image.asset('assets/images/tiles/grass_flat_1.png', scale: 0.3);
       }
       if (selectedTileInfo.selectedTile!.tileType == 1) {
-        return Image.asset('images/tiles/water_flat_1.png', scale: 0.3);
+        return Image.asset('assets/images/tiles/water_flat_1.png', scale: 0.3);
       }
       if (selectedTileInfo.selectedTile!.tileType == 2) {
-        return Image.asset('images/tiles/dirt_flat_1.png', scale: 0.3);
+        return Image.asset('assets/images/tiles/dirt_flat_1.png', scale: 0.3);
       }
     }
     return Container();
