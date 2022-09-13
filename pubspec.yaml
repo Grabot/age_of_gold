@@ -64,17 +64,42 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/images/flat_base.png
-    - assets/images/flat_variation_1.png
-    - assets/images/point_base.png
-    - assets/images/point_variation_1.png
-    - assets/images/flat_selection.png
-    - assets/images/point_selection.png
-    - assets/images/ui.png
-    - assets/images/map_outline_regions.png
-    - assets/images/tiles/dirt_flat_1.png
-    - assets/images/tiles/grass_flat_1.png
-    - assets/images/tiles/water_flat_1.png
+    - assets/images/tile_variants/variant_1.png
+    - assets/images/tile_variants/variant_2.png
+    - assets/images/tile_variants/variant_3.png
+    - assets/images/tile_variants/variant_4.png
+    - assets/images/tile_variants/variant_5.png
+    - assets/images/tile_variants/variant_6.png
+    - assets/images/tile_variants/variant_7.png
+    - assets/images/tile_variants/variant_8.png
+    - assets/images/tile_variants/variant_9.png
+    - assets/images/tile_variants/variant_10.png
+    - assets/images/tile_variants/variant_11.png
+    - assets/images/tile_variants/variant_12.png
+    - assets/images/tiles/00a368_noise1.png
+    - assets/images/tiles/00cc78_noise1.png
+    - assets/images/tiles/000000_noise1.png
+    - assets/images/tiles/6a5cff_noise1.png
+    - assets/images/tiles/6d482f_noise1.png
+    - assets/images/tiles/7eed56_noise1.png
+    - assets/images/tiles/9c6926_noise1.png
+    - assets/images/tiles/009eaa_noise1.png
+    - assets/images/tiles/51e9f4_noise1.png
+    - assets/images/tiles/493ac1_noise1.png
+    - assets/images/tiles/00756f_noise1.png
+    - assets/images/tiles/811e9f_noise1.png
+    - assets/images/tiles/898d90_noise1.png
+    - assets/images/tiles/2450a4_noise1.png
+    - assets/images/tiles/3690ea_noise1.png
+    - assets/images/tiles/b44ac0_noise1.png
+    - assets/images/tiles/be0039_noise1.png
+    - assets/images/tiles/d4d7d9_noise1.png
+    - assets/images/tiles/ff99aa_noise1.png
+    - assets/images/tiles/ff3881_noise1.png
+    - assets/images/tiles/ff4500_noise1.png
+    - assets/images/tiles/ffa800_noise1.png
+    - assets/images/tiles/ffd635_noise1.png
+    - assets/images/tiles/ffffff_noise1.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

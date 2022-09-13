@@ -89,6 +89,46 @@ class Tile {
 
   }
 
+  updateBaseVariation2(SpriteBatch batchVariation2, int rotate) {
+
+  }
+
+  updateBaseVariation3(SpriteBatch batchVariation3, int rotate) {
+
+  }
+
+  updateBaseVariation4(SpriteBatch batchVariation4, int rotate) {
+
+  }
+
+  updateBaseVariation5(SpriteBatch batchVariation5, int rotate) {
+
+  }
+
+  updateBaseVariation6(SpriteBatch batchVariation6, int rotate) {
+
+  }
+
+  updateBaseVariation7(SpriteBatch batchVariation7, int rotate) {
+
+  }
+
+  updateBaseVariation8(SpriteBatch batchVariation8, int rotate) {
+
+  }
+
+  updateBaseVariation9(SpriteBatch batchVariation9, int rotate) {
+
+  }
+
+  updateBaseVariation10(SpriteBatch batchVariation10, int rotate) {
+
+  }
+
+  updateBaseVariation11(SpriteBatch batchVariation11, int rotate) {
+
+  }
+
   Tile.fromJson(data) {
     position = Vector2(0, 0);
 

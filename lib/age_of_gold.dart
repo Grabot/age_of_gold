@@ -226,14 +226,53 @@ class AgeOfGold extends FlameGame
     frameTimes += dt;
     frames += 1;
 
-    if ((frameTimes > 0 && frameTimes <= 0.5) && variant != 0) {
+    // if ((frameTimes > 0 && frameTimes <= 0.5) && variant != 0) {
+    //   variant = 0;
+    //   _world!.updateVariant(variant);
+    // } else if ((frameTimes > 0.5 && frameTimes <= 1) && variant != 1) {
+    //   variant = 1;
+    //   _world!.updateVariant(variant);
+    // }
+
+    if ((frameTimes > 0 && frameTimes <= 0.083) && variant != 0) {
       variant = 0;
       _world!.updateVariant(variant);
-    } else if ((frameTimes > 0.5 && frameTimes <= 1) && variant != 1) {
+    } else if ((frameTimes > 0.083 && frameTimes <= 0.1666) && variant != 1) {
       variant = 1;
       _world!.updateVariant(variant);
+    } else if ((frameTimes > 0.1666 && frameTimes <= 0.25) && variant != 2) {
+      variant = 2;
+      _world!.updateVariant(variant);
+    } else if ((frameTimes > 0.25 && frameTimes <= 0.3333) && variant != 3) {
+      variant = 3;
+      _world!.updateVariant(variant);
+    } else if ((frameTimes > 0.3333 && frameTimes <= 0.4166) && variant != 4) {
+      variant = 4;
+      _world!.updateVariant(variant);
+    } else if ((frameTimes > 0.4166 && frameTimes <= 0.50) && variant != 5) {
+      variant = 5;
+      _world!.updateVariant(variant);
+    } else if ((frameTimes > 0.50 && frameTimes <= 0.5833) && variant != 6) {
+      variant = 6;
+      _world!.updateVariant(variant);
+    } else if ((frameTimes > 0.5833 && frameTimes <= 0.6666) && variant != 7) {
+      variant = 7;
+      _world!.updateVariant(variant);
+    } else if ((frameTimes > 0.6666 && frameTimes <= 0.75) && variant != 8) {
+      variant = 8;
+      _world!.updateVariant(variant);
+    } else if ((frameTimes > 0.75 && frameTimes <= 0.8333) && variant != 9) {
+      variant = 9;
+      _world!.updateVariant(variant);
+    } else if ((frameTimes > 0.8333 && frameTimes <= 0.9166) && variant != 10) {
+      variant = 10;
+      _world!.updateVariant(variant);
+    } else if ((frameTimes > 0.9166 && frameTimes <= 1) && variant != 11) {
+      variant = 11;
+      _world!.updateVariant(variant);
     }
-    if (frameTimes > 1) {
+
+    if (frameTimes >= 1) {
       fps = frames;
       print("fps: $frames");
       print("cameraPosition: $cameraPosition");
