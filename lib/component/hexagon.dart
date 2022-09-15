@@ -4,6 +4,8 @@ import 'package:age_of_gold/component/tile.dart';
 import 'package:flame/components.dart';
 import 'package:flame/sprite.dart';
 
+import '../util/util.dart';
+
 class Hexagon {
 
   // late int hexagonId;
@@ -43,6 +45,13 @@ class Hexagon {
 
   Hexagon(this.center, this.rotation, this.hexQArray, this.hexRArray) {
     loadTextures();
+    // calculate the center point by determining which tile is in the center
+    int tileQ = 9 * hexQArray;
+    int tileR = -4 * hexQArray;
+    tileQ += 5 * hexRArray;
+    tileR += -9 * hexRArray;
+
+    center = getTilePosition(tileQ, tileR);
   }
 
   List<bool> variantLoaded = [false, false, false, false, false, false, false, false, false, false, false, false];
@@ -282,6 +291,15 @@ class Hexagon {
     return "hex q: $hexQArray r: $hexRArray on pos: $center}";
   }
 
+  setPosition() {
+    // calculate the center point by determining which tile is in the center
+    int tileQ = 9 * hexQArray;
+    int tileR = -4 * hexQArray;
+    tileQ += 5 * hexRArray;
+    tileR += -9 * hexRArray;
+
+    center = getTilePosition(tileQ, tileR);
+  }
 
   Hexagon.fromJson(data) {
 

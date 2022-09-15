@@ -6,6 +6,7 @@ import 'package:flame/extensions.dart';
 import 'package:flame/sprite.dart';
 
 import '../util/global.dart';
+import '../util/util.dart';
 
 class Tile {
 
@@ -27,21 +28,6 @@ class Tile {
   // We assume the condition r + s + q = 0 is true.
   Tile(this.q, this.r, this.tileType, this.tileQ, this.tileR) {
     setPosition();
-  }
-
-  setPosition() {
-    double xPos = xSize * 3 / 2 * q - xSize;
-    double yTr1 = ySize * (sqrt(3) / 2 * q);
-    yTr1 *= -1; // The y axis gets positive going down, so we flip it.
-    double yTr2 = ySize * (sqrt(3) * r);
-    yTr2 *= -1; // The y axis gets positive going down, so we flip it.
-    double yPos = yTr1 + yTr2 - ySize;
-
-    // slight offset to put the center in the center and not a corner.
-    xPos += xSize;
-    yPos += ySize;
-
-    position = Vector2(xPos, yPos);
   }
 
   setHexagon(Hexagon hexagonTile) {
@@ -129,9 +115,11 @@ class Tile {
 
   }
 
-  Tile.fromJson(data) {
-    position = Vector2(0, 0);
+  setPosition() {
+    position = getTilePosition(q, r);
+  }
 
+  Tile.fromJson(data) {
     tileType = data["type"];
 
     q = data['q'];
@@ -139,5 +127,7 @@ class Tile {
 
     tileQ = data["q"];
     tileR = data["r"];
+
+    position = Vector2(0, 0);
   }
 }

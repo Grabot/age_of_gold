@@ -1,6 +1,7 @@
 import 'package:age_of_gold/component/hexagon.dart';
 import 'package:age_of_gold/component/tile.dart';
 import 'package:age_of_gold/util/socket_services.dart';
+import 'package:age_of_gold/util/util.dart';
 
 class HexagonList {
   static final HexagonList _instance = HexagonList._internal();
@@ -177,26 +178,9 @@ class HexagonList {
       oldHexes.add([qNew2, rNew2]);
     }
 
-    if (oldHexes.isNotEmpty) {
-      List hexToLeaveUnique = [];
-      for (int x = 0; x < oldHexes.length; x++) {
-        bool noRepeat = true;
-        List value1 = oldHexes[x];
-        for (int y = x + 1; y < oldHexes.length; y++) {
-          List value2 = oldHexes[y];
-          if (value1[0] == value2[0] && value1[1] == value2[1]) {
-            noRepeat = false;
-            break;
-          }
-        }
-        if (noRepeat) {
-          hexToLeaveUnique.add(value1);
-        }
-      }
-      for (int x = 0; x < hexToLeaveUnique.length; x++) {
-        socketServices.leaveHexRoom(
-            hexToLeaveUnique[x][0], hexToLeaveUnique[x][1]);
-      }
+    List hexLeaveUnique = removeDuplicates(oldHexes);
+    for (int x = 0; x < hexLeaveUnique.length; x++) {
+      socketServices.leaveHexRoom(hexLeaveUnique[x][0], hexLeaveUnique[x][1]);
     }
   }
 
@@ -221,26 +205,9 @@ class HexagonList {
       newHexes.add([qNew2, rNew2]);
     }
 
-    if (newHexes.isNotEmpty) {
-      List hexToRetrieveUnique = [];
-      for (int x = 0; x < newHexes.length; x++) {
-        bool noRepeat = true;
-        List value1 = newHexes[x];
-        for (int y = x + 1; y < newHexes.length; y++) {
-          List value2 = newHexes[y];
-          if (value1[0] == value2[0] && value1[1] == value2[1]) {
-            noRepeat = false;
-            break;
-          }
-        }
-        if (noRepeat) {
-          hexToRetrieveUnique.add(value1);
-        }
-      }
-      for (int x = 0; x < hexToRetrieveUnique.length; x++) {
-        socketServices.getHexagon(
-            hexToRetrieveUnique[x][0], hexToRetrieveUnique[x][1]);
-      }
+    List hexNewUnique = removeDuplicates(newHexes);
+    for (int x = 0; x < hexNewUnique.length; x++) {
+      socketServices.getHexagon(hexNewUnique[x][0], hexNewUnique[x][1]);
     }
   }
 }

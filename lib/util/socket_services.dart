@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:age_of_gold/component/type/tile_amethyst.dart';
 import 'package:age_of_gold/util/global.dart';
+import 'package:age_of_gold/util/util.dart';
 import 'package:flutter/material.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import '../component/hexagon.dart';
@@ -200,9 +201,9 @@ class SocketServices extends ChangeNotifier {
         hexagon.hexRArray += (mapSize * 2 + 1) * hexagon.getWrapR();
       }
     }
+    hexagon.setPosition();
     int tileQ = hexagonList.tileQ;
     int tileR = hexagonList.tileR;
-    int index = 0;
     for (var tileData in jsonDecode(data["tiles"])) {
       int tileDataQ = tileData["q"];
       int tileDataR = tileData["r"];
@@ -218,12 +219,6 @@ class SocketServices extends ChangeNotifier {
       }
       // If the type is 0
       Tile tile = setTileType(tileData["type"], tileDataQ, tileDataR, tileData);
-      if (index == 30) {
-        // The 31th tile from the list will be the center.
-        // We set this as hexagon position
-        hexagon.center = tile.getPos(0);
-      }
-      index += 1;
       tile.hexagon = hexagon;
       hexagon.addTile(tile);
       hexagonList.tiles[tileQ + tile.q - hexagonList.currentQ][tileR + tile.r - hexagonList.currentR] = tile;

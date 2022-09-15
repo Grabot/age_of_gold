@@ -65,7 +65,6 @@ class World extends Component {
     List<int> tileProperties = getTileFromPos(mouseTapped.x, mouseTapped.y, 0);
     int q = tileProperties[0];
     int r = tileProperties[1];
-    int s = tileProperties[2];
 
     Tile? mouseTileTap = hexagonList.getTileFromCoordinates(q, r);
     if (mouseTileTap != null) {
@@ -84,10 +83,10 @@ class World extends Component {
 
     zoom = zoomLevel;
 
-    // We draw the border a bit further (about 2 hex) than what you're seeing,
+    // We draw the border a bit further (about 3 hex) than what you're seeing,
     // this is so the sections load before you scroll on them.
-    double borderOffsetX = -((radius * 2 + 1) * xSize) * 2;
-    double borderOffsetY = -((radius * 2 + 1) * ySize) * 2;
+    double borderOffsetX = -((radius * 2 + 1) * xSize) * 3;
+    double borderOffsetY = -((radius * 2 + 1) * ySize) * 3;
 
     double leftScreen = cameraPosition.x - (worldSize.x / 2) + borderOffsetX;
     double rightScreen = cameraPosition.x + (worldSize.x / 2) - borderOffsetX;

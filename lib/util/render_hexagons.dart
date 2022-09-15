@@ -4,6 +4,7 @@ import 'package:age_of_gold/util/global.dart';
 import 'package:age_of_gold/util/hexagon_list.dart';
 import 'package:age_of_gold/util/socket_services.dart';
 import 'package:age_of_gold/util/tapped_map.dart';
+import 'package:age_of_gold/util/util.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 
@@ -14,7 +15,6 @@ renderHexagons(Canvas canvas, Vector2 camera, HexagonList hexagonList, Rect scre
   List<int> tileProperties = getTileFromPos(camera.x, camera.y, 0);
   int q = tileProperties[0];
   int r = tileProperties[1];
-  int s = tileProperties[2];
 
   checkOffset(q, r, hexagonList, socketServices);
 
@@ -33,20 +33,6 @@ renderHexagons(Canvas canvas, Vector2 camera, HexagonList hexagonList, Rect scre
       }
     }
   }
-
-  // Debugging
-  // Tile? hexagonTile = hexagonList.getTileFromCoordinates(q, r);
-  // if (hexagonTile != null) {
-  //   Hexagon? currentHexagon = hexagonTile.hexagon;
-  //   final shapeBounds = Rect.fromLTRB(hexagonTile.getPos(0).x - 10, hexagonTile.getPos(0).y - 10, hexagonTile.getPos(0).x + 10, hexagonTile.getPos(0).y + 10);
-  //   final paint = Paint()..color = Colors.blue;
-  //   canvas.drawRect(shapeBounds, paint);
-  //   if (currentHexagon != null) {
-  //     final shapeBounds = Rect.fromLTRB(currentHexagon.center.x - 10, currentHexagon.center.y - 10, currentHexagon.center.x + 10, currentHexagon.center.y + 10);
-  //     final paint = Paint()..color = Colors.red;
-  //     canvas.drawRect(shapeBounds, paint);
-  //   }
-  // }
 }
 
 drawLeft(Canvas canvas, int variation, Hexagon currentHexagon, Rect screen) {
@@ -192,48 +178,15 @@ checkOffset(int q, int r, HexagonList hexagonList, SocketServices socketServices
       hexagonList.rOffset = rDiff;
     }
   }
-  // If coordinates were found to retrieve
-  if (hexToRetrieve.isNotEmpty) {
-    // Remove duplicates (using sets doesn't seem to work) TODO: make better?
-    List hexToRetrieveUnique = [];
-    for (int x = 0; x < hexToRetrieve.length; x++) {
-      bool noRepeat = true;
-      List value1 = hexToRetrieve[x];
-      for (int y = x + 1; y < hexToRetrieve.length; y++) {
-        List value2 = hexToRetrieve[y];
-        if (value1[0] == value2[0] && value1[1] == value2[1]) {
-          noRepeat = false;
-          break;
-        }
-      }
-      if (noRepeat) {
-        hexToRetrieveUnique.add(value1);
-      }
-    }
-    for (int x = 0; x < hexToRetrieveUnique.length; x++) {
-      socketServices.getHexagon(hexToRetrieveUnique[x][0], hexToRetrieveUnique[x][1]);
-    }
+
+  List hexToRetrieveUnique = removeDuplicates(hexToRetrieve);
+  for (int x = 0; x < hexToRetrieveUnique.length; x++) {
+    socketServices.getHexagon(hexToRetrieveUnique[x][0], hexToRetrieveUnique[x][1]);
   }
 
-  if (hexToRemove.isNotEmpty) {
-    List hexToRemoveUnique = [];
-    for (int x = 0; x < hexToRemove.length; x++) {
-      bool noRepeat = true;
-      List value1 = hexToRemove[x];
-      for (int y = x + 1; y < hexToRemove.length; y++) {
-        List value2 = hexToRemove[y];
-        if (value1[0] == value2[0] && value1[1] == value2[1]) {
-          noRepeat = false;
-          break;
-        }
-      }
-      if (noRepeat) {
-        hexToRemoveUnique.add(value1);
-      }
-    }
-    for (int x = 0; x < hexToRemoveUnique.length; x++) {
-      socketServices.leaveHexRoom(hexToRemoveUnique[x][0], hexToRemoveUnique[x][1]);
-    }
+  List hexToRemoveUnique = removeDuplicates(hexToRemove);
+  for (int x = 0; x < hexToRemoveUnique.length; x++) {
+    socketServices.leaveHexRoom(hexToRemoveUnique[x][0], hexToRemoveUnique[x][1]);
   }
 }
 

@@ -32,5 +32,5 @@ List<int> getTileFromPos(double mouseX, double mouseY, int rotate) {
   } else {
     s = -q - r;
   }
-  return [q, r, s];
+  return [q, r];
 }
