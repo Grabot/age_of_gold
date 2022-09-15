@@ -4,7 +4,7 @@ import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import 'package:age_of_gold/util/render_hexagons.dart';
 import '../user_interface/selected_tile_info.dart';
-import '../user_interface/tile_box.dart';
+import '../util/global.dart';
 import '../util/hexagon_list.dart';
 import '../util/selected_tile.dart';
 import '../util/socket_services.dart';
@@ -50,14 +50,6 @@ class World extends Component {
   }
 
   drawScreen(Canvas canvas) {
-    final paint = Paint()..color = Colors.lightBlue;
-    paint.style = PaintingStyle.stroke;
-    canvas.drawRect(screen, paint);
-
-    // final shapeBounds = Rect.fromLTRB(cameraPosition.x - 10, cameraPosition.y - 10, cameraPosition.x + 10, cameraPosition.y + 10);
-    // final paintCenterCamera = Paint()..color = Colors.green;
-    // canvas.drawRect(shapeBounds, paintCenterCamera);
-
     if (mouseTile != null) {
       tileSelected(mouseTile!, canvas);
     }
@@ -92,23 +84,20 @@ class World extends Component {
 
     zoom = zoomLevel;
 
-    // We draw the border a bit further (about 1 tile) than what you're seeing, this is so the sections load before you scroll on them.
-    double borderOffset = -32;
-    double hudLeft = 200 / zoomLevel;
-    double hudBottom = 100 / zoomLevel;
-    //debugging TODO: remove
-    hudLeft = 0;
-    hudBottom = 0;
+    // We draw the border a bit further (about 2 hex) than what you're seeing,
+    // this is so the sections load before you scroll on them.
+    double borderOffsetX = -((radius * 2 + 1) * xSize) * 2;
+    double borderOffsetY = -((radius * 2 + 1) * ySize) * 2;
 
-    double leftScreen = cameraPosition.x - (worldSize.x / 2) - borderOffset + hudLeft;
-    double rightScreen = cameraPosition.x + (worldSize.x / 2) + borderOffset;
-    double topScreen = cameraPosition.y - (worldSize.y / 2) - borderOffset;
-    double bottomScreen = cameraPosition.y + (worldSize.y / 2) + borderOffset - hudBottom;
+    double leftScreen = cameraPosition.x - (worldSize.x / 2) + borderOffsetX;
+    double rightScreen = cameraPosition.x + (worldSize.x / 2) - borderOffsetX;
+    double topScreen = cameraPosition.y - (worldSize.y / 2) + borderOffsetY;
+    double bottomScreen = cameraPosition.y + (worldSize.y / 2) - borderOffsetY;
     screen = Rect.fromLTRB(leftScreen, topScreen, rightScreen, bottomScreen);
   }
 
   socketListener() {
-    print("socket listener");
+    print("socket listener world");
   }
 
   setHexagonArraySize(int arraySize) {

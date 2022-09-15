@@ -59,7 +59,7 @@ class ChatBoxState extends State<ChatBox> {
       alignment: FractionalOffset.bottomLeft,
       child: Container(
         width: 400,
-        height: 300,
+        height: 100,
         color: Colors.green,
         child: Column(
             children: [

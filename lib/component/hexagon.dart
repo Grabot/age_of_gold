@@ -45,56 +45,81 @@ class Hexagon {
     loadTextures();
   }
 
+  List<bool> variantLoaded = [false, false, false, false, false, false, false, false, false, false, false, false];
+
   loadTextures() {
     SpriteBatch.load('tile_variants/variant_1.png').then((SpriteBatch batch) {
       batchBase = batch;
-      updateHexagon(0);
+      variantLoaded[0] = true;
+      checkUpdate();
     });
     SpriteBatch.load('tile_variants/variant_2.png').then((SpriteBatch batch) {
       batchBaseVariation1 = batch;
       updateHexagon(0);
+      variantLoaded[1] = true;
+      checkUpdate();
     });
     SpriteBatch.load('tile_variants/variant_3.png').then((SpriteBatch batch) {
       batchBaseVariation2 = batch;
-      updateHexagon(0);
+      variantLoaded[2] = true;
+      checkUpdate();
     });
     SpriteBatch.load('tile_variants/variant_4.png').then((SpriteBatch batch) {
       batchBaseVariation3 = batch;
-      updateHexagon(0);
+      variantLoaded[3] = true;
+      checkUpdate();
     });
     SpriteBatch.load('tile_variants/variant_5.png').then((SpriteBatch batch) {
       batchBaseVariation4 = batch;
-      updateHexagon(0);
+      variantLoaded[4] = true;
+      checkUpdate();
     });
     SpriteBatch.load('tile_variants/variant_6.png').then((SpriteBatch batch) {
       batchBaseVariation5 = batch;
-      updateHexagon(0);
+      variantLoaded[5] = true;
+      checkUpdate();
     });
     SpriteBatch.load('tile_variants/variant_7.png').then((SpriteBatch batch) {
       batchBaseVariation6 = batch;
-      updateHexagon(0);
+      variantLoaded[6] = true;
+      checkUpdate();
     });
     SpriteBatch.load('tile_variants/variant_8.png').then((SpriteBatch batch) {
       batchBaseVariation7 = batch;
-      updateHexagon(0);
+      variantLoaded[7] = true;
+      checkUpdate();
     });
     SpriteBatch.load('tile_variants/variant_9.png').then((SpriteBatch batch) {
       batchBaseVariation8 = batch;
-      updateHexagon(0);
+      variantLoaded[8] = true;
+      checkUpdate();
     });
     SpriteBatch.load('tile_variants/variant_10.png').then((SpriteBatch batch) {
       batchBaseVariation9 = batch;
-      updateHexagon(0);
+      variantLoaded[9] = true;
+      checkUpdate();
     });
     SpriteBatch.load('tile_variants/variant_11.png').then((SpriteBatch batch) {
       batchBaseVariation10 = batch;
-      updateHexagon(0);
+      variantLoaded[10] = true;
+      checkUpdate();
     });
     SpriteBatch.load('tile_variants/variant_12.png').then((SpriteBatch batch) {
       batchBaseVariation11 = batch;
-      updateHexagon(0);
+      variantLoaded[11] = true;
+      checkUpdate();
     });
   }
+
+  checkUpdate() {
+    for (bool variantLoad in variantLoaded) {
+      if (!variantLoad) {
+        return;
+      }
+    }
+    updateHexagon(0);
+  }
+
 
   setWrapQ(int wrapQ) {
     this.wrapQ = wrapQ;

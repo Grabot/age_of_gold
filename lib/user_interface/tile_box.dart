@@ -273,7 +273,6 @@ class TileBoxState extends State<TileBox> {
       child: Container(
         width: 400,
         height: 400,
-        color: Colors.orange,
         child: Column(
           children: [
             currentTileWindow(),
