@@ -43,6 +43,8 @@ class SocketServices extends ChangeNotifier {
 
   static final SocketServices _instance = SocketServices._internal();
 
+  HexagonList hexagonList = HexagonList();
+
   SocketServices._internal() {
     startSockConnection();
   }
@@ -189,7 +191,6 @@ class SocketServices extends ChangeNotifier {
   }
 
   addHexagon(data) {
-    HexagonList hexagonList = HexagonList();
     Hexagon hexagon = Hexagon.fromJson(data);
     if (data.containsKey("wraparound")) {
       hexagon.setWrapQ(data["wraparound"]["q"]);

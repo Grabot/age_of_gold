@@ -43,7 +43,10 @@ class Hexagon {
   late int wrapQ = 0;
   late int wrapR = 0;
 
-  Hexagon(this.center, this.rotation, this.hexQArray, this.hexRArray) {
+  bool retrieved = false;
+  bool setToRetrieve = false;
+
+  Hexagon(this.hexQArray, this.hexRArray) {
     loadTextures();
     // calculate the center point by determining which tile is in the center
     int tileQ = 9 * hexQArray;
@@ -52,6 +55,7 @@ class Hexagon {
     tileR += -9 * hexRArray;
 
     center = getTilePosition(tileQ, tileR);
+    rotation = 0;
   }
 
   List<bool> variantLoaded = [false, false, false, false, false, false, false, false, false, false, false, false];
@@ -307,8 +311,10 @@ class Hexagon {
 
     center = Vector2(0, 0);
     rotation = 0;
-    print("creating hexagon from json with q: ${data['q']} and r: ${data['r']}");
+
     hexQArray = data['q'];
     hexRArray = data['r'];
+    retrieved = true;
+    setToRetrieve = true;
   }
 }
