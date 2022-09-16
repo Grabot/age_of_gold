@@ -17,12 +17,12 @@ Vector2 pointyHexCorner(double i, Vector2 center) {
 }
 
 drawTileSelection(Tile selectedTile, Canvas canvas) {
-  Vector2 point1 = pointyHexCorner(0, selectedTile.getPos(0));
-  Vector2 point2 = pointyHexCorner(1, selectedTile.getPos(0));
-  Vector2 point3 = pointyHexCorner(2, selectedTile.getPos(0));
-  Vector2 point4 = pointyHexCorner(3, selectedTile.getPos(0));
-  Vector2 point5 = pointyHexCorner(4, selectedTile.getPos(0));
-  Vector2 point6 = pointyHexCorner(5, selectedTile.getPos(0));
+  Vector2 point1 = pointyHexCorner(0, selectedTile.getPos());
+  Vector2 point2 = pointyHexCorner(1, selectedTile.getPos());
+  Vector2 point3 = pointyHexCorner(2, selectedTile.getPos());
+  Vector2 point4 = pointyHexCorner(3, selectedTile.getPos());
+  Vector2 point5 = pointyHexCorner(4, selectedTile.getPos());
+  Vector2 point6 = pointyHexCorner(5, selectedTile.getPos());
 
   var points = Float32List.fromList(
       [

@@ -193,7 +193,6 @@ class AgeOfGold extends FlameGame
     if (frameTimes >= 1) {
       fps = frames;
       print("fps: $frames");
-      print("zoom: ${camera.zoom}");
       frameTimes = 0;
       frames = 0;
     }
@@ -201,9 +200,11 @@ class AgeOfGold extends FlameGame
     // This will determine 12 variants in a 60fps game loop
     int newVariant = (frameTimes / 0.084).floor();
     // It should never exceed 11 (only 12 variants (including 0) for now)
-    if (variant != newVariant) {
-      variant = newVariant;
-      _world!.updateVariant(variant);
+    if (variant <= 11) {
+      if (variant != newVariant) {
+        variant = newVariant;
+        _world!.updateVariant(variant);
+      }
     }
   }
 

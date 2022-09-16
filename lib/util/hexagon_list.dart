@@ -49,39 +49,9 @@ class HexagonList {
   }
 
   retrieveHexagons() {
-    // Start from the center and retrieve the hexagon outwards
-    int q = 0;
-    int r = 0;
-
-    // Some simple algorithm to load the map from the center outwards.
-    bool done = false;
-    socketServices.getHexagon(q, r);
-    for (int cycle = 0; cycle < hexagons.length * 2; cycle += 2) {
-      for (int first = 1; first < cycle; first++) {
-        q -= 1;
-        socketServices.getHexagon(q, r);
-      }
-
-      for (int second = 1; second < cycle; second++) {
-        r -= 1;
-        socketServices.getHexagon(q, r);
-      }
-
-      if (q == -hexQ && r == -hexR) {
-        done = true;
-      }
-
-      for (int third = 1; third < cycle + 1; third++) {
-        q += 1;
-        socketServices.getHexagon(q, r);
-        if (done && q == (hexQ - 1)) {
-          return;
-        }
-      }
-
-      for (int fourth = 1; fourth < cycle + 1; fourth++) {
-        r += 1;
-        socketServices.getHexagon(q, r);
+    for (int qSock = -hexQ; qSock < hexQ; qSock ++) {
+      for (int rSock = -hexR; rSock < hexR; rSock ++) {
+        socketServices.getHexagon(qSock, rSock);
       }
     }
   }

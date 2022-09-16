@@ -2,7 +2,7 @@ import 'dart:math';
 import '../util/global.dart';
 
 
-List<int> getTileFromPos(double mouseX, double mouseY, int rotate) {
+List<int> getTileFromPos(double mouseX, double mouseY) {
   double qDetailed = -1;
   double rDetailed = -1;
   double sDetailed = -1;

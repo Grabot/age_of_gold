@@ -13,8 +13,6 @@ class World extends Component {
 
   late HexagonList hexagonList;
 
-  late int rotate;
-
   Rect screen = const Rect.fromLTRB(0, 0, 0, 0);
   late Vector2 cameraPosition;
   late double zoom;
@@ -34,8 +32,6 @@ class World extends Component {
     socketServices = SocketServices();
     socketServices.addListener(socketListener);
 
-    rotate = 0;
-
     hexagonList = HexagonList();
     hexagonList.setSocketService(socketServices);
     hexagonList.retrieveHexagons();
@@ -45,7 +41,7 @@ class World extends Component {
   void render(Canvas canvas) {
     super.render(canvas);
 
-    renderHexagons(canvas, cameraPosition, hexagonList, screen, rotate, currentVariant, socketServices);
+    renderHexagons(canvas, cameraPosition, hexagonList, screen, currentVariant, socketServices);
     drawScreen(canvas);
   }
 
@@ -66,7 +62,7 @@ class World extends Component {
   void onTappedUp(Vector2 mouseTapped) {
     print("on tapped up! $mouseTapped");
 
-    List<int> tileProperties = getTileFromPos(mouseTapped.x, mouseTapped.y, 0);
+    List<int> tileProperties = getTileFromPos(mouseTapped.x, mouseTapped.y);
     int q = tileProperties[0];
     int r = tileProperties[1];
 

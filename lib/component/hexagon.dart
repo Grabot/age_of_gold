@@ -9,10 +9,6 @@ import '../util/util.dart';
 
 class Hexagon {
 
-  // late int hexagonId;
-
-  late int rotation;
-
   late Vector2 center;
 
   SpriteBatch? batchBase;
@@ -58,7 +54,6 @@ class Hexagon {
     tileR += -9 * hexRArray;
 
     center = getTilePosition(tileQ, tileR);
-    rotation = 0;
 
     retrieved = false;
     setToRetrieve = false;
@@ -166,85 +161,85 @@ class Hexagon {
 
   // We sort it on the y axis, so they are drawn from the top down.
   sortTiles() {
-    hexagonTiles.sort((a, b) => a.getPos(rotation).y.compareTo(b.getPos(rotation).y));
+    hexagonTiles.sort((a, b) => a.getPos().y.compareTo(b.getPos().y));
   }
 
   updateHexagon(int rotate) {
     if (batchBase != null) {
       batchBase!.clear();
       for (Tile tile in hexagonTiles) {
-        tile.updateBaseTile(batchBase!, rotate);
+        tile.updateBaseTile(batchBase!);
       }
     }
     if (batchBaseVariation1 != null) {
       batchBaseVariation1!.clear();
       for (Tile tile in hexagonTiles) {
-        tile.updateBaseVariation1(batchBaseVariation1!, rotate);
+        tile.updateBaseVariation1(batchBaseVariation1!);
       }
     }
     if (batchBaseVariation2 != null) {
       batchBaseVariation2!.clear();
       for (Tile tile in hexagonTiles) {
-        tile.updateBaseVariation2(batchBaseVariation2!, rotate);
+        tile.updateBaseVariation2(batchBaseVariation2!);
       }
     }
     if (batchBaseVariation3 != null) {
       batchBaseVariation3!.clear();
       for (Tile tile in hexagonTiles) {
-        tile.updateBaseVariation3(batchBaseVariation3!, rotate);
+        tile.updateBaseVariation3(batchBaseVariation3!);
       }
     }
     if (batchBaseVariation4 != null) {
       batchBaseVariation4!.clear();
       for (Tile tile in hexagonTiles) {
-        tile.updateBaseVariation4(batchBaseVariation4!, rotate);
+        tile.updateBaseVariation4(batchBaseVariation4!);
       }
     }
     if (batchBaseVariation5 != null) {
       batchBaseVariation5!.clear();
       for (Tile tile in hexagonTiles) {
-        tile.updateBaseVariation5(batchBaseVariation5!, rotate);
+        tile.updateBaseVariation5(batchBaseVariation5!);
       }
     }
     if (batchBaseVariation6 != null) {
       batchBaseVariation6!.clear();
       for (Tile tile in hexagonTiles) {
-        tile.updateBaseVariation6(batchBaseVariation6!, rotate);
+        tile.updateBaseVariation6(batchBaseVariation6!);
       }
     }
     if (batchBaseVariation7 != null) {
       batchBaseVariation7!.clear();
       for (Tile tile in hexagonTiles) {
-        tile.updateBaseVariation7(batchBaseVariation7!, rotate);
+        tile.updateBaseVariation7(batchBaseVariation7!);
       }
     }
     if (batchBaseVariation8 != null) {
       batchBaseVariation8!.clear();
       for (Tile tile in hexagonTiles) {
-        tile.updateBaseVariation8(batchBaseVariation8!, rotate);
+        tile.updateBaseVariation8(batchBaseVariation8!);
       }
     }
     if (batchBaseVariation9 != null) {
       batchBaseVariation9!.clear();
       for (Tile tile in hexagonTiles) {
-        tile.updateBaseVariation9(batchBaseVariation9!, rotate);
+        tile.updateBaseVariation9(batchBaseVariation9!);
       }
     }
     if (batchBaseVariation10 != null) {
       batchBaseVariation10!.clear();
       for (Tile tile in hexagonTiles) {
-        tile.updateBaseVariation10(batchBaseVariation10!, rotate);
+        tile.updateBaseVariation10(batchBaseVariation10!);
       }
     }
     if (batchBaseVariation11 != null) {
       batchBaseVariation11!.clear();
       for (Tile tile in hexagonTiles) {
-        tile.updateBaseVariation11(batchBaseVariation11!, rotate);
+        tile.updateBaseVariation11(batchBaseVariation11!);
       }
     }
   }
 
-  getPos(int rotate) {
+  getPos() {
     return center;
   }
 
@@ -319,7 +314,6 @@ class Hexagon {
     loadTextures();
 
     center = Vector2(0, 0);
-    rotation = 0;
 
     hexQArray = data['q'];
     hexRArray = data['r'];

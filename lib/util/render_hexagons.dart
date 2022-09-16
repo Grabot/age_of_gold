@@ -10,9 +10,9 @@ import 'package:flutter/material.dart';
 
 import '../component/hexagon.dart';
 
-renderHexagons(Canvas canvas, Vector2 camera, HexagonList hexagonList, Rect screen, int rotate, int variation, SocketServices socketServices) {
+renderHexagons(Canvas canvas, Vector2 camera, HexagonList hexagonList, Rect screen, int variation, SocketServices socketServices) {
 
-  List<int> tileProperties = getTileFromPos(camera.x, camera.y, 0);
+  List<int> tileProperties = getTileFromPos(camera.x, camera.y);
   int q = tileProperties[0];
   int r = tileProperties[1];
 
@@ -55,34 +55,6 @@ renderHexagons(Canvas canvas, Vector2 camera, HexagonList hexagonList, Rect scre
           }
         }
       }
-    }
-  }
-}
-
-drawLeft(Canvas canvas, int variation, Hexagon currentHexagon, Rect screen) {
-  double currentLeft = currentHexagon.getPos(0).x;
-  Hexagon? goingLeft = currentHexagon;
-  while (currentLeft > screen.left) {
-    if (goingLeft != null) {
-      goingLeft.renderHexagon(canvas, variation);
-      currentLeft = goingLeft.getPos(0).x;
-      goingLeft = goingLeft.left;
-    } else {
-      break;
-    }
-  }
-}
-
-drawRight(Canvas canvas, int variation, Hexagon currentHexagon, Rect screen) {
-  double currentRight = currentHexagon.getPos(0).x;
-  Hexagon? goingRight = currentHexagon;
-  while (currentRight < screen.right) {
-    if (goingRight != null) {
-      goingRight.renderHexagon(canvas, variation);
-      currentRight = goingRight.getPos(0).x;
-      goingRight = goingRight.right;
-    } else {
-      break;
     }
   }
 }

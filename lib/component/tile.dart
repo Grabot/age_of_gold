@@ -34,16 +34,8 @@ class Tile {
     hexagon = hexagonTile;
   }
 
-  Vector2 getPos(int rotate) {
-    if (rotate == 0) {
-      return Vector2(position.x, position.y);
-    } else if (rotate == 1) {
-      return Vector2(-position.y * 2, position.x / 2);
-    } else if (rotate == 2) {
-      return Vector2(-position.x, -position.y);
-    } else {
-      return Vector2(position.y * 2, -position.x / 2);
-    }
+  Vector2 getPos() {
+    return Vector2(position.x, position.y);
   }
 
   // size = 16.
@@ -53,65 +45,59 @@ class Tile {
   // point
   // width = sqrt(3) * size
   // height = 2 * size / 2   divided by 2 to give the isometric view
-  Vector2 getSize(int rotate) {
-    if (rotate == 0 || rotate == 2) {
-      return Vector2(2 * xSize, sqrt(3) * ySize);
-      // return Vector2(128, 56);
-    } else {
-      return Vector2(sqrt(3) * xSize, 2 * ySize);
-      // return Vector2(111, 64);
-    }
+  Vector2 getSize() {
+    return Vector2(2 * xSize, sqrt(3) * ySize);
   }
 
   int getTileType() {
     return tileType;
   }
 
-  updateBaseTile(SpriteBatch baseBatch, int rotate) {
+  updateBaseTile(SpriteBatch baseBatch) {
 
   }
 
-  updateBaseVariation1(SpriteBatch batchVariation1, int rotate) {
+  updateBaseVariation1(SpriteBatch batchVariation1) {
 
   }
 
-  updateBaseVariation2(SpriteBatch batchVariation2, int rotate) {
+  updateBaseVariation2(SpriteBatch batchVariation2) {
 
   }
 
-  updateBaseVariation3(SpriteBatch batchVariation3, int rotate) {
+  updateBaseVariation3(SpriteBatch batchVariation3) {
 
   }
 
-  updateBaseVariation4(SpriteBatch batchVariation4, int rotate) {
+  updateBaseVariation4(SpriteBatch batchVariation4) {
 
   }
 
-  updateBaseVariation5(SpriteBatch batchVariation5, int rotate) {
+  updateBaseVariation5(SpriteBatch batchVariation5) {
 
   }
 
-  updateBaseVariation6(SpriteBatch batchVariation6, int rotate) {
+  updateBaseVariation6(SpriteBatch batchVariation6) {
 
   }
 
-  updateBaseVariation7(SpriteBatch batchVariation7, int rotate) {
+  updateBaseVariation7(SpriteBatch batchVariation7) {
 
   }
 
-  updateBaseVariation8(SpriteBatch batchVariation8, int rotate) {
+  updateBaseVariation8(SpriteBatch batchVariation8) {
 
   }
 
-  updateBaseVariation9(SpriteBatch batchVariation9, int rotate) {
+  updateBaseVariation9(SpriteBatch batchVariation9) {
 
   }
 
-  updateBaseVariation10(SpriteBatch batchVariation10, int rotate) {
+  updateBaseVariation10(SpriteBatch batchVariation10) {
 
   }
 
-  updateBaseVariation11(SpriteBatch batchVariation11, int rotate) {
+  updateBaseVariation11(SpriteBatch batchVariation11) {
 
   }
 

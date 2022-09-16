@@ -8,109 +8,109 @@ class TileWhite extends Tile {
   TileWhite(super.q, super.r, super.tileType, super.tileQ, super.tileR);
 
   @override
-  updateBaseTile(SpriteBatch baseBatch, int rotate) {
+  updateBaseTile(SpriteBatch baseBatch) {
     baseBatch.add(
         source: tileWhite1,
-        offset: getPos(rotate),
+        offset: getPos(),
         scale: scaleX
     );
   }
 
   @override
-  updateBaseVariation1(SpriteBatch variation1, int rotate) {
+  updateBaseVariation1(SpriteBatch variation1) {
     variation1.add(
         source: tileWhite2,
-        offset: getPos(rotate),
+        offset: getPos(),
         scale: scaleX
     );
   }
 
   @override
-  updateBaseVariation2(SpriteBatch variation2, int rotate) {
+  updateBaseVariation2(SpriteBatch variation2) {
     variation2.add(
         source: tileWhite3,
-        offset: getPos(rotate),
+        offset: getPos(),
         scale: scaleX
     );
   }
 
   @override
-  updateBaseVariation3(SpriteBatch variation3, int rotate) {
+  updateBaseVariation3(SpriteBatch variation3) {
     variation3.add(
         source: tileWhite4,
-        offset: getPos(rotate),
+        offset: getPos(),
         scale: scaleX
     );
   }
 
   @override
-  updateBaseVariation4(SpriteBatch variation4, int rotate) {
+  updateBaseVariation4(SpriteBatch variation4) {
     variation4.add(
         source: tileWhite5,
-        offset: getPos(rotate),
+        offset: getPos(),
         scale: scaleX
     );
   }
 
   @override
-  updateBaseVariation5(SpriteBatch variation5, int rotate) {
+  updateBaseVariation5(SpriteBatch variation5) {
     variation5.add(
         source: tileWhite6,
-        offset: getPos(rotate),
+        offset: getPos(),
         scale: scaleX
     );
   }
 
   @override
-  updateBaseVariation6(SpriteBatch variation6, int rotate) {
+  updateBaseVariation6(SpriteBatch variation6) {
     variation6.add(
         source: tileWhite7,
-        offset: getPos(rotate),
+        offset: getPos(),
         scale: scaleX
     );
   }
 
   @override
-  updateBaseVariation7(SpriteBatch variation7, int rotate) {
+  updateBaseVariation7(SpriteBatch variation7) {
     variation7.add(
         source: tileWhite8,
-        offset: getPos(rotate),
+        offset: getPos(),
         scale: scaleX
     );
   }
 
   @override
-  updateBaseVariation8(SpriteBatch variation8, int rotate) {
+  updateBaseVariation8(SpriteBatch variation8) {
     variation8.add(
         source: tileWhite9,
-        offset: getPos(rotate),
+        offset: getPos(),
         scale: scaleX
     );
   }
 
   @override
-  updateBaseVariation9(SpriteBatch variation9, int rotate) {
+  updateBaseVariation9(SpriteBatch variation9) {
     variation9.add(
         source: tileWhite10,
-        offset: getPos(rotate),
+        offset: getPos(),
         scale: scaleX
     );
   }
 
   @override
-  updateBaseVariation10(SpriteBatch variation10, int rotate) {
+  updateBaseVariation10(SpriteBatch variation10) {
     variation10.add(
         source: tileWhite11,
-        offset: getPos(rotate),
+        offset: getPos(),
         scale: scaleX
     );
   }
 
   @override
-  updateBaseVariation11(SpriteBatch variation11, int rotate) {
+  updateBaseVariation11(SpriteBatch variation11) {
     variation11.add(
         source: tileWhite12,
-        offset: getPos(rotate),
+        offset: getPos(),
         scale: scaleX
     );
   }
