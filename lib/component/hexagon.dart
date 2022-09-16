@@ -4,6 +4,7 @@ import 'package:age_of_gold/component/tile.dart';
 import 'package:flame/components.dart';
 import 'package:flame/sprite.dart';
 
+import '../util/global.dart';
 import '../util/util.dart';
 
 class Hexagon {
@@ -45,8 +46,10 @@ class Hexagon {
 
   bool retrieved = false;
   bool setToRetrieve = false;
+  bool visible = false;
 
   Hexagon(this.hexQArray, this.hexRArray) {
+    // TODO: Maybe a 'loading' texture?
     loadTextures();
     // calculate the center point by determining which tile is in the center
     int tileQ = 9 * hexQArray;
@@ -56,6 +59,12 @@ class Hexagon {
 
     center = getTilePosition(tileQ, tileR);
     rotation = 0;
+
+    retrieved = false;
+    setToRetrieve = false;
+    // This is to determine whether or not the hex is visible in the screen
+    // This flag is only set if the render determines that it is in the screen
+    visible = false;
   }
 
   List<bool> variantLoaded = [false, false, false, false, false, false, false, false, false, false, false, false];
@@ -314,6 +323,18 @@ class Hexagon {
 
     hexQArray = data['q'];
     hexRArray = data['r'];
+
+    if (data.containsKey("wraparound")) {
+      setWrapQ(data["wraparound"]["q"]);
+      setWrapR(data["wraparound"]["r"]);
+      if (getWrapQ() != 0) {
+        hexQArray += (mapSize * 2 + 1) * getWrapQ();
+      }
+      if (getWrapR() != 0) {
+        hexRArray += (mapSize * 2 + 1) * getWrapR();
+      }
+    }
+    setPosition();
     retrieved = true;
     setToRetrieve = true;
   }

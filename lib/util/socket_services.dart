@@ -83,24 +83,24 @@ class SocketServices extends ChangeNotifier {
     socket.open();
   }
 
-  void joinHexRoom(int q, int r) {
-    // socket.emit(
-    //   "join_hex",
-    //   {
-    //     'q': q,
-    //     'r': r,
-    //   },
-    // );
+  void joinHexRoom(Hexagon hex) {
+    socket.emit(
+      "join_hex",
+      {
+        'q': hex.hexQArray,
+        'r': hex.hexRArray,
+      },
+    );
   }
 
-  void leaveHexRoom(int q, int r) {
-    // socket.emit(
-    //   "leave_hex",
-    //   {
-    //     'q': q,
-    //     'r': r,
-    //   },
-    // );
+  void leaveHexRoom(Hexagon hex) {
+    socket.emit(
+      "leave_hex",
+      {
+        'q': hex.hexQArray,
+        'r': hex.hexRArray,
+      },
+    );
   }
 
   void joinRoom() {
@@ -179,35 +179,29 @@ class SocketServices extends ChangeNotifier {
   }
 
   getHexagon(int q, int r) {
-    joinHexRoom(q, r);
+    int qHex = hexagonList.hexQ + q - hexagonList.currentHexQ;
+    int rHex = hexagonList.hexR + r - hexagonList.currentHexR;
 
-    // int qHex = hexagonList.hexQ + q - hexagonList.currentHexQ;
-    // int rHex = hexagonList.hexR + r - hexagonList.currentHexR;
-    //
-    // hexagonList.hexagons[qHex][rHex] = Hexagon(q, r);
+    if (hexagonList.hexagons[qHex][rHex] == null) {
+      hexagonList.hexagons[qHex][rHex] = Hexagon(q, r);
+    }
+  }
+
+  actuallyGetHexagons(Hexagon hexRetrieve) {
+    // setToRetrieve and retrieve are both false if it gets here.
+    hexRetrieve.setToRetrieve = true;
 
     socket.emit(
       "get_hexagon",
       {
-        'q': q,
-        'r': r
+        'q': hexRetrieve.hexQArray,
+        'r': hexRetrieve.hexRArray
       },
     );
   }
 
   addHexagon(data) {
     Hexagon hexagon = Hexagon.fromJson(data);
-    if (data.containsKey("wraparound")) {
-      hexagon.setWrapQ(data["wraparound"]["q"]);
-      hexagon.setWrapR(data["wraparound"]["r"]);
-      if (hexagon.getWrapQ() != 0) {
-        hexagon.hexQArray += (mapSize * 2 + 1) * hexagon.getWrapQ();
-      }
-      if (hexagon.getWrapR() != 0) {
-        hexagon.hexRArray += (mapSize * 2 + 1) * hexagon.getWrapR();
-      }
-    }
-    hexagon.setPosition();
     int tileQ = hexagonList.tileQ;
     int tileR = hexagonList.tileR;
     for (var tileData in jsonDecode(data["tiles"])) {

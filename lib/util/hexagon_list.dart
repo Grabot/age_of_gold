@@ -180,9 +180,10 @@ class HexagonList {
       oldHexes.add([qNew2, rNew2]);
     }
 
+    // TODO: Leave hex room done differently, can this be removed?
     List hexLeaveUnique = removeDuplicates(oldHexes);
     for (int x = 0; x < hexLeaveUnique.length; x++) {
-      socketServices.leaveHexRoom(hexLeaveUnique[x][0], hexLeaveUnique[x][1]);
+      // socketServices.leaveHexRoom(hexLeaveUnique[x][0], hexLeaveUnique[x][1]);
     }
   }
 

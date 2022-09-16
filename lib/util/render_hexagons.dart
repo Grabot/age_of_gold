@@ -16,28 +16,47 @@ renderHexagons(Canvas canvas, Vector2 camera, HexagonList hexagonList, Rect scre
   int q = tileProperties[0];
   int r = tileProperties[1];
 
+  // First we check the offset to determine if we adjust the hex array
   checkOffset(q, r, hexagonList, socketServices);
 
-  int total = 0;
-  int drawn = 0;
+  // Then we draw the hexes, but only the ones that are visible.
+  // We also check if they are retrieved yet, if not, we retrieve them.
   for (int top = 0; top <= hexagonList.hexagons.length - 1; top++) {
     Hexagon? currentHexagon;
     for (int right = hexagonList.hexagons.length - 1; right >= 0; right--) {
       currentHexagon = hexagonList.hexagons[right][top];
       if (currentHexagon != null) {
-        total += 1;
         if (currentHexagon.center.x > screen.left
             && currentHexagon.center.x < screen.right
             && currentHexagon.center.y > screen.top
             && currentHexagon.center.y < screen.bottom) {
-          // TODO: Only retrieve hexes that are really visible?
+          // The hexagon is visible, so draw it.
           currentHexagon.renderHexagon(canvas, variation);
-          drawn += 1;
+
+          if (!currentHexagon.setToRetrieve && !currentHexagon.retrieved) {
+            // The hexagon has not been retrieved yet and
+            // not flagged to be retrieved.
+            // We will send out the socket call and flag it as retrieved
+            socketServices.actuallyGetHexagons(currentHexagon);
+          }
+          if (!currentHexagon.visible) {
+            // The hex was flagged as not visible, so it has entered the view
+            // Set the flag accordingly and join the hex room.
+            currentHexagon.visible = true;
+            socketServices.joinHexRoom(currentHexagon);
+          }
+        } else {
+          // The hex is not visible.
+          if (currentHexagon.visible) {
+            // The hex is still flagged as visible so it has just left the view
+            // Set the flag accordingly and leave the hex socket room.
+            currentHexagon.visible = false;
+            socketServices.leaveHexRoom(currentHexagon);
+          }
         }
       }
     }
   }
-  print("total hexagons $total  drawn: $drawn");
 }
 
 drawLeft(Canvas canvas, int variation, Hexagon currentHexagon, Rect screen) {
@@ -189,9 +208,10 @@ checkOffset(int q, int r, HexagonList hexagonList, SocketServices socketServices
     socketServices.getHexagon(hexToRetrieveUnique[x][0], hexToRetrieveUnique[x][1]);
   }
 
+  // TODO: Leave hex room done differently, can this be removed?
   List hexToRemoveUnique = removeDuplicates(hexToRemove);
   for (int x = 0; x < hexToRemoveUnique.length; x++) {
-    socketServices.leaveHexRoom(hexToRemoveUnique[x][0], hexToRemoveUnique[x][1]);
+    // socketServices.leaveHexRoom(hexToRemoveUnique[x][0], hexToRemoveUnique[x][1]);
   }
 }
 
