@@ -224,7 +224,7 @@ class SocketServices extends ChangeNotifier {
       hexagonList.tiles[tileQ + tile.q - hexagonList.currentQ][tileR + tile.r - hexagonList.currentR] = tile;
     }
 
-    hexagon.updateHexagon(0);
+    hexagon.updateHexagon();
     int qHex = hexagonList.hexQ + hexagon.hexQArray - hexagonList.currentHexQ;
     int rHex = hexagonList.hexR + hexagon.hexRArray - hexagonList.currentHexR;
     if (qHex < 0 || qHex >= hexagonList.hexagons.length
@@ -328,7 +328,7 @@ class SocketServices extends ChangeNotifier {
       Tile newTile = setTileType(newTileType, data["q"], data["r"], data);
       newTile.hexagon = currentHex;
       currentHex.addTile(newTile);
-      newTile.hexagon!.updateHexagon(0);
+      newTile.hexagon!.updateHexagon();
       newTile.hexagon!.sortTiles();
     }
   }

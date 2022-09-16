@@ -11,18 +11,21 @@ class Hexagon {
 
   late Vector2 center;
 
-  SpriteBatch? batchBase;
-  SpriteBatch? batchBaseVariation1;
-  SpriteBatch? batchBaseVariation2;
-  SpriteBatch? batchBaseVariation3;
-  SpriteBatch? batchBaseVariation4;
-  SpriteBatch? batchBaseVariation5;
-  SpriteBatch? batchBaseVariation6;
-  SpriteBatch? batchBaseVariation7;
-  SpriteBatch? batchBaseVariation8;
-  SpriteBatch? batchBaseVariation9;
-  SpriteBatch? batchBaseVariation10;
-  SpriteBatch? batchBaseVariation11;
+  // SpriteBatch? batchBase;
+  List<SpriteBatch?> variations = [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+  ];
 
   List<Tile> hexagonTiles = [];
 
@@ -62,79 +65,64 @@ class Hexagon {
     visible = false;
   }
 
-  List<bool> variantLoaded = [false, false, false, false, false, false, false, false, false, false, false, false];
-
   loadTextures() {
     SpriteBatch.load('tile_variants/variant_1.png').then((SpriteBatch batch) {
-      batchBase = batch;
-      variantLoaded[0] = true;
+      variations[0] = batch;
       checkUpdate();
     });
     SpriteBatch.load('tile_variants/variant_2.png').then((SpriteBatch batch) {
-      batchBaseVariation1 = batch;
-      updateHexagon(0);
-      variantLoaded[1] = true;
+      variations[1] = batch;
       checkUpdate();
     });
     SpriteBatch.load('tile_variants/variant_3.png').then((SpriteBatch batch) {
-      batchBaseVariation2 = batch;
-      variantLoaded[2] = true;
+      variations[2] = batch;
       checkUpdate();
     });
     SpriteBatch.load('tile_variants/variant_4.png').then((SpriteBatch batch) {
-      batchBaseVariation3 = batch;
-      variantLoaded[3] = true;
+      variations[3] = batch;
       checkUpdate();
     });
     SpriteBatch.load('tile_variants/variant_5.png').then((SpriteBatch batch) {
-      batchBaseVariation4 = batch;
-      variantLoaded[4] = true;
+      variations[4] = batch;
       checkUpdate();
     });
     SpriteBatch.load('tile_variants/variant_6.png').then((SpriteBatch batch) {
-      batchBaseVariation5 = batch;
-      variantLoaded[5] = true;
+      variations[5] = batch;
       checkUpdate();
     });
     SpriteBatch.load('tile_variants/variant_7.png').then((SpriteBatch batch) {
-      batchBaseVariation6 = batch;
-      variantLoaded[6] = true;
+      variations[6] = batch;
       checkUpdate();
     });
     SpriteBatch.load('tile_variants/variant_8.png').then((SpriteBatch batch) {
-      batchBaseVariation7 = batch;
-      variantLoaded[7] = true;
+      variations[7] = batch;
       checkUpdate();
     });
     SpriteBatch.load('tile_variants/variant_9.png').then((SpriteBatch batch) {
-      batchBaseVariation8 = batch;
-      variantLoaded[8] = true;
+      variations[8] = batch;
       checkUpdate();
     });
     SpriteBatch.load('tile_variants/variant_10.png').then((SpriteBatch batch) {
-      batchBaseVariation9 = batch;
-      variantLoaded[9] = true;
+      variations[9] = batch;
       checkUpdate();
     });
     SpriteBatch.load('tile_variants/variant_11.png').then((SpriteBatch batch) {
-      batchBaseVariation10 = batch;
-      variantLoaded[10] = true;
+      variations[10] = batch;
       checkUpdate();
     });
     SpriteBatch.load('tile_variants/variant_12.png').then((SpriteBatch batch) {
-      batchBaseVariation11 = batch;
-      variantLoaded[11] = true;
+      variations[11] = batch;
       checkUpdate();
     });
   }
 
   checkUpdate() {
-    for (bool variantLoad in variantLoaded) {
-      if (!variantLoad) {
+    for (SpriteBatch? variantLoad in variations) {
+      if (variantLoad == null) {
         return;
       }
     }
-    updateHexagon(0);
+    updateHexagon();
   }
 
 
@@ -164,78 +152,9 @@ class Hexagon {
     hexagonTiles.sort((a, b) => a.getPos().y.compareTo(b.getPos().y));
   }
 
-  updateHexagon(int rotate) {
-    if (batchBase != null) {
-      batchBase!.clear();
-      for (Tile tile in hexagonTiles) {
-        tile.updateBaseTile(batchBase!);
-      }
-    }
-    if (batchBaseVariation1 != null) {
-      batchBaseVariation1!.clear();
-      for (Tile tile in hexagonTiles) {
-        tile.updateBaseVariation1(batchBaseVariation1!);
-      }
-    }
-    if (batchBaseVariation2 != null) {
-      batchBaseVariation2!.clear();
-      for (Tile tile in hexagonTiles) {
-        tile.updateBaseVariation2(batchBaseVariation2!);
-      }
-    }
-    if (batchBaseVariation3 != null) {
-      batchBaseVariation3!.clear();
-      for (Tile tile in hexagonTiles) {
-        tile.updateBaseVariation3(batchBaseVariation3!);
-      }
-    }
-    if (batchBaseVariation4 != null) {
-      batchBaseVariation4!.clear();
-      for (Tile tile in hexagonTiles) {
-        tile.updateBaseVariation4(batchBaseVariation4!);
-      }
-    }
-    if (batchBaseVariation5 != null) {
-      batchBaseVariation5!.clear();
-      for (Tile tile in hexagonTiles) {
-        tile.updateBaseVariation5(batchBaseVariation5!);
-      }
-    }
-    if (batchBaseVariation6 != null) {
-      batchBaseVariation6!.clear();
-      for (Tile tile in hexagonTiles) {
-        tile.updateBaseVariation6(batchBaseVariation6!);
-      }
-    }
-    if (batchBaseVariation7 != null) {
-      batchBaseVariation7!.clear();
-      for (Tile tile in hexagonTiles) {
-        tile.updateBaseVariation7(batchBaseVariation7!);
-      }
-    }
-    if (batchBaseVariation8 != null) {
-      batchBaseVariation8!.clear();
-      for (Tile tile in hexagonTiles) {
-        tile.updateBaseVariation8(batchBaseVariation8!);
-      }
-    }
-    if (batchBaseVariation9 != null) {
-      batchBaseVariation9!.clear();
-      for (Tile tile in hexagonTiles) {
-        tile.updateBaseVariation9(batchBaseVariation9!);
-      }
-    }
-    if (batchBaseVariation10 != null) {
-      batchBaseVariation10!.clear();
-      for (Tile tile in hexagonTiles) {
-        tile.updateBaseVariation10(batchBaseVariation10!);
-      }
-    }
-    if (batchBaseVariation11 != null) {
-      batchBaseVariation11!.clear();
-      for (Tile tile in hexagonTiles) {
-        tile.updateBaseVariation11(batchBaseVariation11!);
-      }
+  updateHexagon() {
+    for (Tile tile in hexagonTiles) {
+      tile.updateTile(variations);
     }
   }
 
@@ -244,54 +163,8 @@ class Hexagon {
   }
 
   renderHexagon(Canvas canvas, int variation) {
-    if (variation == 0) {
-      if (batchBase != null) {
-        batchBase!.render(canvas);
-      }
-    } else if (variation == 1) {
-      if (batchBaseVariation1 != null) {
-        batchBaseVariation1!.render(canvas);
-      }
-    } else if (variation == 2) {
-      if (batchBaseVariation2 != null) {
-        batchBaseVariation2!.render(canvas);
-      }
-    } else if (variation == 3) {
-      if (batchBaseVariation3 != null) {
-        batchBaseVariation3!.render(canvas);
-      }
-    } else if (variation == 4) {
-      if (batchBaseVariation4 != null) {
-        batchBaseVariation4!.render(canvas);
-      }
-    } else if (variation == 5) {
-      if (batchBaseVariation5 != null) {
-        batchBaseVariation5!.render(canvas);
-      }
-    } else if (variation == 6) {
-      if (batchBaseVariation6 != null) {
-        batchBaseVariation6!.render(canvas);
-      }
-    } else if (variation == 7) {
-      if (batchBaseVariation7 != null) {
-        batchBaseVariation7!.render(canvas);
-      }
-    } else if (variation == 8) {
-      if (batchBaseVariation8 != null) {
-        batchBaseVariation8!.render(canvas);
-      }
-    } else if (variation == 9) {
-      if (batchBaseVariation9 != null) {
-        batchBaseVariation9!.render(canvas);
-      }
-    } else if (variation == 10) {
-      if (batchBaseVariation10 != null) {
-        batchBaseVariation10!.render(canvas);
-      }
-    } else if (variation == 11) {
-      if (batchBaseVariation11 != null) {
-        batchBaseVariation11!.render(canvas);
-      }
+    if (variations[variation] != null) {
+      variations[variation]!.render(canvas);
     }
   }
 

@@ -4,6 +4,7 @@ import 'package:age_of_gold/component/hexagon.dart';
 import 'package:flame/components.dart';
 import 'package:flame/extensions.dart';
 import 'package:flame/sprite.dart';
+import 'package:flutter/cupertino.dart';
 
 import '../util/global.dart';
 import '../util/util.dart';
@@ -53,51 +54,7 @@ class Tile {
     return tileType;
   }
 
-  updateBaseTile(SpriteBatch baseBatch) {
-
-  }
-
-  updateBaseVariation1(SpriteBatch batchVariation1) {
-
-  }
-
-  updateBaseVariation2(SpriteBatch batchVariation2) {
-
-  }
-
-  updateBaseVariation3(SpriteBatch batchVariation3) {
-
-  }
-
-  updateBaseVariation4(SpriteBatch batchVariation4) {
-
-  }
-
-  updateBaseVariation5(SpriteBatch batchVariation5) {
-
-  }
-
-  updateBaseVariation6(SpriteBatch batchVariation6) {
-
-  }
-
-  updateBaseVariation7(SpriteBatch batchVariation7) {
-
-  }
-
-  updateBaseVariation8(SpriteBatch batchVariation8) {
-
-  }
-
-  updateBaseVariation9(SpriteBatch batchVariation9) {
-
-  }
-
-  updateBaseVariation10(SpriteBatch batchVariation10) {
-
-  }
-
-  updateBaseVariation11(SpriteBatch batchVariation11) {
+  updateTile(List<SpriteBatch?> batches) {
 
   }
 
