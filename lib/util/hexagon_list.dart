@@ -93,6 +93,7 @@ class HexagonList {
   }
 
   changeArraySize(int arraySize) {
+    print("current change array size: $arraySize");
     if (hexagons.length != arraySize) {
       int arraySizeTile = arraySize * 14 + 50;
       if (hexagons.length < arraySize) {

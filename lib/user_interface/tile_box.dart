@@ -271,7 +271,7 @@ class TileBoxState extends State<TileBox> {
     return Align(
       alignment: FractionalOffset.topRight,
       child: Container(
-        width: 400,
+        width: 380,
         height: 400,
         child: Column(
           children: [

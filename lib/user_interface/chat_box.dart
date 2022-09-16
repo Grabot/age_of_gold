@@ -58,7 +58,7 @@ class ChatBoxState extends State<ChatBox> {
     return Align(
       alignment: FractionalOffset.bottomLeft,
       child: Container(
-        width: 400,
+        width: 380,
         height: 100,
         color: Colors.green,
         child: Column(
@@ -82,7 +82,7 @@ class ChatBoxState extends State<ChatBox> {
     return Row(
       children: [
         SizedBox(
-          width: 365,
+          width: 345,
           height: 50,
           child: TextFormField(
             validator: (val) {

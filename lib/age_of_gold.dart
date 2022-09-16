@@ -1,7 +1,4 @@
 import 'dart:math';
-
-import 'package:age_of_gold/user_interface/selected_tile_info.dart';
-import 'package:age_of_gold/user_interface/tile_box.dart';
 import 'package:age_of_gold/util/socket_services.dart';
 import 'package:flutter/material.dart';
 import 'package:flame/game.dart';
@@ -29,18 +26,8 @@ class AgeOfGold extends FlameGame
   Vector2 cameraVelocity = Vector2.zero();
 
   Vector2 dragAccelerateKey = Vector2.zero();
-
   Vector2 dragTo = Vector2.zero();
-
   Vector2 dragFrom = Vector2.zero();
-
-  bool singleTap = false;
-  bool multiTap = false;
-  int multiPointer1Id = -1;
-  int multiPointer2Id = -1;
-  Vector2 multiPointer1 = Vector2.zero();
-  Vector2 multiPointer2 = Vector2.zero();
-  double multiPointerDist = 0.0;
 
   double frameTimes = 0.0;
   int frames = 0;
@@ -117,14 +104,15 @@ class AgeOfGold extends FlameGame
     super.onScroll(info);
     double zoomIncrease = (info.raw.scrollDelta.dy/1000);
     camera.zoom *= (1 - zoomIncrease);
-    if (camera.zoom <= minZoom) {
-      camera.zoom = minZoom;
-    } else if (camera.zoom >= maxZoom) {
-      camera.zoom = maxZoom;
-    }
+
+    clampZoom();
     print("current zoom: ${camera.zoom}");
 
     checkHexagonArraySize();
+  }
+
+  void clampZoom() {
+    camera.zoom = camera.zoom.clamp(1, 4);
   }
 
   @override
@@ -139,74 +127,49 @@ class AgeOfGold extends FlameGame
     super.onTapDown(pointerId, info);
   }
 
+  Vector2? start;
+  Vector2? end;
+
   @override
   void onDragStart(int pointerId, DragStartInfo info) {
     super.onDragStart(pointerId, info);
-    if (singleTap) {
-      multiTap = true;
-      multiPointer2Id = pointerId;
-    } else {
-      singleTap = true;
-      multiPointer1Id = pointerId;
-    }
-    dragFrom = info.eventPosition.game;
-    // _world!.resetClick();
+    end = null;
+    // All distances need to be normalized using the current zoom.
+    start = (info.eventPosition.game) * camera.zoom;
+    // We need to move the pointer to the center rather than the corner
+    start!.add((size/2) * camera.zoom);
+    // We need to move the pointer according to the current camera position
+    start!.sub((cameraPosition) * camera.zoom);
+    print("pointer $pointerId    start: $start");
   }
 
   @override
   void onDragUpdate(int pointerId, DragUpdateInfo info) {
     super.onDragUpdate(pointerId, info);
+    end = (info.eventPosition.game) * camera.zoom;
+    end!.add((size/2) * camera.zoom);
+    end!.sub((cameraPosition) * camera.zoom);
 
-    if (multiTap) {
-      if (pointerId == multiPointer1Id) {
-        multiPointer1 = info.eventPosition.game;
-      } else if (pointerId == multiPointer2Id) {
-        multiPointer2 = info.eventPosition.game;
-      } else {
-        // A third finger is touching the screen?
-      }
-      if ((multiPointer1.x != 0 && multiPointer1.y != 0) && (multiPointer2.x != 0 && multiPointer2.y != 0))  {
-        handlePinchZoom();
-      }
-    } else {
-      Vector2 currentPos = info.eventPosition.game.clone();
-      currentPos.sub(dragFrom);
-      dragFrom = info.eventPosition.game;
-      dragTo.sub(currentPos);
-    }
+    double lineDistanceX = (start!.x - end!.x) / camera.zoom;
+    double lineDistanceY = (start!.y - end!.y) / camera.zoom;
+    start = (info.eventPosition.game) * camera.zoom;
+    start!.add((size/2) * camera.zoom);
+    start!.sub((cameraPosition) * camera.zoom);
+    dragTo.add(Vector2(lineDistanceX, lineDistanceY));
   }
 
-  void handlePinchZoom() {
-    double currentDistance = multiPointer1.distanceTo(multiPointer2);
-    double zoomIncrease = (currentDistance - multiPointerDist);
-    print("zoom increase: $zoomIncrease");
-    double cameraZoom = 1;
-    if (zoomIncrease > -50 && zoomIncrease <= -1) {
-      cameraZoom += (zoomIncrease / 400);
-    } else if (zoomIncrease < 50 && zoomIncrease >= 1) {
-      cameraZoom += (zoomIncrease / 400);
-    }
-    camera.zoom *= cameraZoom;
-    if (camera.zoom <= 1) {
-      camera.zoom = 1;
-    } else if (camera.zoom >= 4) {
-      camera.zoom = 4;
-    }
-    multiPointerDist = currentDistance;
+  @override
+  void onDragCancel(int pointerId) {
+    super.onDragCancel(pointerId);
+    end = null;
+    start = null;
   }
 
   @override
   void onDragEnd(int pointerId, DragEndInfo info) {
     super.onDragEnd(pointerId, info);
-    singleTap = false;
-    if (multiTap) {
-      multiTap = false;
-    }
-    multiPointer1Id = -1;
-    multiPointer2Id = -1;
-    multiPointer1 = Vector2.zero();
-    multiPointer2 = Vector2.zero();
-    multiPointerDist = 0.0;
+    end = null;
+    start = null;
   }
 
   @override
@@ -218,7 +181,8 @@ class AgeOfGold extends FlameGame
     _world!.updateWorld(cameraPosition, camera.zoom, size);
 
     dragTo += dragAccelerateKey;
-    cameraPosition.add(cameraVelocity * dt * 10);
+    Vector2 movement = cameraVelocity * dt * 10;
+    cameraPosition.add(movement);
     updateMapScroll();
   }
 
@@ -226,58 +190,20 @@ class AgeOfGold extends FlameGame
     frameTimes += dt;
     frames += 1;
 
-    // if ((frameTimes > 0 && frameTimes <= 0.5) && variant != 0) {
-    //   variant = 0;
-    //   _world!.updateVariant(variant);
-    // } else if ((frameTimes > 0.5 && frameTimes <= 1) && variant != 1) {
-    //   variant = 1;
-    //   _world!.updateVariant(variant);
-    // }
-
-    if ((frameTimes > 0 && frameTimes <= 0.083) && variant != 0) {
-      variant = 0;
-      _world!.updateVariant(variant);
-    } else if ((frameTimes > 0.083 && frameTimes <= 0.1666) && variant != 1) {
-      variant = 1;
-      _world!.updateVariant(variant);
-    } else if ((frameTimes > 0.1666 && frameTimes <= 0.25) && variant != 2) {
-      variant = 2;
-      _world!.updateVariant(variant);
-    } else if ((frameTimes > 0.25 && frameTimes <= 0.3333) && variant != 3) {
-      variant = 3;
-      _world!.updateVariant(variant);
-    } else if ((frameTimes > 0.3333 && frameTimes <= 0.4166) && variant != 4) {
-      variant = 4;
-      _world!.updateVariant(variant);
-    } else if ((frameTimes > 0.4166 && frameTimes <= 0.50) && variant != 5) {
-      variant = 5;
-      _world!.updateVariant(variant);
-    } else if ((frameTimes > 0.50 && frameTimes <= 0.5833) && variant != 6) {
-      variant = 6;
-      _world!.updateVariant(variant);
-    } else if ((frameTimes > 0.5833 && frameTimes <= 0.6666) && variant != 7) {
-      variant = 7;
-      _world!.updateVariant(variant);
-    } else if ((frameTimes > 0.6666 && frameTimes <= 0.75) && variant != 8) {
-      variant = 8;
-      _world!.updateVariant(variant);
-    } else if ((frameTimes > 0.75 && frameTimes <= 0.8333) && variant != 9) {
-      variant = 9;
-      _world!.updateVariant(variant);
-    } else if ((frameTimes > 0.8333 && frameTimes <= 0.9166) && variant != 10) {
-      variant = 10;
-      _world!.updateVariant(variant);
-    } else if ((frameTimes > 0.9166 && frameTimes <= 1) && variant != 11) {
-      variant = 11;
-      _world!.updateVariant(variant);
-    }
-
     if (frameTimes >= 1) {
       fps = frames;
       print("fps: $frames");
-      print("cameraPosition: $cameraPosition");
+      print("zoom: ${camera.zoom}");
       frameTimes = 0;
       frames = 0;
+    }
+
+    // This will determine 12 variants in a 60fps game loop
+    int newVariant = (frameTimes / 0.084).floor();
+    // It should never exceed 11 (only 12 variants (including 0) for now)
+    if (variant != newVariant) {
+      variant = newVariant;
+      _world!.updateVariant(variant);
     }
   }
 
@@ -287,11 +213,7 @@ class AgeOfGold extends FlameGame
       cameraVelocity.x = 0;
     } else {
       cameraVelocity.x = (dragTo.x - cameraPosition.x);
-      if (cameraVelocity.x > 100) {
-        cameraVelocity.x = 100;
-      } else if (cameraVelocity.x < -100) {
-        cameraVelocity.x = -100;
-      }
+      cameraVelocity.x.clamp(-100, 100);
     }
 
     if ((dragTo.y - cameraPosition.y).abs() < 0.2) {
@@ -299,11 +221,7 @@ class AgeOfGold extends FlameGame
       cameraVelocity.y = 0;
     } else {
       cameraVelocity.y = (dragTo.y - cameraPosition.y);
-      if (cameraVelocity.y > 100) {
-        cameraVelocity.y = 100;
-      } else if (cameraVelocity.y < -100) {
-        cameraVelocity.y = -100;
-      }
+      cameraVelocity.y.clamp(-100, 100);
     }
   }
 
