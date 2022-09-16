@@ -18,21 +18,26 @@ renderHexagons(Canvas canvas, Vector2 camera, HexagonList hexagonList, Rect scre
 
   checkOffset(q, r, hexagonList, socketServices);
 
+  int total = 0;
+  int drawn = 0;
   for (int top = 0; top <= hexagonList.hexagons.length - 1; top++) {
     Hexagon? currentHexagon;
     for (int right = hexagonList.hexagons.length - 1; right >= 0; right--) {
       currentHexagon = hexagonList.hexagons[right][top];
       if (currentHexagon != null) {
-        if (currentHexagon.center.x > (screen.left + 100)
-            && currentHexagon.center.x < (screen.right - 200)
-            && currentHexagon.center.y > (screen.top + 100)
-            && currentHexagon.center.y < (screen.bottom - 100)) {
+        total += 1;
+        if (currentHexagon.center.x > screen.left
+            && currentHexagon.center.x < screen.right
+            && currentHexagon.center.y > screen.top
+            && currentHexagon.center.y < screen.bottom) {
           // TODO: Only retrieve hexes that are really visible?
           currentHexagon.renderHexagon(canvas, variation);
+          drawn += 1;
         }
       }
     }
   }
+  print("total hexagons $total  drawn: $drawn");
 }
 
 drawLeft(Canvas canvas, int variation, Hexagon currentHexagon, Rect screen) {

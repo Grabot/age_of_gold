@@ -44,6 +44,7 @@ class SocketServices extends ChangeNotifier {
   static final SocketServices _instance = SocketServices._internal();
 
   HexagonList hexagonList = HexagonList();
+  late ChatMessages chatMessages;
 
   SocketServices._internal() {
     startSockConnection();
@@ -83,23 +84,23 @@ class SocketServices extends ChangeNotifier {
   }
 
   void joinHexRoom(int q, int r) {
-    socket.emit(
-      "join_hex",
-      {
-        'q': q,
-        'r': r,
-      },
-    );
+    // socket.emit(
+    //   "join_hex",
+    //   {
+    //     'q': q,
+    //     'r': r,
+    //   },
+    // );
   }
 
   void leaveHexRoom(int q, int r) {
-    socket.emit(
-      "leave_hex",
-      {
-        'q': q,
-        'r': r,
-      },
-    );
+    // socket.emit(
+    //   "leave_hex",
+    //   {
+    //     'q': q,
+    //     'r': r,
+    //   },
+    // );
   }
 
   void joinRoom() {
@@ -121,7 +122,6 @@ class SocketServices extends ChangeNotifier {
     });
   }
 
-  late ChatMessages chatMessages;
   void checkMessages(ChatMessages chatMessages) {
     this.chatMessages = chatMessages;
     socket.on('send_message_success', (data) {
@@ -180,6 +180,11 @@ class SocketServices extends ChangeNotifier {
 
   getHexagon(int q, int r) {
     joinHexRoom(q, r);
+
+    // int qHex = hexagonList.hexQ + q - hexagonList.currentHexQ;
+    // int rHex = hexagonList.hexR + r - hexagonList.currentHexR;
+    //
+    // hexagonList.hexagons[qHex][rHex] = Hexagon(q, r);
 
     socket.emit(
       "get_hexagon",

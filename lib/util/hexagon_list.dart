@@ -107,11 +107,13 @@ class HexagonList {
               hexagons[0].length, null, growable: true);
           hexagons.insert(hexagons.length, row1);
           hexagons.insert(0, row2);
-          fillNewArrayEdges();
+
           // The size has changed now, so reset the hexQ and hexR variables.
           // We need these to retrieve new Hexagons so we set it in the while.
           hexQ = (hexagons.length / 2).ceil();
           hexR = (hexagons[0].length / 2).ceil();
+
+          fillNewArrayEdges();
         }
         while (tiles.length < arraySizeTile) {
           for (int i = 0; i < tiles.length; i++) {
@@ -188,20 +190,20 @@ class HexagonList {
     List newHexes = [];
 
     for (int qSock = 0; qSock < hexagons[0].length; qSock ++) {
-      int qNew1 = qSock - 1 - hexQ + currentHexQ;
-      int rNew1 = 0 - 1 - hexR + currentHexR;
+      int qNew1 = qSock - hexQ + currentHexQ;
+      int rNew1 = 0 - hexR + currentHexR;
       newHexes.add([qNew1, rNew1]);
-      int qNew2 = qSock - hexQ + currentHexQ - 1;
-      int rNew2 = hexagons[0].length - 2 - hexR + currentHexR;
+      int qNew2 = qSock - hexQ + currentHexQ;
+      int rNew2 = hexagons[0].length - 1 - hexR + currentHexR;
       newHexes.add([qNew2, rNew2]);
     }
 
     for (int rSock = 0; rSock < hexagons.length; rSock ++) {
-      int qNew1 = 0 - 1 - hexQ + currentHexQ;
-      int rNew1 = rSock - 1 - hexR + currentHexR;
+      int qNew1 = 0  - hexQ + currentHexQ;
+      int rNew1 = rSock  - hexR + currentHexR;
       newHexes.add([qNew1, rNew1]);
-      int qNew2 = hexagons.length - 2 - hexQ + currentHexQ;
-      int rNew2 = rSock - 1 - hexR + currentHexR;
+      int qNew2 = hexagons.length - 1 - hexQ + currentHexQ;
+      int rNew2 = rSock - hexR + currentHexR;
       newHexes.add([qNew2, rNew2]);
     }
 

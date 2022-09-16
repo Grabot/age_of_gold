@@ -50,6 +50,10 @@ class World extends Component {
   }
 
   drawScreen(Canvas canvas) {
+    final paint = Paint()..color = Colors.lightBlue;
+    paint.style = PaintingStyle.stroke;
+    canvas.drawRect(screen, paint);
+
     if (mouseTile != null) {
       tileSelected(mouseTile!, canvas);
     }
@@ -85,8 +89,8 @@ class World extends Component {
 
     // We draw the border a bit further (about 3 hex) than what you're seeing,
     // this is so the sections load before you scroll on them.
-    double borderOffsetX = -((radius * 2 + 1) * xSize) * 3;
-    double borderOffsetY = -((radius * 2 + 1) * ySize) * 3;
+    double borderOffsetX = -((radius * 2 + 1) * xSize);
+    double borderOffsetY = -((radius * 2 + 1) * ySize);
 
     double leftScreen = cameraPosition.x - (worldSize.x / 2) + borderOffsetX;
     double rightScreen = cameraPosition.x + (worldSize.x / 2) - borderOffsetX;
