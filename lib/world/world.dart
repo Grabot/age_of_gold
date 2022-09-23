@@ -57,6 +57,7 @@ class World extends Component {
 
   resetClick() {
     mouseTile = null;
+    selectedTileInfo.setCurrentTile(null);
   }
 
   void onTappedUp(Vector2 mouseTapped) {
@@ -67,9 +68,9 @@ class World extends Component {
     int r = tileProperties[1];
 
     Tile? mouseTileTap = hexagonList.getTileFromCoordinates(q, r);
+    selectedTileInfo.setCurrentTile(mouseTileTap);
     if (mouseTileTap != null) {
       mouseTile = mouseTileTap;
-      selectedTileInfo.setCurrentTile(mouseTileTap);
       print("tile tapped  q: ${mouseTileTap.q} r: ${mouseTileTap.r}");
     }
   }

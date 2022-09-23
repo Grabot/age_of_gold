@@ -10,7 +10,7 @@ class SelectedTileInfo extends ChangeNotifier {
 
   SelectedTileInfo._internal();
 
-  setCurrentTile(Tile currentTile) {
+  setCurrentTile(Tile? currentTile) {
     selectedTile = currentTile;
     notifyListeners();
   }

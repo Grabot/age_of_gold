@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:age_of_gold/util/global.dart';
 import 'package:age_of_gold/util/socket_services.dart';
 import 'package:flutter/material.dart';
 import 'package:flame/game.dart';
@@ -41,6 +42,18 @@ class AgeOfGold extends FlameGame
 
   bool chatFocus = false;
 
+  // We use the pointer variables to determine regular or multidrag
+  int pointerId1 = -1;
+  int pointerId2 = -1;
+  Vector2? start;
+
+  Vector2? firstFinger;
+  Vector2? secondFinger;
+
+  bool finger1 = false;
+  bool finger2 = false;
+  double? distanceBetweenFingers;
+
   TextPaint textPaint = TextPaint(
     style: const TextStyle(
       fontSize: 48.0,
@@ -63,7 +76,7 @@ class AgeOfGold extends FlameGame
     socket.joinRoom();
 
     camera.followVector2(cameraPosition, relativeOffset: Anchor.center);
-    camera.zoom = 4;
+    camera.zoom = 1;
 
     _world = World();
     add(_world!);
@@ -127,49 +140,100 @@ class AgeOfGold extends FlameGame
     super.onTapDown(pointerId, info);
   }
 
-  Vector2? start;
-  Vector2? end;
-
   @override
   void onDragStart(int pointerId, DragStartInfo info) {
     super.onDragStart(pointerId, info);
-    end = null;
     // All distances need to be normalized using the current zoom.
-    start = (info.eventPosition.game) * camera.zoom;
+    Vector2 dragStart = (info.eventPosition.game) * camera.zoom;
     // We need to move the pointer to the center rather than the corner
-    start!.add((size/2) * camera.zoom);
+    dragStart.add((size / 2) * camera.zoom);
     // We need to move the pointer according to the current camera position
-    start!.sub((cameraPosition) * camera.zoom);
-    print("pointer $pointerId    start: $start");
+    dragStart.sub((cameraPosition) * camera.zoom);
+    start = dragStart;
+
+    _world!.resetClick();
+    if (pointerId1 == -1) {
+      pointerId1 = pointerId;
+    } else if (pointerId1 != -1 && pointerId2 == -1) {
+      pointerId2 = pointerId;
+    }
+    print("dragging start: $pointerId");
   }
 
   @override
   void onDragUpdate(int pointerId, DragUpdateInfo info) {
     super.onDragUpdate(pointerId, info);
-    end = (info.eventPosition.game) * camera.zoom;
-    end!.add((size/2) * camera.zoom);
-    end!.sub((cameraPosition) * camera.zoom);
+    Vector2 end = (info.eventPosition.game) * camera.zoom;
+    end.add((size/2) * camera.zoom);
+    end.sub((cameraPosition) * camera.zoom);
 
-    double lineDistanceX = (start!.x - end!.x) / camera.zoom;
-    double lineDistanceY = (start!.y - end!.y) / camera.zoom;
-    start = (info.eventPosition.game) * camera.zoom;
-    start!.add((size/2) * camera.zoom);
-    start!.sub((cameraPosition) * camera.zoom);
-    dragTo.add(Vector2(lineDistanceX, lineDistanceY));
+    if (pointerId1 != -1 && pointerId2 == -1) {
+      double lineDistanceX = (start!.x - end.x) / camera.zoom;
+      double lineDistanceY = (start!.y - end.y) / camera.zoom;
+      start = (info.eventPosition.game) * camera.zoom;
+      start!.add((size / 2) * camera.zoom);
+      start!.sub((cameraPosition) * camera.zoom);
+
+      dragTo.add(Vector2(lineDistanceX, lineDistanceY));
+    } else if (pointerId1 != -1 && pointerId2 != -1) {
+
+      if (pointerId == pointerId1) {
+        firstFinger = (info.eventPosition.game) * camera.zoom;
+        firstFinger!.add((size / 2) * camera.zoom);
+        firstFinger!.sub((cameraPosition) * camera.zoom);
+        finger1 = true;
+      } else if (pointerId == pointerId2) {
+        secondFinger = (info.eventPosition.game) * camera.zoom;
+        secondFinger!.add((size / 2) * camera.zoom);
+        secondFinger!.sub((cameraPosition) * camera.zoom);
+        finger2 = true;
+      }
+      // Once 2 fingers have been detected and updated we do the pinch zoom
+      if (finger1 && finger2) {
+        pinchZoom();
+      }
+    }
+  }
+
+  pinchZoom() {
+    if (distanceBetweenFingers == null) {
+      distanceBetweenFingers = firstFinger!.distanceTo(secondFinger!);
+    } else {
+      double currentDistance = distanceBetweenFingers!;
+      distanceBetweenFingers = firstFinger!.distanceTo(secondFinger!);
+      double movementFingers = currentDistance - distanceBetweenFingers!;
+      double zoomIncrease = movementFingers / 500;
+      camera.zoom *= (1 - zoomIncrease);
+      clampZoom();
+    }
+    finger1 = false;
+    finger2 = false;
+    firstFinger = null;
+    secondFinger = null;
   }
 
   @override
   void onDragCancel(int pointerId) {
     super.onDragCancel(pointerId);
-    end = null;
-    start = null;
+    resetDrag();
   }
 
   @override
   void onDragEnd(int pointerId, DragEndInfo info) {
     super.onDragEnd(pointerId, info);
-    end = null;
+    resetDrag();
+  }
+
+  resetDrag() {
     start = null;
+    firstFinger = null;
+    secondFinger = null;
+    finger1 = false;
+    finger2 = false;
+    distanceBetweenFingers = null;
+    pointerId1 = -1;
+    pointerId2 = -1;
+    dragTo = cameraPosition;
   }
 
   @override
@@ -214,7 +278,6 @@ class AgeOfGold extends FlameGame
       cameraVelocity.x = 0;
     } else {
       cameraVelocity.x = (dragTo.x - cameraPosition.x);
-      cameraVelocity.x.clamp(-100, 100);
     }
 
     if ((dragTo.y - cameraPosition.y).abs() < 0.2) {
@@ -222,8 +285,8 @@ class AgeOfGold extends FlameGame
       cameraVelocity.y = 0;
     } else {
       cameraVelocity.y = (dragTo.y - cameraPosition.y);
-      cameraVelocity.y.clamp(-100, 100);
     }
+    cameraVelocity.clampScalar((-maxSpeed * camera.zoom), (maxSpeed * camera.zoom));
   }
 
   @override
