@@ -3,11 +3,13 @@ import 'package:age_of_gold/util/tapped_map.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import 'package:age_of_gold/util/render_hexagons.dart';
+import '../component/hexagon.dart';
 import '../user_interface/selected_tile_info.dart';
 import '../util/global.dart';
 import '../util/hexagon_list.dart';
 import '../util/selected_tile.dart';
 import '../util/socket_services.dart';
+import '../util/util.dart';
 
 class World extends Component {
 
@@ -102,5 +104,34 @@ class World extends Component {
 
   setHexagonArraySize(int arraySize) {
     hexagonList.changeArraySize(arraySize);
+  }
+
+  worldCheck() {
+    print("world check");
+    for (int q = 1; q < hexagonList.hexagons.length - 2; q++) {
+      for (int r = 1; r < hexagonList.hexagons.length - 2; r++) {
+        Hexagon? hexagonMid = hexagonList.hexagons[q][r];
+        Hexagon? hexagon1 = hexagonList.hexagons[q-1][r-1];
+        Hexagon? hexagon2 = hexagonList.hexagons[q-1][r+1];
+        Hexagon? hexagon3 = hexagonList.hexagons[q+1][r-1];
+        Hexagon? hexagon4 = hexagonList.hexagons[q+1][r+1];
+
+        Hexagon? hexagon5 = hexagonList.hexagons[q][r-1];
+        Hexagon? hexagon6 = hexagonList.hexagons[q][r+1];
+        Hexagon? hexagon7 = hexagonList.hexagons[q-1][r];
+        Hexagon? hexagon8 = hexagonList.hexagons[q+1][r];
+        if (hexagonMid == null
+            || hexagon1 == null
+            || hexagon2 == null
+            || hexagon3 == null
+            || hexagon4 == null
+            || hexagon5 == null
+            || hexagon6 == null
+            || hexagon7 == null
+            || hexagon8 == null) {
+          print("The world is not ok :(");
+        }
+      }
+    }
   }
 }

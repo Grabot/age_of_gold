@@ -259,6 +259,7 @@ class AgeOfGold extends FlameGame
       print("fps: $frames");
       frameTimes = 0;
       frames = 0;
+      _world!.worldCheck();
     }
 
     // This will determine 12 variants in a 60fps game loop
@@ -286,7 +287,26 @@ class AgeOfGold extends FlameGame
     } else {
       cameraVelocity.y = (dragTo.y - cameraPosition.y);
     }
-    cameraVelocity.clampScalar((-maxSpeed * camera.zoom), (maxSpeed * camera.zoom));
+    clampSpeed();
+    cameraVelocity.clampScalar(-maxSpeed, maxSpeed);
+  }
+
+  clampSpeed() {
+    if (cameraVelocity.x > cameraVelocity.y) {
+      if (cameraVelocity.x.abs() > maxSpeed) {
+        // If the speed is too large we want to slow it down.
+        double scalarSize = maxSpeed / cameraVelocity.x.abs();
+        cameraVelocity.x = cameraVelocity.x * scalarSize;
+        cameraVelocity.y = cameraVelocity.y * scalarSize;
+      }
+    } else {
+      if (cameraVelocity.y.abs() > maxSpeed) {
+        // If the speed is too large we want to slow it down.
+        double scalarSize = maxSpeed / cameraVelocity.y.abs();
+        cameraVelocity.x = cameraVelocity.x * scalarSize;
+        cameraVelocity.y = cameraVelocity.y * scalarSize;
+      }
+    }
   }
 
   @override
@@ -300,15 +320,16 @@ class AgeOfGold extends FlameGame
     if (chatFocus && isKeyDown) {
       return KeyEventResult.ignored;
     } else {
-      // _world!.resetClick();
+      _world!.resetClick();
+      double mouseSpeed = 5;
       if (event.logicalKey == LogicalKeyboardKey.keyA) {
-        dragAccelerateKey.x = isKeyDown ? -5 : 0;
+        dragAccelerateKey.x = isKeyDown ? -mouseSpeed : 0;
       } else if (event.logicalKey == LogicalKeyboardKey.keyD) {
-        dragAccelerateKey.x = isKeyDown ? 5 : 0;
+        dragAccelerateKey.x = isKeyDown ? mouseSpeed : 0;
       } else if (event.logicalKey == LogicalKeyboardKey.keyW) {
-        dragAccelerateKey.y = isKeyDown ? -5 : 0;
+        dragAccelerateKey.y = isKeyDown ? -mouseSpeed : 0;
       } else if (event.logicalKey == LogicalKeyboardKey.keyS) {
-        dragAccelerateKey.y = isKeyDown ? 5 : 0;
+        dragAccelerateKey.y = isKeyDown ? mouseSpeed : 0;
       }
 
       if (event.logicalKey == LogicalKeyboardKey.home) {

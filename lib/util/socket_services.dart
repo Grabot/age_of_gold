@@ -77,7 +77,7 @@ class SocketServices extends ChangeNotifier {
     });
 
     socket.on('message_event', (data) {
-      print("message_event: $data");
+      // print("message_event: $data");
     });
 
     socket.open();
@@ -117,7 +117,7 @@ class SocketServices extends ChangeNotifier {
       print(data);
     });
     socket.on('send_hexagon_success', (data) {
-      print("send_hexagon_success");
+      // print("send_hexagon_success");
       addHexagon(data);
     });
   }
