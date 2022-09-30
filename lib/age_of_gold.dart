@@ -1,6 +1,8 @@
 import 'dart:math';
 import 'package:age_of_gold/util/global.dart';
 import 'package:age_of_gold/util/socket_services.dart';
+import 'package:age_of_gold/util/tapped_map.dart';
+import 'package:age_of_gold/util/util.dart';
 import 'package:flutter/material.dart';
 import 'package:flame/game.dart';
 import 'package:flame/input.dart';
@@ -9,6 +11,7 @@ import 'package:flutter/services.dart';
 import 'package:universal_html/html.dart' as html;
 import 'package:age_of_gold/world/world.dart';
 import 'dart:ui' hide TextStyle;
+
 
 // flutter run -d chrome --release --web-hostname localhost --web-port 7357
 class AgeOfGold extends FlameGame
@@ -76,9 +79,12 @@ class AgeOfGold extends FlameGame
     socket.joinRoom();
 
     camera.followVector2(cameraPosition, relativeOffset: Anchor.center);
-    camera.zoom = 1;
+    camera.zoom = 4;
 
-    _world = World();
+    int startHexQ = 0;
+    int startHexR = 0;
+    calculateStartPosition(startHexQ, startHexR);
+    _world = World(startHexQ, startHexR);
     add(_world!);
 
     html.window.onBeforeUnload.listen((event) async {
@@ -259,7 +265,7 @@ class AgeOfGold extends FlameGame
       print("fps: $frames");
       frameTimes = 0;
       frames = 0;
-      _world!.worldCheck();
+      worldCheck();
     }
 
     // This will determine 12 variants in a 60fps game loop
@@ -271,6 +277,17 @@ class AgeOfGold extends FlameGame
         _world!.updateVariant(variant);
       }
     }
+  }
+
+  calculateStartPosition(int startHexQ, int startHexR) {
+    // Similar to what is done in Hexagon constructor
+    int tileQ = convertHexToTileQ(startHexQ, startHexR);
+    int tileR = convertHexToTileR(startHexQ, startHexR);
+
+    Vector2 startPos = getTilePosition(tileQ, tileR);
+
+    cameraPosition.add(startPos);
+    dragTo.add(startPos);
   }
 
   void updateMapScroll() {
@@ -288,7 +305,6 @@ class AgeOfGold extends FlameGame
       cameraVelocity.y = (dragTo.y - cameraPosition.y);
     }
     clampSpeed();
-    cameraVelocity.clampScalar(-maxSpeed, maxSpeed);
   }
 
   clampSpeed() {
@@ -374,6 +390,29 @@ class AgeOfGold extends FlameGame
       } else if ((currentZoom < 1.5 && currentZoom > 0.5) && (currentWidth > 2000 || currentHeight > 1100)) {
         _world!.setHexagonArraySize(26);
       }
+    }
+  }
+
+  int problems = 0;
+  worldCheck() {
+    print("world check $cameraPosition");
+    List<int> tileProperties = getTileFromPos(cameraPosition.x, cameraPosition.y);
+    int q = tileProperties[0];
+    int r = tileProperties[1];
+
+    if (!_world!.worldCheck(q, r)) {
+      print("problem?");
+      if (problems == 4) {
+        // This should only be a last resort, so after 4 seconds of
+        // no tile we will attempt to fix the camera position
+        int hexQ = convertTileToHexQ(q, r);
+        int hexR = convertTileToHexR(q, r);
+        _world!.resetWorld(hexQ, hexR);
+        problems = 0;
+      }
+      problems += 1;
+    } else {
+      problems = 0;
     }
   }
 

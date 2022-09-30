@@ -46,3 +46,35 @@ getTilePosition(int q, int r) {
 
   return Vector2(xPos, yPos);
 }
+
+// All these conversions are based on the radius of 4.
+int convertHexToTileQ(int hexQ, int hexR) {
+  int tileQ = 9 * hexQ;
+  tileQ += 5 * hexR;
+  return tileQ;
+}
+
+int convertHexToTileR(int hexQ, int hexR) {
+  int tileR = -4 * hexQ;
+  tileR += -9 * hexR;
+  return tileR;
+}
+
+int convertTileToHexQ(int tileQ, int tileR) {
+  // q = 9x + 5y
+  // r = -4x + -9y
+  int q_2 = tileQ * 4;
+  int r_2 = tileR * -9;
+  int hexR = ((q_2 - r_2) / -61).round();
+  int hexQ = ((tileQ - (5 * hexR)) / 9).round();
+  return hexQ;
+}
+
+int convertTileToHexR(int tileQ, int tileR) {
+  // q = 9x + 5y
+  // r = -4x + -9y
+  int q_2 = tileQ * 4;
+  int r_2 = tileR * -9;
+  int hexR = ((q_2 - r_2) / -61).round();
+  return hexR;
+}

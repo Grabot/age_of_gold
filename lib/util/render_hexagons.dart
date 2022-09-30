@@ -4,6 +4,7 @@ import 'package:age_of_gold/util/tapped_map.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import '../component/hexagon.dart';
+import '../component/tile.dart';
 import 'check_offset.dart';
 
 
@@ -13,11 +14,14 @@ renderHexagons(Canvas canvas, Vector2 camera, HexagonList hexagonList, Rect scre
   int q = tileProperties[0];
   int r = tileProperties[1];
 
-  // First we check the offset to determine if we adjust the hex array
-  checkOffset(q, r, hexagonList, socketServices);
+  checkVisible(hexagonList, screen, socketServices);
 
-  // Then we draw the hexes, but only the ones that are visible.
-  // We also check if they are retrieved yet, if not, we retrieve them.
+  offsetMap(q, r, hexagonList, socketServices);
+
+  drawHexagons(canvas, variation, hexagonList, socketServices);
+}
+
+checkVisible(HexagonList hexagonList, Rect screen, SocketServices socketServices) {
   for (int top = 0; top <= hexagonList.hexagons.length - 1; top++) {
     Hexagon? currentHexagon;
     for (int right = hexagonList.hexagons.length - 1; right >= 0; right--) {
@@ -27,9 +31,6 @@ renderHexagons(Canvas canvas, Vector2 camera, HexagonList hexagonList, Rect scre
             && currentHexagon.center.x < screen.right
             && currentHexagon.center.y > screen.top
             && currentHexagon.center.y < screen.bottom) {
-          // The hexagon is visible, so draw it.
-          currentHexagon.renderHexagon(canvas, variation);
-
           if (!currentHexagon.setToRetrieve && !currentHexagon.retrieved) {
             // The hexagon has not been retrieved yet and
             // not flagged to be retrieved.
@@ -55,3 +56,17 @@ renderHexagons(Canvas canvas, Vector2 camera, HexagonList hexagonList, Rect scre
     }
   }
 }
+
+drawHexagons(Canvas canvas, int variation, HexagonList hexagonList, SocketServices socketServices) {
+  // draw from top to bottom
+  for (int top = 0; top <= hexagonList.hexagons.length - 1; top++) {
+    Hexagon? currentHexagon;
+    for (int right = hexagonList.hexagons.length - 1; right >= 0; right--) {
+      currentHexagon = hexagonList.hexagons[right][top];
+      if (currentHexagon != null) {
+        currentHexagon.renderHexagon(canvas, variation);
+      }
+    }
+  }
+}
+

@@ -51,12 +51,7 @@ class Hexagon {
     // TODO: Maybe a 'loading' texture?
     loadTextures();
     // calculate the center point by determining which tile is in the center
-    int tileQ = 9 * hexQArray;
-    int tileR = -4 * hexQArray;
-    tileQ += 5 * hexRArray;
-    tileR += -9 * hexRArray;
-
-    center = getTilePosition(tileQ, tileR);
+    setPosition();
 
     retrieved = false;
     setToRetrieve = false;
@@ -174,10 +169,8 @@ class Hexagon {
 
   setPosition() {
     // calculate the center point by determining which tile is in the center
-    int tileQ = 9 * hexQArray;
-    int tileR = -4 * hexQArray;
-    tileQ += 5 * hexRArray;
-    tileR += -9 * hexRArray;
+    int tileQ = convertHexToTileQ(hexQArray, hexRArray);
+    int tileR = convertHexToTileR(hexQArray, hexRArray);
 
     center = getTilePosition(tileQ, tileR);
   }

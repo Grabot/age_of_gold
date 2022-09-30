@@ -13,9 +13,6 @@ class HexagonList {
   int currentQ = 0;
   int currentR = 0;
 
-  int qOffset = 0;
-  int rOffset = 0;
-
   int currentHexQ = 0;
   int currentHexR = 0;
 
@@ -48,10 +45,20 @@ class HexagonList {
     this.socketServices = socketServices;
   }
 
-  retrieveHexagons() {
+  retrieveHexagons(int startHexQ, int startHexR) {
+    int currentSizeHex = hexagons.length;
+    int currentSizeTile = currentSizeHex * 14 + 50;
+    hexagons = List.generate(currentSizeHex, (_) =>
+        List.filled(currentSizeHex, null, growable: true), growable: true);
+    tiles = List.generate(currentSizeTile, (_) =>
+        List.filled(currentSizeTile, null, growable: true), growable: true);
+    currentHexQ = startHexQ;
+    currentHexR = startHexR;
+    currentQ = convertHexToTileQ(currentHexQ, currentHexR);
+    currentR = convertHexToTileR(currentHexQ, currentHexR);
     for (int qSock = -hexQ; qSock < hexQ; qSock ++) {
       for (int rSock = -hexR; rSock < hexR; rSock ++) {
-        socketServices.getHexagon(qSock, rSock);
+        socketServices.getHexagon(qSock + currentHexQ, rSock + currentHexR);
       }
     }
   }
@@ -59,7 +66,12 @@ class HexagonList {
   Tile? getTileFromCoordinates(int q, int r) {
     int qTile = tileQ + q - currentQ;
     int rTile = tileR + r - currentR;
-    return tiles[qTile][rTile];
+    if (qTile < 0 || qTile >= tiles.length
+        || rTile < 0 || rTile >= tiles[0].length) {
+      return null;
+    } else {
+      return tiles[qTile][rTile];
+    }
   }
 
   changeArraySize(int arraySize) {

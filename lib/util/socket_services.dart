@@ -182,6 +182,12 @@ class SocketServices extends ChangeNotifier {
     int qHex = hexagonList.hexQ + q - hexagonList.currentHexQ;
     int rHex = hexagonList.hexR + r - hexagonList.currentHexR;
 
+    if (qHex < 0 || qHex >= hexagonList.hexagons.length
+        || rHex < 0 || rHex >= hexagonList.hexagons[0].length) {
+      print("no longer in the screen getHexagon");
+      return;
+    }
+
     if (hexagonList.hexagons[qHex][rHex] == null) {
       hexagonList.hexagons[qHex][rHex] = Hexagon(q, r);
     }
@@ -221,7 +227,14 @@ class SocketServices extends ChangeNotifier {
       Tile tile = setTileType(tileData["type"], tileDataQ, tileDataR, tileData);
       tile.hexagon = hexagon;
       hexagon.addTile(tile);
-      hexagonList.tiles[tileQ + tile.q - hexagonList.currentQ][tileR + tile.r - hexagonList.currentR] = tile;
+      int qTile = tileQ + tile.q - hexagonList.currentQ;
+      int rTile = tileR + tile.r - hexagonList.currentR;
+      if (qTile < 0 || qTile >= hexagonList.tiles.length
+          || rTile < 0 || rTile >= hexagonList.tiles[0].length) {
+        print("Tile no longer in the screen");
+      } else {
+        hexagonList.tiles[qTile][rTile] = tile;
+      }
     }
 
     hexagon.updateHexagon();
@@ -229,7 +242,7 @@ class SocketServices extends ChangeNotifier {
     int rHex = hexagonList.hexR + hexagon.hexRArray - hexagonList.currentHexR;
     if (qHex < 0 || qHex >= hexagonList.hexagons.length
         || rHex < 0 || rHex >= hexagonList.hexagons[0].length) {
-      print("no longer in the screen");
+      print("Hex no longer in the screen");
       return;
     }
     hexagonList.hexagons[qHex][rHex] = hexagon;
