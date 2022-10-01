@@ -79,7 +79,7 @@ class AgeOfGold extends FlameGame
     socket.joinRoom();
 
     camera.followVector2(cameraPosition, relativeOffset: Anchor.center);
-    camera.zoom = 4;
+    camera.zoom = 1;
 
     int startHexQ = 0;
     int startHexR = 0;
@@ -395,7 +395,6 @@ class AgeOfGold extends FlameGame
 
   int problems = 0;
   worldCheck() {
-    print("world check $cameraPosition");
     List<int> tileProperties = getTileFromPos(cameraPosition.x, cameraPosition.y);
     int q = tileProperties[0];
     int r = tileProperties[1];

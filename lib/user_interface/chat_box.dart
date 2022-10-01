@@ -30,6 +30,8 @@ class ChatBoxState extends State<ChatBox> {
   SocketServices socket = SocketServices();
   late ChatMessages chatMessages;
 
+  bool tileBoxVisible = false;
+
   @override
   void initState() {
     chatMessages = ChatMessages();
@@ -54,15 +56,51 @@ class ChatBoxState extends State<ChatBox> {
     super.dispose();
   }
 
+  Widget topBar() {
+    return Container(
+      width: 380,
+      height: 25,
+      color: Colors.lightGreen,
+      child: Align(
+        alignment: Alignment.centerRight,
+        child: Container(
+          width: 30,
+          height: 25,
+          color: Colors.lightGreen,
+          child: Row(
+            children: [
+              GestureDetector(
+                onTap: () {
+                  print("pressed this thing");
+                  setState(() {
+                    tileBoxVisible = !tileBoxVisible;
+                  });
+                },
+                child: tileBoxVisible ? const Icon(
+                  Icons.keyboard_double_arrow_down,
+                  color: Colors.white,
+                ) : const Icon(
+                  Icons.keyboard_double_arrow_up,
+                  color: Colors.white,
+                ),
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget chatBoxWidget() {
     return Align(
       alignment: FractionalOffset.bottomLeft,
       child: Container(
         width: 380,
-        height: 100,
+        height: tileBoxVisible ? 300 : 25,
         color: Colors.green,
         child: Column(
             children: [
+              topBar(),
               Expanded(
                 child: messageList()
               ),
@@ -79,52 +117,58 @@ class ChatBoxState extends State<ChatBox> {
   }
 
   Widget chatBoxTextField() {
-    return Row(
-      children: [
-        SizedBox(
-          width: 345,
-          height: 50,
-          child: TextFormField(
-            validator: (val) {
-              if (val == null ||
-                  val.isEmpty ||
-                  val.trimRight().isEmpty) {
-                return "Can't send an empty message";
-              }
-              return null;
-            },
-            onFieldSubmitted: (value) {
-              sendMessage(value);
-            },
-            keyboardType: TextInputType.multiline,
-            focusNode: _focusChatBox,
-            controller: chatFieldController,
-            decoration: const InputDecoration(
-              border: UnderlineInputBorder(),
-              labelText: 'Type your message',
+    if (tileBoxVisible) {
+      return Row(
+          children: [
+            SizedBox(
+              width: 345,
+              height: 50,
+              child: TextFormField(
+                validator: (val) {
+                  if (val == null ||
+                      val.isEmpty ||
+                      val
+                          .trimRight()
+                          .isEmpty) {
+                    return "Can't send an empty message";
+                  }
+                  return null;
+                },
+                onFieldSubmitted: (value) {
+                  sendMessage(value);
+                },
+                keyboardType: TextInputType.multiline,
+                focusNode: _focusChatBox,
+                controller: chatFieldController,
+                decoration: const InputDecoration(
+                  border: UnderlineInputBorder(),
+                  labelText: 'Type your message',
+                ),
+              ),
             ),
-          ),
-        ),
-        GestureDetector(
-          onTap: () {
-            sendMessage(chatFieldController.text);
-          },
-          child: Container(
-            height: 35,
-            width: 35,
-            padding: const EdgeInsets.symmetric(horizontal: 6),
-            child: const Icon(
-              Icons.send,
-              color: Colors.white,
+            GestureDetector(
+              onTap: () {
+                sendMessage(chatFieldController.text);
+              },
+              child: Container(
+                  height: 35,
+                  width: 35,
+                  padding: const EdgeInsets.symmetric(horizontal: 6),
+                  child: const Icon(
+                    Icons.send,
+                    color: Colors.white,
+                  )
+              ),
             )
-          ),
-        )
-      ]
-    );
+          ]
+      );
+    } else {
+      return Container();
+    }
   }
 
   Widget messageList() {
-    return chatMessages.chatMessages.isNotEmpty
+    return chatMessages.chatMessages.isNotEmpty && tileBoxVisible
         ? ListView.builder(
         itemCount: chatMessages.chatMessages.length,
         reverse: true,

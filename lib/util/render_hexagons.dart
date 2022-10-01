@@ -18,7 +18,7 @@ renderHexagons(Canvas canvas, Vector2 camera, HexagonList hexagonList, Rect scre
 
   offsetMap(q, r, hexagonList, socketServices);
 
-  drawHexagons(canvas, variation, hexagonList, socketServices);
+  drawHexagons(canvas, variation, screen, hexagonList, socketServices);
 }
 
 checkVisible(HexagonList hexagonList, Rect screen, SocketServices socketServices) {
@@ -57,14 +57,19 @@ checkVisible(HexagonList hexagonList, Rect screen, SocketServices socketServices
   }
 }
 
-drawHexagons(Canvas canvas, int variation, HexagonList hexagonList, SocketServices socketServices) {
+drawHexagons(Canvas canvas, int variation, Rect screen, HexagonList hexagonList, SocketServices socketServices) {
   // draw from top to bottom
   for (int top = 0; top <= hexagonList.hexagons.length - 1; top++) {
     Hexagon? currentHexagon;
     for (int right = hexagonList.hexagons.length - 1; right >= 0; right--) {
       currentHexagon = hexagonList.hexagons[right][top];
       if (currentHexagon != null) {
-        currentHexagon.renderHexagon(canvas, variation);
+        if (currentHexagon.center.x > screen.left
+            && currentHexagon.center.x < screen.right
+            && currentHexagon.center.y > screen.top
+            && currentHexagon.center.y < screen.bottom) {
+          currentHexagon.renderHexagon(canvas, variation);
+        }
       }
     }
   }

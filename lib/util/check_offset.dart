@@ -35,19 +35,17 @@ checkOffset(int q, int r, Hexagon cameraHexagon, HexagonList hexagonList, Socket
 
   if (cameraHexagon.hexQArray != hexagonList.currentHexQ) {
     print("current hex q different");
-    List<List> diffHexagonsQ = updateTilesQ(
+    List diffHexagonsQ = updateTilesQ(
         cameraHexagon, hexagonList, socketServices);
-    hexToRetrieve.addAll(diffHexagonsQ[0]);
-    hexToRemove.addAll(diffHexagonsQ[1]);
+    hexToRetrieve.addAll(diffHexagonsQ);
 
     hexagonList.currentHexQ = cameraHexagon.hexQArray;
   }
   if (cameraHexagon.hexRArray != hexagonList.currentHexR) {
     print("current hex r different");
-    List<List> diffHexagonsR = updateTilesR(
+    List diffHexagonsR = updateTilesR(
         cameraHexagon, hexagonList, socketServices);
-    hexToRetrieve.addAll(diffHexagonsR[0]);
-    hexToRemove.addAll(diffHexagonsR[1]);
+    hexToRetrieve.addAll(diffHexagonsR);
 
     hexagonList.currentHexR = cameraHexagon.hexRArray;
   }
@@ -67,7 +65,7 @@ setTilesQ(int q, HexagonList hexagonList) {
   print("q diff tile $qDiffTile");
 
   List<List<Tile?>> newTiles = [];
-  // int tileHexWidth = radius * 2 + 1;
+
   for (int i = 0; i < qDiffTile.abs(); i++) {
     newTiles.add(
         List.filled(hexagonList.tiles.length, null, growable: true));
@@ -120,7 +118,7 @@ setTilesR(int r, HexagonList hexagonList) {
 
 updateTilesQ(Hexagon cameraHexagon, HexagonList hexagonList, SocketServices socketServices) {
   List qDiffHexagons = [];
-  List qDiffOldHexagons = [];
+  // List qDiffOldHexagons = [];
 
   int qDiffHex = cameraHexagon.hexQArray - hexagonList.currentHexQ;
 
@@ -132,12 +130,11 @@ updateTilesQ(Hexagon cameraHexagon, HexagonList hexagonList, SocketServices sock
       hexagonList.hexagons.insert(hexagonList.hexagons.length, row);
     }
     for (int i = 0; i < qDiffHex; i++ ) {
+      int qNew = hexagonList.hexagons.length - hexagonList.hexQ + hexagonList.currentHexQ + i;
       for (int rSock = 0; rSock < hexagonList.hexagons.length; rSock ++) {
-        int qNew = hexagonList.hexagons.length - hexagonList.hexQ + hexagonList.currentHexQ + i;
         int rNew = rSock - hexagonList.hexR + hexagonList.currentHexR;
         qDiffHexagons.add([qNew, rNew]);
-
-        qDiffOldHexagons.add([qNew - hexagonList.hexagons.length, rNew]);
+        // qDiffOldHexagons.add([qNew - hexagonList.hexagons.length, rNew]);
       }
     }
   } else if (qDiffHex < 0) {
@@ -147,25 +144,24 @@ updateTilesQ(Hexagon cameraHexagon, HexagonList hexagonList, SocketServices sock
       hexagonList.hexagons.removeAt(hexagonList.hexagons.length - 1);
     }
     for (int i = 0; i < qDiffHex * -1; i++) {
+      int qNew = 0 - hexagonList.hexQ + hexagonList.currentHexQ - 1 - i;
       for (int rSock = 0; rSock < hexagonList.hexagons.length; rSock ++) {
-        int qNew = 0 - hexagonList.hexQ + hexagonList.currentHexQ - 1 - i;
         int rNew = rSock - hexagonList.hexR + hexagonList.currentHexR;
         qDiffHexagons.add([qNew, rNew]);
-
-        qDiffOldHexagons.add([qNew + hexagonList.hexagons.length, rNew]);
+        // qDiffOldHexagons.add([qNew + hexagonList.hexagons.length, rNew]);
       }
     }
   } else {
     print("Q diff exactly 0");
   }
 
-  return [qDiffHexagons, qDiffOldHexagons];
+  return qDiffHexagons;
 }
 
 updateTilesR(Hexagon cameraHexagon, HexagonList hexagonList, SocketServices socketServices) {
 
   List rDiffHexagons = [];
-  List rDiffOldHexagons = [];
+  // List rDiffOldHexagons = [];
 
   int rDiffHex = cameraHexagon.hexRArray - hexagonList.currentHexR;
 
@@ -178,12 +174,11 @@ updateTilesR(Hexagon cameraHexagon, HexagonList hexagonList, SocketServices sock
       }
     }
     for (int i = 0; i < rDiffHex; i++ ) {
+      int rNew = hexagonList.hexagons[0].length - hexagonList.hexR + hexagonList.currentHexR + i;
       for (int qSock = 0; qSock < hexagonList.hexagons[0].length; qSock ++) {
         int qNew = qSock - hexagonList.hexQ + hexagonList.currentHexQ;
-        int rNew = hexagonList.hexagons[0].length - hexagonList.hexR + hexagonList.currentHexR + i;
         rDiffHexagons.add([qNew, rNew]);
-
-        rDiffOldHexagons.add([qNew, rNew - hexagonList.hexagons[0].length]);
+        // rDiffOldHexagons.add([qNew, rNew - hexagonList.hexagons[0].length]);
       }
     }
   } else if (rDiffHex < 0) {
@@ -195,18 +190,16 @@ updateTilesR(Hexagon cameraHexagon, HexagonList hexagonList, SocketServices sock
     }
 
     for (int i = 0; i < rDiffHex * -1; i++ ) {
-      // int rNew = 0 - tileR + hexagonList.currentHexR + i;
+      int rNew = 0 - 1 - hexagonList.hexR + hexagonList.currentHexR - i;
       for (int qSock = 0; qSock < hexagonList.hexagons[0].length; qSock ++) {
         int qNew = qSock - hexagonList.hexQ + hexagonList.currentHexQ;
-        int rNew = 0 - 1 - hexagonList.hexR + hexagonList.currentHexR - i;
         rDiffHexagons.add([qNew, rNew]);
-
-        rDiffOldHexagons.add([qNew, rNew + hexagonList.hexagons[0].length]);
+        // rDiffOldHexagons.add([qNew, rNew + hexagonList.hexagons[0].length]);
       }
     }
   } else {
     print("R diff is 0");
   }
 
-  return [rDiffHexagons, rDiffOldHexagons];
+  return rDiffHexagons;
 }

@@ -1,13 +1,7 @@
-
 import 'dart:math';
-
-import 'package:age_of_gold/util/socket_services.dart';
 import 'package:flame/components.dart';
-
-import '../component/hexagon.dart';
-import '../component/tile.dart';
 import 'global.dart';
-import 'hexagon_list.dart';
+
 
 List removeDuplicates(List hexToRetrieve) {
   List hexToRetrieveUnique = [];

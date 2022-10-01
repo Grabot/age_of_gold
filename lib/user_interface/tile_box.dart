@@ -71,14 +71,19 @@ class TileBoxState extends State<TileBox> {
   }
 
   socketListener() {
-    setState(() {});
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   selectedTileListener() {
-    if (selectedTileInfo.selectedTile != null) {
-      _selectedTile = _dropdownMenuItems[selectedTileInfo.selectedTile!.tileType].value!;
+    if (mounted) {
+      if (selectedTileInfo.selectedTile != null) {
+        _selectedTile =
+        _dropdownMenuItems[selectedTileInfo.selectedTile!.tileType].value!;
+      }
+      setState(() {});
     }
-    setState(() {});
   }
 
   @override
@@ -171,9 +176,10 @@ class TileBoxState extends State<TileBox> {
   Widget tileBoxWidget() {
     return Align(
       alignment: FractionalOffset.topRight,
-      child: Container(
+      child: selectedTileInfo.selectedTile != null ? Container(
         width: 380,
-        height: 400,
+        height: 200,
+        color: Colors.orange,
         child: Column(
           children: [
             currentTileWindow(),
@@ -181,7 +187,7 @@ class TileBoxState extends State<TileBox> {
             dropdownThing()
           ]
         ),
-      ),
+      ) : Container(),
     );
   }
 
