@@ -75,7 +75,6 @@ class HexagonList {
   }
 
   changeArraySize(int arraySize) {
-    print("current change array size: $arraySize");
     if (hexagons.length != arraySize) {
       int arraySizeTile = arraySize * 14 + 50;
       if (hexagons.length < arraySize) {
@@ -150,7 +149,6 @@ class HexagonList {
       int qNew2 = qSock - hexQ + currentHexQ + 2;
       // The length is off by 2 and we add 1 more to get the correct row
       int rNew2 = hexagons[0].length - hexR + currentHexR + 1;
-      print("q: $qNew2 r: $rNew2");
       oldHexes.add([qNew2, rNew2]);
     }
 

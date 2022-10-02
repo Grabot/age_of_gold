@@ -1,10 +1,7 @@
 import 'package:age_of_gold/util/socket_services.dart';
-import 'package:age_of_gold/util/tapped_map.dart';
 import 'package:age_of_gold/util/util.dart';
-import 'package:flame/components.dart';
 import '../component/hexagon.dart';
 import '../component/tile.dart';
-import 'global.dart';
 import 'hexagon_list.dart';
 
 
@@ -31,10 +28,8 @@ offsetMap(int q, int r, HexagonList hexagonList, SocketServices socketServices) 
 checkOffset(int q, int r, Hexagon cameraHexagon, HexagonList hexagonList, SocketServices socketServices) {
 
   List hexToRetrieve = [];
-  List hexToRemove = [];
 
   if (cameraHexagon.hexQArray != hexagonList.currentHexQ) {
-    print("current hex q different");
     List diffHexagonsQ = updateTilesQ(
         cameraHexagon, hexagonList, socketServices);
     hexToRetrieve.addAll(diffHexagonsQ);
@@ -42,7 +37,6 @@ checkOffset(int q, int r, Hexagon cameraHexagon, HexagonList hexagonList, Socket
     hexagonList.currentHexQ = cameraHexagon.hexQArray;
   }
   if (cameraHexagon.hexRArray != hexagonList.currentHexR) {
-    print("current hex r different");
     List diffHexagonsR = updateTilesR(
         cameraHexagon, hexagonList, socketServices);
     hexToRetrieve.addAll(diffHexagonsR);
@@ -62,7 +56,6 @@ checkOffset(int q, int r, Hexagon cameraHexagon, HexagonList hexagonList, Socket
 setTilesQ(int q, HexagonList hexagonList) {
 
   int qDiffTile = q - hexagonList.currentQ;
-  print("q diff tile $qDiffTile");
 
   List<List<Tile?>> newTiles = [];
 
@@ -79,8 +72,6 @@ setTilesQ(int q, HexagonList hexagonList) {
   } else if (qDiffTile > 0) {
     hexagonList.tiles.removeRange(0, qDiffTile);
     hexagonList.tiles.insertAll(hexagonList.tiles.length, newTiles);
-  } else {
-    print("something went wrong! q");
   }
 
   hexagonList.currentQ = q;
@@ -89,7 +80,6 @@ setTilesQ(int q, HexagonList hexagonList) {
 setTilesR(int r, HexagonList hexagonList) {
 
   int rDiffTile = r - hexagonList.currentR;
-  print("r diff tile $rDiffTile");
 
   List<Tile?> newTiles = [];
 
@@ -109,8 +99,6 @@ setTilesR(int r, HexagonList hexagonList) {
       hexagonList.tiles[i].insertAll(
           hexagonList.tiles[i].length - 1, newTiles);
     }
-  } else {
-    print("something went wrong! r");
   }
 
   hexagonList.currentR = r;
@@ -151,8 +139,6 @@ updateTilesQ(Hexagon cameraHexagon, HexagonList hexagonList, SocketServices sock
         // qDiffOldHexagons.add([qNew + hexagonList.hexagons.length, rNew]);
       }
     }
-  } else {
-    print("Q diff exactly 0");
   }
 
   return qDiffHexagons;
@@ -197,8 +183,6 @@ updateTilesR(Hexagon cameraHexagon, HexagonList hexagonList, SocketServices sock
         // rDiffOldHexagons.add([qNew, rNew + hexagonList.hexagons[0].length]);
       }
     }
-  } else {
-    print("R diff is 0");
   }
 
   return rDiffHexagons;

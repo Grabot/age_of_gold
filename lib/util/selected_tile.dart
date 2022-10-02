@@ -2,10 +2,9 @@ import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui';
 import 'package:flame/components.dart';
-import 'package:flutter/material.dart';
-
 import '../component/tile.dart';
 import 'global.dart';
+
 
 Vector2 pointyHexCorner(double i, Vector2 center) {
   double angleDeg = 60 * i;

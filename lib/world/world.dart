@@ -1,15 +1,14 @@
 import 'package:age_of_gold/component/tile.dart';
+import 'package:age_of_gold/util/render_hexagons.dart';
 import 'package:age_of_gold/util/tapped_map.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
-import 'package:age_of_gold/util/render_hexagons.dart';
-import '../component/hexagon.dart';
 import '../user_interface/selected_tile_info.dart';
 import '../util/global.dart';
 import '../util/hexagon_list.dart';
 import '../util/selected_tile.dart';
 import '../util/socket_services.dart';
-import '../util/util.dart';
+
 
 class World extends Component {
 
@@ -68,8 +67,6 @@ class World extends Component {
   }
 
   void onTappedUp(Vector2 mouseTapped) {
-    print("on tapped up! $mouseTapped");
-
     List<int> tileProperties = getTileFromPos(mouseTapped.x, mouseTapped.y);
     int q = tileProperties[0];
     int r = tileProperties[1];
@@ -78,7 +75,6 @@ class World extends Component {
     selectedTileInfo.setCurrentTile(mouseTileTap);
     if (mouseTileTap != null) {
       mouseTile = mouseTileTap;
-      print("tile tapped  q: ${mouseTileTap.q} r: ${mouseTileTap.r}");
     }
   }
 
@@ -104,7 +100,6 @@ class World extends Component {
   }
 
   socketListener() {
-    print("socket listener world");
   }
 
   setHexagonArraySize(int arraySize) {

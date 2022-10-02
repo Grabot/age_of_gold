@@ -1,7 +1,6 @@
-import 'package:age_of_gold/user_interface/user_interface_components/message.dart';
 import 'package:flutter/material.dart';
-
 import '../component/tile.dart';
+
 
 class SelectedTileInfo extends ChangeNotifier {
   Tile? selectedTile;

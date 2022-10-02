@@ -23,6 +23,8 @@ class TileBoxState extends State<TileBox> {
 
   SocketServices socket = SocketServices();
 
+  double tileBoxWidth = 350;
+
   // Initial Selected Value
   final List<TileData> _tiles = TileData.getTiles();
   late List<DropdownMenuItem<TileData>> _dropdownMenuItems;
@@ -174,10 +176,16 @@ class TileBoxState extends State<TileBox> {
   }
 
   Widget tileBoxWidget() {
+    if (MediaQuery.of(context).size.width <= 800) {
+      // Here we assume that it is a phone and we set the width to the total
+      tileBoxWidth = MediaQuery.of(context).size.width;
+    } else {
+      tileBoxWidth = 350;
+    }
     return Align(
       alignment: FractionalOffset.topRight,
       child: selectedTileInfo.selectedTile != null ? Container(
-        width: 380,
+        width: tileBoxWidth,
         height: 200,
         color: Colors.orange,
         child: Column(

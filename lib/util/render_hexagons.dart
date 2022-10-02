@@ -4,7 +4,6 @@ import 'package:age_of_gold/util/tapped_map.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import '../component/hexagon.dart';
-import '../component/tile.dart';
 import 'check_offset.dart';
 
 

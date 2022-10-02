@@ -163,6 +163,7 @@ class Hexagon {
     }
   }
 
+  @override
   String toString() {
     return "hex q: $hexQArray r: $hexRArray on pos: $center}";
   }

@@ -1,11 +1,10 @@
-
 import 'package:flutter/material.dart';
-
 import '../age_of_gold.dart';
 import '../util/socket_services.dart';
 import 'chat_messages.dart';
 import 'user_interface_components/message.dart';
 import 'package:intl/intl.dart';
+
 
 class ChatBox extends StatefulWidget {
 
@@ -31,6 +30,8 @@ class ChatBoxState extends State<ChatBox> {
   late ChatMessages chatMessages;
 
   bool tileBoxVisible = false;
+
+  double chatBoxWidth = 350;
 
   @override
   void initState() {
@@ -58,7 +59,7 @@ class ChatBoxState extends State<ChatBox> {
 
   Widget topBar() {
     return Container(
-      width: 380,
+      width: chatBoxWidth,
       height: 25,
       color: Colors.lightGreen,
       child: Align(
@@ -71,7 +72,6 @@ class ChatBoxState extends State<ChatBox> {
             children: [
               GestureDetector(
                 onTap: () {
-                  print("pressed this thing");
                   setState(() {
                     tileBoxVisible = !tileBoxVisible;
                   });
@@ -92,10 +92,16 @@ class ChatBoxState extends State<ChatBox> {
   }
 
   Widget chatBoxWidget() {
+    if (MediaQuery.of(context).size.width <= 800) {
+      // Here we assume that it is a phone and we set the width to the total
+      chatBoxWidth = MediaQuery.of(context).size.width;
+    } else {
+      chatBoxWidth = 350;
+    }
     return Align(
       alignment: FractionalOffset.bottomLeft,
       child: Container(
-        width: 380,
+        width: chatBoxWidth,
         height: tileBoxVisible ? 300 : 25,
         color: Colors.green,
         child: Column(
@@ -121,7 +127,7 @@ class ChatBoxState extends State<ChatBox> {
       return Row(
           children: [
             SizedBox(
-              width: 345,
+              width: chatBoxWidth - 35,
               height: 50,
               child: TextFormField(
                 validator: (val) {
@@ -192,15 +198,18 @@ class ChatBoxState extends State<ChatBox> {
 class MessageTile extends StatefulWidget {
   final Message message;
 
-  MessageTile(
-      {required Key key, required this.message})
+  const MessageTile(
+      {
+        required Key key,
+        required this.message
+      })
       : super(key: key);
 
   @override
-  _MessageTileState createState() => _MessageTileState();
+  MessageTileState createState() => MessageTileState();
 }
 
-class _MessageTileState extends State<MessageTile> {
+class MessageTileState extends State<MessageTile> {
 
   @override
   void initState() {

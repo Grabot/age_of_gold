@@ -1,13 +1,11 @@
 import 'dart:math';
-
 import 'package:age_of_gold/component/hexagon.dart';
 import 'package:flame/components.dart';
 import 'package:flame/extensions.dart';
 import 'package:flame/sprite.dart';
-import 'package:flutter/cupertino.dart';
-
 import '../util/global.dart';
 import '../util/util.dart';
+
 
 class Tile {
 

@@ -10,7 +10,6 @@ import 'package:flame/components.dart';
 import 'package:flutter/services.dart';
 import 'package:universal_html/html.dart' as html;
 import 'package:age_of_gold/world/world.dart';
-import 'dart:ui' hide TextStyle;
 
 
 // flutter run -d chrome --release --web-hostname localhost --web-port 7357
@@ -96,11 +95,9 @@ class AgeOfGold extends FlameGame
   }
 
   socketListener() {
-    print("socket did something! 1");
   }
 
   chatBoxFocus(bool chatFocus) {
-    print("focus? $chatFocus");
     this.chatFocus = chatFocus;
     if (!chatFocus) {
       gameFocus.requestFocus();
@@ -114,18 +111,12 @@ class AgeOfGold extends FlameGame
   }
 
   @override
-  void onMouseMove(PointerHoverInfo info) {
-    super.onMouseMove(info);
-  }
-
-  @override
   void onScroll(PointerScrollInfo info) {
     super.onScroll(info);
     double zoomIncrease = (info.raw.scrollDelta.dy/1000);
     camera.zoom *= (1 - zoomIncrease);
 
     clampZoom();
-    print("current zoom: ${camera.zoom}");
 
     checkHexagonArraySize();
   }
@@ -139,11 +130,6 @@ class AgeOfGold extends FlameGame
     Vector2 tapPos = Vector2(info.eventPosition.game.x, info.eventPosition.game.y);
     _world!.onTappedUp(tapPos);
     super.onTapUp(pointerId, info);
-  }
-
-  @override
-  void onTapDown(int pointerId, TapDownInfo info) {
-    super.onTapDown(pointerId, info);
   }
 
   @override
@@ -163,7 +149,6 @@ class AgeOfGold extends FlameGame
     } else if (pointerId1 != -1 && pointerId2 == -1) {
       pointerId2 = pointerId;
     }
-    print("dragging start: $pointerId");
   }
 
   @override
@@ -262,7 +247,6 @@ class AgeOfGold extends FlameGame
 
     if (frameTimes >= 1) {
       fps = frames;
-      print("fps: $frames");
       frameTimes = 0;
       frames = 0;
       worldCheck();
@@ -337,7 +321,7 @@ class AgeOfGold extends FlameGame
       return KeyEventResult.ignored;
     } else {
       _world!.resetClick();
-      double mouseSpeed = 5;
+      double mouseSpeed = 10;
       if (event.logicalKey == LogicalKeyboardKey.keyA) {
         dragAccelerateKey.x = isKeyDown ? -mouseSpeed : 0;
       } else if (event.logicalKey == LogicalKeyboardKey.keyD) {
@@ -362,7 +346,6 @@ class AgeOfGold extends FlameGame
     // This needs to be done to position the HUD margin components correctly.
     double previousZoom = camera.zoom;
     camera.zoom = 1;
-    print("canvasSize: $canvasSize");
     super.onGameResize(canvasSize);
     camera.zoom = previousZoom;
     checkHexagonArraySize();
@@ -400,9 +383,8 @@ class AgeOfGold extends FlameGame
     int r = tileProperties[1];
 
     if (!_world!.worldCheck(q, r)) {
-      print("problem?");
-      if (problems == 4) {
-        // This should only be a last resort, so after 4 seconds of
+      if (problems == 10) {
+        // This should only be a last resort, so after 10 seconds of
         // no tile we will attempt to fix the camera position
         int hexQ = convertTileToHexQ(q, r);
         int hexR = convertTileToHexR(q, r);

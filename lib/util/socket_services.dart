@@ -1,9 +1,8 @@
 import 'dart:convert';
 import 'package:age_of_gold/component/type/tile_amethyst.dart';
 import 'package:age_of_gold/util/global.dart';
-import 'package:age_of_gold/util/util.dart';
 import 'package:flutter/material.dart';
-import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'package:socket_io_client/socket_io_client.dart' as io;
 import '../component/hexagon.dart';
 import '../component/tile.dart';
 import '../component/type/tile_black.dart';
@@ -11,8 +10,8 @@ import '../component/type/tile_bondi_blue.dart';
 import '../component/type/tile_bright_sun.dart';
 import '../component/type/tile_caribbean_green.dart';
 import '../component/type/tile_cerulean_blue.dart';
-import '../component/type/tile_cornflower_blue.dart';
 import '../component/type/tile_conifer.dart';
+import '../component/type/tile_cornflower_blue.dart';
 import '../component/type/tile_governor_bay.dart';
 import '../component/type/tile_green_haze.dart';
 import '../component/type/tile_iron.dart';
@@ -35,7 +34,7 @@ import 'hexagon_list.dart';
 
 
 class SocketServices extends ChangeNotifier {
-  late IO.Socket socket;
+  late io.Socket socket;
 
   // We will use this to store the user's id, might change it later.
   int userId = -1;
@@ -62,8 +61,7 @@ class SocketServices extends ChangeNotifier {
   startSockConnection() {
     String namespace = "sock";
     String socketUrl = baseUrl + namespace;
-    print("startSockConnection: $socketUrl");
-    socket = IO.io(socketUrl, <String, dynamic>{
+    socket = io.io(socketUrl, <String, dynamic>{
       'autoConnect': false,
       'transports': ['websocket'],
     });
@@ -104,7 +102,6 @@ class SocketServices extends ChangeNotifier {
   }
 
   void joinRoom() {
-    print("joining room");
     socket.emit(
       "join",
       {
@@ -113,11 +110,9 @@ class SocketServices extends ChangeNotifier {
     );
     // After we have joined the room, we also want to listen to server events
     socket.on('send_hexagon_fail', (data) {
-      print("send_hexagon_fail: $data");
-      print(data);
+      // print(data);
     });
     socket.on('send_hexagon_success', (data) {
-      // print("send_hexagon_success");
       addHexagon(data);
     });
   }
@@ -125,7 +120,6 @@ class SocketServices extends ChangeNotifier {
   void checkMessages(ChatMessages chatMessages) {
     this.chatMessages = chatMessages;
     socket.on('send_message_success', (data) {
-      print("received a message");
       receivedMessage(data["user_name"], data["message"]);
       notifyListeners();
     });
@@ -133,12 +127,9 @@ class SocketServices extends ChangeNotifier {
 
   void checkTile() {
     socket.on('change_tile_type_success', (data) {
-      print("tile type changed successfully");
       changeTile(data);
     });
     socket.on('change_tile_type_failed', (data) {
-      print("tile type changed failed");
-      print(data);
       notifyListeners();
     });
   }
@@ -157,7 +148,6 @@ class SocketServices extends ChangeNotifier {
   }
 
   void receivedMessage(String userName, String message) {
-    print("received message $userName, message: $message");
     chatMessages.addMessage(userName, message);
   }
 
@@ -184,7 +174,6 @@ class SocketServices extends ChangeNotifier {
 
     if (qHex < 0 || qHex >= hexagonList.hexagons.length
         || rHex < 0 || rHex >= hexagonList.hexagons[0].length) {
-      print("no longer in the screen getHexagon");
       return;
     }
 
@@ -229,10 +218,8 @@ class SocketServices extends ChangeNotifier {
       hexagon.addTile(tile);
       int qTile = tileQ + tile.q - hexagonList.currentQ;
       int rTile = tileR + tile.r - hexagonList.currentR;
-      if (qTile < 0 || qTile >= hexagonList.tiles.length
-          || rTile < 0 || rTile >= hexagonList.tiles[0].length) {
-        print("Tile no longer in the screen");
-      } else {
+      if (qTile >= 0 && qTile < hexagonList.tiles.length &&
+            rTile >= 0 && rTile < hexagonList.tiles[0].length) {
         hexagonList.tiles[qTile][rTile] = tile;
       }
     }
@@ -242,7 +229,6 @@ class SocketServices extends ChangeNotifier {
     int rHex = hexagonList.hexR + hexagon.hexRArray - hexagonList.currentHexR;
     if (qHex < 0 || qHex >= hexagonList.hexagons.length
         || rHex < 0 || rHex >= hexagonList.hexagons[0].length) {
-      print("Hex no longer in the screen");
       return;
     }
     hexagonList.hexagons[qHex][rHex] = hexagon;
