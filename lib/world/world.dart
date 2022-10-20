@@ -87,7 +87,7 @@ class World extends Component {
 
     zoom = zoomLevel;
 
-    // We draw the border a bit further (about 3 hex) than what you're seeing,
+    // We draw the border a bit further (about a hex) than what you're seeing,
     // this is so the sections load before you scroll on them.
     double borderOffsetX = -((radius * 2 + 1) * xSize);
     double borderOffsetY = -((radius * 2 + 1) * ySize);
@@ -96,6 +96,8 @@ class World extends Component {
     double rightScreen = cameraPosition.x + (worldSize.x / 2) - borderOffsetX;
     double topScreen = cameraPosition.y - (worldSize.y / 2) + borderOffsetY;
     double bottomScreen = cameraPosition.y + (worldSize.y / 2) - borderOffsetY;
+    // We add the appBar height to the top screen variable
+    topScreen -= 80;
     screen = Rect.fromLTRB(leftScreen, topScreen, rightScreen, bottomScreen);
   }
 

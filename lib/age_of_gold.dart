@@ -42,7 +42,7 @@ class AgeOfGold extends FlameGame
   double maxZoom = 4;
   double minZoom = 1;
 
-  bool chatFocus = false;
+  bool playFieldFocus = true;
 
   // We use the pointer variables to determine regular or multidrag
   int pointerId1 = -1;
@@ -98,8 +98,15 @@ class AgeOfGold extends FlameGame
   }
 
   chatBoxFocus(bool chatFocus) {
-    this.chatFocus = chatFocus;
-    if (!chatFocus) {
+    playFieldFocus = !chatFocus;
+    if (playFieldFocus) {
+      gameFocus.requestFocus();
+    }
+  }
+
+  loginFocus(bool loginFocus) {
+    playFieldFocus = !loginFocus;
+    if (playFieldFocus) {
       gameFocus.requestFocus();
     }
   }
@@ -317,7 +324,7 @@ class AgeOfGold extends FlameGame
 
     final isKeyDown = event is RawKeyDownEvent;
 
-    if (chatFocus && isKeyDown) {
+    if (!playFieldFocus && isKeyDown) {
       return KeyEventResult.ignored;
     } else {
       _world!.resetClick();
