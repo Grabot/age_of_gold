@@ -36,8 +36,8 @@ class _HexagonButtonState extends State<HexagonButton> {
 
     containerOffset = (radius/4);
 
-    paintOffsetX = 0;
-    paintOffsetY = -(math.sqrt(3) * radius)/2 + (containerOffset / 2);
+    paintOffsetX = radius - (containerOffset/2);
+    paintOffsetY = (math.sqrt(3) * radius)/2 - (containerOffset / 2);
 
     test = HexagonPainter(
         Offset(paintOffsetX, paintOffsetY),
@@ -54,8 +54,18 @@ class _HexagonButtonState extends State<HexagonButton> {
     return Positioned(
       top: widget.yPos-radius,
       left: widget.xPos-radius,
-      child: Column(
+      child: Stack(
         children: [
+          CustomPaint(
+              painter: test!
+          ),
+          Container(
+            height: (math.sqrt(3) * radius) - containerOffset,
+            width: (2 * radius) - containerOffset,
+            child: Image(
+                image: AssetImage("assets/images/Github_logo_PNG1.png"),
+            ),
+          ),
           Container(
             height: (math.sqrt(3) * radius) - containerOffset,
             width: (2 * radius) - containerOffset,
@@ -69,9 +79,6 @@ class _HexagonButtonState extends State<HexagonButton> {
               },
               hoverColor: Colors.transparent, // We will do our own hover thing
             ),
-          ),
-          CustomPaint(
-              painter: test!
           ),
         ],
       ),
