@@ -14,7 +14,7 @@ Future<void> main() async {
 
   runApp(
       MaterialApp(
-      initialRoute: '/',
+      initialRoute: '/one',
       routes: {
         HomePage.route: (context) => HomePage(),
         PageOne.route: (context) => PageOne(),
