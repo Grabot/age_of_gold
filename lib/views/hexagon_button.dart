@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
-
 class HexagonButton extends StatefulWidget {
-  HexagonButton({
-    required Key key,
-    required this.xPos,
-    required this.yPos
-  }) : super(key: key);
 
   final double xPos;
   final double yPos;
+  final double radius;
+
+  const HexagonButton({
+    required Key key,
+    required this.xPos,
+    required this.yPos,
+    required this.radius
+  }) : super(key: key);
 
   @override
   _HexagonButtonState createState() => _HexagonButtonState();
@@ -20,19 +22,35 @@ class _HexagonButtonState extends State<HexagonButton> {
 
   double radius = 100;
 
+  HexagonPainter? test;
+
+  double containerOffset = 0;
+
+  double paintOffsetX = 0;
+  double paintOffsetY = 0;
+
   @override
   void initState() {
     super.initState();
+    radius = widget.radius;
+
+    containerOffset = (radius/4);
+
+    paintOffsetX = 0;
+    paintOffsetY = -(math.sqrt(3) * radius)/2 + (containerOffset / 2);
+
+    test = HexagonPainter(
+        Offset(paintOffsetX, paintOffsetY),
+        radius);
+  }
+
+  hoverHexagonButton(bool hover) {
+    print("hovering hexagon button: $hover");
+    test!.changeColour(hover);
   }
 
   @override
   Widget build(BuildContext context) {
-
-    double containerOffset = (radius/4);
-
-    double paintOffsetX = 0;
-    double paintOffsetY = -(math.sqrt(3) * radius)/2 + (containerOffset / 2);
-
     return Positioned(
       top: widget.yPos-radius,
       left: widget.xPos-radius,
@@ -43,14 +61,18 @@ class _HexagonButtonState extends State<HexagonButton> {
             width: (2 * radius) - containerOffset,
             color: Colors.transparent,
             child: InkWell(
-              onTap: () {},
+              onTap: () {
+                print("tapped");
+              },
               onHover: (val) {
-                print("Val--->{}$val");
+                hoverHexagonButton(val);
               },
               hoverColor: Colors.transparent, // We will do our own hover thing
             ),
           ),
-          CustomPaint(painter: HexagonPainter(Offset(paintOffsetX, paintOffsetY), radius)),
+          CustomPaint(
+              painter: test!
+          ),
         ],
       ),
     );
@@ -62,13 +84,25 @@ class HexagonPainter extends CustomPainter {
   final double radius;
   final Offset center;
 
+  Paint normalColour = Paint()..color = Colors.lightBlue;
+  Paint hoverColour = Paint()..color = Colors.blue;
+  Paint currentColour = Paint()..color = Colors.lightBlue;
+
   HexagonPainter(this.center, this.radius);
 
   @override
   void paint(Canvas canvas, Size size) {
-    Paint paint = Paint()..color = Colors.red;
     Path path = createHexagonPath();
-    canvas.drawPath(path, paint);
+    canvas.drawPath(path, currentColour);
+  }
+
+  changeColour(bool hover) {
+    print("change colour?");
+    if (hover) {
+      currentColour = hoverColour;
+    } else {
+      currentColour = normalColour;
+    }
   }
 
   Path createHexagonPath() {
