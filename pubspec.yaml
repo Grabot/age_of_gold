@@ -38,7 +38,6 @@ dependencies:
   flutter_simple_dependency_injection: ^2.0.0
   url_strategy: ^0.2.0
   flutter_signin_button: ^2.0.0
-  google_sign_in: ^5.4.2
 
 dev_dependencies:
   flutter_test:

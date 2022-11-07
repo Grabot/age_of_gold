@@ -1,13 +1,5 @@
-import 'dart:math';
-
-import 'package:age_of_gold/user_interface/selected_tile_info.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_signin_button/button_builder.dart';
-import 'package:flutter_signin_button/button_list.dart';
-import 'package:flutter_signin_button/button_view.dart';
 import '../age_of_gold.dart';
-import '../signin/google.dart';
-import '../util/socket_services.dart';
 
 
 class LoginScreen extends StatefulWidget {
@@ -441,13 +433,4 @@ class LoginScreenState extends State<LoginScreen> {
     return tileBoxWidget(context);
   }
 
-  Future SignIn() async{
-    final user = await GoogleSignInApi.Login();
-
-    if (user == null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Sign in failed')));
-    } else {
-      print("success!");
-    }
-  }
 }
