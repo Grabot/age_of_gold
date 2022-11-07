@@ -36,6 +36,9 @@ dependencies:
   flutter_lints: ^2.0.1
   socket_io_client: ^2.0.0-beta.4-nullsafety.0
   flutter_simple_dependency_injection: ^2.0.0
+  url_strategy: ^0.2.0
+  flutter_signin_button: ^2.0.0
+  google_sign_in: ^5.4.2
 
 dev_dependencies:
   flutter_test:
@@ -98,4 +101,7 @@ flutter:
     - assets/images/tiles/ffffff_noise1.png
     - assets/images/brocast_transparent.png
     - assets/images/Github_logo_PNG1.png
+    - assets/images/google_button.png
+    - assets/images/reddit_button.png
+    - assets/images/github_button.png
 

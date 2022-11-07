@@ -1,6 +1,12 @@
+import 'dart:math';
+
 import 'package:age_of_gold/user_interface/selected_tile_info.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_signin_button/button_builder.dart';
+import 'package:flutter_signin_button/button_list.dart';
+import 'package:flutter_signin_button/button_view.dart';
 import '../age_of_gold.dart';
+import '../signin/google.dart';
 import '../util/socket_services.dart';
 
 
@@ -21,13 +27,6 @@ class LoginScreenState extends State<LoginScreen> {
 
   bool visible = true;
 
-  // TODO: Add focusnodes on other textfields?
-  final FocusNode _focusLoginEmailOrUsername = FocusNode();
-  final FocusNode _focusLoginEmail = FocusNode();
-  final FocusNode _focusLoginUsername = FocusNode();
-  final FocusNode _focusLoginPass1 = FocusNode();
-  final FocusNode _focusLoginPass2 = FocusNode();
-
   final formKeyLogin = GlobalKey<FormState>();
   final formKeyRegister = GlobalKey<FormState>();
   TextEditingController emailOrUsernameController = new TextEditingController();
@@ -38,11 +37,6 @@ class LoginScreenState extends State<LoginScreen> {
 
   @override
   void initState() {
-    _focusLoginEmailOrUsername.addListener(_onFocusChangeEmailOrUsername);
-    _focusLoginEmail.addListener(_onFocusChangeEmail);
-    _focusLoginUsername.addListener(_onFocusChangeUsername);
-    _focusLoginPass1.addListener(_onFocusChangePass1);
-    _focusLoginPass2.addListener(_onFocusChangePass2);
     super.initState();
   }
 
@@ -54,27 +48,11 @@ class LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void _onFocusChangeEmailOrUsername() {
-    widget.game.loginFocus(_focusLoginEmailOrUsername.hasFocus);
-  }
-  void _onFocusChangeEmail() {
-    widget.game.loginFocus(_focusLoginEmail.hasFocus);
-  }
-  void _onFocusChangeUsername() {
-    widget.game.loginFocus(_focusLoginUsername.hasFocus);
-  }
-  void _onFocusChangePass1() {
-    widget.game.loginFocus(_focusLoginPass1.hasFocus);
-  }
-  void _onFocusChangePass2() {
-    widget.game.loginFocus(_focusLoginPass2.hasFocus);
-  }
-
   bool signUpMode = false;
   bool isLoading = false;
 
-  TextStyle simpleTextStyle() {
-    return const TextStyle(color: Colors.white, fontSize: 16);
+  TextStyle simpleTextStyle(double fontSize) {
+    return TextStyle(color: Colors.white, fontSize: fontSize);
   }
 
   InputDecoration textFieldInputDecoration(String hintText) {
@@ -93,28 +71,57 @@ class LoginScreenState extends State<LoginScreen> {
 
 
   signInAgeOfGold() {
-    print("sign in");
+    print("Login");
     if (formKeyLogin.currentState!.validate()) {
 
     }
   }
 
   signUpAgeOfGold() {
-    print("sign up");
+    print("Register");
     if (formKeyRegister.currentState!.validate()) {
 
     }
   }
 
-  Widget login() {
+  Widget login(double width, double fontSize) {
     return Form(
       key: formKeyLogin,
       child: Column(
         children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "Login",
+                style: TextStyle(color: Colors.white, fontSize: fontSize*2),
+              ),
+              Row(
+                children: [
+                  InkWell(
+                      onTap: () {
+                        if (!isLoading) {
+                          setState(() {
+                            signUpMode = !signUpMode;
+                          });
+                        }
+                      },
+                      child: Text(
+                        "Create new Account",
+                        style: TextStyle(color: Colors.blue, fontSize: fontSize),
+                      )
+                  ),
+                  Text(
+                      " instead?",
+                      style: TextStyle(fontSize: fontSize)
+                  )
+                ],
+              ),
+            ],
+          ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 50),
             child: TextFormField(
-              focusNode: _focusLoginEmailOrUsername,
               onTap: () {
                 if (!isLoading) {
                   print("tapped field 1");
@@ -127,7 +134,7 @@ class LoginScreenState extends State<LoginScreen> {
               },
               controller: emailOrUsernameController,
               textAlign: TextAlign.center,
-              style: simpleTextStyle(),
+              style: simpleTextStyle(fontSize),
               decoration:
               textFieldInputDecoration("Email or Username"),
             ),
@@ -140,7 +147,6 @@ class LoginScreenState extends State<LoginScreen> {
                   print("tapped field 3 2");
                 }
               },
-              focusNode: _focusLoginPass1,
               obscureText: true,
               validator: (val) {
                 return val == null || val.isEmpty
@@ -149,7 +155,7 @@ class LoginScreenState extends State<LoginScreen> {
               },
               controller: password1Controller,
               textAlign: TextAlign.center,
-              style: simpleTextStyle(),
+              style: simpleTextStyle(fontSize),
               decoration:
               textFieldInputDecoration("Password"),
             ),
@@ -171,27 +177,7 @@ class LoginScreenState extends State<LoginScreen> {
                     Color(0xff2A75BC)
                   ]),
                   borderRadius: BorderRadius.circular(30)),
-              child: Text("Sign In", style: simpleTextStyle()),
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 50),
-            child: TextFormField(
-              onTap: () {
-                if (!isLoading) {
-                  print("tapped field 4");
-                }
-              },
-              validator: (val) {
-                return val == null || val.isEmpty
-                    ? "Please provide a password"
-                    : null;
-              },
-              controller: password1Controller,
-              textAlign: TextAlign.center,
-              style: simpleTextStyle(),
-              decoration:
-              textFieldInputDecoration("Password"),
+              child: Text("Login", style: simpleTextStyle(fontSize)),
             ),
           ),
         ]
@@ -199,36 +185,44 @@ class LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget register() {
+  Widget register(double width, double fontSize) {
     return Form(
       key: formKeyRegister,
       child: Column(
         children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 50),
-            child: TextFormField(
-              focusNode: _focusLoginUsername,
-              onTap: () {
-                if (!isLoading) {
-                  print("tapped field 1.2");
-                }
-              },
-              validator: (val) {
-                return val == null || val.isEmpty
-                    ? "Please provide a username"
-                    : null;
-              },
-              controller: usernameController,
-              textAlign: TextAlign.center,
-              style: simpleTextStyle(),
-              decoration:
-              textFieldInputDecoration("Username"),
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "Create Account",
+                style: TextStyle(color: Colors.white, fontSize: fontSize*2),
+              ),
+              Row(
+                children: [
+                  InkWell(
+                      onTap: () {
+                        if (!isLoading) {
+                          setState(() {
+                            signUpMode = !signUpMode;
+                          });
+                        }
+                      },
+                      child: Text(
+                        "Log In",
+                        style: TextStyle(color: Colors.blue, fontSize: fontSize),
+                      )
+                  ),
+                  Text(
+                      " instead?",
+                      style: TextStyle(fontSize: fontSize)
+                  )
+                ],
+              ),
+            ],
           ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 50),
             child: TextFormField(
-              focusNode: _focusLoginEmail,
               onTap: () {
                 if (!isLoading) {
                   print("tapped field 1.5");
@@ -241,9 +235,29 @@ class LoginScreenState extends State<LoginScreen> {
               },
               controller: emailController,
               textAlign: TextAlign.center,
-              style: simpleTextStyle(),
+              style: simpleTextStyle(fontSize),
               decoration:
               textFieldInputDecoration("Email"),
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 50),
+            child: TextFormField(
+              onTap: () {
+                if (!isLoading) {
+                  print("tapped field 1.2");
+                }
+              },
+              validator: (val) {
+                return val == null || val.isEmpty
+                    ? "Please provide a username"
+                    : null;
+              },
+              controller: usernameController,
+              textAlign: TextAlign.center,
+              style: simpleTextStyle(fontSize),
+              decoration:
+              textFieldInputDecoration("Username"),
             ),
           ),
           Container(
@@ -254,7 +268,6 @@ class LoginScreenState extends State<LoginScreen> {
                   print("tapped field 3 1");
                 }
               },
-              focusNode: _focusLoginPass2,
               obscureText: true,
               validator: (val) {
                 return val == null || val.isEmpty
@@ -263,7 +276,7 @@ class LoginScreenState extends State<LoginScreen> {
               },
               controller: password2Controller,
               textAlign: TextAlign.center,
-              style: simpleTextStyle(),
+              style: simpleTextStyle(fontSize),
               decoration:
               textFieldInputDecoration("Password"),
             ),
@@ -285,7 +298,7 @@ class LoginScreenState extends State<LoginScreen> {
                     Color(0xff2A75BC)
                   ]),
                   borderRadius: BorderRadius.circular(30)),
-              child: Text("Sign up", style: simpleTextStyle()),
+              child: Text("Create free account", style: simpleTextStyle(fontSize)),
             ),
           ),
         ]
@@ -293,9 +306,8 @@ class LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget loginScreen() {
+  Widget loginScreen(double width, double loginBoxSize, double fontSize) {
     return SingleChildScrollView(
-      reverse: true,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 30),
         child: Column(
@@ -305,57 +317,96 @@ class LoginScreenState extends State<LoginScreen> {
                   child: Image.asset(
                       "assets/images/brocast_transparent.png")
               ),
-              signUpMode ? register() : login(),
-              const SizedBox(height: 10),
+              signUpMode ? register(width, fontSize) : login(width, fontSize),
+              Row(
+                children: [
+                  Expanded(
+                    child: new Container(
+                        margin: const EdgeInsets.only(left: 10.0, right: 20.0),
+                        child: Divider(
+                          color: Colors.white,
+                          height: 36,
+                        )),
+                  ),
+                  signUpMode ? Text("or register with") : Text("or login with"),
+                  Expanded(
+                    child: new Container(
+                        margin: const EdgeInsets.only(left: 20.0, right: 10.0),
+                        child: Divider(
+                          color: Colors.white,
+                          height: 36,
+                        )),
+                  ),
+                ]
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Container(
-                    child: signUpMode
-                        ? const Text(
-                      "Already have an account?  ",
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16),
-                    )
-                        : const Text(
-                      "Don't have an account?  ",
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16),
-                    ),
+                  Column(
+                      children: [
+                        InkWell(
+                          onTap: () {
+                            print("tapped Google");
+                          },
+                          child: SizedBox(
+                            height: loginBoxSize,
+                            width: loginBoxSize,
+                            child: Image.asset(
+                                "assets/images/google_button.png"
+                            ),
+                          ),
+                        ),
+                        Text(
+                          "Google",
+                          style: TextStyle(fontSize: fontSize),
+                        )
+                      ]
                   ),
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () {
-                        if (!isLoading) {
-                          setState(() {
-                            signUpMode = !signUpMode;
-                          });
-                        }
-                      },
-                      child: signUpMode
-                          ? const Text(
-                        "Login now!",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            decoration:
-                            TextDecoration.underline),
-                      )
-                          : const Text(
-                        "Register now!",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            decoration:
-                            TextDecoration.underline),
+                  SizedBox(width: 10),
+                  Column(
+                    children: [
+                      InkWell(
+                        onTap: () {
+                          print("tapped Github");
+                        },
+                        child: SizedBox(
+                          height: loginBoxSize,
+                          width: loginBoxSize,
+                          child: Image.asset(
+                              "assets/images/github_button.png"
+                          ),
+                        ),
                       ),
-                    ),
-                  )
+                      Text(
+                        "Github",
+                        style: TextStyle(fontSize: fontSize),
+                      )
+                    ],
+                  ),
+                  SizedBox(width: 10),
+                  Column(
+                    children: [
+                      InkWell(
+                        onTap: () {
+                          print("tapped reddit");
+                        },
+                        child: SizedBox(
+                          height: loginBoxSize,
+                          width: loginBoxSize,
+                          child: Image.asset(
+                              "assets/images/reddit_button.png"
+                          ),
+                        ),
+                      ),
+                      Text(
+                        "Reddit",
+                        style: TextStyle(fontSize: fontSize),
+                      )
+                    ]
+                  ),
                 ],
               ),
-              const SizedBox(height: 100),
+              const SizedBox(height: 40),
             ],
           ),
       ),
@@ -363,12 +414,16 @@ class LoginScreenState extends State<LoginScreen> {
   }
 
   Widget tileBoxWidget(BuildContext context) {
-    double width = MediaQuery.of(context).size.width / 2;
+    double fontSize = 16;
+    double loginBoxSize = 100;
+    double width = 800;
     double height = (MediaQuery.of(context).size.height / 10) * 8;
     // When the width is smaller than this we assume it's mobile.
     if (MediaQuery.of(context).size.width <= 800) {
       width = MediaQuery.of(context).size.width - 50;
       height = MediaQuery.of(context).size.height - 250;
+      loginBoxSize = 50;
+      fontSize = 10;
     }
     return Align(
       alignment: FractionalOffset.center,
@@ -376,7 +431,7 @@ class LoginScreenState extends State<LoginScreen> {
         width: width,
         height: height,
         color: Colors.orange,
-        child: loginScreen()
+        child: loginScreen(width, loginBoxSize, fontSize)
       ) : Container(),
     );
   }
@@ -384,5 +439,15 @@ class LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return tileBoxWidget(context);
+  }
+
+  Future SignIn() async{
+    final user = await GoogleSignInApi.Login();
+
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Sign in failed')));
+    } else {
+      print("success!");
+    }
   }
 }

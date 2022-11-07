@@ -34,7 +34,3 @@ Widget _chatBoxBuilder(BuildContext buildContext, AgeOfGold game) {
 Widget _tileBoxBuilder(BuildContext buildContext, AgeOfGold game) {
   return TileBox(key: UniqueKey(), game: game);
 }
-
-Widget _userLoginSignupBuilder(BuildContext buildContext, AgeOfGold game) {
-  return LoginScreen(key: UniqueKey(), game: game);
-}

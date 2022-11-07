@@ -1,13 +1,13 @@
 import 'dart:async';
-
 import 'package:age_of_gold/views/game_page.dart';
 import 'package:age_of_gold/views/home_page.dart';
-import 'package:age_of_gold/views/page_one.dart';
-import 'package:age_of_gold/views/page_two.dart';
 import 'package:flame/flame.dart';
 import 'package:flutter/material.dart';
+import 'package:url_strategy/url_strategy.dart';
+
 
 Future<void> main() async {
+  setPathUrlStrategy();
   WidgetsFlutterBinding.ensureInitialized();
 
   Flame.images.loadAll(<String>[]);
@@ -21,11 +21,9 @@ Future<void> main() async {
         // Define the default font family.
         fontFamily: 'Georgia',
       ),
-      initialRoute: '/one',
+      initialRoute: '/',
       routes: {
-        HomePage.route: (context) => HomePage(),
-        PageOne.route: (context) => PageOne(),
-        PageTwo.route: (context) => PageTwo(),
+        HomePage.route: (context) => HomePage(key: UniqueKey(), game: game),
         "/world": (context) => gameWidget,
       },
     )
