@@ -41,15 +41,6 @@ class World extends Component {
     hexagonList = HexagonList();
     hexagonList.setSocketService(socketServices);
     hexagonList.retrieveHexagons(startHexQ, startHexR);
-
-    // URI test
-    String baseUrl = Uri.base.toString(); //get complete url
-    String? accessToken = Uri.base.queryParameters["access_token"];
-    String? refreshToken = Uri.base.queryParameters["refresh_token"];
-
-    print("base: $baseUrl");
-    print("access token: $accessToken");
-    print("refresh token: $refreshToken");
   }
 
   @override

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/views/game_page.dart';
 import 'package:age_of_gold/views/home_page.dart';
+import 'package:age_of_gold/views/world_access_page.dart';
 import 'package:flame/flame.dart';
 import 'package:flutter/material.dart';
 import 'package:url_strategy/url_strategy.dart';
@@ -15,6 +16,8 @@ Future<void> main() async {
   Settings();
   Flame.images.loadAll(<String>[]);
 
+  Widget home = HomePage(key: UniqueKey(), game: game);
+  Widget worldAccess = WorldAccess(key: UniqueKey(), game: game);
   runApp(
       MaterialApp(
       theme: ThemeData(
@@ -26,23 +29,16 @@ Future<void> main() async {
       ),
       initialRoute: '/',
       routes: {
-        HomePage.route: (context) => HomePage(key: UniqueKey(), game: game),
+        HomePage.route: (context) => home,
+        WorldAccess.route: (context) => worldAccess,
         "/world": (context) => gameWidget,
       },
       onGenerateRoute: (settings) {
         // URI test
-        if (settings.name != null && settings.name!.startsWith("/world")) {
-          String baseUrl = Uri.base.toString(); //get complete url
-          String? accessToken = Uri.base.queryParameters["access_token"];
-          String? refreshToken = Uri.base.queryParameters["refresh_token"];
-
-          print("settings: ${settings.name}");
-          print("base: $baseUrl");
-          print("access token: $accessToken");
-          print("refresh token: $refreshToken");
+        if (settings.name != null && settings.name!.startsWith(WorldAccess.route)) {
           return MaterialPageRoute(
               builder: (context) {
-                return gameWidget;
+                return worldAccess;
               }
           );
         }

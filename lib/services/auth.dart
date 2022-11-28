@@ -129,3 +129,59 @@ Future<String> signIn(
   }
   return "an unknown error has occurred";
 }
+
+Future<String> refreshAccessToken(
+    String accessToken, String refreshToken) async {
+  String urlRefresh = '${baseUrlV1_1}refresh';
+  print("going to refresh access token with url $urlRefresh");
+  Uri uriRefresh = Uri.parse(urlRefresh);
+
+  http.Response responsePost = await http
+      .post(
+    uriRefresh,
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8'
+    },
+    body: jsonEncode(<String, String>{
+      'access_token': accessToken,
+      'refresh_token': refreshToken
+    }),
+  )
+      .timeout(
+    const Duration(seconds: 8),
+    onTimeout: () {
+      return new http.Response("", 404);
+    },
+  );
+
+  print("refresh response ${responsePost.body}");
+  if (responsePost.statusCode == 404 || responsePost.body.isEmpty) {
+    return "Could not connect to the server";
+  } else {
+    Map<String, dynamic> refreshResponse;
+    try {
+      refreshResponse = jsonDecode(responsePost.body);
+    } on Exception catch (_) {
+      return "an unknown error has occurred";
+    }
+    if (refreshResponse.containsKey("result") &&
+        refreshResponse.containsKey("message")) {
+      bool result = refreshResponse["result"];
+      String message = refreshResponse["message"];
+      if (result) {
+        String accessToken = refreshResponse["access_token"];
+        String refreshToken = refreshResponse["refresh_token"];
+
+        Settings settings = Settings();
+        settings.setAccessToken(accessToken);
+        settings.setRefreshToken(refreshToken);
+
+        print("got result: $accessToken  $refreshToken");
+        return "success";
+      } else {
+        return message;
+      }
+    }
+  }
+  return "an unknown error has occurred";
+}
