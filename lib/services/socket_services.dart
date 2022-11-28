@@ -30,7 +30,7 @@ import '../component/type/tile_white.dart';
 import '../component/type/tile_wild_strawberry.dart';
 import '../constants/url_base.dart';
 import '../user_interface/chat_messages.dart';
-import 'hexagon_list.dart';
+import '../util/hexagon_list.dart';
 
 
 class SocketServices extends ChangeNotifier {
@@ -60,7 +60,7 @@ class SocketServices extends ChangeNotifier {
 
   startSockConnection() {
     String namespace = "sock";
-    String socketUrl = baseUrl + namespace;
+    String socketUrl = baseUrlV1_1 + namespace;
     socket = io.io(socketUrl, <String, dynamic>{
       'autoConnect': false,
       'transports': ['websocket'],

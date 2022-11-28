@@ -72,3 +72,9 @@ int convertTileToHexR(int tileQ, int tileR) {
   int hexR = ((q_2 - r_2) / -61).round();
   return hexR;
 }
+
+bool emailValid(String possibleEmail) {
+  return RegExp(
+      r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+      .hasMatch(possibleEmail);
+}

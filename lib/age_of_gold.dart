@@ -1,6 +1,6 @@
 import 'dart:math';
 import 'package:age_of_gold/util/global.dart';
-import 'package:age_of_gold/util/socket_services.dart';
+import 'package:age_of_gold/services/socket_services.dart';
 import 'package:age_of_gold/util/tapped_map.dart';
 import 'package:age_of_gold/util/util.dart';
 import 'package:flutter/material.dart';

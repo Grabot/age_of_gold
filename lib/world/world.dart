@@ -7,7 +7,7 @@ import '../user_interface/selected_tile_info.dart';
 import '../util/global.dart';
 import '../util/hexagon_list.dart';
 import '../util/selected_tile.dart';
-import '../util/socket_services.dart';
+import '../services/socket_services.dart';
 
 
 class World extends Component {
@@ -41,6 +41,15 @@ class World extends Component {
     hexagonList = HexagonList();
     hexagonList.setSocketService(socketServices);
     hexagonList.retrieveHexagons(startHexQ, startHexR);
+
+    // URI test
+    String baseUrl = Uri.base.toString(); //get complete url
+    String? accessToken = Uri.base.queryParameters["access_token"];
+    String? refreshToken = Uri.base.queryParameters["refresh_token"];
+
+    print("base: $baseUrl");
+    print("access token: $accessToken");
+    print("refresh token: $refreshToken");
   }
 
   @override

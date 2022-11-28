@@ -1,4 +1,4 @@
-import 'package:age_of_gold/util/socket_services.dart';
+import 'package:age_of_gold/services/socket_services.dart';
 import 'package:age_of_gold/util/util.dart';
 import '../component/hexagon.dart';
 import '../component/tile.dart';

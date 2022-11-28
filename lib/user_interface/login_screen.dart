@@ -1,5 +1,10 @@
+import 'package:age_of_gold/services/auth.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../age_of_gold.dart';
+import '../constants/url_base.dart';
+import '../services/settings.dart';
+import '../util/util.dart';
 
 
 class LoginScreen extends StatefulWidget {
@@ -63,16 +68,28 @@ class LoginScreenState extends State<LoginScreen> {
 
 
   signInAgeOfGold() {
-    print("Login");
     if (formKeyLogin.currentState!.validate()) {
-
+      // send login request
+      String emailOrUserName = emailOrUsernameController.text;
+      String password = password1Controller.text;
+      signIn(emailOrUserName, password).then((value) {
+        if (value == "success") {
+          Navigator.pushNamed(context, "/world");
+        }
+      });
     }
   }
 
   signUpAgeOfGold() {
-    print("Register");
     if (formKeyRegister.currentState!.validate()) {
-
+      String email = emailController.text;
+      String userName = usernameController.text;
+      String password = password2Controller.text;
+      signUp(userName, email, password).then((value) {
+        if (value == "success") {
+          Navigator.pushNamed(context, "/world");
+        }
+      });
     }
   }
 
@@ -218,9 +235,17 @@ class LoginScreenState extends State<LoginScreen> {
               onTap: () {
                 if (!isLoading) {
                   print("tapped field 1.5");
+                  Settings settings = Settings();
+                  print("access token: ${settings.getAccessToken()}");
+                  print("refresh token: ${settings.getAccessToken()}");
                 }
               },
               validator: (val) {
+                if (val != null) {
+                  if (!emailValid(val)) {
+                    return "Email not formatted correctly";
+                  }
+                }
                 return val == null || val.isEmpty
                     ? "Please provide an Email"
                     : null;
@@ -241,6 +266,11 @@ class LoginScreenState extends State<LoginScreen> {
                 }
               },
               validator: (val) {
+                if (val != null) {
+                  if (emailValid(val)) {
+                    return "username cannot be formatted as an email";
+                  }
+                }
                 return val == null || val.isEmpty
                     ? "Please provide a username"
                     : null;
@@ -338,13 +368,15 @@ class LoginScreenState extends State<LoginScreen> {
                       children: [
                         InkWell(
                           onTap: () {
+                            final Uri _url = Uri.parse(googleLogin);
+                            _launchUrl(_url);
                             print("tapped Google");
                           },
                           child: SizedBox(
                             height: loginBoxSize,
                             width: loginBoxSize,
                             child: Image.asset(
-                                "assets/images/google_button.png"
+                                "assets/images/gogle_button.png"
                             ),
                           ),
                         ),
@@ -359,7 +391,8 @@ class LoginScreenState extends State<LoginScreen> {
                     children: [
                       InkWell(
                         onTap: () {
-                          print("tapped Github");
+                          final Uri _url = Uri.parse(githubLogin);
+                          _launchUrl(_url);
                         },
                         child: SizedBox(
                           height: loginBoxSize,
@@ -381,6 +414,8 @@ class LoginScreenState extends State<LoginScreen> {
                       InkWell(
                         onTap: () {
                           print("tapped reddit");
+                          final Uri _url = Uri.parse(redditLogin);
+                          _launchUrl(_url);
                         },
                         child: SizedBox(
                           height: loginBoxSize,
@@ -433,4 +468,12 @@ class LoginScreenState extends State<LoginScreen> {
     return tileBoxWidget(context);
   }
 
+  Future<void> _launchUrl(Uri url) async {
+    if (!await launchUrl(
+      url,
+      webOnlyWindowName: '_self'
+    )) {
+      throw 'Could not launch $url';
+    }
+  }
 }

@@ -1,6 +1,6 @@
 import 'package:age_of_gold/component/hexagon.dart';
 import 'package:age_of_gold/component/tile.dart';
-import 'package:age_of_gold/util/socket_services.dart';
+import 'package:age_of_gold/services/socket_services.dart';
 import 'package:age_of_gold/util/util.dart';
 
 class HexagonList {

@@ -1,5 +1,5 @@
 import 'package:age_of_gold/util/hexagon_list.dart';
-import 'package:age_of_gold/util/socket_services.dart';
+import 'package:age_of_gold/services/socket_services.dart';
 import 'package:age_of_gold/util/tapped_map.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
