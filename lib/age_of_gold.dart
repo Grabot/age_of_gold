@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/util/global.dart';
 import 'package:age_of_gold/services/socket_services.dart';
 import 'package:age_of_gold/util/tapped_map.dart';
@@ -67,15 +68,12 @@ class AgeOfGold extends FlameGame
   List<String> randomNames = ["Max", "Nanne", "Chris", "Steve", "Harry", "Whazor", "Tessa"];
   late String userName;
 
-  SocketServices socket = SocketServices();
+  SocketServices? socket;
 
   @override
   Future<void> onLoad() async {
     await super.onLoad();
-    userName = randomNames[Random().nextInt(randomNames.length)];
-
-    socket.setUser(0, userName);
-    socket.joinRoom();
+    socket = SocketServices();
 
     camera.followVector2(cameraPosition, relativeOffset: Anchor.center);
     camera.zoom = 1;
@@ -87,11 +85,17 @@ class AgeOfGold extends FlameGame
     add(_world!);
 
     html.window.onBeforeUnload.listen((event) async {
-      socket.leaveRoom();
+      socket!.leaveRoom();
     });
 
-    socket.addListener(socketListener);
+    socket!.addListener(socketListener);
     checkHexagonArraySize();
+
+    Settings settings = Settings();
+    userName = settings.getUserName();
+
+    socket!.setUser(0, userName);
+    socket!.joinRoom();
   }
 
   socketListener() {
@@ -341,7 +345,7 @@ class AgeOfGold extends FlameGame
 
       if (event.logicalKey == LogicalKeyboardKey.home) {
         userName = "Sander";
-        socket.setUser(0, userName);
+        socket!.setUser(0, userName);
       }
 
       return KeyEventResult.handled;

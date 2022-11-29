@@ -45,10 +45,12 @@ Future signUp(String userName, String email, String password) async {
         print("it was good");
         String accessToken = registerResponse["access_token"];
         String refreshToken = registerResponse["refresh_token"];
+        Map<String, dynamic> user = registerResponse["user"];
 
         Settings settings = Settings();
         settings.setAccessToken(accessToken);
         settings.setRefreshToken(refreshToken);
+        settings.setUserName(user["username"]);
 
         return "success";
       } else {
@@ -115,12 +117,15 @@ Future<String> signIn(
       if (result) {
         String accessToken = signInResponse["access_token"];
         String refreshToken = signInResponse["refresh_token"];
+        Map<String, dynamic> user = signInResponse["user"];
 
         Settings settings = Settings();
         settings.setAccessToken(accessToken);
         settings.setRefreshToken(refreshToken);
+        settings.setUserName(user["username"]);
 
         print("got result: $accessToken  $refreshToken");
+        print('user: $user');
         return "success";
       } else {
         return message;
@@ -131,7 +136,7 @@ Future<String> signIn(
 }
 
 Future<String> refreshAccessToken(
-    String accessToken, String refreshToken) async {
+    String accessToken, String refreshToken, bool details) async {
   String urlRefresh = '${baseUrlV1_1}refresh';
   print("going to refresh access token with url $urlRefresh");
   Uri uriRefresh = Uri.parse(urlRefresh);
@@ -144,7 +149,8 @@ Future<String> refreshAccessToken(
     },
     body: jsonEncode(<String, String>{
       'access_token': accessToken,
-      'refresh_token': refreshToken
+      'refresh_token': refreshToken,
+      'details': details ? "1" : "0"
     }),
   )
       .timeout(
@@ -171,10 +177,14 @@ Future<String> refreshAccessToken(
       if (result) {
         String accessToken = refreshResponse["access_token"];
         String refreshToken = refreshResponse["refresh_token"];
+        Map<String, dynamic> user = refreshResponse["user"];
 
         Settings settings = Settings();
         settings.setAccessToken(accessToken);
         settings.setRefreshToken(refreshToken);
+        if (details) {
+          settings.setUserName(user["username"]);
+        }
 
         print("got result: $accessToken  $refreshToken");
         return "success";

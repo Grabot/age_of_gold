@@ -34,7 +34,7 @@ class _WorldAccessState extends State<WorldAccess> {
     print("refresh token: $refreshToken");
     // Use the tokens to immediately refresh the access token
     if (accessToken != null && refreshToken != null) {
-      refreshAccessToken(accessToken, refreshToken).then((value) {
+      refreshAccessToken(accessToken, refreshToken, true).then((value) {
         if (value == "success") {
           Navigator.pushNamed(context, "/world");
         } else {

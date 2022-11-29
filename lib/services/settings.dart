@@ -6,6 +6,8 @@ class Settings {
   String accessToken = "";
   String refreshToken = "";
 
+  String userName = "";
+
   Settings._internal();
 
   factory Settings() {
@@ -26,5 +28,13 @@ class Settings {
 
   String getRefreshToken() {
     return refreshToken;
+  }
+
+  setUserName(String userName) {
+    this.userName = userName;
+  }
+
+  String getUserName() {
+    return userName;
   }
 }
