@@ -36,8 +36,10 @@ class _WorldAccessState extends State<WorldAccess> {
     if (accessToken != null && refreshToken != null) {
       refreshAccessToken(accessToken, refreshToken, true).then((value) {
         if (value == "success") {
+          print("it was a success");
           Navigator.pushNamed(context, "/world");
         } else {
+          print("it failed");
           Navigator.of(context).pushNamed("/");
         }
       });
@@ -51,7 +53,7 @@ class _WorldAccessState extends State<WorldAccess> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: appBarAgeOfGold(),
+      // appBar: appBarAgeOfGold(),
       body: Center(
         child: Container(
         ),

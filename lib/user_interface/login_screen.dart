@@ -5,6 +5,7 @@ import '../age_of_gold.dart';
 import '../constants/url_base.dart';
 import '../services/settings.dart';
 import '../util/util.dart';
+import '../util/web_storage.dart';
 
 
 class LoginScreen extends StatefulWidget {
@@ -26,6 +27,7 @@ class LoginScreenState extends State<LoginScreen> {
 
   final formKeyLogin = GlobalKey<FormState>();
   final formKeyRegister = GlobalKey<FormState>();
+
   TextEditingController emailOrUsernameController = new TextEditingController();
   TextEditingController emailController = new TextEditingController();
   TextEditingController usernameController = new TextEditingController();
@@ -34,7 +36,20 @@ class LoginScreenState extends State<LoginScreen> {
 
   @override
   void initState() {
+    print("login screen");
     super.initState();
+    WebStorage.getAccessToken().then((accessToken) {
+      if (accessToken != null && accessToken != "") {
+        // Something is stored, check if the user can just log in automatically
+        tokenLogin(accessToken).then((value) {
+          if (value == "success") {
+            print("it was a success");
+            // If the access token was still good we go straight to the world.
+            Navigator.pushNamed(context, "/world");
+          }
+        });
+      }
+    });
   }
 
   @override

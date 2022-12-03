@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:age_of_gold/services/settings.dart';
+import 'package:age_of_gold/user_interface/login_screen.dart';
 import 'package:age_of_gold/views/game_page.dart';
 import 'package:age_of_gold/views/home_page.dart';
 import 'package:age_of_gold/views/world_access_page.dart';
@@ -16,8 +17,10 @@ Future<void> main() async {
   Settings();
   Flame.images.loadAll(<String>[]);
 
-  Widget home = HomePage(key: UniqueKey(), game: game);
+  LoginScreen loginScreen = LoginScreen(key: UniqueKey(), game: game);
+  Widget home = HomePage(key: UniqueKey(), game: game, loginScreen: loginScreen);
   Widget worldAccess = WorldAccess(key: UniqueKey(), game: game);
+
   runApp(
       MaterialApp(
       theme: ThemeData(

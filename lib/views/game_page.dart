@@ -6,12 +6,14 @@ import '../age_of_gold.dart';
 import '../user_interface/chat_box.dart';
 import '../user_interface/login_screen.dart';
 import '../user_interface/tile_box.dart';
+import 'app_bar.dart';
 
 FocusNode gameFocus = FocusNode();
 
 final game = AgeOfGold(gameFocus);
 
 Widget gameWidget = Scaffold(
+    // appBar: appBarAgeOfGold(),
     body: GameWidget(
       focusNode: gameFocus,
       game: game,
@@ -25,7 +27,6 @@ Widget gameWidget = Scaffold(
       ],
     )
 );
-
 
 Widget _chatBoxBuilder(BuildContext buildContext, AgeOfGold game) {
   return ChatBox(key: UniqueKey(), game: game);

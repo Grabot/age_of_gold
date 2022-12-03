@@ -9,10 +9,12 @@ class HomePage extends StatefulWidget {
 
   static const String route = '/';
   final AgeOfGold game;
+  final LoginScreen loginScreen;
 
   const HomePage({
     Key? key,
-    required this.game
+    required this.game,
+    required this.loginScreen
   }) : super(key: key);
 
   @override
@@ -24,10 +26,10 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: appBarAgeOfGold(),
+      // appBar: appBarAgeOfGold(),
       body: Center(
         child: Container(
-          child: LoginScreen(key: UniqueKey(), game: widget.game)
+          child: widget.loginScreen
         ),
       ),
     );
