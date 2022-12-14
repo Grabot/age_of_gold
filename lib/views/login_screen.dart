@@ -1,11 +1,12 @@
 import 'package:age_of_gold/services/auth.dart';
+import 'package:age_of_gold/services/models/login_request.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../age_of_gold.dart';
 import '../constants/url_base.dart';
+import '../services/auth_service.dart';
 import '../services/settings.dart';
 import '../util/util.dart';
-import '../util/web_storage.dart';
 
 
 class LoginScreen extends StatefulWidget {
@@ -34,22 +35,26 @@ class LoginScreenState extends State<LoginScreen> {
   TextEditingController password1Controller = new TextEditingController();
   TextEditingController password2Controller = new TextEditingController();
 
+  // TODO: Keep using this for android and ios?
+  // final SecureStorage _secureStorage = SecureStorage();
+
   @override
   void initState() {
     print("login screen");
     super.initState();
-    WebStorage.getAccessToken().then((accessToken) {
-      if (accessToken != null && accessToken != "") {
-        // Something is stored, check if the user can just log in automatically
-        tokenLogin(accessToken).then((value) {
-          if (value == "success") {
-            print("it was a success");
-            // If the access token was still good we go straight to the world.
-            Navigator.pushNamed(context, "/world");
-          }
-        });
-      }
-    });
+    // TODO: Change accesstoken to the cookie thing?
+    // _secureStorage.getAccessToken().then((accessToken) {
+    //   if (accessToken != null && accessToken != "") {
+    //     // Something is stored, check if the user can just log in automatically
+    //     tokenLogin(accessToken).then((value) {
+    //       if (value == "success") {
+    //         print("it was a success");
+    //         // If the access token was still good we go straight to the world.
+    //         Navigator.pushNamed(context, "/world");
+    //       }
+    //     });
+    //   }
+    // });
   }
 
   @override
@@ -87,8 +92,9 @@ class LoginScreenState extends State<LoginScreen> {
       // send login request
       String emailOrUserName = emailOrUsernameController.text;
       String password = password1Controller.text;
-      signIn(emailOrUserName, password).then((value) {
-        if (value == "success") {
+      AuthService authService = AuthService();
+      authService.getLogin(LoginRequest(emailOrUserName, password)).then((loginResponse) {
+        if (loginResponse.getResult()) {
           Navigator.pushNamed(context, "/world");
         }
       });

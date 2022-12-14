@@ -1,9 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/util/util.dart';
 import 'package:age_of_gold/util/web_storage.dart';
+import 'package:dio/dio.dart';
 import 'package:http/http.dart' as http;
+// import 'package:http/browser_client.dart';
 
 import '../constants/url_base.dart';
 
@@ -12,8 +15,9 @@ Future signUp(String userName, String email, String password) async {
   String urlRegister = '${baseUrlV1_1}register';
   Uri uriRegister = Uri.parse(urlRegister);
 
-  http.Response responsePost = await http
-      .post(
+  http.Client client = http.Client();
+
+  http.Response responsePost = await client.post(
     uriRegister,
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
@@ -59,6 +63,8 @@ Future<String> signIn(
   print("going to login with url $urlLogin");
   Uri uriLogin = Uri.parse(urlLogin);
 
+  var dio = Dio();
+
   String postBody = "";
   if (emailValid(emailOrUserName)) {
     // email
@@ -66,54 +72,52 @@ Future<String> signIn(
       'email': emailOrUserName,
       'password': password
     });
-    print("postbody with email $postBody");
   } else {
     // user name
     postBody = jsonEncode(<String, String>{
       'user_name': emailOrUserName,
       'password': password
     });
-    print("postbody with user_name $postBody");
   }
 
-  http.Response responsePost = await http
-      .post(
-    uriLogin,
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8'
-    },
-    body: postBody,
-  )
-      .timeout(
-    const Duration(seconds: 8),
-    onTimeout: () {
-      return new http.Response("", 404);
-    },
-  );
-
-  print("resonse: ${responsePost.body}");
-
-  if (responsePost.statusCode == 404 || responsePost.body.isEmpty) {
-    return "Could not connect to the server";
-  } else {
-    Map<String, dynamic> signInResponse;
-    try {
-      signInResponse = jsonDecode(responsePost.body);
-    } on Exception catch (_) {
-      return "an unknown error has occurred";
-    }
-    if (signInResponse.containsKey("result") &&
-        signInResponse.containsKey("message")) {
-      bool result = signInResponse["result"];
-      String message = signInResponse["message"];
-      if (result) {
-        successfulLogin(signInResponse, true);
-        return "success";
-      } else {
-        return message;
-      }
-    }
+  try {
+    dio.options.extra['withCredentials'] = true;
+    String urlTest = '${baseUrlV1_1}login';
+    var response = await dio.post(urlTest,
+        options: Options(headers: {
+          HttpHeaders.contentTypeHeader: "application/json",
+        }),
+        data: postBody);
+    print(response);
+    print(response.headers);
+  } catch (e) {
+    print(e);
   }
+
+  // print("resonse: ${responsePost.body}");
+  // print("response: ${responsePost.headers}");
+  //
+  // if (responsePost.statusCode == 404 || responsePost.body.isEmpty) {
+  //   return "Could not connect to the server";
+  // } else {
+  //   Map<String, dynamic> signInResponse;
+  //   try {
+  //     signInResponse = jsonDecode(responsePost.body);
+  //   } on Exception catch (_) {
+  //     return "an unknown error has occurred";
+  //   }
+  //   if (signInResponse.containsKey("result") &&
+  //       signInResponse.containsKey("message")) {
+  //     bool result = signInResponse["result"];
+  //     String message = signInResponse["message"];
+  //     if (result) {
+  //       successfulLogin(signInResponse, true);
+  //       return "success";
+  //     } else {
+  //       return message;
+  //     }
+  //   }
+  // }
   return "an unknown error has occurred";
 }
 
@@ -123,8 +127,9 @@ Future<String> refreshAccessToken(
   print("going to refresh access token with url $urlRefresh");
   Uri uriRefresh = Uri.parse(urlRefresh);
 
-  http.Response responsePost = await http
-      .post(
+  http.Client client = http.Client();
+
+  http.Response responsePost = await client.post(
     uriRefresh,
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8'
@@ -172,8 +177,9 @@ Future tokenLogin(String accessToken) async {
   String urlAccessToken = '${baseUrlV1_1}accessToken';
   Uri uriAccessToken = Uri.parse(urlAccessToken);
 
-  http.Response responsePost = await http
-      .post(
+  http.Client client = http.Client();
+
+  http.Response responsePost = await client.post(
     uriAccessToken,
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
@@ -217,13 +223,12 @@ successfulLogin(Map<String, dynamic> response, bool details) {
   Settings settings = Settings();
   settings.setAccessToken(accessToken);
   settings.setRefreshToken(refreshToken);
-  if (details) {
-    settings.setUserName(user["username"]);
-  }
 
   // We also store the access token in the cookies.
   // If the user comes back he can use it to continue to be logged in
-  WebStorage.setAccessToken(accessToken);
 
-  print("got result: $accessToken  $refreshToken");
+  SecureStorage secureStorage = SecureStorage();
+  secureStorage.setAccessToken(accessToken);
+
+  // print("got result: $accessToken  $refreshToken");
 }

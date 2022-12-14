@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:age_of_gold/services/models/user.dart';
 import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/util/global.dart';
 import 'package:age_of_gold/services/socket_services.dart';
@@ -92,9 +93,12 @@ class AgeOfGold extends FlameGame
     checkHexagonArraySize();
 
     Settings settings = Settings();
-    userName = settings.getUserName();
+    User? user = settings.getUser();
+    if (user != null) {
+      userName = user.getUserName();
+      socket!.setUser(0, user.getUserName());
+    }
 
-    socket!.setUser(0, userName);
     socket!.joinRoom();
   }
 

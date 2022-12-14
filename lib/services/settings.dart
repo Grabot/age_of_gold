@@ -1,12 +1,14 @@
 
 
+import 'models/user.dart';
+
 class Settings {
   static final Settings _instance = Settings._internal();
 
   String accessToken = "";
   String refreshToken = "";
 
-  String userName = "";
+  User? user;
 
   Settings._internal();
 
@@ -30,11 +32,11 @@ class Settings {
     return refreshToken;
   }
 
-  setUserName(String userName) {
-    this.userName = userName;
+  setUser(User user) {
+    this.user = user;
   }
 
-  String getUserName() {
-    return userName;
+  User? getUser() {
+    return user;
   }
 }

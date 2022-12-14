@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../age_of_gold.dart';
-import '../user_interface/login_screen.dart';
+import 'login_screen.dart';
 import 'app_bar.dart';
 
 

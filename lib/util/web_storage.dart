@@ -1,17 +1,17 @@
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 
-class WebStorage {
-  static String accessTokenKey = "accessToken";
+class SecureStorage {
 
-  static Future<bool> setAccessToken(String accessToken) async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    return await preferences.setString(accessTokenKey, accessToken);
+  final storage = const FlutterSecureStorage();
+
+  final String _keyAccessToken = 'accessToken';
+
+  Future setAccessToken(String accessToken) async {
+    await storage.write(key: _keyAccessToken, value: accessToken);
   }
 
-  static Future<String?> getAccessToken() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    return preferences.getString(accessTokenKey);
+  Future<String?> getAccessToken() async {
+    return await storage.read(key: _keyAccessToken);
   }
-
 }
