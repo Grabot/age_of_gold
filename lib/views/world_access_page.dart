@@ -25,7 +25,7 @@ class _WorldAccessState extends State<WorldAccess> {
   @override
   void initState() {
     super.initState();
-    String baseUrl = Uri.base.toString(); //get complete url
+    String baseUrl = Uri.base.toString();
     String? accessToken = Uri.base.queryParameters["access_token"];
     String? refreshToken = Uri.base.queryParameters["refresh_token"];
 
@@ -34,19 +34,19 @@ class _WorldAccessState extends State<WorldAccess> {
     print("refresh token: $refreshToken");
     // Use the tokens to immediately refresh the access token
     if (accessToken != null && refreshToken != null) {
-      refreshAccessToken(accessToken, refreshToken, true).then((value) {
-        if (value == "success") {
-          print("it was a success");
-          Navigator.pushNamed(context, "/world");
-        } else {
-          print("it failed");
-          Navigator.of(context).pushNamed("/");
-        }
-      });
-    } else {
-      SchedulerBinding.instance.addPostFrameCallback((_) {
-        Navigator.of(context).pushNamed("/");
-      });
+    //   refreshAccessToken(accessToken, refreshToken, true).then((value) {
+    //     if (value == "success") {
+    //       print("it was a success");
+    //       Navigator.pushNamed(context, "/world");
+    //     } else {
+    //       print("it failed");
+    //       Navigator.of(context).pushNamed("/");
+    //     }
+    //   });
+    // } else {
+    //   SchedulerBinding.instance.addPostFrameCallback((_) {
+    //     Navigator.of(context).pushNamed("/");
+    //   });
     }
   }
 

@@ -1,5 +1,8 @@
 import 'package:dio/dio.dart';
 import '../constants/url_base.dart';
+import 'package:dio/dio.dart';
+import 'package:dio_cookie_manager/dio_cookie_manager.dart';
+import 'package:cookie_jar/cookie_jar.dart';
 
 
 class AuthApi {
@@ -21,9 +24,14 @@ class AuthApi {
         )
     );
 
+    var cookieJar = CookieJar();
+    dio.interceptors.add(CookieManager(cookieJar));
     dio.interceptors.addAll({
       AppInterceptors(dio),
+      CookieManager(cookieJar)
     });
+    // Print cookies
+    print("current cookies: ${cookieJar.loadForRequest(Uri.parse(baseUrl))}");
     return dio;
   }
 }
@@ -36,11 +44,13 @@ class AppInterceptors extends Interceptor {
   @override
   void onRequest(
       RequestOptions options, RequestInterceptorHandler handler) async {
-    // TODO: Change to our token?
+
     // var accessToken = await TokenRepository().getAccessToken();
-    //
-    // if (accessToken != null) {
-    //   var expiration = await TokenRepository().getAccessTokenRemainingTime();
+    var accessToken = null;
+
+    if (accessToken != null) {
+      // var expiration = await TokenRepository().getAccessTokenRemainingTime();
+      var expiration = 30;
     //
     //   if (expiration.inSeconds < 60) {
     //     dio.interceptors.requestLock.lock();
@@ -56,8 +66,8 @@ class AppInterceptors extends Interceptor {
     //     }).whenComplete(() => dio.interceptors.requestLock.unlock());
     //   }
     //
-    //   options.headers['Authorization'] = 'Bearer $accessToken';
-    // }
+      options.headers['Authorization'] = 'Bearer $accessToken';
+    }
 
     return handler.next(options);
   }

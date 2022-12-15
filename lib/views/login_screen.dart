@@ -1,10 +1,13 @@
 import 'package:age_of_gold/services/auth.dart';
+import 'package:age_of_gold/services/cookie_manager.dart';
 import 'package:age_of_gold/services/models/login_request.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../age_of_gold.dart';
 import '../constants/url_base.dart';
 import '../services/auth_service.dart';
+import '../services/models/register_request.dart';
 import '../services/settings.dart';
 import '../util/util.dart';
 
@@ -41,6 +44,8 @@ class LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     print("login screen");
+    WidgetsFlutterBinding.ensureInitialized();
+    CookieManager.instance.initCookie();
     super.initState();
     // TODO: Change accesstoken to the cookie thing?
     // _secureStorage.getAccessToken().then((accessToken) {
@@ -86,6 +91,16 @@ class LoginScreenState extends State<LoginScreen> {
         ));
   }
 
+  showToast(String message) {
+    Fluttertoast.showToast(
+        msg: message,
+        toastLength: Toast.LENGTH_SHORT,
+        webPosition: "center",
+        gravity: ToastGravity.CENTER,
+        timeInSecForIosWeb: 2,
+        fontSize: 24.0
+    );
+  }
 
   signInAgeOfGold() {
     if (formKeyLogin.currentState!.validate()) {
@@ -96,6 +111,8 @@ class LoginScreenState extends State<LoginScreen> {
       authService.getLogin(LoginRequest(emailOrUserName, password)).then((loginResponse) {
         if (loginResponse.getResult()) {
           Navigator.pushNamed(context, "/world");
+        } else if (!loginResponse.getResult()) {
+          showToast(loginResponse.getMessage());
         }
       });
     }
@@ -106,9 +123,12 @@ class LoginScreenState extends State<LoginScreen> {
       String email = emailController.text;
       String userName = usernameController.text;
       String password = password2Controller.text;
-      signUp(userName, email, password).then((value) {
-        if (value == "success") {
+      AuthService authService = AuthService();
+      authService.getRegister(RegisterRequest(email, userName, password)).then((loginResponse) {
+        if (loginResponse.getResult()) {
           Navigator.pushNamed(context, "/world");
+        } else if (!loginResponse.getResult()) {
+          showToast(loginResponse.getMessage());
         }
       });
     }
