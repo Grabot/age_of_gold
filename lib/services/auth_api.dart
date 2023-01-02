@@ -1,8 +1,10 @@
+import 'dart:io';
+import 'package:age_of_gold/services/settings.dart';
+import 'package:age_of_gold/util/web_storage.dart';
 import 'package:dio/dio.dart';
 import '../constants/url_base.dart';
-import 'package:dio/dio.dart';
-import 'package:dio_cookie_manager/dio_cookie_manager.dart';
-import 'package:cookie_jar/cookie_jar.dart';
+import '../util/util.dart';
+import 'models/login_response.dart';
 
 
 class AuthApi {
@@ -24,14 +26,10 @@ class AuthApi {
         )
     );
 
-    var cookieJar = CookieJar();
-    dio.interceptors.add(CookieManager(cookieJar));
     dio.interceptors.addAll({
-      AppInterceptors(dio),
-      CookieManager(cookieJar)
+      AppInterceptors(dio)
     });
-    // Print cookies
-    print("current cookies: ${cookieJar.loadForRequest(Uri.parse(baseUrl))}");
+
     return dio;
   }
 }
@@ -45,28 +43,53 @@ class AppInterceptors extends Interceptor {
   void onRequest(
       RequestOptions options, RequestInterceptorHandler handler) async {
 
-    // var accessToken = await TokenRepository().getAccessToken();
-    var accessToken = null;
+    String? accessToken = await SecureStorage().getAccessToken();
 
     if (accessToken != null) {
-      // var expiration = await TokenRepository().getAccessTokenRemainingTime();
-      var expiration = 30;
-    //
-    //   if (expiration.inSeconds < 60) {
-    //     dio.interceptors.requestLock.lock();
-    //
-    //     // Call the refresh endpoint to get a new token
-    //     await UserService()
-    //         .refresh()
-    //         .then((response) async {
-    //       await TokenRepository().persistAccessToken(response.accessToken);
-    //       accessToken = response.accessToken;
-    //     }).catchError((error, stackTrace) {
-    //       handler.reject(error, true);
-    //     }).whenComplete(() => dio.interceptors.requestLock.unlock());
-    //   }
-    //
-      options.headers['Authorization'] = 'Bearer $accessToken';
+      int current = (DateTime.now().millisecondsSinceEpoch/1000).round();
+      Settings settings = Settings();
+      int expiration = settings.getAccessTokenExpiration();
+
+      if ((expiration - current) < 60) {
+
+        String? refreshToken = settings.getRefreshToken();
+
+        if (refreshToken == "") {
+
+        } else {
+          String endPoint = "refresh";
+          var response = await Dio(
+              BaseOptions(
+                baseUrl: baseUrlV1_1,
+                receiveTimeout: 15000,
+                connectTimeout: 15000,
+                sendTimeout: 15000,
+              )
+          ).post(endPoint,
+              options: Options(headers: {
+                HttpHeaders.contentTypeHeader: "application/json",
+              }),
+              data: {
+                "access_token": accessToken,
+                "refresh_token": refreshToken
+              }
+          ).catchError((error, stackTrace) {
+            return handler.reject(error, true);
+          });
+
+          LoginResponse loginResponse = LoginResponse.fromJson(response.data);
+          accessToken = loginResponse.getAccessToken();
+          if (loginResponse.getResult()) {
+            successfulLogin(null, loginResponse.getAccessToken(),
+                loginResponse.getRefreshToken());
+          } else {
+            DioError dioError = DioError(requestOptions: options, type: DioErrorType.cancel, error: "User not authorized");
+            return handler.reject(dioError, true);
+          }
+        }
+      }
+
+      options.headers['Authorization'] = 'Bearer: $accessToken';
     }
 
     return handler.next(options);

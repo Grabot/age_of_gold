@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
-
 import '../age_of_gold.dart';
 import 'login_screen.dart';
-import 'app_bar.dart';
 
 
 class HomePage extends StatefulWidget {
 
-  static const String route = '/';
   final AgeOfGold game;
   final LoginScreen loginScreen;
 

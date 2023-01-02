@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'package:age_of_gold/locator.dart';
 import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/user_interface/chat_box.dart';
+import 'package:age_of_gold/util/navigation_service.dart';
 import 'package:age_of_gold/views/login_screen.dart';
 import 'package:age_of_gold/user_interface/tile_box.dart';
-import 'package:age_of_gold/views/game_page.dart';
+import 'package:age_of_gold/constants/route_paths.dart' as routes;
 import 'package:age_of_gold/views/home_page.dart';
 import 'package:age_of_gold/views/world_access_page.dart';
 import 'package:flame/flame.dart';
@@ -16,6 +18,7 @@ import 'age_of_gold.dart';
 
 Future<void> main() async {
   setPathUrlStrategy();
+  setupLocator();
   WidgetsFlutterBinding.ensureInitialized();
 
   // initialize the settings singleton
@@ -48,6 +51,7 @@ Future<void> main() async {
 
   runApp(
       MaterialApp(
+      navigatorKey: locator<NavigationService>().navigatorKey,
       theme: ThemeData(
         // Define the default brightness and colors.
         brightness: Brightness.dark,
@@ -57,18 +61,37 @@ Future<void> main() async {
       ),
       initialRoute: '/',
       routes: {
-        HomePage.route: (context) => home,
-        WorldAccess.route: (context) => worldAccess,
+        routes.HomeRoute: (context) => home,
+        routes.WorldAccessRoute: (context) => worldAccess,
         "/world": (context) => gameWidget,
       },
       onGenerateRoute: (settings) {
-        // URI test
-        if (settings.name != null && settings.name!.startsWith(WorldAccess.route)) {
+        print("on generate rout thingie");
+        if (settings.name != null && settings.name!.startsWith(routes.WorldAccessRoute)) {
           return MaterialPageRoute(
               builder: (context) {
                 return worldAccess;
               }
           );
+        }
+        switch (settings.name) {
+          case routes.HomeRoute:
+            print("case home");
+            return MaterialPageRoute(
+                builder: (context) => home);
+          case routes.GameRoute:
+            print("case game");
+            return MaterialPageRoute(builder: (context) => gameWidget);
+          default:
+            print("case default");
+            return MaterialPageRoute(
+              builder: (context) =>
+                  Scaffold(
+                    body: Center(
+                      child: Text('No path for ${settings.name}'),
+                    ),
+                  ),
+            );
         }
       },
     )

@@ -1,6 +1,6 @@
-import 'package:age_of_gold/services/auth.dart';
-import 'package:age_of_gold/services/cookie_manager.dart';
+import 'package:age_of_gold/locator.dart';
 import 'package:age_of_gold/services/models/login_request.dart';
+import 'package:age_of_gold/util/navigation_service.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -10,6 +10,8 @@ import '../services/auth_service.dart';
 import '../services/models/register_request.dart';
 import '../services/settings.dart';
 import '../util/util.dart';
+import '../util/web_storage.dart';
+import 'package:age_of_gold/constants/route_paths.dart' as routes;
 
 
 class LoginScreen extends StatefulWidget {
@@ -27,6 +29,8 @@ class LoginScreen extends StatefulWidget {
 
 class LoginScreenState extends State<LoginScreen> {
 
+  final NavigationService _navigationService = locator<NavigationService>();
+
   bool visible = true;
 
   final formKeyLogin = GlobalKey<FormState>();
@@ -38,28 +42,25 @@ class LoginScreenState extends State<LoginScreen> {
   TextEditingController password1Controller = new TextEditingController();
   TextEditingController password2Controller = new TextEditingController();
 
-  // TODO: Keep using this for android and ios?
-  // final SecureStorage _secureStorage = SecureStorage();
+  final SecureStorage _secureStorage = SecureStorage();
 
   @override
   void initState() {
     print("login screen");
     WidgetsFlutterBinding.ensureInitialized();
-    CookieManager.instance.initCookie();
     super.initState();
-    // TODO: Change accesstoken to the cookie thing?
-    // _secureStorage.getAccessToken().then((accessToken) {
-    //   if (accessToken != null && accessToken != "") {
-    //     // Something is stored, check if the user can just log in automatically
-    //     tokenLogin(accessToken).then((value) {
-    //       if (value == "success") {
-    //         print("it was a success");
-    //         // If the access token was still good we go straight to the world.
-    //         Navigator.pushNamed(context, "/world");
-    //       }
-    //     });
-    //   }
-    // });
+    _secureStorage.getAccessToken().then((accessToken) {
+        if (accessToken != null && accessToken != "") {
+          // TODO: Fix token login
+            // Something is stored, check if the user can just log in automatically
+        //   tokenLogin(accessToken).then((value) {
+        //     if (value == "success") {
+        //       print("it was a success");
+        //       // If the access token was still good we go straight to the world.
+        //     }
+        // });
+      }
+    });
   }
 
   @override
@@ -110,7 +111,8 @@ class LoginScreenState extends State<LoginScreen> {
       AuthService authService = AuthService();
       authService.getLogin(LoginRequest(emailOrUserName, password)).then((loginResponse) {
         if (loginResponse.getResult()) {
-          Navigator.pushNamed(context, "/world");
+          print("signing in");
+          _navigationService.navigateTo(routes.GameRoute);
         } else if (!loginResponse.getResult()) {
           showToast(loginResponse.getMessage());
         }
@@ -126,7 +128,8 @@ class LoginScreenState extends State<LoginScreen> {
       AuthService authService = AuthService();
       authService.getRegister(RegisterRequest(email, userName, password)).then((loginResponse) {
         if (loginResponse.getResult()) {
-          Navigator.pushNamed(context, "/world");
+          print("signing up");
+          _navigationService.navigateTo(routes.GameRoute);
         } else if (!loginResponse.getResult()) {
           showToast(loginResponse.getMessage());
         }

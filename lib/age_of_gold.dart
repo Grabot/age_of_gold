@@ -1,8 +1,11 @@
-import 'dart:math';
+import 'package:age_of_gold/constants/route_paths.dart' as routes;
+import 'package:age_of_gold/locator.dart';
+import 'package:age_of_gold/services/auth_service.dart';
 import 'package:age_of_gold/services/models/user.dart';
 import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/util/global.dart';
 import 'package:age_of_gold/services/socket_services.dart';
+import 'package:age_of_gold/util/navigation_service.dart';
 import 'package:age_of_gold/util/tapped_map.dart';
 import 'package:age_of_gold/util/util.dart';
 import 'package:flutter/material.dart';
@@ -22,6 +25,8 @@ class AgeOfGold extends FlameGame
         ScrollDetector,
         MouseMovementDetector,
         KeyboardEvents {
+
+  final NavigationService _navigationService = locator<NavigationService>();
 
   FocusNode gameFocus;
   AgeOfGold(this.gameFocus);
@@ -352,6 +357,19 @@ class AgeOfGold extends FlameGame
         socket!.setUser(0, userName);
       }
 
+      if (event.logicalKey == LogicalKeyboardKey.keyI && isKeyDown) {
+        AuthService authService = AuthService();
+        authService.getTest().then((loginResponse) {
+          if (loginResponse.getResult()) {
+            print("it worked");
+          } else if (!loginResponse.getResult()) {
+            print("it failed");
+          }
+        }).onError((error, stackTrace) {
+          print("BIG ERROR! Going straight back to the login screen");
+          _navigationService.navigateTo(routes.HomeRoute);
+        });
+      }
       return KeyEventResult.handled;
     }
   }

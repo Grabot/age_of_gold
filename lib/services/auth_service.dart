@@ -2,12 +2,10 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:age_of_gold/services/models/login_response.dart';
 import 'package:age_of_gold/services/models/register_request.dart';
-import 'package:age_of_gold/services/settings.dart';
 import 'package:dio/dio.dart';
-import '../util/web_storage.dart';
+import '../util/util.dart';
 import 'auth_api.dart';
 import 'models/login_request.dart';
-import 'models/user.dart';
 
 
 class AuthService {
@@ -57,45 +55,24 @@ class AuthService {
     return loginResponse;
   }
 
-  Future<LoginResponse> refreshAccessToken(String refreshToken) async {
+  Future<LoginResponse> getTest() async {
 
     AuthApi().dio.options.extra['withCredentials'] = true;
 
-    String endPoint = "refresh";
+    String endPoint = "test";
     var response = await AuthApi().dio.post(endPoint,
         options: Options(headers: {
           HttpHeaders.contentTypeHeader: "application/json",
         }),
         data: jsonEncode(<String, String>{
-
         }
       )
     );
 
     LoginResponse loginResponse = LoginResponse.fromJson(response.data);
     if (loginResponse.getResult()) {
-      successfulLogin(loginResponse.getUser(), loginResponse.getAccessToken(),
-          loginResponse.getRefreshToken());
+      print("test endpoint was positive");
     }
     return loginResponse;
-  }
-
-  successfulLogin(User? user, String? accessToken, String? refreshToken) {
-    // TODO: Only do this with Android or IOS?
-    SecureStorage secureStorage = SecureStorage();
-
-    Settings settings = Settings();
-
-    if (accessToken != null) {
-      settings.setAccessToken(accessToken);
-      secureStorage.setAccessToken(accessToken);
-    }
-    if (refreshToken != null) {
-      settings.setRefreshToken(refreshToken);
-    }
-    if (user != null) {
-      settings.setUser(user);
-    }
-
   }
 }

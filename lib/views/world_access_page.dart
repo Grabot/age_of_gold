@@ -8,7 +8,6 @@ import 'app_bar.dart';
 
 class WorldAccess extends StatefulWidget {
 
-  static const String route = '/worldaccess';
   final AgeOfGold game;
 
   const WorldAccess({

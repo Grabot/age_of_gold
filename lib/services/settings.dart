@@ -7,6 +7,7 @@ class Settings {
 
   String accessToken = "";
   String refreshToken = "";
+  int accessTokenExpiration = 0;
 
   User? user;
 
@@ -38,5 +39,13 @@ class Settings {
 
   User? getUser() {
     return user;
+  }
+
+  setAccessTokenExpiration(int accessTokenExpiration) {
+    this.accessTokenExpiration = accessTokenExpiration;
+  }
+
+  int getAccessTokenExpiration() {
+    return accessTokenExpiration;
   }
 }
