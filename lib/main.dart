@@ -51,6 +51,7 @@ Future<void> main() async {
 
   runApp(
       MaterialApp(
+      title: "Age of Gold",
       navigatorKey: locator<NavigationService>().navigatorKey,
       theme: ThemeData(
         // Define the default brightness and colors.

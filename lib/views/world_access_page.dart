@@ -1,9 +1,11 @@
+import 'package:age_of_gold/locator.dart';
+import 'package:age_of_gold/services/auth_service.dart';
+import 'package:age_of_gold/services/models/refresh_request.dart';
+import 'package:age_of_gold/util/navigation_service.dart';
 import 'package:flutter/material.dart';
 import '../age_of_gold.dart';
-import '../services/auth.dart';
-import '../services/settings.dart';
+import 'package:age_of_gold/constants/route_paths.dart' as routes;
 import 'package:flutter/scheduler.dart';
-import 'app_bar.dart';
 
 
 class WorldAccess extends StatefulWidget {
@@ -21,6 +23,8 @@ class WorldAccess extends StatefulWidget {
 
 class _WorldAccessState extends State<WorldAccess> {
 
+  final NavigationService _navigationService = locator<NavigationService>();
+
   @override
   void initState() {
     super.initState();
@@ -33,19 +37,20 @@ class _WorldAccessState extends State<WorldAccess> {
     print("refresh token: $refreshToken");
     // Use the tokens to immediately refresh the access token
     if (accessToken != null && refreshToken != null) {
-    //   refreshAccessToken(accessToken, refreshToken, true).then((value) {
-    //     if (value == "success") {
-    //       print("it was a success");
-    //       Navigator.pushNamed(context, "/world");
-    //     } else {
-    //       print("it failed");
-    //       Navigator.of(context).pushNamed("/");
-    //     }
-    //   });
-    // } else {
-    //   SchedulerBinding.instance.addPostFrameCallback((_) {
-    //     Navigator.of(context).pushNamed("/");
-    //   });
+      AuthService authService = AuthService();
+      authService.getRefresh(RefreshRequest(accessToken, refreshToken)).then((loginResponse) {
+        if (loginResponse.getResult()) {
+          print("it was a success");
+          _navigationService.navigateTo(routes.GameRoute);
+        } else {
+          print("it failed");
+          _navigationService.navigateTo(routes.HomeRoute);
+        }
+      });
+    } else {
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        _navigationService.navigateTo(routes.HomeRoute);
+      });
     }
   }
 

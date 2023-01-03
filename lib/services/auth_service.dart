@@ -6,6 +6,7 @@ import 'package:dio/dio.dart';
 import '../util/util.dart';
 import 'auth_api.dart';
 import 'models/login_request.dart';
+import 'models/refresh_request.dart';
 
 
 class AuthService {
@@ -45,6 +46,26 @@ class AuthService {
           HttpHeaders.contentTypeHeader: "application/json",
         }),
         data: registerRequest.toJson()
+    );
+
+    LoginResponse loginResponse = LoginResponse.fromJson(response.data);
+    if (loginResponse.getResult()) {
+      successfulLogin(loginResponse.getUser(), loginResponse.getAccessToken(),
+          loginResponse.getRefreshToken());
+    }
+    return loginResponse;
+  }
+
+  Future<LoginResponse> getRefresh(RefreshRequest refreshRequest) async {
+
+    AuthApi().dio.options.extra['withCredentials'] = true;
+
+    String endPoint = "refresh";
+    var response = await AuthApi().dio.post(endPoint,
+        options: Options(headers: {
+          HttpHeaders.contentTypeHeader: "application/json",
+        }),
+        data: refreshRequest.toJson()
     );
 
     LoginResponse loginResponse = LoginResponse.fromJson(response.data);
