@@ -42,20 +42,26 @@ class AppInterceptors extends Interceptor {
   @override
   void onRequest(
       RequestOptions options, RequestInterceptorHandler handler) async {
+    Settings settings = Settings();
+    int expiration = settings.getAccessTokenExpiration();
+    if (expiration == 0) {
+      // Just continue the request since it probably was a refresh
+      return handler.next(options);
+    }
 
     String? accessToken = await SecureStorage().getAccessToken();
 
     if (accessToken != null) {
       int current = (DateTime.now().millisecondsSinceEpoch/1000).round();
-      Settings settings = Settings();
-      int expiration = settings.getAccessTokenExpiration();
 
       if ((expiration - current) < 60) {
-
-        String? refreshToken = settings.getRefreshToken();
+        // We see that the access token is almost expired. We should refresh it.
+        String refreshToken = settings.getRefreshToken();
 
         if (refreshToken == "") {
-
+          // We don't have a refresh token. We should log the user out.
+          DioError dioError = DioError(requestOptions: options, type: DioErrorType.cancel, error: "User not authorized");
+          return handler.reject(dioError, true);
         } else {
           String endPoint = "refresh";
           var response = await Dio(
@@ -77,11 +83,10 @@ class AppInterceptors extends Interceptor {
             return handler.reject(error, true);
           });
 
-          LoginResponse loginResponse = LoginResponse.fromJson(response.data);
-          accessToken = loginResponse.getAccessToken();
-          if (loginResponse.getResult()) {
-            successfulLogin(null, loginResponse.getAccessToken(),
-                loginResponse.getRefreshToken());
+          LoginResponse loginRefresh = LoginResponse.fromJson(response.data);
+          if (loginRefresh.getResult()) {
+            accessToken = loginRefresh.getAccessToken();
+            successfulLogin(loginRefresh);
           } else {
             DioError dioError = DioError(requestOptions: options, type: DioErrorType.cancel, error: "User not authorized");
             return handler.reject(dioError, true);
@@ -103,6 +108,9 @@ class AppInterceptors extends Interceptor {
       case DioErrorType.receiveTimeout:
         throw DeadlineExceededException(err.requestOptions);
       case DioErrorType.response:
+        if (err.response == null) {
+          throw BadRequestException(err.requestOptions);
+        }
         switch (err.response?.statusCode) {
           case 400:
             throw BadRequestException(err.requestOptions);
@@ -117,7 +125,7 @@ class AppInterceptors extends Interceptor {
         }
         break;
       case DioErrorType.cancel:
-        break;
+        throw BadRequestException(err.requestOptions);
       case DioErrorType.other:
         throw NoInternetConnectionException(err.requestOptions);
     }

@@ -42,25 +42,10 @@ class LoginScreenState extends State<LoginScreen> {
   TextEditingController password1Controller = new TextEditingController();
   TextEditingController password2Controller = new TextEditingController();
 
-  final SecureStorage _secureStorage = SecureStorage();
-
   @override
   void initState() {
     print("login screen");
-    WidgetsFlutterBinding.ensureInitialized();
     super.initState();
-    _secureStorage.getAccessToken().then((accessToken) {
-        if (accessToken != null && accessToken != "") {
-          // TODO: Fix token login
-            // Something is stored, check if the user can just log in automatically
-        //   tokenLogin(accessToken).then((value) {
-        //     if (value == "success") {
-        //       print("it was a success");
-        //       // If the access token was still good we go straight to the world.
-        //     }
-        // });
-      }
-    });
   }
 
   @override
@@ -90,17 +75,6 @@ class LoginScreenState extends State<LoginScreen> {
         enabledBorder: const UnderlineInputBorder(
           borderSide: BorderSide(color: Colors.white54),
         ));
-  }
-
-  showToast(String message) {
-    Fluttertoast.showToast(
-        msg: message,
-        toastLength: Toast.LENGTH_SHORT,
-        webPosition: "center",
-        gravity: ToastGravity.CENTER,
-        timeInSecForIosWeb: 2,
-        fontSize: 24.0
-    );
   }
 
   signInAgeOfGold() {

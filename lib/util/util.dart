@@ -1,6 +1,8 @@
 import 'dart:math';
+import 'package:age_of_gold/services/models/login_response.dart';
 import 'package:age_of_gold/util/web_storage.dart';
 import 'package:flame/components.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import '../services/models/user.dart';
 import '../services/settings.dart';
@@ -83,23 +85,37 @@ bool emailValid(String possibleEmail) {
       .hasMatch(possibleEmail);
 }
 
-successfulLogin(User? user, String? accessToken, String? refreshToken) {
+successfulLogin(LoginResponse loginResponse) {
   SecureStorage secureStorage = SecureStorage();
-
   Settings settings = Settings();
 
+  String? accessToken = loginResponse.getAccessToken();
   if (accessToken != null) {
     // the access token will be set in memory and local storage.
     settings.setAccessToken(accessToken);
     secureStorage.setAccessToken(accessToken);
     settings.setAccessTokenExpiration(Jwt.parseJwt(accessToken)['exp']);
   }
+
+  String? refreshToken = loginResponse.getRefreshToken();
   if (refreshToken != null) {
     // the refresh token will only be set in memory.
     settings.setRefreshToken(refreshToken);
   }
+
+  User? user = loginResponse.getUser();
   if (user != null) {
     settings.setUser(user);
   }
+}
 
+showToast(String message) {
+  Fluttertoast.showToast(
+      msg: message,
+      toastLength: Toast.LENGTH_SHORT,
+      webPosition: "center",
+      gravity: ToastGravity.CENTER,
+      timeInSecForIosWeb: 2,
+      fontSize: 24.0
+  );
 }

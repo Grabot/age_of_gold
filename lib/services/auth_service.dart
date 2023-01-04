@@ -30,8 +30,7 @@ class AuthService {
 
     LoginResponse loginResponse = LoginResponse.fromJson(response.data);
     if (loginResponse.getResult()) {
-      successfulLogin(loginResponse.getUser(), loginResponse.getAccessToken(),
-          loginResponse.getRefreshToken());
+      successfulLogin(loginResponse);
     }
     return loginResponse;
   }
@@ -50,8 +49,7 @@ class AuthService {
 
     LoginResponse loginResponse = LoginResponse.fromJson(response.data);
     if (loginResponse.getResult()) {
-      successfulLogin(loginResponse.getUser(), loginResponse.getAccessToken(),
-          loginResponse.getRefreshToken());
+      successfulLogin(loginResponse);
     }
     return loginResponse;
   }
@@ -70,8 +68,29 @@ class AuthService {
 
     LoginResponse loginResponse = LoginResponse.fromJson(response.data);
     if (loginResponse.getResult()) {
-      successfulLogin(loginResponse.getUser(), loginResponse.getAccessToken(),
-          loginResponse.getRefreshToken());
+      successfulLogin(loginResponse);
+    }
+    return loginResponse;
+  }
+
+  Future<LoginResponse> getTokenLogin(String accessToken) async {
+
+    AuthApi().dio.options.extra['withCredentials'] = true;
+
+    String endPoint = "login/token";
+    var response = await AuthApi().dio.post(endPoint,
+        options: Options(headers: {
+          HttpHeaders.contentTypeHeader: "application/json",
+        }),
+        data: jsonEncode(<String, String> {
+          "access_token": accessToken
+        }
+      )
+    );
+
+    LoginResponse loginResponse = LoginResponse.fromJson(response.data);
+    if (loginResponse.getResult()) {
+      successfulLogin(loginResponse);
     }
     return loginResponse;
   }
