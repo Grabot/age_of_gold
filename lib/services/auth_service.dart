@@ -12,9 +12,9 @@ import 'models/refresh_request.dart';
 class AuthService {
   static AuthService? _instance;
 
-  factory AuthService() => _instance ??= AuthService._();
+  factory AuthService() => _instance ??= AuthService._internal();
 
-  AuthService._();
+  AuthService._internal();
 
   Future<LoginResponse> getLogin(LoginRequest loginRequest) async {
 

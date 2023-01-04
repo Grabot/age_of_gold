@@ -3,7 +3,7 @@ import 'package:age_of_gold/util/render_hexagons.dart';
 import 'package:age_of_gold/util/tapped_map.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
-import '../user_interface/selected_tile_info.dart';
+import '../user_interface/user_interface_util/selected_tile_info.dart';
 import '../util/global.dart';
 import '../util/hexagon_list.dart';
 import '../util/selected_tile.dart';

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:age_of_gold/locator.dart';
 import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/user_interface/chat_box.dart';
+import 'package:age_of_gold/user_interface/user_profile.dart';
 import 'package:age_of_gold/util/navigation_service.dart';
 import 'package:age_of_gold/views/login_screen.dart';
 import 'package:age_of_gold/user_interface/tile_box.dart';
@@ -36,11 +37,13 @@ Future<void> main() async {
         game: game,
         overlayBuilderMap: const {
           'chatBox': _chatBoxBuilder,
-          'tileBox': _tileBoxBuilder
+          'tileBox': _tileBoxBuilder,
+          'userProfile': _userProfileBuilder
         },
         initialActiveOverlays: const [
           'chatBox',
-          'tileBox'
+          'tileBox',
+          'userProfile'
         ],
       )
   );
@@ -105,4 +108,8 @@ Widget _chatBoxBuilder(BuildContext buildContext, AgeOfGold game) {
 
 Widget _tileBoxBuilder(BuildContext buildContext, AgeOfGold game) {
   return TileBox(key: UniqueKey(), game: game);
+}
+
+Widget _userProfileBuilder(BuildContext buildContext, AgeOfGold game) {
+  return UserProfile(key: UniqueKey(), game: game);
 }

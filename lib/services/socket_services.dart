@@ -29,7 +29,7 @@ import '../component/type/tile_web_orange.dart';
 import '../component/type/tile_white.dart';
 import '../component/type/tile_wild_strawberry.dart';
 import '../constants/url_base.dart';
-import '../user_interface/chat_messages.dart';
+import '../user_interface/user_interface_components/chat_messages.dart';
 import '../util/hexagon_list.dart';
 
 

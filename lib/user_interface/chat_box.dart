@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../age_of_gold.dart';
 import '../services/socket_services.dart';
-import 'chat_messages.dart';
+import 'user_interface_components/chat_messages.dart';
 import 'user_interface_components/message.dart';
 import 'package:intl/intl.dart';
 
@@ -23,6 +23,8 @@ class ChatBoxState extends State<ChatBox> {
 
   final FocusNode _focusChatBox = FocusNode();
   var messageScrollController = ScrollController();
+
+  final GlobalKey<FormState> _chatFormKey = GlobalKey<FormState>();
 
   TextEditingController chatFieldController = TextEditingController();
 
@@ -118,8 +120,10 @@ class ChatBoxState extends State<ChatBox> {
   }
 
   sendMessage(String message) {
-    socket.sendMessage(message);
-    chatFieldController.text = "";
+    if (_chatFormKey.currentState!.validate()) {
+      socket.sendMessage(message);
+      chatFieldController.text = "";
+    }
   }
 
   Widget chatBoxTextField() {
@@ -129,26 +133,29 @@ class ChatBoxState extends State<ChatBox> {
             SizedBox(
               width: chatBoxWidth - 35,
               height: 50,
-              child: TextFormField(
-                validator: (val) {
-                  if (val == null ||
-                      val.isEmpty ||
-                      val
-                          .trimRight()
-                          .isEmpty) {
-                    return "Can't send an empty message";
-                  }
-                  return null;
-                },
-                onFieldSubmitted: (value) {
-                  sendMessage(value);
-                },
-                keyboardType: TextInputType.multiline,
-                focusNode: _focusChatBox,
-                controller: chatFieldController,
-                decoration: const InputDecoration(
-                  border: UnderlineInputBorder(),
-                  labelText: 'Type your message',
+              child: Form(
+                key: _chatFormKey,
+                child: TextFormField(
+                  validator: (val) {
+                    if (val == null ||
+                        val.isEmpty ||
+                        val
+                            .trimRight()
+                            .isEmpty) {
+                      return "Can't send an empty message";
+                    }
+                    return null;
+                  },
+                  onFieldSubmitted: (value) {
+                    sendMessage(value);
+                  },
+                  keyboardType: TextInputType.multiline,
+                  focusNode: _focusChatBox,
+                  controller: chatFieldController,
+                  decoration: const InputDecoration(
+                    border: UnderlineInputBorder(),
+                    labelText: 'Type your message',
+                  ),
                 ),
               ),
             ),

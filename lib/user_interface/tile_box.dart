@@ -1,4 +1,4 @@
-import 'package:age_of_gold/user_interface/selected_tile_info.dart';
+import 'package:age_of_gold/user_interface/user_interface_util/selected_tile_info.dart';
 import 'package:flutter/material.dart';
 import '../age_of_gold.dart';
 import '../services/socket_services.dart';
