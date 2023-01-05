@@ -28,40 +28,42 @@ class _HomePageState extends State<HomePage> {
 
   final NavigationService _navigationService = locator<NavigationService>();
 
-  final SecureStorage _secureStorage = SecureStorage();
   bool showLogin = false;
 
   @override
   void initState() {
-    print("home screen");
-    WidgetsFlutterBinding.ensureInitialized();
-    _secureStorage.getAccessToken().then((accessToken) {
-      if (accessToken != null && accessToken != "") {
-        // Something is stored, check if the user can just
-        // log in automatically using the access token
-        AuthService authService = AuthService();
-        authService.getTokenLogin(accessToken).then((loginResponse) {
-          if (loginResponse.getResult()) {
-            print("access token still valid!");
-            _navigationService.navigateTo(routes.GameRoute);
-          } else if (!loginResponse.getResult()) {
-            print("access token login debug: ${loginResponse.getMessage()}");
+    String path = Uri.base.path;
+    if (path == "/") {
+      WidgetsFlutterBinding.ensureInitialized();
+      SecureStorage _secureStorage = SecureStorage();
+      _secureStorage.getAccessToken().then((accessToken) {
+        if (accessToken != null && accessToken != "") {
+          // Something is stored, check if the user can just
+          // log in automatically using the access token
+          AuthService authService = AuthService();
+          authService.getTokenLogin(accessToken).then((loginResponse) {
+            if (loginResponse.getResult()) {
+              print("access token still valid!");
+              _navigationService.navigateTo(routes.GameRoute);
+            } else if (!loginResponse.getResult()) {
+              print("access token login debug: ${loginResponse.getMessage()}");
+              setState(() {
+                showLogin = true;
+              });
+            }
+          }).onError((error, stackTrace) {
+            showToast(error.toString());
             setState(() {
               showLogin = true;
             });
-          }
-        }).onError((error, stackTrace) {
-          showToast(error.toString());
+          });
+        } else {
           setState(() {
             showLogin = true;
           });
-        });
-      } else {
-        setState(() {
-          showLogin = true;
-        });
-      }
-    });
+        }
+      });
+    }
     super.initState();
   }
 

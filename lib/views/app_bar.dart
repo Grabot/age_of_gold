@@ -1,8 +1,9 @@
-
-
+import 'package:age_of_gold/util/navigation_service.dart';
 import 'package:flutter/material.dart';
+import 'package:age_of_gold/constants/route_paths.dart' as routes;
 
-AppBar appBarAgeOfGold() {
+
+AppBar appBarAgeOfGold(NavigationService _navigationService) {
   return AppBar(
     toolbarHeight: 80,
     title: const Text('Age of gold'),
@@ -21,6 +22,7 @@ AppBar appBarAgeOfGold() {
                 icon: const Icon(Icons.account_circle_rounded),
                 onPressed: () {
                   print("pressed this");
+                  _navigationService.navigateTo(routes.ProfileRoute);
                 },
               ),
               const Text("not logged in")

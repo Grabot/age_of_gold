@@ -29,10 +29,12 @@ class _WorldAccessState extends State<WorldAccess> {
   void initState() {
     super.initState();
     String baseUrl = Uri.base.toString();
+    String path = Uri.base.path;
     String? accessToken = Uri.base.queryParameters["access_token"];
     String? refreshToken = Uri.base.queryParameters["refresh_token"];
 
     print("base: $baseUrl");
+    print("path: $path");
     print("access token: $accessToken");
     print("refresh token: $refreshToken");
     // Use the tokens to immediately refresh the access token

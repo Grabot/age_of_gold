@@ -2,18 +2,18 @@ import 'dart:async';
 import 'package:age_of_gold/locator.dart';
 import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/user_interface/chat_box.dart';
-import 'package:age_of_gold/user_interface/user_profile.dart';
 import 'package:age_of_gold/util/navigation_service.dart';
+import 'package:age_of_gold/views/app_bar.dart';
 import 'package:age_of_gold/views/login_screen.dart';
 import 'package:age_of_gold/user_interface/tile_box.dart';
 import 'package:age_of_gold/constants/route_paths.dart' as routes;
 import 'package:age_of_gold/views/home_page.dart';
+import 'package:age_of_gold/views/profile_page.dart';
 import 'package:age_of_gold/views/world_access_page.dart';
 import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:url_strategy/url_strategy.dart';
-
 import 'age_of_gold.dart';
 
 
@@ -21,6 +21,7 @@ Future<void> main() async {
   setPathUrlStrategy();
   setupLocator();
   WidgetsFlutterBinding.ensureInitialized();
+  final NavigationService _navigationService = locator<NavigationService>();
 
   // initialize the settings singleton
   Settings();
@@ -31,19 +32,17 @@ Future<void> main() async {
   final game = AgeOfGold(gameFocus);
 
   Widget gameWidget = Scaffold(
-    // appBar: appBarAgeOfGold(),
+      appBar: appBarAgeOfGold(_navigationService),
       body: GameWidget(
         focusNode: gameFocus,
         game: game,
         overlayBuilderMap: const {
           'chatBox': _chatBoxBuilder,
-          'tileBox': _tileBoxBuilder,
-          'userProfile': _userProfileBuilder
+          'tileBox': _tileBoxBuilder
         },
         initialActiveOverlays: const [
           'chatBox',
-          'tileBox',
-          'userProfile'
+          'tileBox'
         ],
       )
   );
@@ -51,6 +50,7 @@ Future<void> main() async {
   LoginScreen loginScreen = LoginScreen(key: UniqueKey(), game: game);
   Widget home = HomePage(key: UniqueKey(), game: game, loginScreen: loginScreen);
   Widget worldAccess = WorldAccess(key: UniqueKey(), game: game);
+  Widget profile = ProfilePage(key: UniqueKey(), game: game);
 
   runApp(
       MaterialApp(
@@ -67,36 +67,10 @@ Future<void> main() async {
       routes: {
         routes.HomeRoute: (context) => home,
         routes.WorldAccessRoute: (context) => worldAccess,
+        routes.ProfileRoute: (context) => profile,
         "/world": (context) => gameWidget,
       },
       onGenerateRoute: (settings) {
-        print("on generate rout thingie");
-        if (settings.name != null && settings.name!.startsWith(routes.WorldAccessRoute)) {
-          return MaterialPageRoute(
-              builder: (context) {
-                return worldAccess;
-              }
-          );
-        }
-        switch (settings.name) {
-          case routes.HomeRoute:
-            print("case home");
-            return MaterialPageRoute(
-                builder: (context) => home);
-          case routes.GameRoute:
-            print("case game");
-            return MaterialPageRoute(builder: (context) => gameWidget);
-          default:
-            print("case default");
-            return MaterialPageRoute(
-              builder: (context) =>
-                  Scaffold(
-                    body: Center(
-                      child: Text('No path for ${settings.name}'),
-                    ),
-                  ),
-            );
-        }
       },
     )
   );
@@ -108,8 +82,4 @@ Widget _chatBoxBuilder(BuildContext buildContext, AgeOfGold game) {
 
 Widget _tileBoxBuilder(BuildContext buildContext, AgeOfGold game) {
   return TileBox(key: UniqueKey(), game: game);
-}
-
-Widget _userProfileBuilder(BuildContext buildContext, AgeOfGold game) {
-  return UserProfile(key: UniqueKey(), game: game);
 }
