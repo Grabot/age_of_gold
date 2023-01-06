@@ -22,7 +22,6 @@ Future<void> main() async {
   setPathUrlStrategy();
   setupLocator();
   WidgetsFlutterBinding.ensureInitialized();
-  final NavigationService _navigationService = locator<NavigationService>();
 
   // initialize the settings singleton
   Settings();
@@ -33,7 +32,7 @@ Future<void> main() async {
   final game = AgeOfGold(gameFocus);
 
   Widget gameWidget = Scaffold(
-      appBar: appBarAgeOfGold(_navigationService),
+      // appBar: appBarAgeOfGold(),
       body: GameWidget(
         focusNode: gameFocus,
         game: game,
@@ -61,7 +60,7 @@ Future<void> main() async {
           theme: ThemeData(
             // Define the default brightness and colors.
             brightness: Brightness.dark,
-            primaryColor: Colors.lightBlue[800],
+            primaryColor: Colors.lightBlue,
             // Define the default font family.
             fontFamily: 'Georgia',
           ),
@@ -70,9 +69,10 @@ Future<void> main() async {
             routes.HomeRoute: (context) => home,
             routes.WorldAccessRoute: (context) => worldAccess,
             routes.ProfileRoute: (context) => profile,
-            "/world": (context) => gameWidget,
+            routes.GameRoute: (context) => gameWidget,
           },
           onGenerateRoute: (settings) {
+            return null;
           },
         ),
       )

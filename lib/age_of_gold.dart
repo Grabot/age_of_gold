@@ -72,7 +72,7 @@ class AgeOfGold extends FlameGame
   );
 
   List<String> randomNames = ["Max", "Nanne", "Chris", "Steve", "Harry", "Whazor", "Tessa"];
-  late String userName;
+  String userName = "";
 
   SocketServices? socket;
 
@@ -108,6 +108,7 @@ class AgeOfGold extends FlameGame
   }
 
   socketListener() {
+
   }
 
   chatBoxFocus(bool chatFocus) {
@@ -370,6 +371,11 @@ class AgeOfGold extends FlameGame
           _navigationService.navigateTo(routes.HomeRoute);
         });
       }
+
+      if (event.logicalKey == LogicalKeyboardKey.keyP && isKeyDown) {
+        _navigationService.navigateToPush(routes.ProfileRoute);
+      }
+
       return KeyEventResult.handled;
     }
   }

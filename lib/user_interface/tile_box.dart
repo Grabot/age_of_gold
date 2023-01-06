@@ -182,20 +182,34 @@ class TileBoxState extends State<TileBox> {
     } else {
       tileBoxWidth = 350;
     }
+
+    bool showTileDetail = false;
+    if (selectedTileInfo.selectedTile != null) {
+      showTileDetail = true;
+    }
     return Align(
       alignment: FractionalOffset.topRight,
-      child: selectedTileInfo.selectedTile != null ? Container(
-        width: tileBoxWidth,
-        height: 200,
-        color: Colors.orange,
-        child: Column(
-          children: [
-            currentTileWindow(),
-            const SizedBox(height: 10),
-            dropdownThing()
-          ]
-        ),
-      ) : Container(),
+      child: Column(
+        children: [
+          Container(
+            width: tileBoxWidth,
+            height: 50,
+            color: Colors.black,
+          ),
+          Container(
+            width: tileBoxWidth,
+            height: showTileDetail ? 200 : 0,
+            color: Colors.orange,
+            child: Column(
+                children: [
+                  currentTileWindow(),
+                  const SizedBox(height: 10),
+                  dropdownThing()
+                ]
+            ),
+          )
+        ],
+      ),
     );
   }
 

@@ -19,4 +19,9 @@ class User {
   User.fromJson(Map<String, dynamic> json) {
     userName = json["username"];
   }
+
+  @override
+  String toString() {
+    return 'User{userName: $userName}';
+  }
 }
