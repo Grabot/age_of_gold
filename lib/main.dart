@@ -13,6 +13,7 @@ import 'package:age_of_gold/views/world_access_page.dart';
 import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
+import 'package:oktoast/oktoast.dart';
 import 'package:url_strategy/url_strategy.dart';
 import 'age_of_gold.dart';
 
@@ -53,26 +54,28 @@ Future<void> main() async {
   Widget profile = ProfilePage(key: UniqueKey(), game: game);
 
   runApp(
-      MaterialApp(
-      title: "Age of Gold",
-      navigatorKey: locator<NavigationService>().navigatorKey,
-      theme: ThemeData(
-        // Define the default brightness and colors.
-        brightness: Brightness.dark,
-        primaryColor: Colors.lightBlue[800],
-        // Define the default font family.
-        fontFamily: 'Georgia',
-      ),
-      initialRoute: '/',
-      routes: {
-        routes.HomeRoute: (context) => home,
-        routes.WorldAccessRoute: (context) => worldAccess,
-        routes.ProfileRoute: (context) => profile,
-        "/world": (context) => gameWidget,
-      },
-      onGenerateRoute: (settings) {
-      },
-    )
+      OKToast(
+        child: MaterialApp(
+          title: "Age of Gold",
+          navigatorKey: locator<NavigationService>().navigatorKey,
+          theme: ThemeData(
+            // Define the default brightness and colors.
+            brightness: Brightness.dark,
+            primaryColor: Colors.lightBlue[800],
+            // Define the default font family.
+            fontFamily: 'Georgia',
+          ),
+          initialRoute: '/',
+          routes: {
+            routes.HomeRoute: (context) => home,
+            routes.WorldAccessRoute: (context) => worldAccess,
+            routes.ProfileRoute: (context) => profile,
+            "/world": (context) => gameWidget,
+          },
+          onGenerateRoute: (settings) {
+          },
+        ),
+      )
   );
 }
 

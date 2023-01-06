@@ -2,7 +2,8 @@ import 'dart:math';
 import 'package:age_of_gold/services/models/login_response.dart';
 import 'package:age_of_gold/util/web_storage.dart';
 import 'package:flame/components.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import 'package:flutter/material.dart';
+import 'package:oktoast/oktoast.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import '../services/models/user.dart';
 import '../services/settings.dart';
@@ -109,13 +110,13 @@ successfulLogin(LoginResponse loginResponse) {
   }
 }
 
-showToast(String message) {
-  Fluttertoast.showToast(
-      msg: message,
-      toastLength: Toast.LENGTH_SHORT,
-      webPosition: "center",
-      gravity: ToastGravity.CENTER,
-      timeInSecForIosWeb: 2,
-      fontSize: 24.0
+showToastMessage(String message) {
+  showToast(
+    message,
+    duration: const Duration(milliseconds: 2000),
+    position: ToastPosition.top,
+    backgroundColor: Colors.white,
+    radius: 1.0,
+    textStyle: const TextStyle(fontSize: 30.0, color: Colors.black),
   );
 }

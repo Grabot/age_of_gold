@@ -42,7 +42,7 @@ dependencies:
   flutter_secure_storage: ^6.1.0
   http_client: ^1.5.1
   dio: ^4.0.6
-  fluttertoast: ^8.1.2
+  oktoast: ^3.3.1
   jwt_decode: ^0.3.1
   get_it: ^7.2.0
 

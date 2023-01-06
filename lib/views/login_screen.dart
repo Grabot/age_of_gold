@@ -2,7 +2,6 @@ import 'package:age_of_gold/locator.dart';
 import 'package:age_of_gold/services/models/login_request.dart';
 import 'package:age_of_gold/util/navigation_service.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../age_of_gold.dart';
 import '../constants/url_base.dart';
@@ -10,7 +9,6 @@ import '../services/auth_service.dart';
 import '../services/models/register_request.dart';
 import '../services/settings.dart';
 import '../util/util.dart';
-import '../util/web_storage.dart';
 import 'package:age_of_gold/constants/route_paths.dart' as routes;
 
 
@@ -88,8 +86,10 @@ class LoginScreenState extends State<LoginScreen> {
           print("signing in");
           _navigationService.navigateTo(routes.GameRoute);
         } else if (!loginResponse.getResult()) {
-          showToast(loginResponse.getMessage());
+          showToastMessage(loginResponse.getMessage());
         }
+      }).onError((error, stackTrace) {
+        showToastMessage(error.toString());
       });
     }
   }
@@ -105,8 +105,10 @@ class LoginScreenState extends State<LoginScreen> {
           print("signing up");
           _navigationService.navigateTo(routes.GameRoute);
         } else if (!loginResponse.getResult()) {
-          showToast(loginResponse.getMessage());
+          showToastMessage(loginResponse.getMessage());
         }
+      }).onError((error, stackTrace) {
+        showToastMessage(error.toString());
       });
     }
   }
@@ -483,6 +485,16 @@ class LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (mounted) {
+      final arguments = (ModalRoute
+          .of(context)
+          ?.settings
+          .arguments ?? <String, dynamic>{}) as Map;
+      if (arguments.containsKey('message')) {
+        showToastMessage(arguments['message']);
+      }
+    }
+
     return tileBoxWidget(context);
   }
 

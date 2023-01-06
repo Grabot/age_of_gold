@@ -32,6 +32,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
+    super.initState();
     String path = Uri.base.path;
     if (path == "/") {
       WidgetsFlutterBinding.ensureInitialized();
@@ -52,7 +53,7 @@ class _HomePageState extends State<HomePage> {
               });
             }
           }).onError((error, stackTrace) {
-            showToast(error.toString());
+            showToastMessage(error.toString());
             setState(() {
               showLogin = true;
             });
@@ -64,7 +65,6 @@ class _HomePageState extends State<HomePage> {
         }
       });
     }
-    super.initState();
   }
 
   @override
