@@ -38,7 +38,7 @@ class SocketServices extends ChangeNotifier {
 
   // We will use this to store the user's id, might change it later.
   int userId = -1;
-  String userName = "";
+  String userName = "Not logged in";
 
   static final SocketServices _instance = SocketServices._internal();
 
@@ -56,6 +56,7 @@ class SocketServices extends ChangeNotifier {
   void setUser(int id, String name) {
     userId = id;
     userName = name;
+    notifyListeners();
   }
 
   startSockConnection() {
@@ -526,5 +527,9 @@ class SocketServices extends ChangeNotifier {
           tileData["r"]
       );
     }
+  }
+
+  String getUserName() {
+    return userName;
   }
 }

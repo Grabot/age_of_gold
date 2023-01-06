@@ -27,6 +27,8 @@ class _ProfilePageState extends State<ProfilePage> {
 
   bool showLogin = false;
 
+  String userName = "";
+
   @override
   void initState() {
     WidgetsFlutterBinding.ensureInitialized();
@@ -50,6 +52,10 @@ class _ProfilePageState extends State<ProfilePage> {
           }
         });
       }
+    } else {
+      setState(() {
+        userName = settings.getUser()!.getUserName();
+      });
     }
     super.initState();
   }
@@ -58,8 +64,9 @@ class _ProfilePageState extends State<ProfilePage> {
     AuthService authService = AuthService();
     authService.getTokenLogin(accessToken).then((loginResponse) {
       if (loginResponse.getResult()) {
-        print("successfully logged in!");
-        setState(() {});
+        setState(() {
+          userName = Settings().getUser()!.getUserName();
+        });
       } else if (!loginResponse.getResult()) {
         print("access token login debug: ${loginResponse.getMessage()}");
         _navigationService.navigateTo(routes.HomeRoute, arguments: {'message': "Log in not found. Please log back in"});
@@ -74,7 +81,7 @@ class _ProfilePageState extends State<ProfilePage> {
     return Scaffold(
       body: Center(
         child: Container(
-          child: Text("Profile Page"),
+          child: Text("Profile Page of $userName"),
         ),
       ),
     );

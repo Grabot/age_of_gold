@@ -1,5 +1,8 @@
 import 'dart:math';
+import 'package:age_of_gold/services/auth_service.dart';
 import 'package:age_of_gold/services/models/login_response.dart';
+import 'package:age_of_gold/services/socket_services.dart';
+import 'package:age_of_gold/util/navigation_service.dart';
 import 'package:age_of_gold/util/web_storage.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
@@ -107,6 +110,7 @@ successfulLogin(LoginResponse loginResponse) {
   User? user = loginResponse.getUser();
   if (user != null) {
     settings.setUser(user);
+    SocketServices().setUser(user.id, user.userName);
   }
 }
 

@@ -8,6 +8,7 @@ import 'package:age_of_gold/services/socket_services.dart';
 import 'package:age_of_gold/util/navigation_service.dart';
 import 'package:age_of_gold/util/tapped_map.dart';
 import 'package:age_of_gold/util/util.dart';
+import 'package:age_of_gold/util/web_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flame/game.dart';
 import 'package:flame/input.dart';
@@ -97,14 +98,45 @@ class AgeOfGold extends FlameGame
     socket!.addListener(socketListener);
     checkHexagonArraySize();
 
-    Settings settings = Settings();
-    User? user = settings.getUser();
-    if (user != null) {
-      userName = user.getUserName();
-      socket!.setUser(0, user.getUserName());
-    }
+    checkLogIn(_navigationService);
 
     socket!.joinRoom();
+  }
+
+  checkLogIn(NavigationService navigationService) {
+    Settings settings = Settings();
+    if (settings.getUser() != null) {
+      userName = settings.getUser()!.getUserName();
+      socket!.setUser(0, settings.getUser()!.getUserName());
+    } else {
+      // User was not found, maybe not logged in?! or refreshed?!
+      // Find accessToken to quickly fix this.
+      String accessToken = settings.getAccessToken();
+      if (accessToken != "") {
+        logIn(navigationService, settings, accessToken);
+      } else {
+        // Also no accessToken found in settings. Check the storage.
+        SecureStorage secureStorage = SecureStorage();
+        secureStorage.getAccessToken().then((accessToken) {
+          if (accessToken == null || accessToken == "") {
+            print("just checking out the world?");
+          } else {
+            logIn(navigationService, settings, accessToken);
+          }
+        });
+      }
+    }
+  }
+
+  logIn(NavigationService navigationService, Settings settings, String accessToken) {
+    AuthService authService = AuthService();
+    authService.getTokenLogin(accessToken).then((loginResponse) {
+      if (loginResponse.getResult()) {
+        print("successfully logged in!");
+        userName = settings.getUser()!.getUserName();
+        socket!.setUser(0, settings.getUser()!.getUserName());
+      }
+    });
   }
 
   socketListener() {

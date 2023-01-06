@@ -1,7 +1,10 @@
+import 'package:age_of_gold/locator.dart';
 import 'package:age_of_gold/user_interface/user_interface_util/selected_tile_info.dart';
+import 'package:age_of_gold/util/navigation_service.dart';
 import 'package:flutter/material.dart';
 import '../age_of_gold.dart';
 import '../services/socket_services.dart';
+import 'package:age_of_gold/constants/route_paths.dart' as routes;
 
 
 class TileBox extends StatefulWidget {
@@ -20,7 +23,7 @@ class TileBox extends StatefulWidget {
 class TileBoxState extends State<TileBox> {
 
   late SelectedTileInfo selectedTileInfo;
-
+  final NavigationService _navigationService = locator<NavigationService>();
   SocketServices socket = SocketServices();
 
   double tileBoxWidth = 350;
@@ -175,6 +178,44 @@ class TileBoxState extends State<TileBox> {
     });
   }
 
+  goToProfile() {
+    if (socket.userId == -1) {
+      // No one logged in so move to home page
+      _navigationService.navigateTo(routes.HomeRoute);
+    } else {
+      _navigationService.navigateToPush(routes.ProfileRoute);
+    }
+  }
+
+  Widget profileWidget() {
+    return Container(
+      width: tileBoxWidth,
+      height: 100,
+      color: Colors.orange,
+      child: GestureDetector(
+        onTap: () {
+          goToProfile();
+        },
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Text(
+              socket.getUserName(),
+              style: const TextStyle(color: Colors.white, fontSize: 24),
+            ),
+            SizedBox(width: 50),
+            Image.asset(
+                "assets/images/default_avatar.png",
+                width: 70,
+                height: 70,
+            ),
+            SizedBox(width: 20),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget tileBoxWidget() {
     if (MediaQuery.of(context).size.width <= 800) {
       // Here we assume that it is a phone and we set the width to the total
@@ -191,17 +232,14 @@ class TileBoxState extends State<TileBox> {
       alignment: FractionalOffset.topRight,
       child: Column(
         children: [
+          profileWidget(),
           Container(
             width: tileBoxWidth,
-            height: 50,
-            color: Colors.black,
-          ),
-          Container(
-            width: tileBoxWidth,
-            height: showTileDetail ? 200 : 0,
+            height: showTileDetail ? 240 : 0,
             color: Colors.orange,
             child: Column(
                 children: [
+                  const SizedBox(height: 40),
                   currentTileWindow(),
                   const SizedBox(height: 10),
                   dropdownThing()
