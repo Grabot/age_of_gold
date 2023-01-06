@@ -64,14 +64,6 @@ class AgeOfGold extends FlameGame
   bool finger2 = false;
   double? distanceBetweenFingers;
 
-  TextPaint textPaint = TextPaint(
-    style: const TextStyle(
-      fontSize: 48.0,
-      fontFamily: 'Awesome Font',
-      color: Colors.white
-    ),
-  );
-
   List<String> randomNames = ["Max", "Nanne", "Chris", "Steve", "Harry", "Whazor", "Tessa"];
   String userName = "";
 
@@ -160,7 +152,6 @@ class AgeOfGold extends FlameGame
   @override
   void render(Canvas canvas) {
     super.render(canvas);
-    textPaint.render(canvas, "Age of Gold!\nFPS: $fps\nUser: $userName", Vector2(10, 10));
   }
 
   @override
