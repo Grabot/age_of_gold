@@ -1,7 +1,10 @@
 import 'dart:convert';
 import 'package:age_of_gold/component/type/tile_amethyst.dart';
+import 'package:age_of_gold/services/models/user.dart';
 import 'package:age_of_gold/util/global.dart';
+import 'package:age_of_gold/util/util.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 import '../component/hexagon.dart';
 import '../component/tile.dart';
@@ -53,9 +56,9 @@ class SocketServices extends ChangeNotifier {
     return _instance;
   }
 
-  void setUser(int id, String name) {
-    userId = id;
-    userName = name;
+  void setUser(User user) {
+    userId = user.id;
+    userName = user.getUserName();
     notifyListeners();
   }
 
@@ -111,6 +114,7 @@ class SocketServices extends ChangeNotifier {
     );
     // After we have joined the room, we also want to listen to server events
     socket.on('send_hexagon_fail', (data) {
+      showToastMessage("hexagon getting failed!");
       // print(data);
     });
     socket.on('send_hexagon_success', (data) {
@@ -131,15 +135,41 @@ class SocketServices extends ChangeNotifier {
       changeTile(data);
     });
     socket.on('change_tile_type_failed', (data) {
+      showToastMessage("changing tile type failed!");
       notifyListeners();
     });
+    socket.on('get_tile_info_success', (data) {
+      addTileInfo(data);
+    });
+    socket.on('get_tile_info_failed', (data) {
+      showToastMessage("get more tile information failed?!");
+      notifyListeners();
+    });
+  }
+
+  addTileInfo(var data) {
+    print("we wanted tile info and we got it");
+    updateTileInfo(data);
+    print(data);
+  }
+
+  getTileInfo(int q, int r) {
+    socket.emit(
+      "get_tile_info",
+      {
+        'q': q,
+        'r': r,
+      },
+    );
   }
 
   void changeTileType(int q, int r, int tileType, int wrapQ, int wrapR) {
     // The q and r will correspond to the correct tile,
     // we send the wrap variables of the hexagon too in case
     // the user is currently wrapped around the map
+    print("userId: $userId");
     socket.emit("change_tile_type", {
+      "id": userId,
       "q": q,
       "r": r,
       "type": tileType,
@@ -308,17 +338,40 @@ class SocketServices extends ChangeNotifier {
     }
   }
 
-  changeTile(data) {
+  Tile? getTile(data) {
     HexagonList hexagonList = HexagonList();
     // We just need the q and r to find the tile and change type on the old tile
     int newTileQ = data["q"];
     int newTileR = data["r"];
-    int newTileType = data["type"];
 
     int tileQ = hexagonList.tileQ;
     int tileR = hexagonList.tileR;
-    Tile? prevTile = hexagonList.tiles[tileQ + newTileQ - hexagonList.currentQ]
-        [tileR + newTileR - hexagonList.currentR];
+    return hexagonList.tiles[tileQ + newTileQ - hexagonList.currentQ]
+      [tileR + newTileR - hexagonList.currentR];
+  }
+
+  updateTileInfo(data) {
+    Tile? prevTile = getTile(data);
+    if (prevTile != null) {
+      if (data["last_changed_by"] != null && data["last_changed_time"] != null) {
+        User user = User.fromJson(data["last_changed_by"]);
+        String nameLastChanged = user.getUserName();
+        String lastChanged = data["last_changed_time"];
+        if (!lastChanged.endsWith("Z")) {
+          // The server has utc timestamp, but it's not formatted with the 'Z'.
+          lastChanged += "Z";
+        }
+        prevTile.setLastChangedBy(nameLastChanged);
+        prevTile.setLastChangedTime(DateTime.parse(lastChanged).toLocal());
+        notifyListeners();
+      }
+    }
+  }
+
+  changeTile(data) {
+    int newTileType = data["type"];
+
+    Tile? prevTile = getTile(data);
     if (prevTile != null) {
       // It has to exist before we replace it.
       Hexagon currentHex = prevTile.hexagon!;

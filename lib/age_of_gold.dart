@@ -1,7 +1,6 @@
 import 'package:age_of_gold/constants/route_paths.dart' as routes;
 import 'package:age_of_gold/locator.dart';
 import 'package:age_of_gold/services/auth_service.dart';
-import 'package:age_of_gold/services/models/user.dart';
 import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/util/global.dart';
 import 'package:age_of_gold/services/socket_services.dart';
@@ -65,7 +64,6 @@ class AgeOfGold extends FlameGame
   double? distanceBetweenFingers;
 
   List<String> randomNames = ["Max", "Nanne", "Chris", "Steve", "Harry", "Whazor", "Tessa"];
-  String userName = "";
 
   SocketServices? socket;
 
@@ -98,8 +96,7 @@ class AgeOfGold extends FlameGame
   checkLogIn(NavigationService navigationService) {
     Settings settings = Settings();
     if (settings.getUser() != null) {
-      userName = settings.getUser()!.getUserName();
-      socket!.setUser(0, settings.getUser()!.getUserName());
+      socket!.setUser(settings.getUser()!);
     } else {
       // User was not found, maybe not logged in?! or refreshed?!
       // Find accessToken to quickly fix this.
@@ -125,14 +122,12 @@ class AgeOfGold extends FlameGame
     authService.getTokenLogin(accessToken).then((loginResponse) {
       if (loginResponse.getResult()) {
         print("successfully logged in!");
-        userName = settings.getUser()!.getUserName();
-        socket!.setUser(0, settings.getUser()!.getUserName());
+        socket!.setUser(settings.getUser()!);
       }
     });
   }
 
   socketListener() {
-
   }
 
   chatBoxFocus(bool chatFocus) {
@@ -374,11 +369,6 @@ class AgeOfGold extends FlameGame
         dragAccelerateKey.y = isKeyDown ? -mouseSpeed : 0;
       } else if (event.logicalKey == LogicalKeyboardKey.keyS) {
         dragAccelerateKey.y = isKeyDown ? mouseSpeed : 0;
-      }
-
-      if (event.logicalKey == LogicalKeyboardKey.home) {
-        userName = "Sander";
-        socket!.setUser(0, userName);
       }
 
       if (event.logicalKey == LogicalKeyboardKey.keyI && isKeyDown) {

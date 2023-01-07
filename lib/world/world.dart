@@ -75,7 +75,12 @@ class World extends Component {
     selectedTileInfo.setCurrentTile(mouseTileTap);
     if (mouseTileTap != null) {
       mouseTile = mouseTileTap;
+      getAdditionalTileInfo(mouseTile!);
     }
+  }
+
+  getAdditionalTileInfo(Tile tile) {
+    socketServices.getTileInfo(tile.q, tile.r);
   }
 
   updateVariant(int variant) {

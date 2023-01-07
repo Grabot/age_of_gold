@@ -137,6 +137,17 @@ class TileBoxState extends State<TileBox> {
     return Container();
   }
 
+  Widget currentTileInformation() {
+    return Column(
+      children: [
+        Text(
+            selectedTileInfo.getTileChangedBy(),
+            style: const TextStyle(color: Colors.white60, fontSize: 18)
+        ),
+      ],
+    );
+  }
+
   Widget currentTileWindow() {
     return Column(
       children:[
@@ -235,14 +246,17 @@ class TileBoxState extends State<TileBox> {
           profileWidget(),
           Container(
             width: tileBoxWidth,
-            height: showTileDetail ? 240 : 0,
+            height: showTileDetail ? 280 : 0,
             color: Colors.orange,
             child: Column(
                 children: [
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 20),
                   currentTileWindow(),
                   const SizedBox(height: 10),
-                  dropdownThing()
+                  dropdownThing(),
+                  const SizedBox(height: 10),
+                  currentTileInformation(),
+                  const SizedBox(height: 10),
                 ]
             ),
           )

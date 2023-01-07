@@ -110,7 +110,7 @@ successfulLogin(LoginResponse loginResponse) {
   User? user = loginResponse.getUser();
   if (user != null) {
     settings.setUser(user);
-    SocketServices().setUser(user.id, user.userName);
+    SocketServices().setUser(user);
   }
 }
 

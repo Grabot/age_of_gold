@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../../component/tile.dart';
 
 
@@ -16,6 +17,24 @@ class SelectedTileInfo extends ChangeNotifier {
 
   factory SelectedTileInfo() {
     return _instance;
+  }
+
+  String getTileChangedBy() {
+    if (selectedTile == null) {
+      return "";
+    } else {
+      if (selectedTile!.lastChangedBy == null) {
+        return "Tile untouched";
+      } else {
+        String lastChange = "Last changed by: ${selectedTile!.lastChangedBy}";
+        // TODO: Fix timestamp
+        if (selectedTile!.lastChangedTime != null) {
+          String time = DateFormat('dd:MM:yyyy - HH:mm').format(selectedTile!.lastChangedTime!);
+          lastChange += "\nat $time";
+        }
+        return lastChange;
+      }
+    }
   }
 
   String getTileType() {

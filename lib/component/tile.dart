@@ -13,6 +13,8 @@ class Tile {
   late int q;
   late int r;
   late int tileType;
+  String? lastChangedBy;
+  DateTime? lastChangedTime;
 
   // If the map is wrapped around the q will reflect the position accurately
   // But we still save the wrapped Q to show the user and to use it to change.
@@ -35,6 +37,22 @@ class Tile {
 
   Vector2 getPos() {
     return Vector2(position.x, position.y);
+  }
+
+  String? getLastChangedBy() {
+    return lastChangedBy;
+  }
+
+  setLastChangedBy(String lastChangedBy) {
+    this.lastChangedBy = lastChangedBy;
+  }
+
+  DateTime? getLastChangedTime() {
+    return lastChangedTime;
+  }
+
+  setLastChangedTime(DateTime lastChangedTime) {
+    this.lastChangedTime = lastChangedTime;
   }
 
   // size = 16.
