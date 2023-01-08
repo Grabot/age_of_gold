@@ -21,6 +21,33 @@ var pointSmallWater2 = const Rect.fromLTWH(1, 37, 28, 16);
 
 // They are the same, but they should be able to be different.
 // So we define them all
+List tileTextures = [
+  tileAmethyst,
+  tileBlack,
+  tileBondiBlue,
+  tileBrightSun,
+  tileCaribbeanGreen,
+  tileCeruleanBlue,
+  tileConifer,
+  tileCornflowerBlue,
+  tileGovernorBay,
+  tileGreenHaze,
+  tileIron,
+  tileMonza,
+  tileOsloGray,
+  tilePaarl,
+  tilePictonBlue,
+  tilePineGreen,
+  tilePinkSalmon,
+  tileSeance,
+  tileSpice,
+  tileSpray,
+  tileVermillion,
+  tileWebOrange,
+  tileWhite,
+  tileWildStrawberry,
+];
+
 List tileAmethyst = [
   const Rect.fromLTWH(511, 1, 32, 14),
   const Rect.fromLTWH(511, 1, 32, 14),

@@ -1,36 +1,11 @@
 import 'dart:convert';
-import 'package:age_of_gold/component/type/tile_amethyst.dart';
 import 'package:age_of_gold/services/models/user.dart';
 import 'package:age_of_gold/util/global.dart';
 import 'package:age_of_gold/util/util.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 import '../component/hexagon.dart';
 import '../component/tile.dart';
-import '../component/type/tile_black.dart';
-import '../component/type/tile_bondi_blue.dart';
-import '../component/type/tile_bright_sun.dart';
-import '../component/type/tile_caribbean_green.dart';
-import '../component/type/tile_cerulean_blue.dart';
-import '../component/type/tile_conifer.dart';
-import '../component/type/tile_cornflower_blue.dart';
-import '../component/type/tile_governor_bay.dart';
-import '../component/type/tile_green_haze.dart';
-import '../component/type/tile_iron.dart';
-import '../component/type/tile_monza.dart';
-import '../component/type/tile_oslo_gray.dart';
-import '../component/type/tile_paarl.dart';
-import '../component/type/tile_picton_blue.dart';
-import '../component/type/tile_pine_green.dart';
-import '../component/type/tile_pink_salmon.dart';
-import '../component/type/tile_seance.dart';
-import '../component/type/tile_spice.dart';
-import '../component/type/tile_spray.dart';
-import '../component/type/tile_vermillion.dart';
-import '../component/type/tile_web_orange.dart';
-import '../component/type/tile_white.dart';
-import '../component/type/tile_wild_strawberry.dart';
 import '../constants/url_base.dart';
 import '../user_interface/user_interface_components/chat_messages.dart';
 import '../util/hexagon_list.dart';
@@ -133,24 +108,20 @@ class SocketServices extends ChangeNotifier {
   void checkTile() {
     socket.on('change_tile_type_success', (data) {
       changeTile(data);
+      notifyListeners();
     });
     socket.on('change_tile_type_failed', (data) {
       showToastMessage("changing tile type failed!");
       notifyListeners();
     });
     socket.on('get_tile_info_success', (data) {
-      addTileInfo(data);
+      updateTileInfo(data);
+      notifyListeners();
     });
     socket.on('get_tile_info_failed', (data) {
       showToastMessage("get more tile information failed?!");
       notifyListeners();
     });
-  }
-
-  addTileInfo(var data) {
-    print("we wanted tile info and we got it");
-    updateTileInfo(data);
-    print(data);
   }
 
   getTileInfo(int q, int r) {
@@ -244,7 +215,7 @@ class SocketServices extends ChangeNotifier {
         }
       }
       // If the type is 0
-      Tile tile = setTileType(tileData["type"], tileDataQ, tileDataR, tileData);
+      Tile tile = createTile(tileData["type"], tileDataQ, tileDataR, tileData);
       tile.hexagon = hexagon;
       hexagon.addTile(tile);
       int qTile = tileQ + tile.q - hexagonList.currentQ;
@@ -339,7 +310,6 @@ class SocketServices extends ChangeNotifier {
   }
 
   Tile? getTile(data) {
-    HexagonList hexagonList = HexagonList();
     // We just need the q and r to find the tile and change type on the old tile
     int newTileQ = data["q"];
     int newTileR = data["r"];
@@ -353,18 +323,21 @@ class SocketServices extends ChangeNotifier {
   updateTileInfo(data) {
     Tile? prevTile = getTile(data);
     if (prevTile != null) {
-      if (data["last_changed_by"] != null && data["last_changed_time"] != null) {
-        User user = User.fromJson(data["last_changed_by"]);
-        String nameLastChanged = user.getUserName();
-        String lastChanged = data["last_changed_time"];
-        if (!lastChanged.endsWith("Z")) {
-          // The server has utc timestamp, but it's not formatted with the 'Z'.
-          lastChanged += "Z";
-        }
-        prevTile.setLastChangedBy(nameLastChanged);
-        prevTile.setLastChangedTime(DateTime.parse(lastChanged).toLocal());
-        notifyListeners();
+      addTileInfo(data, prevTile);
+    }
+  }
+
+  addTileInfo(data, Tile prevTile) {
+    if (data["last_changed_by"] != null && data["last_changed_time"] != null) {
+      User user = User.fromJson(data["last_changed_by"]);
+      String nameLastChanged = user.getUserName();
+      String lastChanged = data["last_changed_time"];
+      if (!lastChanged.endsWith("Z")) {
+        // The server has utc timestamp, but it's not formatted with the 'Z'.
+        lastChanged += "Z";
       }
+      prevTile.setLastChangedBy(nameLastChanged);
+      prevTile.setLastChangedTime(DateTime.parse(lastChanged).toLocal());
     }
   }
 
@@ -374,212 +347,21 @@ class SocketServices extends ChangeNotifier {
     Tile? prevTile = getTile(data);
     if (prevTile != null) {
       // It has to exist before we replace it.
-      Hexagon currentHex = prevTile.hexagon!;
-      currentHex.hexagonTiles.removeWhere(
-              (element) => element.q == data["q"] && element.r == data["r"]);
+      prevTile.setTileType(newTileType);
+      prevTile.hexagon!.updateHexagon();
 
-      Tile newTile = setTileType(newTileType, data["q"], data["r"], data);
-      newTile.hexagon = currentHex;
-      currentHex.addTile(newTile);
-      newTile.hexagon!.updateHexagon();
-      newTile.hexagon!.sortTiles();
+      addTileInfo(data, prevTile);
     }
   }
 
-  Tile setTileType(int tileType, int tileDataQ, int tileDataR, var tileData) {
-    if (tileType == 1) {
-      return TileBlack(
-          tileDataQ,
-          tileDataR,
-          tileData["type"],
-          tileData["q"],
-          tileData["r"]
-      );
-    } else if (tileType == 2) {
-      return TileBondiBlue(
-          tileDataQ,
-          tileDataR,
-          tileData["type"],
-          tileData["q"],
-          tileData["r"]
-      );
-    } else if (tileType == 3) {
-      return TileBrightSun(
-          tileDataQ,
-          tileDataR,
-          tileData["type"],
-          tileData["q"],
-          tileData["r"]
-      );
-    } else if (tileType == 4) {
-      return TileCaribbeanGreen(
-          tileDataQ,
-          tileDataR,
-          tileData["type"],
-          tileData["q"],
-          tileData["r"]
-      );
-    } else if (tileType == 5) {
-      return TileCeruleanBlue(
-          tileDataQ,
-          tileDataR,
-          tileData["type"],
-          tileData["q"],
-          tileData["r"]
-      );
-    } else if (tileType == 6) {
-      return TileConifer(
-          tileDataQ,
-          tileDataR,
-          tileData["type"],
-          tileData["q"],
-          tileData["r"]
-      );
-    } else if (tileType == 7) {
-      return TileCornflowerBlue(
-          tileDataQ,
-          tileDataR,
-          tileData["type"],
-          tileData["q"],
-          tileData["r"]
-      );
-    } else if (tileType == 8) {
-      return TileGovernorBay(
-          tileDataQ,
-          tileDataR,
-          tileData["type"],
-          tileData["q"],
-          tileData["r"]
-      );
-    } else if (tileType == 9) {
-      return TileGreenHaze(
-          tileDataQ,
-          tileDataR,
-          tileData["type"],
-          tileData["q"],
-          tileData["r"]
-      );
-    } else if (tileType == 10) {
-      return TileIron(
-          tileDataQ,
-          tileDataR,
-          tileData["type"],
-          tileData["q"],
-          tileData["r"]
-      );
-    } else if (tileType == 11) {
-      return TileMonza(
-          tileDataQ,
-          tileDataR,
-          tileData["type"],
-          tileData["q"],
-          tileData["r"]
-      );
-    } else if (tileType == 12) {
-      return TileOsloGray(
-          tileDataQ,
-          tileDataR,
-          tileData["type"],
-          tileData["q"],
-          tileData["r"]
-      );
-    } else if (tileType == 13) {
-      return TilePaarl(
-          tileDataQ,
-          tileDataR,
-          tileData["type"],
-          tileData["q"],
-          tileData["r"]
-      );
-    } else if (tileType == 14) {
-      return TilePictonBlue(
-          tileDataQ,
-          tileDataR,
-          tileData["type"],
-          tileData["q"],
-          tileData["r"]
-      );
-    } else if (tileType == 15) {
-      return TilePineGreen(
-          tileDataQ,
-          tileDataR,
-          tileData["type"],
-          tileData["q"],
-          tileData["r"]
-      );
-    } else if (tileType == 16) {
-      return TilePinkSalmon(
-          tileDataQ,
-          tileDataR,
-          tileData["type"],
-          tileData["q"],
-          tileData["r"]
-      );
-    } else if (tileType == 17) {
-      return TileSeance(
-          tileDataQ,
-          tileDataR,
-          tileData["type"],
-          tileData["q"],
-          tileData["r"]
-      );
-    } else if (tileType == 18) {
-      return TileSpice(
-          tileDataQ,
-          tileDataR,
-          tileData["type"],
-          tileData["q"],
-          tileData["r"]
-      );
-    } else if (tileType == 19) {
-      return TileSpray(
-          tileDataQ,
-          tileDataR,
-          tileData["type"],
-          tileData["q"],
-          tileData["r"]
-      );
-    } else if (tileType == 20) {
-      return TileVermillion(
-          tileDataQ,
-          tileDataR,
-          tileData["type"],
-          tileData["q"],
-          tileData["r"]
-      );
-    } else if (tileType == 21) {
-      return TileWebOrange(
-          tileDataQ,
-          tileDataR,
-          tileData["type"],
-          tileData["q"],
-          tileData["r"]
-      );
-    } else if (tileType == 22) {
-      return TileWhite(
-          tileDataQ,
-          tileDataR,
-          tileData["type"],
-          tileData["q"],
-          tileData["r"]
-      );
-    } else if (tileType == 23) {
-      return TileWildStrawberry(
-          tileDataQ,
-          tileDataR,
-          tileData["type"],
-          tileData["q"],
-          tileData["r"]
-      );
-    } else {
-      return TileAmethyst(
-          tileDataQ,
-          tileDataR,
-          tileData["type"],
-          tileData["q"],
-          tileData["r"]
-      );
-    }
+  Tile createTile(int tileType, int tileDataQ, int tileDataR, var tileData) {
+    return Tile(
+        tileDataQ,
+        tileDataR,
+        tileData["type"],
+        tileData["q"],
+        tileData["r"]
+    );
   }
 
   String getUserName() {

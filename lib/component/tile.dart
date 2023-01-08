@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:age_of_gold/component/get_texture.dart';
 import 'package:age_of_gold/component/hexagon.dart';
 import 'package:flame/components.dart';
 import 'package:flame/extensions.dart';
@@ -70,8 +71,20 @@ class Tile {
     return tileType;
   }
 
-  updateTile(List<SpriteBatch?> batches) {
+  setTileType(int tileType) {
+    this.tileType = tileType;
+  }
 
+  updateTile(List<SpriteBatch?> batches) {
+    for (int variation = 0; variation < batches.length; variation++) {
+      if (batches[variation] != null) {
+        batches[variation]!.add(
+            source: tileTextures[tileType][variation],
+            offset: getPos(),
+            scale: scaleX
+        );
+      }
+    }
   }
 
   setPosition() {
