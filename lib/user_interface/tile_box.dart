@@ -3,6 +3,7 @@ import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/user_interface/user_interface_util/selected_tile_info.dart';
 import 'package:age_of_gold/util/hexagon_list.dart';
 import 'package:age_of_gold/util/navigation_service.dart';
+import 'package:age_of_gold/util/util.dart';
 import 'package:flutter/material.dart';
 import '../age_of_gold.dart';
 import '../component/tile.dart';
@@ -23,7 +24,7 @@ class TileBox extends StatefulWidget {
   TileBoxState createState() => TileBoxState();
 }
 
-class TileBoxState extends State<TileBox> {
+class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
 
   late SelectedTileInfo selectedTileInfo;
   final NavigationService _navigationService = locator<NavigationService>();
@@ -37,6 +38,9 @@ class TileBoxState extends State<TileBox> {
   late List<DropdownMenuItem<TileData>> _dropdownMenuItems;
   late TileData _selectedTile;
 
+  late AnimationController _controller;
+  int levelClock = 0;
+
   @override
   void initState() {
     super.initState();
@@ -48,6 +52,15 @@ class TileBoxState extends State<TileBox> {
 
     _dropdownMenuItems = buildDropdownMenuItems(_tiles);
     _selectedTile = _dropdownMenuItems[0].value!;
+
+    _controller = AnimationController(
+        vsync: this,
+        duration: Duration(
+            seconds:
+            levelClock)
+    );
+    _controller.forward();
+    updateTimeLock();
   }
 
   List<DropdownMenuItem<TileData>> buildDropdownMenuItems(List tiles) {
@@ -81,7 +94,24 @@ class TileBoxState extends State<TileBox> {
 
   socketListener() {
     if (mounted) {
+      updateTimeLock();
       setState(() {});
+    }
+  }
+
+  updateTimeLock() {
+    if (settings.getUser() != null) {
+      DateTime timeLock = settings.getUser()!.getTileLock();
+      if (timeLock.isAfter(DateTime.now())) {
+        levelClock = timeLock.difference(DateTime.now()).inSeconds;
+        _controller = AnimationController(
+            vsync: this,
+            duration: Duration(
+                seconds:
+                levelClock)
+        );
+        _controller.forward();
+      }
     }
   }
 
@@ -116,7 +146,7 @@ class TileBoxState extends State<TileBox> {
         setState(() {});
       }
     } else {
-      print("NOT ALLOWED!");
+      showToastMessage("Not allowed to change a tile for another ${settings.getUser()!.getTileLock().difference(DateTime.now()).inSeconds} seconds.");
       _selectedTile =
       _dropdownMenuItems[selectedTileInfo.selectedTile!.tileType].value!;
     }
@@ -222,6 +252,14 @@ class TileBoxState extends State<TileBox> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
+            Countdown(
+              key: UniqueKey(),
+              animation: StepTween(
+                begin: levelClock, // THIS IS A USER ENTERED NUMBER
+                end: 0,
+              ).animate(_controller),
+            ),
+            SizedBox(width: 50),
             Text(
               socket.getUserName(),
               style: const TextStyle(color: Colors.white, fontSize: 24),
@@ -317,5 +355,26 @@ class TileData {
       TileData(22, "White", "assets/images/tiles/ffffff_noise1.png"),
       TileData(23, "Wild Strawberry", "assets/images/tiles/ff3881_noise1.png")
     ];
+  }
+}
+
+class Countdown extends AnimatedWidget {
+  Countdown({required Key key, required this.animation}) : super(key: key, listenable: animation);
+  Animation<int> animation;
+
+  @override
+  build(BuildContext context) {
+    Duration clockTimer = Duration(seconds: animation.value);
+
+    String timerText =
+        '${clockTimer.inMinutes.remainder(60).toString()}:${clockTimer.inSeconds.remainder(60).toString().padLeft(2, '0')}';
+
+    return Text(
+      "$timerText",
+      style: TextStyle(
+        fontSize: 20,
+        color: Theme.of(context).primaryColor,
+      ),
+    );
   }
 }
