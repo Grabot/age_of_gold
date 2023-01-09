@@ -40,6 +40,7 @@ class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
 
   late AnimationController _controller;
   int levelClock = 0;
+  bool canChangeTiles = true;
 
   @override
   void initState() {
@@ -111,6 +112,14 @@ class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
                 levelClock)
         );
         _controller.forward();
+        _controller.addStatusListener((status) {
+          if(status == AnimationStatus.completed) {
+            setState(() {
+              canChangeTiles = true;
+            });
+          }
+        });
+        canChangeTiles = false;
       }
     }
   }
@@ -240,6 +249,20 @@ class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
     }
   }
 
+  Widget tileTimeInformation() {
+    if (canChangeTiles) {
+      return Container();
+    } else {
+      return Countdown(
+        key: UniqueKey(),
+        animation: StepTween(
+          begin: levelClock, // THIS IS A USER ENTERED NUMBER
+          end: 0,
+        ).animate(_controller),
+      );
+    }
+  }
+
   Widget profileWidget() {
     return Container(
       width: tileBoxWidth,
@@ -252,13 +275,7 @@ class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            Countdown(
-              key: UniqueKey(),
-              animation: StepTween(
-                begin: levelClock, // THIS IS A USER ENTERED NUMBER
-                end: 0,
-              ).animate(_controller),
-            ),
+            tileTimeInformation(),
             SizedBox(width: 50),
             Text(
               socket.getUserName(),
@@ -370,10 +387,10 @@ class Countdown extends AnimatedWidget {
         '${clockTimer.inMinutes.remainder(60).toString()}:${clockTimer.inSeconds.remainder(60).toString().padLeft(2, '0')}';
 
     return Text(
-      "$timerText",
+      "Tile lock\n$timerText\nremaining",
       style: TextStyle(
         fontSize: 20,
-        color: Theme.of(context).primaryColor,
+        color: Colors.white54,
       ),
     );
   }
