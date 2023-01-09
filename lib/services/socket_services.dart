@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:age_of_gold/services/models/user.dart';
+import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/util/global.dart';
 import 'package:age_of_gold/util/util.dart';
 import 'package:flutter/material.dart';
@@ -138,7 +139,6 @@ class SocketServices extends ChangeNotifier {
     // The q and r will correspond to the correct tile,
     // we send the wrap variables of the hexagon too in case
     // the user is currently wrapped around the map
-    print("userId: $userId");
     socket.emit("change_tile_type", {
       "id": userId,
       "q": q,
@@ -321,14 +321,15 @@ class SocketServices extends ChangeNotifier {
   }
 
   updateTileInfo(data) {
-    Tile? prevTile = getTile(data);
-    if (prevTile != null) {
-      addTileInfo(data, prevTile);
+    Tile? currentTile = getTile(data);
+    if (currentTile != null) {
+      addTileInfo(data, currentTile);
     }
   }
 
   addTileInfo(data, Tile prevTile) {
     if (data["last_changed_by"] != null && data["last_changed_time"] != null) {
+      print("data: " + data.toString());
       User user = User.fromJson(data["last_changed_by"]);
       String nameLastChanged = user.getUserName();
       String lastChanged = data["last_changed_time"];
@@ -338,19 +339,19 @@ class SocketServices extends ChangeNotifier {
       }
       prevTile.setLastChangedBy(nameLastChanged);
       prevTile.setLastChangedTime(DateTime.parse(lastChanged).toLocal());
+      Settings().setUser(user);
     }
   }
 
   changeTile(data) {
     int newTileType = data["type"];
 
-    Tile? prevTile = getTile(data);
-    if (prevTile != null) {
-      // It has to exist before we replace it.
-      prevTile.setTileType(newTileType);
-      prevTile.hexagon!.updateHexagon();
+    Tile? currentTile = getTile(data);
+    if (currentTile != null) {
+      currentTile.setTileType(newTileType);
+      currentTile.hexagon!.updateHexagon();
 
-      addTileInfo(data, prevTile);
+      addTileInfo(data, currentTile);
     }
   }
 

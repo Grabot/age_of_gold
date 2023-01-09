@@ -1,4 +1,5 @@
 import 'package:age_of_gold/locator.dart';
+import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/user_interface/user_interface_util/selected_tile_info.dart';
 import 'package:age_of_gold/util/hexagon_list.dart';
 import 'package:age_of_gold/util/navigation_service.dart';
@@ -27,6 +28,7 @@ class TileBoxState extends State<TileBox> {
   late SelectedTileInfo selectedTileInfo;
   final NavigationService _navigationService = locator<NavigationService>();
   SocketServices socket = SocketServices();
+  Settings settings = Settings();
 
   double tileBoxWidth = 350;
 
@@ -99,18 +101,26 @@ class TileBoxState extends State<TileBox> {
   }
 
   changeTileType(String tileName, int tileType) {
-    if (tileName != selectedTileInfo.getTileType()) {
-      socket.changeTileType(
-          selectedTileInfo.selectedTile!.tileQ,
-          selectedTileInfo.selectedTile!.tileR,
-          tileType,
-          selectedTileInfo.selectedTile!.hexagon!.wrapQ,
-          selectedTileInfo.selectedTile!.hexagon!.wrapR
-      );
+    if (settings.getUser()!.getTileLock().isBefore(DateTime.now())) {
+      // The lock needs to be over.
+      if (tileName != selectedTileInfo.getTileType()) {
+        socket.changeTileType(
+            selectedTileInfo.selectedTile!.tileQ,
+            selectedTileInfo.selectedTile!.tileR,
+            tileType,
+            selectedTileInfo.selectedTile!.hexagon!.wrapQ,
+            selectedTileInfo.selectedTile!.hexagon!.wrapR
+        );
 
-      selectedTileInfo.selectedTile!.tileType = tileType;
-      setState(() {});
+        selectedTileInfo.selectedTile!.tileType = tileType;
+        setState(() {});
+      }
+    } else {
+      print("NOT ALLOWED!");
+      _selectedTile =
+      _dropdownMenuItems[selectedTileInfo.selectedTile!.tileType].value!;
     }
+
   }
 
   Widget tileButton(String tileName, Image tile, int tileType) {
