@@ -72,7 +72,31 @@ Future<void> main() async {
             routes.GameRoute: (context) => gameWidget,
           },
           onGenerateRoute: (settings) {
-            return null;
+            if (settings.name != null && settings.name!.startsWith(routes.WorldAccessRoute)) {
+              return MaterialPageRoute(
+                  builder: (context) {
+                    return worldAccess;
+                  }
+              );
+            } else if (settings.name!.startsWith(routes.ProfileRoute)) {
+              return MaterialPageRoute(
+                  builder: (context) {
+                    return profile;
+                  }
+              );
+            } else if (settings.name!.startsWith(routes.GameRoute)) {
+              return MaterialPageRoute(
+                  builder: (context) {
+                    return gameWidget;
+                  }
+              );
+            } else {
+              return MaterialPageRoute(
+                  builder: (context) {
+                    return home;
+                  }
+              );
+            }
           },
         ),
       )

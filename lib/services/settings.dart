@@ -17,6 +17,13 @@ class Settings {
     return _instance;
   }
 
+  logout() {
+    accessToken = "";
+    refreshToken = "";
+    accessTokenExpiration = 0;
+    user = null;
+  }
+
   setAccessToken(String accessToken) {
     this.accessToken = accessToken;
   }

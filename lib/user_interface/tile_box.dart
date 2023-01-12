@@ -1,6 +1,7 @@
 import 'package:age_of_gold/locator.dart';
 import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/user_interface/user_interface_util/selected_tile_info.dart';
+import 'package:age_of_gold/util/countdown.dart';
 import 'package:age_of_gold/util/hexagon_list.dart';
 import 'package:age_of_gold/util/navigation_service.dart';
 import 'package:age_of_gold/util/util.dart';
@@ -136,11 +137,14 @@ class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
 
   @override
   void dispose() {
+    _controller.dispose();
     super.dispose();
   }
 
   changeTileType(String tileName, int tileType) {
-    if (settings.getUser()!.getTileLock().isBefore(DateTime.now())) {
+    if (settings.getUser() == null) {
+      showToastMessage("You must be logged in to change tiles");
+    } else if (settings.getUser()!.getTileLock().isBefore(DateTime.now())) {
       // The lock needs to be over.
       if (tileName != selectedTileInfo.getTileType()) {
         socket.changeTileType(
@@ -256,7 +260,7 @@ class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
       return Countdown(
         key: UniqueKey(),
         animation: StepTween(
-          begin: levelClock, // THIS IS A USER ENTERED NUMBER
+          begin: levelClock,
           end: 0,
         ).animate(_controller),
       );
@@ -375,23 +379,3 @@ class TileData {
   }
 }
 
-class Countdown extends AnimatedWidget {
-  Countdown({required Key key, required this.animation}) : super(key: key, listenable: animation);
-  Animation<int> animation;
-
-  @override
-  build(BuildContext context) {
-    Duration clockTimer = Duration(seconds: animation.value);
-
-    String timerText =
-        '${clockTimer.inMinutes.remainder(60).toString()}:${clockTimer.inSeconds.remainder(60).toString().padLeft(2, '0')}';
-
-    return Text(
-      "Tile lock\n$timerText\nremaining",
-      style: TextStyle(
-        fontSize: 20,
-        color: Colors.white54,
-      ),
-    );
-  }
-}

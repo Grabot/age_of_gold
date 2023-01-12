@@ -1,6 +1,7 @@
 import 'package:age_of_gold/locator.dart';
 import 'package:age_of_gold/services/auth_service.dart';
 import 'package:age_of_gold/services/settings.dart';
+import 'package:age_of_gold/util/countdown.dart';
 import 'package:age_of_gold/util/navigation_service.dart';
 import 'package:age_of_gold/util/web_storage.dart';
 import 'package:flutter/material.dart';
@@ -21,13 +22,19 @@ class ProfilePage extends StatefulWidget {
   State<ProfilePage> createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin {
 
   final NavigationService _navigationService = locator<NavigationService>();
 
   bool showLogin = false;
 
+  Settings settings = Settings();
+
   String userName = "";
+
+  late AnimationController _controller;
+  int levelClock = 0;
+  bool canChangeTiles = true;
 
   @override
   void initState() {
@@ -58,6 +65,44 @@ class _ProfilePageState extends State<ProfilePage> {
       });
     }
     super.initState();
+    _controller = AnimationController(
+        vsync: this,
+        duration: Duration(
+            seconds:
+            levelClock)
+    );
+    _controller.forward();
+    updateTimeLock();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  updateTimeLock() {
+    if (settings.getUser() != null) {
+      DateTime timeLock = settings.getUser()!.getTileLock();
+      if (timeLock.isAfter(DateTime.now())) {
+        levelClock = timeLock.difference(DateTime.now()).inSeconds;
+        _controller = AnimationController(
+            vsync: this,
+            duration: Duration(
+                seconds:
+                levelClock)
+        );
+        _controller.forward();
+        _controller.addStatusListener((status) {
+          if(status == AnimationStatus.completed) {
+            setState(() {
+              canChangeTiles = true;
+            });
+          }
+        });
+        canChangeTiles = false;
+      }
+    }
   }
 
   logIn(String accessToken) {
@@ -76,12 +121,50 @@ class _ProfilePageState extends State<ProfilePage> {
     });
   }
 
+  Widget tileTimeInformation() {
+    if (canChangeTiles) {
+      return Container();
+    } else {
+      return Countdown(
+        key: UniqueKey(),
+        animation: StepTween(
+          begin: levelClock,
+          end: 0,
+        ).animate(_controller),
+      );
+    }
+  }
+
+  Widget logoutButton() {
+    return Container(
+      margin: EdgeInsets.only(top: 20),
+      child: ElevatedButton(
+        onPressed: () {
+          settings.logout();
+          SecureStorage().logout().then((value) {
+            _navigationService.navigateTo(routes.HomeRoute, arguments: {'message': "Logged out"});
+          });
+        },
+        child: Text("Log out"),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
         child: Container(
-          child: Text("Profile Page of $userName"),
+          child: Column(
+            children:
+            [
+              Text("Profile Page of $userName"),
+              SizedBox(height: 20),
+              tileTimeInformation(),
+              SizedBox(height: 20),
+              logoutButton()
+            ]
+          ),
         ),
       ),
     );

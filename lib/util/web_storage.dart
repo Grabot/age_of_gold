@@ -14,4 +14,8 @@ class SecureStorage {
   Future<String?> getAccessToken() async {
     return await storage.read(key: _keyAccessToken);
   }
+
+  Future logout() async {
+    await storage.write(key: _keyAccessToken, value: null);
+  }
 }

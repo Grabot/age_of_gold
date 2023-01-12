@@ -139,6 +139,7 @@ class SocketServices extends ChangeNotifier {
     // The q and r will correspond to the correct tile,
     // we send the wrap variables of the hexagon too in case
     // the user is currently wrapped around the map
+    print("user id: $userId");
     socket.emit("change_tile_type", {
       "id": userId,
       "q": q,
