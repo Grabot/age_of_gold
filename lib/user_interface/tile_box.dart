@@ -150,9 +150,7 @@ class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
         socket.changeTileType(
             selectedTileInfo.selectedTile!.tileQ,
             selectedTileInfo.selectedTile!.tileR,
-            tileType,
-            selectedTileInfo.selectedTile!.hexagon!.wrapQ,
-            selectedTileInfo.selectedTile!.hexagon!.wrapR
+            tileType
         );
 
         selectedTileInfo.selectedTile!.tileType = tileType;

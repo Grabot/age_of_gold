@@ -2,7 +2,7 @@ import 'package:age_of_gold/constants/route_paths.dart' as routes;
 import 'package:age_of_gold/locator.dart';
 import 'package:age_of_gold/services/auth_service.dart';
 import 'package:age_of_gold/services/settings.dart';
-import 'package:age_of_gold/util/global.dart';
+import 'package:age_of_gold/constants/global.dart';
 import 'package:age_of_gold/services/socket_services.dart';
 import 'package:age_of_gold/util/navigation_service.dart';
 import 'package:age_of_gold/util/tapped_map.dart';
@@ -73,7 +73,7 @@ class AgeOfGold extends FlameGame
     socket = SocketServices();
 
     camera.followVector2(cameraPosition, relativeOffset: Anchor.center);
-    camera.zoom = 1;
+    camera.zoom = 4;
 
     int startHexQ = 0;
     int startHexR = 0;

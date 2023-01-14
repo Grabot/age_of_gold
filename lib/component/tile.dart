@@ -4,7 +4,7 @@ import 'package:age_of_gold/component/hexagon.dart';
 import 'package:flame/components.dart';
 import 'package:flame/extensions.dart';
 import 'package:flame/sprite.dart';
-import '../util/global.dart';
+import '../constants/global.dart';
 import '../util/util.dart';
 
 
@@ -19,6 +19,8 @@ class Tile {
 
   // If the map is wrapped around the q will reflect the position accurately
   // But we still save the wrapped Q to show the user and to use it to change.
+  // example: the center tile (0, 0) will be saved in tileQ and tileR
+  // But q and r might have higher values if the map is wrapped around
   late int tileQ;
   late int tileR;
 

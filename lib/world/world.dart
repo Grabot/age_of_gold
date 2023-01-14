@@ -4,7 +4,7 @@ import 'package:age_of_gold/util/tapped_map.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import '../user_interface/user_interface_util/selected_tile_info.dart';
-import '../util/global.dart';
+import '../constants/global.dart';
 import '../util/hexagon_list.dart';
 import '../util/selected_tile.dart';
 import '../services/socket_services.dart';
@@ -80,7 +80,7 @@ class World extends Component {
   }
 
   getAdditionalTileInfo(Tile tile) {
-    socketServices.getTileInfo(tile.q, tile.r);
+    socketServices.getTileInfo(tile.tileQ, tile.tileR);
   }
 
   updateVariant(int variant) {

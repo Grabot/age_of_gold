@@ -5,4 +5,4 @@ int radius = 4;
 
 double maxSpeed = 500;
 
-int mapSize = 50;
+int mapSize = 5;

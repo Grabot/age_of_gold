@@ -17,9 +17,6 @@ class AuthService {
   AuthService._internal();
 
   Future<LoginResponse> getLogin(LoginRequest loginRequest) async {
-
-    AuthApi().dio.options.extra['withCredentials'] = true;
-
     String endPoint = "login";
     var response = await AuthApi().dio.post(endPoint,
         options: Options(headers: {
@@ -36,9 +33,6 @@ class AuthService {
   }
 
   Future<LoginResponse> getRegister(RegisterRequest registerRequest) async {
-
-    AuthApi().dio.options.extra['withCredentials'] = true;
-
     String endPoint = "register";
     var response = await AuthApi().dio.post(endPoint,
         options: Options(headers: {
@@ -55,9 +49,6 @@ class AuthService {
   }
 
   Future<LoginResponse> getRefresh(RefreshRequest refreshRequest) async {
-
-    AuthApi().dio.options.extra['withCredentials'] = true;
-
     String endPoint = "refresh";
     var response = await AuthApi().dio.post(endPoint,
         options: Options(headers: {
@@ -74,9 +65,6 @@ class AuthService {
   }
 
   Future<LoginResponse> getTokenLogin(String accessToken) async {
-
-    AuthApi().dio.options.extra['withCredentials'] = true;
-
     String endPoint = "login/token";
     var response = await AuthApi().dio.post(endPoint,
         options: Options(headers: {
@@ -96,9 +84,6 @@ class AuthService {
   }
 
   Future<LoginResponse> getTest() async {
-
-    AuthApi().dio.options.extra['withCredentials'] = true;
-
     String endPoint = "test";
     var response = await AuthApi().dio.post(endPoint,
         options: Options(headers: {
@@ -112,6 +97,24 @@ class AuthService {
     LoginResponse loginResponse = LoginResponse.fromJson(response.data);
     if (loginResponse.getResult()) {
       print("test endpoint was positive");
+    }
+    return loginResponse;
+  }
+
+  Future<LoginResponse> getTileChange() async {
+    String endPoint = "tileChange";
+    var response = await AuthApi().dio.post(endPoint,
+        options: Options(headers: {
+          HttpHeaders.contentTypeHeader: "application/json",
+        }),
+        data: jsonEncode(<String, String>{
+        }
+        )
+    );
+
+    LoginResponse loginResponse = LoginResponse.fromJson(response.data);
+    if (loginResponse.getResult()) {
+      print("tile change was positive");
     }
     return loginResponse;
   }

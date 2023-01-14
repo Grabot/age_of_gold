@@ -27,7 +27,7 @@ class SelectedTileInfo extends ChangeNotifier {
         return "Tile untouched";
       } else {
         String lastChange = "Last changed by: ${selectedTile!.lastChangedBy}";
-        // TODO: Fix timestamp
+
         if (selectedTile!.lastChangedTime != null) {
           String time = DateFormat('dd:MM:yyyy - HH:mm').format(selectedTile!.lastChangedTime!);
           lastChange += "\nat $time";

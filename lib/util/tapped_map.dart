@@ -1,5 +1,5 @@
 import 'dart:math';
-import '../util/global.dart';
+import '../constants/global.dart';
 
 
 List<int> getTileFromPos(double mouseX, double mouseY) {

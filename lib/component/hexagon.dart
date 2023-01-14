@@ -4,7 +4,7 @@ import 'package:age_of_gold/component/tile.dart';
 import 'package:flame/components.dart';
 import 'package:flame/sprite.dart';
 
-import '../util/global.dart';
+import '../constants/global.dart';
 import '../util/util.dart';
 
 class Hexagon {
@@ -31,6 +31,8 @@ class Hexagon {
 
   late int hexQArray;
   late int hexRArray;
+  late int q;
+  late int r;
   // late int hexSArray;
 
   Hexagon? left;
@@ -48,7 +50,9 @@ class Hexagon {
   bool visible = false;
 
   Hexagon(this.hexQArray, this.hexRArray) {
-    // TODO: Maybe a 'loading' texture?
+    // In case the map wraps around, these variables have original hex values
+    q = hexQArray;
+    r = hexRArray;
     loadTextures();
     // calculate the center point by determining which tile is in the center
     setPosition();
@@ -184,6 +188,9 @@ class Hexagon {
 
     hexQArray = data['q'];
     hexRArray = data['r'];
+    // In case the map wraps around, these variables have original hex values
+    q = data['q'];
+    r = data['r'];
 
     if (data.containsKey("wraparound")) {
       setWrapQ(data["wraparound"]["q"]);

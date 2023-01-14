@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:age_of_gold/services/models/user.dart';
 import 'package:age_of_gold/services/settings.dart';
-import 'package:age_of_gold/util/global.dart';
+import 'package:age_of_gold/constants/global.dart';
 import 'package:age_of_gold/util/util.dart';
 import 'package:flutter/material.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
@@ -65,8 +65,8 @@ class SocketServices extends ChangeNotifier {
     socket.emit(
       "join_hex",
       {
-        'q': hex.hexQArray,
-        'r': hex.hexRArray,
+        'q': hex.q,
+        'r': hex.r,
       },
     );
   }
@@ -75,8 +75,8 @@ class SocketServices extends ChangeNotifier {
     socket.emit(
       "leave_hex",
       {
-        'q': hex.hexQArray,
-        'r': hex.hexRArray,
+        'q': hex.q,
+        'r': hex.r,
       },
     );
   }
@@ -135,7 +135,7 @@ class SocketServices extends ChangeNotifier {
     );
   }
 
-  void changeTileType(int q, int r, int tileType, int wrapQ, int wrapR) {
+  void changeTileType(int q, int r, int tileType) {
     // The q and r will correspond to the correct tile,
     // we send the wrap variables of the hexagon too in case
     // the user is currently wrapped around the map
@@ -144,9 +144,7 @@ class SocketServices extends ChangeNotifier {
       "id": userId,
       "q": q,
       "r": r,
-      "type": tileType,
-      "wrap_q": wrapQ,
-      "wrap_r": wrapR
+      "type": tileType
     });
   }
 

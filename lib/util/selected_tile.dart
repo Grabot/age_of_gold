@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'dart:ui';
 import 'package:flame/components.dart';
 import '../component/tile.dart';
-import 'global.dart';
+import '../constants/global.dart';
 
 
 Vector2 pointyHexCorner(double i, Vector2 center) {
