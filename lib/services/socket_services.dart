@@ -10,6 +10,7 @@ import '../component/tile.dart';
 import '../constants/url_base.dart';
 import '../user_interface/user_interface_components/chat_messages.dart';
 import '../util/hexagon_list.dart';
+import 'package:tuple/tuple.dart';
 
 
 class SocketServices extends ChangeNotifier {
@@ -24,6 +25,7 @@ class SocketServices extends ChangeNotifier {
   HexagonList hexagonList = HexagonList();
   late ChatMessages chatMessages;
 
+  List<Tuple2> wrapCoordinates = [];
   SocketServices._internal() {
     startSockConnection();
   }
@@ -212,6 +214,11 @@ class SocketServices extends ChangeNotifier {
           tileDataQ += (mapSize * 2 + 1) * 5 * hexagon.getWrapR();
           tileDataR += (mapSize * 2 + 1) * -9 * hexagon.getWrapR();
         }
+
+        Tuple2 coordinates = Tuple2<int, int>(hexagon.getWrapQ(), hexagon.getWrapR());
+        if (!wrapCoordinates.contains(coordinates)) {
+          wrapCoordinates.add(coordinates);
+        }
       }
       // If the type is 0
       Tile tile = createTile(tileData["type"], tileDataQ, tileDataR, tileData);
@@ -315,8 +322,19 @@ class SocketServices extends ChangeNotifier {
 
     int tileQ = hexagonList.tileQ;
     int tileR = hexagonList.tileR;
-    return hexagonList.tiles[tileQ + newTileQ - hexagonList.currentQ]
-      [tileR + newTileR - hexagonList.currentR];
+    int qArray = tileQ + newTileQ - hexagonList.currentQ;
+    int rArray = tileR + newTileR - hexagonList.currentR;
+
+    // return hexagonList.tiles[qArray][rArray];
+    if (qArray >= 0 &&
+        qArray <= hexagonList.tiles.length &&
+        rArray >= 0 &&
+        rArray <= hexagonList.tiles[0].length) {
+      Tile? test = hexagonList.tiles[qArray][rArray];
+      return test;
+    } else {
+      return getTileWrap(hexagonList, qArray, rArray, newTileQ, newTileR, wrapCoordinates);
+    }
   }
 
   updateTileInfo(data) {

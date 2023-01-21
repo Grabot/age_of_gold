@@ -80,6 +80,8 @@ class World extends Component {
   }
 
   getAdditionalTileInfo(Tile tile) {
+    print("q: ${tile.q}, r: ${tile.r}");
+    print("wrap Q: ${tile.hexagon!.wrapQ}, wrap R: ${tile.hexagon!.wrapR}");
     socketServices.getTileInfo(tile.tileQ, tile.tileR);
   }
 

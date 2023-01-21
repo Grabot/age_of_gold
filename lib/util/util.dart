@@ -1,11 +1,14 @@
 import 'dart:math';
+import 'package:age_of_gold/component/tile.dart';
 import 'package:age_of_gold/services/models/login_response.dart';
 import 'package:age_of_gold/services/socket_services.dart';
+import 'package:age_of_gold/util/hexagon_list.dart';
 import 'package:age_of_gold/util/web_storage.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:jwt_decode/jwt_decode.dart';
+import 'package:tuple/tuple.dart';
 import '../services/models/user.dart';
 import '../services/settings.dart';
 import '../constants/global.dart';
@@ -121,4 +124,35 @@ showToastMessage(String message) {
     radius: 1.0,
     textStyle: const TextStyle(fontSize: 30.0, color: Colors.black),
   );
+}
+
+Tile? getTileWrap(HexagonList hexagonList, int qArray, int rArray, int newTileQ, int newTileR, List<Tuple2> wrapCoordinates) {
+
+  int tileQ = hexagonList.tileQ;
+  int tileR = hexagonList.tileR;
+
+  for (Tuple2 coordinates in wrapCoordinates) {
+    int q = coordinates.item1;
+    int r = coordinates.item2;
+
+    int qAdded1 = (18 * mapSize + 9) * q;
+    int rAdded1 = (-8 * mapSize - 4) * q;
+
+    int qAdded2 = (10 * mapSize + 5) * r;
+    int rAdded2 = (-18 * mapSize - 9) * r;
+
+    int qAdded = qAdded1 + qAdded2;
+    int rAdded = rAdded1 + rAdded2;
+
+    int qTileOffset = newTileQ + qAdded;
+    int rTileOffset = newTileR + rAdded;
+    if (tileQ + qTileOffset - hexagonList.currentQ >= 0 &&
+        tileQ + qTileOffset - hexagonList.currentQ <= hexagonList.tiles.length &&
+        tileR + rTileOffset - hexagonList.currentR >= 0 &&
+        tileR + rTileOffset - hexagonList.currentR <= hexagonList.tiles[0].length) {
+      return hexagonList.tiles[tileQ + qTileOffset - hexagonList.currentQ][tileR + rTileOffset - hexagonList.currentR];
+    }
+  }
+
+  return null;
 }
