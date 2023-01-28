@@ -48,13 +48,6 @@ class World extends Component {
     super.render(canvas);
 
     renderHexagons(canvas, cameraPosition, hexagonList, screen, currentVariant, socketServices);
-    drawScreen(canvas);
-  }
-
-  drawScreen(Canvas canvas) {
-    final paint = Paint()..color = Colors.lightBlue;
-    paint.style = PaintingStyle.stroke;
-    canvas.drawRect(screen, paint);
 
     if (mouseTile != null) {
       tileSelected(mouseTile!, canvas);
@@ -103,8 +96,7 @@ class World extends Component {
     double rightScreen = cameraPosition.x + (worldSize.x / 2) - borderOffsetX;
     double topScreen = cameraPosition.y - (worldSize.y / 2) + borderOffsetY;
     double bottomScreen = cameraPosition.y + (worldSize.y / 2) - borderOffsetY;
-    // We add the appBar height to the top screen variable
-    topScreen -= 80;
+
     screen = Rect.fromLTRB(leftScreen, topScreen, rightScreen, bottomScreen);
   }
 

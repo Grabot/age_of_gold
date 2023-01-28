@@ -161,7 +161,7 @@ class AgeOfGold extends FlameGame
   }
 
   void clampZoom() {
-    camera.zoom = camera.zoom.clamp(1, 4);
+    camera.zoom = camera.zoom.clamp(0.25, 4);
   }
 
   @override
@@ -292,14 +292,14 @@ class AgeOfGold extends FlameGame
     }
 
     // This will determine 12 variants in a 60fps game loop
-    int newVariant = (frameTimes / 0.084).floor();
-    // It should never exceed 11 (only 12 variants (including 0) for now)
-    if (variant <= 11) {
-      if (variant != newVariant) {
-        variant = newVariant;
-        _world!.updateVariant(variant);
-      }
-    }
+    // int newVariant = (frameTimes / 0.084).floor();
+    // // It should never exceed 11 (only 12 variants (including 0) for now)
+    // if (variant <= 11) {
+    //   if (variant != newVariant) {
+    //     variant = newVariant;
+    //     _world!.updateVariant(variant);
+    //   }
+    // }
   }
 
   calculateStartPosition(int startHexQ, int startHexR) {
@@ -360,7 +360,7 @@ class AgeOfGold extends FlameGame
       return KeyEventResult.ignored;
     } else {
       _world!.resetClick();
-      double mouseSpeed = 10;
+      double mouseSpeed = 40;
       if (event.logicalKey == LogicalKeyboardKey.keyA) {
         dragAccelerateKey.x = isKeyDown ? -mouseSpeed : 0;
       } else if (event.logicalKey == LogicalKeyboardKey.keyD) {

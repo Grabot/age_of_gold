@@ -25,7 +25,6 @@ class Tile {
   late int tileR;
 
   double scaleX = 1;
-  double scaleY = 1.05;
 
   Hexagon? hexagon;
 

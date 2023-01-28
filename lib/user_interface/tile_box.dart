@@ -185,7 +185,7 @@ class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
     if (selectedTileInfo.selectedTile != null) {
       int tileTypeSelected = selectedTileInfo.selectedTile!.tileType;
       TileData tileData = _tiles[tileTypeSelected];
-      return Image.asset(tileData.imagePath, scale: 0.3);
+      return Image.asset(tileData.imagePath, scale: 1);
     }
     return Container();
   }
@@ -349,11 +349,11 @@ class TileData {
 
   static List<TileData> getTiles() {
     return <TileData>[
-      TileData(0, "Amethyst", "assets/images/tiles/b44ac0_noise1.png"),
+      TileData(0, "Amethyst", "assets/images/tiles/Sprite_ametyst.png"),
       TileData(1, "Black", "assets/images/tiles/000000_noise1.png"),
-      TileData(2, "Bondi Blue", "assets/images/tiles/009eaa_noise1.png"),
+      TileData(2, "Bondi Blue", "assets/images/tiles/Sprite_blue.png"),
       TileData(3, "Bright Sun", "assets/images/tiles/ffd635_noise1.png"),
-      TileData(4, "Caribbean Green", "assets/images/tiles/00cc78_noise1.png"),
+      TileData(4, "Caribbean Green", "assets/images/tiles/Sprite_green.png"),
       TileData(5, "Cerulean Blue", "assets/images/tiles/2450a4_noise1.png"),
       TileData(6, "Conifer", "assets/images/tiles/7eed56_noise1.png"),
       TileData(7, "Cornflower Blue", "assets/images/tiles/6a5cff_noise1.png"),
@@ -370,7 +370,7 @@ class TileData {
       TileData(18, "Spice", "assets/images/tiles/6d482f_noise1.png"),
       TileData(19, "Spray", "assets/images/tiles/51e9f4_noise1.png"),
       TileData(20, "Vermillion", "assets/images/tiles/ff4500_noise1.png"),
-      TileData(21, "Web Orange", "assets/images/tiles/ffa800_noise1.png"),
+      TileData(21, "Web Orange", "assets/images/tiles/Sprite_yellow.png"),
       TileData(22, "White", "assets/images/tiles/ffffff_noise1.png"),
       TileData(23, "Wild Strawberry", "assets/images/tiles/ff3881_noise1.png")
     ];

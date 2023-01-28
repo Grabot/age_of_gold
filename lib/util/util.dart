@@ -126,6 +126,28 @@ showToastMessage(String message) {
   );
 }
 
+Tile? getTile(HexagonList hexagonList, List<Tuple2> wrapCoordinates, data) {
+  // We just need the q and r to find the tile and change type on the old tile
+  int newTileQ = data["q"];
+  int newTileR = data["r"];
+
+  int tileQ = hexagonList.tileQ;
+  int tileR = hexagonList.tileR;
+  int qArray = tileQ + newTileQ - hexagonList.currentQ;
+  int rArray = tileR + newTileR - hexagonList.currentR;
+
+  // return hexagonList.tiles[qArray][rArray];
+  if (qArray >= 0 &&
+      qArray <= hexagonList.tiles.length &&
+      rArray >= 0 &&
+      rArray <= hexagonList.tiles[0].length) {
+    Tile? test = hexagonList.tiles[qArray][rArray];
+    return test;
+  } else {
+    return getTileWrap(hexagonList, qArray, rArray, newTileQ, newTileR, wrapCoordinates);
+  }
+}
+
 Tile? getTileWrap(HexagonList hexagonList, int qArray, int rArray, int newTileQ, int newTileR, List<Tuple2> wrapCoordinates) {
 
   int tileQ = hexagonList.tileQ;

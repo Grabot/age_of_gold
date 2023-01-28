@@ -107,10 +107,15 @@ flutter:
     - assets/images/tiles/ffd635_noise1.png
     - assets/images/tiles/ffffff_noise1.png
     - assets/images/brocast_transparent.png
+    - assets/images/tiles/Sprite_ametyst.png
+    - assets/images/tiles/Sprite_blue.png
+    - assets/images/tiles/Sprite_green.png
+    - assets/images/tiles/Sprite_yellow.png
     - assets/images/Github_logo_PNG1.png
     - assets/images/google_button.png
     - assets/images/reddit_button.png
     - assets/images/gogle_button.png
     - assets/images/github_button.png
     - assets/images/default_avatar.png
+    - assets/images/tile_variants/sprite_variant_1.png
 

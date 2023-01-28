@@ -12,7 +12,7 @@ Vector2 pointyHexCorner(double i, Vector2 center) {
   double angleRad = pi/180 * angleDeg;
   double pointX = center.x + (xSize * cos(angleRad)) + xSize;
   double pointY = center.y + (ySize * sin(angleRad)) + ySize;
-  return Vector2(pointX, pointY);
+  return Vector2(pointX, pointY - 4);
 }
 
 drawTileSelection(Tile selectedTile, Canvas canvas) {

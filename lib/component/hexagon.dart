@@ -65,7 +65,7 @@ class Hexagon {
   }
 
   loadTextures() {
-    SpriteBatch.load('tile_variants/variant_1.png').then((SpriteBatch batch) {
+    SpriteBatch.load('tile_variants/sprite_variant_1.png').then((SpriteBatch batch) {
       variations[0] = batch;
       checkUpdate();
     });
