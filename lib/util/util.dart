@@ -12,6 +12,9 @@ import 'package:tuple/tuple.dart';
 import '../services/models/user.dart';
 import '../services/settings.dart';
 import '../constants/global.dart';
+import 'package:age_of_gold/constants/route_paths.dart' as routes;
+
+import 'navigation_service.dart';
 
 
 List removeDuplicates(List hexToRetrieve) {
@@ -177,4 +180,11 @@ Tile? getTileWrap(HexagonList hexagonList, int qArray, int rArray, int newTileQ,
   }
 
   return null;
+}
+
+logoutUser(Settings settings, NavigationService navigationService) {
+  settings.logout();
+  SecureStorage().logout().then((value) {
+    navigationService.navigateTo(routes.HomeRoute, arguments: {'message': "Logged out"});
+  });
 }

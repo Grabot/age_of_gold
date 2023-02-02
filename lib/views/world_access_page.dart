@@ -1,5 +1,5 @@
 import 'package:age_of_gold/locator.dart';
-import 'package:age_of_gold/services/auth_service.dart';
+import 'package:age_of_gold/services/auth_service_login.dart';
 import 'package:age_of_gold/services/models/refresh_request.dart';
 import 'package:age_of_gold/util/navigation_service.dart';
 import 'package:flutter/material.dart';
@@ -39,7 +39,7 @@ class _WorldAccessState extends State<WorldAccess> {
     print("refresh token: $refreshToken");
     // Use the tokens to immediately refresh the access token
     if (accessToken != null && refreshToken != null) {
-      AuthService authService = AuthService();
+      AuthServiceLogin authService = AuthServiceLogin();
       authService.getRefresh(RefreshRequest(accessToken, refreshToken)).then((loginResponse) {
         if (loginResponse.getResult()) {
           print("it was a success");

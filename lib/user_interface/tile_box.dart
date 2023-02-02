@@ -1,4 +1,5 @@
 import 'package:age_of_gold/locator.dart';
+import 'package:age_of_gold/services/auth_service_world.dart';
 import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/user_interface/user_interface_util/selected_tile_info.dart';
 import 'package:age_of_gold/util/countdown.dart';
@@ -147,14 +148,24 @@ class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
     } else if (settings.getUser()!.getTileLock().isBefore(DateTime.now())) {
       // The lock needs to be over.
       if (tileName != selectedTileInfo.getTileType()) {
-        socket.changeTileType(
+        AuthServiceWorld().changeTileType(
             selectedTileInfo.selectedTile!.tileQ,
             selectedTileInfo.selectedTile!.tileR,
             tileType
-        );
-
-        selectedTileInfo.selectedTile!.tileType = tileType;
-        setState(() {});
+        ).then((value) {
+          if (value == "success") {
+            selectedTileInfo.selectedTile!.tileType = tileType;
+            setState(() {});
+          } else if(value == "not allowed") {
+            showToastMessage("Failed to change tile to $tileName");
+          } else if(value == "back to login") {
+            logoutUser(settings, _navigationService);
+          } else if(value == "error occurred") {
+            showToastMessage("An error occurred while changing tile to $tileName");
+          } else {
+            logoutUser(settings, _navigationService);
+          }
+        });
       }
     } else {
       showToastMessage("Not allowed to change a tile for another ${settings.getUser()!.getTileLock().difference(DateTime.now()).inSeconds} seconds.");

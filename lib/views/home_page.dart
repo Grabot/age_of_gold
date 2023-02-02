@@ -1,5 +1,5 @@
 import 'package:age_of_gold/locator.dart';
-import 'package:age_of_gold/services/auth_service.dart';
+import 'package:age_of_gold/services/auth_service_login.dart';
 import 'package:age_of_gold/util/navigation_service.dart';
 import 'package:age_of_gold/util/util.dart';
 import 'package:age_of_gold/util/web_storage.dart';
@@ -41,7 +41,7 @@ class _HomePageState extends State<HomePage> {
         if (accessToken != null && accessToken != "") {
           // Something is stored, check if the user can just
           // log in automatically using the access token
-          AuthService authService = AuthService();
+          AuthServiceLogin authService = AuthServiceLogin();
           authService.getTokenLogin(accessToken).then((loginResponse) {
             if (loginResponse.getResult()) {
               print("access token still valid!");

@@ -1,6 +1,6 @@
 import 'package:age_of_gold/constants/route_paths.dart' as routes;
 import 'package:age_of_gold/locator.dart';
-import 'package:age_of_gold/services/auth_service.dart';
+import 'package:age_of_gold/services/auth_service_login.dart';
 import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/constants/global.dart';
 import 'package:age_of_gold/services/socket_services.dart';
@@ -118,7 +118,7 @@ class AgeOfGold extends FlameGame
   }
 
   logIn(NavigationService navigationService, Settings settings, String accessToken) {
-    AuthService authService = AuthService();
+    AuthServiceLogin authService = AuthServiceLogin();
     authService.getTokenLogin(accessToken).then((loginResponse) {
       if (loginResponse.getResult()) {
         print("successfully logged in!");
@@ -372,7 +372,7 @@ class AgeOfGold extends FlameGame
       }
 
       if (event.logicalKey == LogicalKeyboardKey.keyI && isKeyDown) {
-        AuthService authService = AuthService();
+        AuthServiceLogin authService = AuthServiceLogin();
         authService.getTest().then((loginResponse) {
           if (loginResponse.getResult()) {
             print("it worked");
@@ -409,21 +409,21 @@ class AgeOfGold extends FlameGame
     double currentHeight = camera.canvasSize.y;
     if (_world != null) {
       if (currentZoom > 3.5 && (currentWidth < 2000 && currentHeight < 1100)) {
-        _world!.setHexagonArraySize(8);
-      } else if (currentZoom > 3.5 && (currentWidth > 2000 || currentHeight > 1100)) {
-        _world!.setHexagonArraySize(12);
-      } else if ((currentZoom < 3.5 && currentZoom > 2.5) && (currentWidth < 2000 && currentHeight < 1100)) {
         _world!.setHexagonArraySize(10);
+      } else if (currentZoom > 3.5 && (currentWidth > 2000 || currentHeight > 1100)) {
+        _world!.setHexagonArraySize(14);
+      } else if ((currentZoom < 3.5 && currentZoom > 2.5) && (currentWidth < 2000 && currentHeight < 1100)) {
+        _world!.setHexagonArraySize(12);
       } else if ((currentZoom < 3.5 && currentZoom > 2.5) && (currentWidth > 2000 || currentHeight > 1100)) {
-        _world!.setHexagonArraySize(14);
+        _world!.setHexagonArraySize(16);
       } else if ((currentZoom < 2.5 && currentZoom > 1.5) && (currentWidth < 2000 && currentHeight < 1100)) {
-        _world!.setHexagonArraySize(14);
+        _world!.setHexagonArraySize(16);
       } else if ((currentZoom < 2.5 && currentZoom > 1.5) && (currentWidth > 2000 || currentHeight > 1100)) {
-        _world!.setHexagonArraySize(18);
+        _world!.setHexagonArraySize(22);
       } else if ((currentZoom < 1.5 && currentZoom > 0.5) && (currentWidth < 2000 && currentHeight < 1100)) {
-        _world!.setHexagonArraySize(18);
+        _world!.setHexagonArraySize(22);
       } else if ((currentZoom < 1.5 && currentZoom > 0.5) && (currentWidth > 2000 || currentHeight > 1100)) {
-        _world!.setHexagonArraySize(26);
+        _world!.setHexagonArraySize(30);
       }
     }
   }
@@ -435,9 +435,9 @@ class AgeOfGold extends FlameGame
     int r = tileProperties[1];
 
     if (!_world!.worldCheck(q, r)) {
-      if (problems == 10) {
-        // This should only be a last resort, so after 10 seconds of
-        // no tile we will attempt to fix the camera position
+      if (problems == 20) {
+        // This should only be a last resort, so after 20 seconds of no tile
+        // we will attempt to fix the camera position
         int hexQ = convertTileToHexQ(q, r);
         int hexR = convertTileToHexR(q, r);
         _world!.resetWorld(hexQ, hexR);

@@ -1,5 +1,5 @@
 import 'package:age_of_gold/locator.dart';
-import 'package:age_of_gold/services/auth_service.dart';
+import 'package:age_of_gold/services/auth_service_login.dart';
 import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/util/countdown.dart';
 import 'package:age_of_gold/util/navigation_service.dart';
@@ -7,6 +7,7 @@ import 'package:age_of_gold/util/web_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:age_of_gold/constants/route_paths.dart' as routes;
 import '../age_of_gold.dart';
+import '../util/util.dart';
 
 
 class ProfilePage extends StatefulWidget {
@@ -106,7 +107,7 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
   }
 
   logIn(String accessToken) {
-    AuthService authService = AuthService();
+    AuthServiceLogin authService = AuthServiceLogin();
     authService.getTokenLogin(accessToken).then((loginResponse) {
       if (loginResponse.getResult()) {
         setState(() {
@@ -140,10 +141,7 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
       margin: EdgeInsets.only(top: 20),
       child: ElevatedButton(
         onPressed: () {
-          settings.logout();
-          SecureStorage().logout().then((value) {
-            _navigationService.navigateTo(routes.HomeRoute, arguments: {'message': "Logged out"});
-          });
+          logoutUser(settings, _navigationService);
         },
         child: Text("Log out"),
       ),

@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../age_of_gold.dart';
 import '../constants/url_base.dart';
-import '../services/auth_service.dart';
+import '../services/auth_service_login.dart';
 import '../services/models/register_request.dart';
 import '../services/settings.dart';
 import '../util/util.dart';
@@ -80,7 +80,7 @@ class LoginScreenState extends State<LoginScreen> {
       // send login request
       String emailOrUserName = emailOrUsernameController.text;
       String password = password1Controller.text;
-      AuthService authService = AuthService();
+      AuthServiceLogin authService = AuthServiceLogin();
       authService.getLogin(LoginRequest(emailOrUserName, password)).then((loginResponse) {
         if (loginResponse.getResult()) {
           print("signing in");
@@ -99,7 +99,7 @@ class LoginScreenState extends State<LoginScreen> {
       String email = emailController.text;
       String userName = usernameController.text;
       String password = password2Controller.text;
-      AuthService authService = AuthService();
+      AuthServiceLogin authService = AuthServiceLogin();
       authService.getRegister(RegisterRequest(email, userName, password)).then((loginResponse) {
         if (loginResponse.getResult()) {
           print("signing up");

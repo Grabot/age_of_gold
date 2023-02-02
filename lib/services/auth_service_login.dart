@@ -9,12 +9,12 @@ import 'models/login_request.dart';
 import 'models/refresh_request.dart';
 
 
-class AuthService {
-  static AuthService? _instance;
+class AuthServiceLogin {
+  static AuthServiceLogin? _instance;
 
-  factory AuthService() => _instance ??= AuthService._internal();
+  factory AuthServiceLogin() => _instance ??= AuthServiceLogin._internal();
 
-  AuthService._internal();
+  AuthServiceLogin._internal();
 
   Future<LoginResponse> getLogin(LoginRequest loginRequest) async {
     String endPoint = "login";
@@ -97,24 +97,6 @@ class AuthService {
     LoginResponse loginResponse = LoginResponse.fromJson(response.data);
     if (loginResponse.getResult()) {
       print("test endpoint was positive");
-    }
-    return loginResponse;
-  }
-
-  Future<LoginResponse> getTileChange() async {
-    String endPoint = "tileChange";
-    var response = await AuthApi().dio.post(endPoint,
-        options: Options(headers: {
-          HttpHeaders.contentTypeHeader: "application/json",
-        }),
-        data: jsonEncode(<String, String>{
-        }
-        )
-    );
-
-    LoginResponse loginResponse = LoginResponse.fromJson(response.data);
-    if (loginResponse.getResult()) {
-      print("tile change was positive");
     }
     return loginResponse;
   }
