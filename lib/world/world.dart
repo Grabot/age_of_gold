@@ -3,6 +3,7 @@ import 'package:age_of_gold/util/render_hexagons.dart';
 import 'package:age_of_gold/util/tapped_map.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
+import '../services/auth_service_world.dart';
 import '../user_interface/user_interface_util/selected_tile_info.dart';
 import '../constants/global.dart';
 import '../util/hexagon_list.dart';
@@ -73,9 +74,17 @@ class World extends Component {
   }
 
   getAdditionalTileInfo(Tile tile) {
-    print("q: ${tile.q}, r: ${tile.r}");
-    print("wrap Q: ${tile.hexagon!.wrapQ}, wrap R: ${tile.hexagon!.wrapR}");
-    socketServices.getTileInfo(tile.tileQ, tile.tileR);
+    AuthServiceWorld().getTileInfo(tile).then((value) {
+      if (value != "success") {
+        // TODO: What to do when it is not successful
+      } else {
+        print("success!");
+        socketServices.notifyListeners();
+      }
+    }).onError((error, stackTrace) {
+      // TODO: What to do on an error?
+    });
+    // socketServices.getTileInfo(tile.tileQ, tile.tileR);
   }
 
   updateVariant(int variant) {

@@ -51,7 +51,6 @@ class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
     selectedTileInfo.addListener(selectedTileListener);
 
     socket.addListener(socketListener);
-    socket.checkTile();
 
     _dropdownMenuItems = buildDropdownMenuItems(_tiles);
     _selectedTile = _dropdownMenuItems[0].value!;

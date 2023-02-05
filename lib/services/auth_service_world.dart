@@ -6,11 +6,13 @@ import 'package:age_of_gold/services/socket_services.dart';
 import 'package:dio/dio.dart';
 import 'package:tuple/tuple.dart';
 import '../component/hexagon.dart';
+import '../component/tile.dart';
 import '../util/hexagon_list.dart';
 import '../util/util.dart';
 import 'auth_api.dart';
 import 'models/login_request.dart';
 import 'models/refresh_request.dart';
+import 'models/user.dart';
 
 
 class AuthServiceWorld {
@@ -73,6 +75,46 @@ class AuthServiceWorld {
         var hexagons = json["hexagons"];
         for (var hex in hexagons) {
           addHexagon(hexagonList, socketServices, hex);
+        }
+        return "success";
+      } else {
+        return json["message"];
+      }
+    }
+  }
+
+  Future<String> getTileInfo(Tile tile) async {
+    String endPoint = "tile/get/info";
+    var response = await AuthApi().dio.post(endPoint,
+        options: Options(headers: {
+          HttpHeaders.contentTypeHeader: "application/json",
+        }),
+        data: jsonEncode(<String, String>{
+          "q": tile.tileQ.toString(),
+          "r": tile.tileR.toString()
+        }
+      )
+    );
+
+    Map<String, dynamic> json = response.data;
+    print("response is $json");
+    if (!json.containsKey("result")) {
+      return "an error occurred";
+    } else {
+      if (json["result"]) {
+        Map<String, dynamic> jsonTile = json["tile"];
+        if (jsonTile["last_changed_by"] != null && jsonTile["last_changed_time"] != null) {
+          print("data: " + jsonTile.toString());
+          User user = User.fromJson(jsonTile["last_changed_by"]);
+          String nameLastChanged = user.getUserName();
+          String lastChanged = jsonTile["last_changed_time"];
+          if (!lastChanged.endsWith("Z")) {
+            // The server has utc timestamp, but it's not formatted with the 'Z'.
+            lastChanged += "Z";
+          }
+          tile.setLastChangedBy(nameLastChanged);
+          tile.setLastChangedTime(DateTime.parse(lastChanged).toLocal());
+          // TODO: Find a way to update the tilebox
         }
         return "success";
       } else {
