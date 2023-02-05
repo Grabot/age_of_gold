@@ -194,4 +194,16 @@ class HexagonList {
       socketServices.getHexagon(hexNewUnique[x][0], hexNewUnique[x][1]);
     }
   }
+
+  setBackToRetrieve() {
+    // In case of a big issue, we set all hexagons back to be retrieved
+    for (int q = 0; q < hexagons.length; q++) {
+      for (int r = 0; r < hexagons[0].length; r++) {
+        if (hexagons[q][r] != null) {
+          hexagons[q][r]!.setToRetrieve = true;
+          hexagons[q][r]!.retrieved = false;
+        }
+      }
+    }
+  }
 }

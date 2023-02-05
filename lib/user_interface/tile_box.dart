@@ -165,6 +165,8 @@ class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
           } else {
             logoutUser(settings, _navigationService);
           }
+        }).onError((error, stackTrace) {
+          showToastMessage("An error occurred while changing tile to $tileName");
         });
       }
     } else {
@@ -172,7 +174,6 @@ class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
       _selectedTile =
       _dropdownMenuItems[selectedTileInfo.selectedTile!.tileType].value!;
     }
-
   }
 
   Widget tileButton(String tileName, Image tile, int tileType) {
