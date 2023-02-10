@@ -21,6 +21,14 @@ class User {
     return tileLock;
   }
 
+  updateTileLock(String tileLock) {
+    if (!tileLock.endsWith("Z")) {
+      // The server has utc timestamp, but it's not formatted with the 'Z'.
+      tileLock += "Z";
+    }
+    this.tileLock = DateTime.parse(tileLock).toLocal();
+  }
+
   User.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     userName = json["username"];

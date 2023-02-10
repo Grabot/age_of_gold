@@ -154,6 +154,7 @@ class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
         ).then((value) {
           if (value == "success") {
             selectedTileInfo.selectedTile!.tileType = tileType;
+            updateTimeLock();
             setState(() {});
           } else if(value == "not allowed") {
             showToastMessage("Failed to change tile to $tileName");

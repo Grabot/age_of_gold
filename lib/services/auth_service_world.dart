@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:age_of_gold/services/models/login_response.dart';
 import 'package:age_of_gold/services/models/register_request.dart';
+import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/services/socket_services.dart';
 import 'package:dio/dio.dart';
 import 'package:tuple/tuple.dart';
@@ -40,7 +41,14 @@ class AuthServiceWorld {
     print("response is $json");
     if (json.containsKey("result")) {
       if (json["result"]) {
-        return "success";
+        // update the lock time of the user.
+        Settings settings = Settings();
+        if (json.containsKey("tile_lock") && settings.getUser() != null) {
+          settings.getUser()!.updateTileLock(json["tile_lock"]);
+          return "success";
+        } else {
+          return "error occurred";
+        }
       } else {
         return json["message"];
       }
