@@ -75,7 +75,7 @@ class AuthServiceWorld {
     );
 
     Map<String, dynamic> json = response.data;
-    print("response is $json");
+    // print("response is $json");
     if (!json.containsKey("result")) {
       return "an error occurred";
     } else {

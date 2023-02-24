@@ -11,7 +11,7 @@ class Hexagon {
 
   late Vector2 center;
 
-  // SpriteBatch? batchBase;
+  // Different variations for possible animations
   List<SpriteBatch?> variations = [
     null,
     null,
@@ -65,65 +65,11 @@ class Hexagon {
   }
 
   loadTextures() {
-    SpriteBatch.load('tile_variants/sprite_variant_1.png').then((SpriteBatch batch) {
+    SpriteBatch.load('tile_variants/sprite_regular.png').then((SpriteBatch batch) {
       variations[0] = batch;
-      checkUpdate();
-    });
-    SpriteBatch.load('tile_variants/variant_2.png').then((SpriteBatch batch) {
-      variations[1] = batch;
-      checkUpdate();
-    });
-    SpriteBatch.load('tile_variants/variant_3.png').then((SpriteBatch batch) {
-      variations[2] = batch;
-      checkUpdate();
-    });
-    SpriteBatch.load('tile_variants/variant_4.png').then((SpriteBatch batch) {
-      variations[3] = batch;
-      checkUpdate();
-    });
-    SpriteBatch.load('tile_variants/variant_5.png').then((SpriteBatch batch) {
-      variations[4] = batch;
-      checkUpdate();
-    });
-    SpriteBatch.load('tile_variants/variant_6.png').then((SpriteBatch batch) {
-      variations[5] = batch;
-      checkUpdate();
-    });
-    SpriteBatch.load('tile_variants/variant_7.png').then((SpriteBatch batch) {
-      variations[6] = batch;
-      checkUpdate();
-    });
-    SpriteBatch.load('tile_variants/variant_8.png').then((SpriteBatch batch) {
-      variations[7] = batch;
-      checkUpdate();
-    });
-    SpriteBatch.load('tile_variants/variant_9.png').then((SpriteBatch batch) {
-      variations[8] = batch;
-      checkUpdate();
-    });
-    SpriteBatch.load('tile_variants/variant_10.png').then((SpriteBatch batch) {
-      variations[9] = batch;
-      checkUpdate();
-    });
-    SpriteBatch.load('tile_variants/variant_11.png').then((SpriteBatch batch) {
-      variations[10] = batch;
-      checkUpdate();
-    });
-    SpriteBatch.load('tile_variants/variant_12.png').then((SpriteBatch batch) {
-      variations[11] = batch;
-      checkUpdate();
+      updateHexagon();
     });
   }
-
-  checkUpdate() {
-    for (SpriteBatch? variantLoad in variations) {
-      if (variantLoad == null) {
-        return;
-      }
-    }
-    updateHexagon();
-  }
-
 
   setWrapQ(int wrapQ) {
     this.wrapQ = wrapQ;

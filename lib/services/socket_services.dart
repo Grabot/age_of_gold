@@ -206,7 +206,6 @@ class SocketServices extends ChangeNotifier {
 
     if (!gatherHexagons) {
       Future.delayed(const Duration(milliseconds: 500), () {
-        print("delayed test ${hexRetrievals}");
         gatherHexagons = false;
         actuallyActuallyGetHexagons();
       });
