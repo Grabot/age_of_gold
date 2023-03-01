@@ -289,13 +289,18 @@ class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            tileTimeInformation(),
-            SizedBox(width: 50),
-            Text(
-              socket.getUserName(),
-              style: const TextStyle(color: Colors.white, fontSize: 24),
+            SizedBox(
+              width: 100,
+              child: tileTimeInformation()
             ),
-            SizedBox(width: 50),
+            SizedBox(
+              width: 150,
+              child: Text(
+                socket.getUserName(),
+                style: const TextStyle(color: Colors.white, fontSize: 24),
+              ),
+            ),
+            SizedBox(width: 10),
             Image.asset(
                 "assets/images/default_avatar.png",
                 width: 70,

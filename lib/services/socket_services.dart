@@ -115,36 +115,6 @@ class SocketServices extends ChangeNotifier {
     });
   }
 
-  // void checkTile() {
-    // socket.on('change_tile_type_success', (data) {
-    //   changeTile(data);
-    //   notifyListeners();
-    // });
-    // socket.on('change_tile_type_failed', (data) {
-    //   showToastMessage("changing tile type failed!");
-    //   notifyListeners();
-    // });
-    // socket.on('get_tile_info_success', (data) {
-    //   updateTileInfo(data);
-    //   notifyListeners();
-    // });
-    // socket.on('get_tile_info_failed', (data) {
-    //   showToastMessage("get more tile information failed?!");
-    //   notifyListeners();
-    // });
-  // }
-
-  // getTileInfo(int q, int r) {
-  //   // TODO: change to rest api
-  //   socket.emit(
-  //     "get_tile_info",
-  //     {
-  //       'q': q,
-  //       'r': r,
-  //     },
-  //   );
-  // }
-
   void changeTileType(int q, int r, int tileType) {
     // The q and r will correspond to the correct tile,
     // we send the wrap variables of the hexagon too in case
@@ -231,13 +201,6 @@ class SocketServices extends ChangeNotifier {
     hexRetrievals = [];
   }
 
-  // updateTileInfo(data) {
-  //   Tile? currentTile = getTile(hexagonList, wrapCoordinates, data);
-  //   if (currentTile != null) {
-  //     addTileInfo(data, currentTile);
-  //   }
-  // }
-
   addTileInfo(data, Tile prevTile) {
     if (data["last_changed_by"] != null && data["last_changed_time"] != null) {
       print("data: " + data.toString());
@@ -250,7 +213,6 @@ class SocketServices extends ChangeNotifier {
       }
       prevTile.setLastChangedBy(nameLastChanged);
       prevTile.setLastChangedTime(DateTime.parse(lastChanged).toLocal());
-      // Settings().setUser(user);
     }
   }
 

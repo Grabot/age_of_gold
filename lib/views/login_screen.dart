@@ -32,6 +32,7 @@ class LoginScreenState extends State<LoginScreen> {
   bool visible = true;
 
   final formKeyLogin = GlobalKey<FormState>();
+  final formKeyReset = GlobalKey<FormState>();
   final formKeyRegister = GlobalKey<FormState>();
 
   TextEditingController emailOrUsernameController = new TextEditingController();
@@ -39,10 +40,10 @@ class LoginScreenState extends State<LoginScreen> {
   TextEditingController usernameController = new TextEditingController();
   TextEditingController password1Controller = new TextEditingController();
   TextEditingController password2Controller = new TextEditingController();
+  TextEditingController forgotPasswordEmailController = new TextEditingController();
 
   @override
   void initState() {
-    print("login screen");
     super.initState();
   }
 
@@ -54,26 +55,11 @@ class LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  bool signUpMode = false;
+  int signUpMode = 0;
+  bool passwordResetSend = false;
   bool isLoading = false;
 
-  TextStyle simpleTextStyle(double fontSize) {
-    return TextStyle(color: Colors.white, fontSize: fontSize);
-  }
-
-  InputDecoration textFieldInputDecoration(String hintText) {
-    return InputDecoration(
-        hintText: hintText,
-        hintStyle: const TextStyle(
-          color: Colors.white54,
-        ),
-        focusedBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(color: Colors.white),
-        ),
-        enabledBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(color: Colors.white54),
-        ));
-  }
+  String resetEmail = "";
 
   signInAgeOfGold() {
     if (formKeyLogin.currentState!.validate()) {
@@ -113,6 +99,253 @@ class LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  forgotPassword() {
+    if (formKeyReset.currentState!.validate()) {
+      print("this guy forgot his gosh darned password");
+      resetEmail = forgotPasswordEmailController.text;
+      AuthServiceLogin authService = AuthServiceLogin();
+      authService.getPasswordReset(resetEmail).then((passwordResetResponse) {
+        if (passwordResetResponse.getResult()) {
+          setState(() {
+            passwordResetSend = true;
+          });
+        } else if (!passwordResetResponse.getResult()) {
+          showToastMessage(passwordResetResponse.getMessage());
+          resetEmail = "";
+        }
+      }).onError((error, stackTrace) {
+        showToastMessage(error.toString());
+        resetEmail = "";
+      });
+    }
+  }
+
+  Widget loginAlternatives(double loginBoxSize, double fontSize) {
+    return Column(
+      children: [
+        Row(
+            children: [
+              Expanded(
+                child: new Container(
+                    margin: const EdgeInsets.only(left: 10.0, right: 20.0),
+                    child: Divider(
+                      color: Colors.white,
+                      height: 36,
+                    )),
+              ),
+              signUpMode == 0 ? Text("or login with") : Container(),
+              signUpMode == 1 ? Text("or register with") : Container(),
+              Expanded(
+                child: new Container(
+                    margin: const EdgeInsets.only(left: 20.0, right: 10.0),
+                    child: Divider(
+                      color: Colors.white,
+                      height: 36,
+                    )),
+              ),
+            ]
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Column(
+                children: [
+                  InkWell(
+                    onTap: () {
+                      final Uri _url = Uri.parse(googleLogin);
+                      _launchUrl(_url);
+                      print("tapped Google");
+                    },
+                    child: SizedBox(
+                      height: loginBoxSize,
+                      width: loginBoxSize,
+                      child: Image.asset(
+                          "assets/images/gogle_button.png"
+                      ),
+                    ),
+                  ),
+                  Text(
+                    "Google",
+                    style: TextStyle(fontSize: fontSize),
+                  )
+                ]
+            ),
+            SizedBox(width: 10),
+            Column(
+              children: [
+                InkWell(
+                  onTap: () {
+                    final Uri _url = Uri.parse(githubLogin);
+                    _launchUrl(_url);
+                  },
+                  child: SizedBox(
+                    height: loginBoxSize,
+                    width: loginBoxSize,
+                    child: Image.asset(
+                        "assets/images/github_button.png"
+                    ),
+                  ),
+                ),
+                Text(
+                  "Github",
+                  style: TextStyle(fontSize: fontSize),
+                )
+              ],
+            ),
+            SizedBox(width: 10),
+            Column(
+                children: [
+                  InkWell(
+                    onTap: () {
+                      print("tapped reddit");
+                      final Uri _url = Uri.parse(redditLogin);
+                      _launchUrl(_url);
+                    },
+                    child: SizedBox(
+                      height: loginBoxSize,
+                      width: loginBoxSize,
+                      child: Image.asset(
+                          "assets/images/reddit_button.png"
+                      ),
+                    ),
+                  ),
+                  Text(
+                    "Reddit",
+                    style: TextStyle(fontSize: fontSize),
+                  )
+                ]
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget resetPasswordEmailSend(double width, double fontSize) {
+    return Column(
+      children: [
+        Text(
+          "Check your email",
+          style: TextStyle(color: Colors.white, fontSize: fontSize*2),
+        ),
+        SizedBox(height: 10),
+        Text(
+          "Please check the email address $resetEmail for instructions to reset your password. \nThis might take a few minutes",
+          style: TextStyle(color: Colors.white70, fontSize: fontSize),
+        ),
+        const SizedBox(height: 50),
+        ElevatedButton(
+          onPressed: () {
+            setState(() {
+              passwordResetSend = false;
+            });
+          },
+          style: buttonStyle(),
+          child: Container(
+            alignment: Alignment.center,
+            width: width,
+            height: 50,
+            child: Text(
+              'Resend email',
+              style: simpleTextStyle(fontSize),
+            ),
+          ),
+        )
+      ],
+    );
+  }
+
+  Widget resetPassword(double width, double fontSize) {
+    return Form(
+      key: formKeyReset,
+      child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "Reset your password",
+                  style: TextStyle(color: Colors.white, fontSize: fontSize*2),
+                ),
+              ],
+            ),
+            SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                    "Enter your email address and we will send you instructions to reset your password.",
+                    style: TextStyle(color: Colors.white70, fontSize: fontSize),
+                ),
+              ]
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: TextFormField(
+                onTap: () {
+                  if (!isLoading) {
+                    print("tapped field forgot password");
+                  }
+                },
+                validator: (val) {
+                  return val == null || val.isEmpty
+                      ? "Please provide an Email address"
+                      : null;
+                },
+                controller: forgotPasswordEmailController,
+                textAlign: TextAlign.center,
+                style: simpleTextStyle(fontSize),
+                decoration:
+                textFieldInputDecoration("Email adddress"),
+              ),
+            ),
+            SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(),
+                Row(
+                  children: [
+                    InkWell(
+                        onTap: () {
+                          if (!isLoading) {
+                            setState(() {
+                              signUpMode = 0;
+                            });
+                          }
+                        },
+                        child: Text(
+                          "Back to login",
+                          style: TextStyle(color: Colors.blue, fontSize: fontSize),
+                        )
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                if (!isLoading) {
+                  forgotPassword();
+                }
+              },
+              style: buttonStyle(),
+              child: Container(
+                alignment: Alignment.center,
+                width: width,
+                height: 50,
+                child: Text(
+                  'Continue',
+                  style: simpleTextStyle(fontSize),
+                ),
+              ),
+            )
+          ]
+      ),
+    );
+  }
+
   Widget login(double width, double fontSize) {
     return Form(
       key: formKeyLogin,
@@ -131,7 +364,7 @@ class LoginScreenState extends State<LoginScreen> {
                       onTap: () {
                         if (!isLoading) {
                           setState(() {
-                            signUpMode = !signUpMode;
+                            signUpMode = 1;
                           });
                         }
                       },
@@ -149,7 +382,7 @@ class LoginScreenState extends State<LoginScreen> {
             ],
           ),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 50),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
             child: TextFormField(
               onTap: () {
                 if (!isLoading) {
@@ -169,7 +402,7 @@ class LoginScreenState extends State<LoginScreen> {
             ),
           ),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 50),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
             child: TextFormField(
               onTap: () {
                 if (!isLoading) {
@@ -189,26 +422,48 @@ class LoginScreenState extends State<LoginScreen> {
               textFieldInputDecoration("Password"),
             ),
           ),
-          const SizedBox(height: 30),
-          GestureDetector(
-            onTap: () {
+          SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(),
+              Row(
+                children: [
+                  InkWell(
+                      onTap: () {
+                        if (!isLoading) {
+                          setState(() {
+                            signUpMode = 2;
+                          });
+                        }
+                      },
+                      child: Text(
+                        "Forgot password?",
+                        style: TextStyle(color: Colors.blue, fontSize: fontSize),
+                      )
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: () {
               if (!isLoading) {
                 signInAgeOfGold();
               }
             },
+            style: buttonStyle(),
             child: Container(
               alignment: Alignment.center,
-              width: MediaQuery.of(context).size.width,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              decoration: BoxDecoration(
-                  gradient: const LinearGradient(colors: [
-                    Color(0xBf007EF4),
-                    Color(0xff2A75BC)
-                  ]),
-                  borderRadius: BorderRadius.circular(30)),
-              child: Text("Login", style: simpleTextStyle(fontSize)),
+              width: width,
+              height: 50,
+              child: Text(
+                'Login',
+                style: simpleTextStyle(fontSize),
+              ),
             ),
-          ),
+          )
         ]
       ),
     );
@@ -232,7 +487,7 @@ class LoginScreenState extends State<LoginScreen> {
                       onTap: () {
                         if (!isLoading) {
                           setState(() {
-                            signUpMode = !signUpMode;
+                            signUpMode = 0;
                           });
                         }
                       },
@@ -250,7 +505,7 @@ class LoginScreenState extends State<LoginScreen> {
             ],
           ),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 50),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
             child: TextFormField(
               onTap: () {
                 if (!isLoading) {
@@ -278,7 +533,7 @@ class LoginScreenState extends State<LoginScreen> {
             ),
           ),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 50),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
             child: TextFormField(
               onTap: () {
                 if (!isLoading) {
@@ -303,7 +558,7 @@ class LoginScreenState extends State<LoginScreen> {
             ),
           ),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 50),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
             child: TextFormField(
               onTap: () {
                 if (!isLoading) {
@@ -324,25 +579,23 @@ class LoginScreenState extends State<LoginScreen> {
             ),
           ),
           const SizedBox(height: 30),
-          GestureDetector(
-            onTap: () {
+          ElevatedButton(
+            onPressed: () {
               if (!isLoading) {
                 signUpAgeOfGold();
               }
             },
+            style: buttonStyle(),
             child: Container(
               alignment: Alignment.center,
-              width: MediaQuery.of(context).size.width,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              decoration: BoxDecoration(
-                  gradient: const LinearGradient(colors: [
-                    Color(0xBf007EF4),
-                    Color(0xff2A75BC)
-                  ]),
-                  borderRadius: BorderRadius.circular(30)),
-              child: Text("Create free account", style: simpleTextStyle(fontSize)),
+              width: width,
+              height: 50,
+              child: Text(
+                'Create free account',
+                style: simpleTextStyle(fontSize),
+              ),
             ),
-          ),
+          )
         ]
       ),
     );
@@ -351,7 +604,7 @@ class LoginScreenState extends State<LoginScreen> {
   Widget loginScreen(double width, double loginBoxSize, double fontSize) {
     return SingleChildScrollView(
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 30),
+        padding: EdgeInsets.symmetric(horizontal: 30),
         child: Column(
             children: [
               Container(
@@ -359,100 +612,11 @@ class LoginScreenState extends State<LoginScreen> {
                   child: Image.asset(
                       "assets/images/brocast_transparent.png")
               ),
-              signUpMode ? register(width, fontSize) : login(width, fontSize),
-              Row(
-                children: [
-                  Expanded(
-                    child: new Container(
-                        margin: const EdgeInsets.only(left: 10.0, right: 20.0),
-                        child: Divider(
-                          color: Colors.white,
-                          height: 36,
-                        )),
-                  ),
-                  signUpMode ? Text("or register with") : Text("or login with"),
-                  Expanded(
-                    child: new Container(
-                        margin: const EdgeInsets.only(left: 20.0, right: 10.0),
-                        child: Divider(
-                          color: Colors.white,
-                          height: 36,
-                        )),
-                  ),
-                ]
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Column(
-                      children: [
-                        InkWell(
-                          onTap: () {
-                            final Uri _url = Uri.parse(googleLogin);
-                            _launchUrl(_url);
-                            print("tapped Google");
-                          },
-                          child: SizedBox(
-                            height: loginBoxSize,
-                            width: loginBoxSize,
-                            child: Image.asset(
-                                "assets/images/gogle_button.png"
-                            ),
-                          ),
-                        ),
-                        Text(
-                          "Google",
-                          style: TextStyle(fontSize: fontSize),
-                        )
-                      ]
-                  ),
-                  SizedBox(width: 10),
-                  Column(
-                    children: [
-                      InkWell(
-                        onTap: () {
-                          final Uri _url = Uri.parse(githubLogin);
-                          _launchUrl(_url);
-                        },
-                        child: SizedBox(
-                          height: loginBoxSize,
-                          width: loginBoxSize,
-                          child: Image.asset(
-                              "assets/images/github_button.png"
-                          ),
-                        ),
-                      ),
-                      Text(
-                        "Github",
-                        style: TextStyle(fontSize: fontSize),
-                      )
-                    ],
-                  ),
-                  SizedBox(width: 10),
-                  Column(
-                    children: [
-                      InkWell(
-                        onTap: () {
-                          print("tapped reddit");
-                          final Uri _url = Uri.parse(redditLogin);
-                          _launchUrl(_url);
-                        },
-                        child: SizedBox(
-                          height: loginBoxSize,
-                          width: loginBoxSize,
-                          child: Image.asset(
-                              "assets/images/reddit_button.png"
-                          ),
-                        ),
-                      ),
-                      Text(
-                        "Reddit",
-                        style: TextStyle(fontSize: fontSize),
-                      )
-                    ]
-                  ),
-                ],
-              ),
+              signUpMode == 0 ? login(width - (30 * 2), fontSize) : Container(),
+              signUpMode == 1 ? register(width - (30 * 2), fontSize) : Container(),
+              signUpMode == 2 && !passwordResetSend ? resetPassword(width - (30 * 2), fontSize) : Container(),
+              signUpMode == 2 && passwordResetSend ? resetPasswordEmailSend(width - (30 * 2), fontSize) : Container(),
+              signUpMode != 2 ? loginAlternatives(loginBoxSize, fontSize) : Container(),
               const SizedBox(height: 40),
             ],
           ),

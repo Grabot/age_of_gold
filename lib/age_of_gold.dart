@@ -63,14 +63,11 @@ class AgeOfGold extends FlameGame
   bool finger2 = false;
   double? distanceBetweenFingers;
 
-  List<String> randomNames = ["Max", "Nanne", "Chris", "Steve", "Harry", "Whazor", "Tessa"];
-
   SocketServices? socket;
 
   @override
   Future<void> onLoad() async {
     await super.onLoad();
-    socket = SocketServices();
 
     camera.followVector2(cameraPosition, relativeOffset: Anchor.center);
     camera.zoom = 4;
@@ -81,16 +78,16 @@ class AgeOfGold extends FlameGame
     _world = World(startHexQ, startHexR);
     add(_world!);
 
+    checkHexagonArraySize();
+
+    socket = SocketServices();
+    socket!.joinRoom();
+    socket!.addListener(socketListener);
     html.window.onBeforeUnload.listen((event) async {
       socket!.leaveRoom();
     });
 
-    socket!.addListener(socketListener);
-    checkHexagonArraySize();
-
     checkLogIn(_navigationService);
-
-    socket!.joinRoom();
   }
 
   checkLogIn(NavigationService navigationService) {

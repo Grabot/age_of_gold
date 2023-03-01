@@ -5,6 +5,7 @@ import 'package:age_of_gold/services/models/register_request.dart';
 import 'package:dio/dio.dart';
 import '../util/util.dart';
 import 'auth_api.dart';
+import 'models/base_response.dart';
 import 'models/login_request.dart';
 import 'models/refresh_request.dart';
 
@@ -81,6 +82,58 @@ class AuthServiceLogin {
       successfulLogin(loginResponse);
     }
     return loginResponse;
+  }
+
+  Future<BaseResponse> getPasswordReset(String email) async {
+    String endPoint = "password/reset";
+    var response = await AuthApi().dio.post(endPoint,
+        options: Options(headers: {
+          HttpHeaders.contentTypeHeader: "application/json",
+        }),
+        data: jsonEncode(<String, String> {
+          "email": email
+        }
+      )
+    );
+
+    BaseResponse baseResponse = BaseResponse.fromJson(response.data);
+
+    return baseResponse;
+  }
+
+  Future<BaseResponse> passwordResetCheck(String accessToken) async {
+    String endPoint = "password/check";
+    var response = await AuthApi().dio.post(endPoint,
+        options: Options(headers: {
+          HttpHeaders.contentTypeHeader: "application/json",
+        }),
+        data: jsonEncode(<String, String> {
+          "access_token": accessToken
+        }
+      )
+    );
+
+    BaseResponse baseResponse = BaseResponse.fromJson(response.data);
+
+    return baseResponse;
+  }
+
+  Future<BaseResponse> updatePassword(String accessToken, String newPassword) async {
+    String endPoint = "password/update";
+    var response = await AuthApi().dio.post(endPoint,
+        options: Options(headers: {
+          HttpHeaders.contentTypeHeader: "application/json",
+        }),
+        data: jsonEncode(<String, String> {
+          "access_token": accessToken,
+          "new_password": newPassword
+        }
+      )
+    );
+
+    BaseResponse baseResponse = BaseResponse.fromJson(response.data);
+
+    return baseResponse;
   }
 
   Future<LoginResponse> getTest() async {

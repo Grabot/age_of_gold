@@ -70,7 +70,6 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: appBarAgeOfGold(),
       body: Center(
         child: Container(
           child: showLogin ? widget.loginScreen : Container()

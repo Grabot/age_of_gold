@@ -8,6 +8,7 @@ import 'package:age_of_gold/views/login_screen.dart';
 import 'package:age_of_gold/user_interface/tile_box.dart';
 import 'package:age_of_gold/constants/route_paths.dart' as routes;
 import 'package:age_of_gold/views/home_page.dart';
+import 'package:age_of_gold/views/password_reset_page.dart';
 import 'package:age_of_gold/views/profile_page.dart';
 import 'package:age_of_gold/views/world_access_page.dart';
 import 'package:flame/flame.dart';
@@ -51,6 +52,7 @@ Future<void> main() async {
   Widget home = HomePage(key: UniqueKey(), game: game, loginScreen: loginScreen);
   Widget worldAccess = WorldAccess(key: UniqueKey(), game: game);
   Widget profile = ProfilePage(key: UniqueKey(), game: game);
+  Widget passwordReset = PasswordReset(key: UniqueKey(), game: game);
 
   runApp(
       OKToast(
@@ -70,6 +72,7 @@ Future<void> main() async {
             routes.WorldAccessRoute: (context) => worldAccess,
             routes.ProfileRoute: (context) => profile,
             routes.GameRoute: (context) => gameWidget,
+            routes.PasswordResetRoute: (context) => passwordReset
           },
           onGenerateRoute: (settings) {
             if (settings.name != null && settings.name!.startsWith(routes.WorldAccessRoute)) {
@@ -88,6 +91,12 @@ Future<void> main() async {
               return MaterialPageRoute(
                   builder: (context) {
                     return gameWidget;
+                  }
+              );
+            } else if (settings.name!.startsWith(routes.PasswordResetRoute)) {
+              return MaterialPageRoute(
+                  builder: (context) {
+                    return passwordReset;
                   }
               );
             } else {

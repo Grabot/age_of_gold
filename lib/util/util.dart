@@ -314,3 +314,42 @@ addHexagon(HexagonList hexagonList, SocketServices socketServices, data) {
     }
   }
 }
+
+ButtonStyle buttonStyle() {
+  return ButtonStyle(
+      overlayColor: MaterialStateProperty.resolveWith<Color?>(
+            (Set<MaterialState> states) {
+          if (states.contains(MaterialState.hovered)) {
+            return Colors.lightBlue;
+          }
+          if (states.contains(MaterialState.pressed)) {
+            return Colors.blueAccent;
+          }
+          return null;
+        },
+      ),
+      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30.0),
+          )
+      )
+  );
+}
+
+TextStyle simpleTextStyle(double fontSize) {
+  return TextStyle(color: Colors.white, fontSize: fontSize);
+}
+
+InputDecoration textFieldInputDecoration(String hintText) {
+  return InputDecoration(
+      hintText: hintText,
+      hintStyle: const TextStyle(
+        color: Colors.white54,
+      ),
+      focusedBorder: const UnderlineInputBorder(
+        borderSide: BorderSide(color: Colors.white),
+      ),
+      enabledBorder: const UnderlineInputBorder(
+        borderSide: BorderSide(color: Colors.white54),
+      ));
+}

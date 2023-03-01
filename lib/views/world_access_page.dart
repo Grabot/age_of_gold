@@ -59,7 +59,6 @@ class _WorldAccessState extends State<WorldAccess> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: appBarAgeOfGold(),
       body: Center(
         child: Container(
         ),
