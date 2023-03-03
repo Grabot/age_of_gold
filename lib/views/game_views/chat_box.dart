@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../age_of_gold.dart';
-import '../services/socket_services.dart';
-import 'user_interface_components/chat_messages.dart';
-import 'user_interface_components/message.dart';
+import '../../age_of_gold.dart';
+import '../../services/socket_services.dart';
+import '../../user_interface/user_interface_components/chat_messages.dart';
+import '../../user_interface/user_interface_components/message.dart';
 import 'package:intl/intl.dart';
 
 

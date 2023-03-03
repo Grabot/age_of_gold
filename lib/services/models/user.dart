@@ -4,8 +4,9 @@ class User {
   late int id;
   late String userName;
   late DateTime tileLock;
+  late bool verified;
 
-  User(this.id, this.userName, String timeLock) {
+  User(this.id, this.userName, this.verified, String timeLock) {
     if (!timeLock.endsWith("Z")) {
       // The server has utc timestamp, but it's not formatted with the 'Z'.
       timeLock += "Z";
@@ -21,6 +22,10 @@ class User {
     return tileLock;
   }
 
+  bool isVerified() {
+    return verified;
+  }
+
   updateTileLock(String tileLock) {
     if (!tileLock.endsWith("Z")) {
       // The server has utc timestamp, but it's not formatted with the 'Z'.
@@ -32,6 +37,7 @@ class User {
   User.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     userName = json["username"];
+    verified = json["verified"];
     String timeLock = json["tile_lock"];
     if (!timeLock.endsWith("Z")) {
       // The server has utc timestamp, but it's not formatted with the 'Z'.
@@ -42,6 +48,6 @@ class User {
 
   @override
   String toString() {
-    return 'User{id: $id, userName: $userName, tileLock: $tileLock}';
+    return 'User{id: $id, userName: $userName, verified: $verified, tileLock: $tileLock}';
   }
 }

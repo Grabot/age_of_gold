@@ -15,7 +15,6 @@ import '../services/models/user.dart';
 import '../services/settings.dart';
 import '../constants/global.dart';
 import 'package:age_of_gold/constants/route_paths.dart' as routes;
-
 import 'navigation_service.dart';
 
 

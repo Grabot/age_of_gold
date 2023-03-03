@@ -136,6 +136,37 @@ class AuthServiceLogin {
     return baseResponse;
   }
 
+  Future<BaseResponse> emailVerificationSend() async {
+    String endPoint = "email/verification";
+    var response = await AuthApi().dio.get(endPoint,
+        options: Options(headers: {
+          HttpHeaders.contentTypeHeader: "application/json",
+        }
+      ),
+    );
+
+    BaseResponse baseResponse = BaseResponse.fromJson(response.data);
+
+    return baseResponse;
+  }
+
+  Future<BaseResponse> emailVerificationCheck(String accessToken) async {
+    String endPoint = "email/verification";
+    var response = await AuthApi().dio.post(endPoint,
+        options: Options(headers: {
+          HttpHeaders.contentTypeHeader: "application/json",
+        }),
+        data: jsonEncode(<String, String> {
+          "access_token": accessToken
+        }
+      )
+    );
+
+    BaseResponse baseResponse = BaseResponse.fromJson(response.data);
+
+    return baseResponse;
+  }
+
   Future<LoginResponse> getTest() async {
     String endPoint = "test";
     var response = await AuthApi().dio.post(endPoint,

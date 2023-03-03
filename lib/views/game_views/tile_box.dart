@@ -7,9 +7,9 @@ import 'package:age_of_gold/util/hexagon_list.dart';
 import 'package:age_of_gold/util/navigation_service.dart';
 import 'package:age_of_gold/util/util.dart';
 import 'package:flutter/material.dart';
-import '../age_of_gold.dart';
-import '../component/tile.dart';
-import '../services/socket_services.dart';
+import '../../age_of_gold.dart';
+import '../../component/tile.dart';
+import '../../services/socket_services.dart';
 import 'package:age_of_gold/constants/route_paths.dart' as routes;
 
 

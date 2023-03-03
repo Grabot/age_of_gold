@@ -1,15 +1,15 @@
 import 'dart:async';
 import 'package:age_of_gold/locator.dart';
 import 'package:age_of_gold/services/settings.dart';
-import 'package:age_of_gold/user_interface/chat_box.dart';
+import 'package:age_of_gold/views/game_views/chat_box.dart';
 import 'package:age_of_gold/util/navigation_service.dart';
-import 'package:age_of_gold/views/app_bar.dart';
+import 'package:age_of_gold/views/email_verification_page.dart';
+import 'package:age_of_gold/views/game_views/profile_box.dart';
+import 'package:age_of_gold/views/game_views/tile_box.dart';
 import 'package:age_of_gold/views/login_screen.dart';
-import 'package:age_of_gold/user_interface/tile_box.dart';
 import 'package:age_of_gold/constants/route_paths.dart' as routes;
 import 'package:age_of_gold/views/home_page.dart';
 import 'package:age_of_gold/views/password_reset_page.dart';
-import 'package:age_of_gold/views/profile_page.dart';
 import 'package:age_of_gold/views/world_access_page.dart';
 import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
@@ -39,11 +39,13 @@ Future<void> main() async {
         game: game,
         overlayBuilderMap: const {
           'chatBox': _chatBoxBuilder,
-          'tileBox': _tileBoxBuilder
+          'tileBox': _tileBoxBuilder,
+          'profileBox': _profileBoxBuilder
         },
         initialActiveOverlays: const [
           'chatBox',
-          'tileBox'
+          'tileBox',
+          'profileBox'
         ],
       )
   );
@@ -51,8 +53,8 @@ Future<void> main() async {
   LoginScreen loginScreen = LoginScreen(key: UniqueKey(), game: game);
   Widget home = HomePage(key: UniqueKey(), game: game, loginScreen: loginScreen);
   Widget worldAccess = WorldAccess(key: UniqueKey(), game: game);
-  Widget profile = ProfilePage(key: UniqueKey(), game: game);
   Widget passwordReset = PasswordReset(key: UniqueKey(), game: game);
+  Widget emailVerification = EmailVerification(key: UniqueKey(), game: game);
 
   runApp(
       OKToast(
@@ -70,21 +72,15 @@ Future<void> main() async {
           routes: {
             routes.HomeRoute: (context) => home,
             routes.WorldAccessRoute: (context) => worldAccess,
-            routes.ProfileRoute: (context) => profile,
             routes.GameRoute: (context) => gameWidget,
-            routes.PasswordResetRoute: (context) => passwordReset
+            routes.PasswordResetRoute: (context) => passwordReset,
+            routes.EmailVerificationRoute: (context) => emailVerification
           },
           onGenerateRoute: (settings) {
             if (settings.name != null && settings.name!.startsWith(routes.WorldAccessRoute)) {
               return MaterialPageRoute(
                   builder: (context) {
                     return worldAccess;
-                  }
-              );
-            } else if (settings.name!.startsWith(routes.ProfileRoute)) {
-              return MaterialPageRoute(
-                  builder: (context) {
-                    return profile;
                   }
               );
             } else if (settings.name!.startsWith(routes.GameRoute)) {
@@ -97,6 +93,12 @@ Future<void> main() async {
               return MaterialPageRoute(
                   builder: (context) {
                     return passwordReset;
+                  }
+              );
+            } else if (settings.name!.startsWith(routes.EmailVerificationRoute)) {
+              return MaterialPageRoute(
+                  builder: (context) {
+                    return emailVerification;
                   }
               );
             } else {
@@ -118,4 +120,8 @@ Widget _chatBoxBuilder(BuildContext buildContext, AgeOfGold game) {
 
 Widget _tileBoxBuilder(BuildContext buildContext, AgeOfGold game) {
   return TileBox(key: UniqueKey(), game: game);
+}
+
+Widget _profileBoxBuilder(BuildContext buildContext, AgeOfGold game) {
+  return ProfileBox(key: UniqueKey(), game: game);
 }
