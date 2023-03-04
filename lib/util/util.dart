@@ -185,6 +185,7 @@ Tile? getTileWrap(HexagonList hexagonList, int qArray, int rArray, int newTileQ,
 
 logoutUser(Settings settings, NavigationService navigationService) {
   settings.logout();
+  SocketServices().logout();
   SecureStorage().logout().then((value) {
     navigationService.navigateTo(routes.HomeRoute, arguments: {'message': "Logged out"});
   });

@@ -1,8 +1,5 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:age_of_gold/services/models/user.dart';
-import 'package:age_of_gold/services/settings.dart';
-import 'package:age_of_gold/constants/global.dart';
 import 'package:age_of_gold/util/util.dart';
 import 'package:flutter/material.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
@@ -29,12 +26,22 @@ class SocketServices extends ChangeNotifier {
   late ChatMessages chatMessages;
 
   List<Tuple2> wrapCoordinates = [];
+
+  bool gatherHexagons = false;
+  List<Tuple2> hexRetrievals = [];
+  List<Tuple2> currentHexRooms = [];
+
   SocketServices._internal() {
     startSockConnection();
   }
 
   factory SocketServices() {
     return _instance;
+  }
+
+  logout() {
+    userId = -1;
+    userName ="Not logged in";
   }
 
   void setUser(User user) {
@@ -67,32 +74,58 @@ class SocketServices extends ChangeNotifier {
   }
 
   void joinHexRoom(Hexagon hex) {
+    int q = hex.q;
+    int r = hex.r;
+    Tuple2 hexJoin = Tuple2(q, r);
+    if (!currentHexRooms.contains(hexJoin)) {
+      currentHexRooms.add(hexJoin);
+
+      emitHexJoin(q, r);
+    }
+  }
+
+  emitHexJoin(int q, int r) {
+    print("joining hex q: $q r:$r");
     socket.emit(
       "join_hex",
       {
-        'q': hex.q,
-        'r': hex.r,
+        'q': q,
+        'r': r,
       },
     );
   }
 
   void leaveHexRoom(Hexagon hex) {
+    int q = hex.q;
+    int r = hex.r;
+    Tuple2 hexLeave = Tuple2(q, r);
+    if (currentHexRooms.contains(hexLeave)) {
+      currentHexRooms.remove(hexLeave);
+
+      emitHexLeave(q, r);
+    }
+  }
+
+  emitHexLeave(int q, int r) {
+    print("leaving hex q: ${q} r:${r}");
     socket.emit(
       "leave_hex",
       {
-        'q': hex.q,
-        'r': hex.r,
+        'q': q,
+        'r': r,
       },
     );
   }
 
   void joinRoom() {
-    socket.emit(
-      "join",
-      {
-        'userId': userId,
-      },
-    );
+    if (userId != -1) {
+      socket.emit(
+        "join",
+        {
+          'userId': userId,
+        },
+      );
+    }
     // After we have joined the room, we also want to listen to server events
     socket.on('send_hexagon_fail', (data) {
       showToastMessage("hexagon getting failed!");
@@ -163,8 +196,6 @@ class SocketServices extends ChangeNotifier {
     }
   }
 
-  bool gatherHexagons = false;
-  List<Tuple2> hexRetrievals = [];
   actuallyGetHexagons(Hexagon hexRetrieve) {
     // setToRetrieve and retrieve are both false if it gets here.
     hexRetrieve.setToRetrieve = true;
@@ -189,7 +220,7 @@ class SocketServices extends ChangeNotifier {
         // put the hexagons back to be retrieved
         hexagonList.setBackToRetrieve();
       } else {
-        print("success!");
+        print("success getting hexes!");
       }
     }).onError((error, stackTrace) {
       // TODO: What to do on an error? Reset?

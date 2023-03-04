@@ -1,6 +1,7 @@
 import 'package:age_of_gold/locator.dart';
 import 'package:age_of_gold/services/auth_service_world.dart';
 import 'package:age_of_gold/services/settings.dart';
+import 'package:age_of_gold/user_interface/user_interface_util/profile_change_notifier.dart';
 import 'package:age_of_gold/user_interface/user_interface_util/selected_tile_info.dart';
 import 'package:age_of_gold/util/countdown.dart';
 import 'package:age_of_gold/util/hexagon_list.dart';
@@ -29,6 +30,7 @@ class TileBox extends StatefulWidget {
 class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
 
   late SelectedTileInfo selectedTileInfo;
+  late ProfileChangeNotifier profileChangeNotifier;
   final NavigationService _navigationService = locator<NavigationService>();
   SocketServices socket = SocketServices();
   Settings settings = Settings();
@@ -49,6 +51,9 @@ class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
     super.initState();
     selectedTileInfo = SelectedTileInfo();
     selectedTileInfo.addListener(selectedTileListener);
+
+    profileChangeNotifier = ProfileChangeNotifier();
+    profileChangeNotifier.addListener(profileChangeListener);
 
     socket.addListener(socketListener);
 
@@ -122,6 +127,12 @@ class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
         });
         canChangeTiles = false;
       }
+    }
+  }
+
+  profileChangeListener() {
+    if (mounted) {
+      print("profile change in tilebox");
     }
   }
 
@@ -255,11 +266,10 @@ class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
   }
 
   goToProfile() {
-    if (socket.userId == -1) {
-      // No one logged in so move to home page
-      _navigationService.navigateTo(routes.HomeRoute);
-    } else {
-      _navigationService.navigateToPush(routes.ProfileRoute);
+    if (!profileChangeNotifier.getProfileVisible()) {
+      profileChangeNotifier.setProfileVisible(true);
+    } else if (profileChangeNotifier.getProfileVisible()) {
+      profileChangeNotifier.setProfileVisible(false);
     }
   }
 

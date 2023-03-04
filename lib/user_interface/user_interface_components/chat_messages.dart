@@ -1,4 +1,5 @@
-import 'package:age_of_gold/user_interface/user_interface_components/message.dart';
+import 'message.dart';
+
 
 class ChatMessages {
   List<Message> chatMessages = [];

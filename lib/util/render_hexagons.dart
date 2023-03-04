@@ -44,6 +44,7 @@ checkVisible(HexagonList hexagonList, Rect screen, SocketServices socketServices
           }
         } else {
           // The hex is not visible.
+          // Check if the hex is marked as visible so we can change that.
           if (currentHexagon.visible) {
             // The hex is still flagged as visible so it has just left the view
             // Set the flag accordingly and leave the hex socket room.

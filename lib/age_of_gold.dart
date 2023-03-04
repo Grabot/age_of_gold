@@ -4,6 +4,7 @@ import 'package:age_of_gold/services/auth_service_login.dart';
 import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/constants/global.dart';
 import 'package:age_of_gold/services/socket_services.dart';
+import 'package:age_of_gold/user_interface/user_interface_util/profile_change_notifier.dart';
 import 'package:age_of_gold/util/navigation_service.dart';
 import 'package:age_of_gold/util/tapped_map.dart';
 import 'package:age_of_gold/util/util.dart';
@@ -134,8 +135,8 @@ class AgeOfGold extends FlameGame
     }
   }
 
-  loginFocus(bool loginFocus) {
-    playFieldFocus = !loginFocus;
+  profileFocus(bool profileFocus) {
+    playFieldFocus = !profileFocus;
     if (playFieldFocus) {
       gameFocus.requestFocus();
     }
@@ -165,6 +166,7 @@ class AgeOfGold extends FlameGame
   void onTapUp(int pointerId, TapUpInfo info) {
     Vector2 tapPos = Vector2(info.eventPosition.game.x, info.eventPosition.game.y);
     _world!.onTappedUp(tapPos);
+    _world!.focusWorld();
     super.onTapUp(pointerId, info);
   }
 
@@ -180,6 +182,7 @@ class AgeOfGold extends FlameGame
     start = dragStart;
 
     _world!.resetClick();
+    _world!.focusWorld();
     if (pointerId1 == -1) {
       pointerId1 = pointerId;
     } else if (pointerId1 != -1 && pointerId2 == -1) {
@@ -261,6 +264,7 @@ class AgeOfGold extends FlameGame
     pointerId1 = -1;
     pointerId2 = -1;
     dragTo = cameraPosition;
+    _world!.focusWorld();
   }
 
   @override
@@ -383,7 +387,8 @@ class AgeOfGold extends FlameGame
       }
 
       if (event.logicalKey == LogicalKeyboardKey.keyP && isKeyDown) {
-        _navigationService.navigateToPush(routes.ProfileRoute);
+        ProfileChangeNotifier profileChangeNotifier = ProfileChangeNotifier();
+        profileChangeNotifier.setProfileVisible(!profileChangeNotifier.getProfileVisible());
       }
 
       return KeyEventResult.handled;

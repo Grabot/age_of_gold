@@ -1,4 +1,5 @@
 import 'package:age_of_gold/component/tile.dart';
+import 'package:age_of_gold/user_interface/user_interface_util/profile_change_notifier.dart';
 import 'package:age_of_gold/util/render_hexagons.dart';
 import 'package:age_of_gold/util/tapped_map.dart';
 import 'package:flame/components.dart';
@@ -31,6 +32,8 @@ class World extends Component {
 
   World(this.startHexQ, this.startHexR);
 
+  late ProfileChangeNotifier profileChangeNotifier;
+
   @override
   Future<void> onLoad() async {
     super.onLoad();
@@ -42,6 +45,8 @@ class World extends Component {
     hexagonList = HexagonList();
     hexagonList.setSocketService(socketServices);
     hexagonList.retrieveHexagons(startHexQ, startHexR);
+
+    profileChangeNotifier = ProfileChangeNotifier();
   }
 
   @override
@@ -71,6 +76,10 @@ class World extends Component {
       mouseTile = mouseTileTap;
       getAdditionalTileInfo(mouseTile!);
     }
+  }
+
+  focusWorld() {
+    profileChangeNotifier.setProfileVisible(false);
   }
 
   getAdditionalTileInfo(Tile tile) {

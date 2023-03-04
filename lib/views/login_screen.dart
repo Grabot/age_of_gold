@@ -601,6 +601,49 @@ class LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  Widget previewBox(double width, double fontSize) {
+    return Column(
+      children: [
+        Row(
+            children: [
+              Expanded(
+                child: new Container(
+                    margin: const EdgeInsets.only(left: 10.0, right: 20.0),
+                    child: Divider(
+                      color: Colors.white,
+                      height: 36,
+                    )),
+              ),
+              Text("or"),
+              Expanded(
+                child: new Container(
+                    margin: const EdgeInsets.only(left: 20.0, right: 10.0),
+                    child: Divider(
+                      color: Colors.white,
+                      height: 36,
+                    )),
+              ),
+            ]
+        ),
+        ElevatedButton(
+          onPressed: () {
+            _navigationService.navigateTo(routes.GameRoute);
+          },
+          style: buttonStyle(),
+          child: Container(
+            alignment: Alignment.center,
+            width: width,
+            height: 50,
+            child: Text(
+              'Check out the world',
+              style: simpleTextStyle(fontSize),
+            ),
+          ),
+        )
+      ],
+    );
+  }
+
   Widget loginScreen(double width, double loginBoxSize, double fontSize) {
     return SingleChildScrollView(
       child: Container(
@@ -609,14 +652,14 @@ class LoginScreenState extends State<LoginScreen> {
             children: [
               Container(
                   alignment: Alignment.center,
-                  child: Image.asset(
-                      "assets/images/brocast_transparent.png")
+                  child: Image.asset("assets/images/brocast_transparent.png")
               ),
               signUpMode == 0 ? login(width - (30 * 2), fontSize) : Container(),
               signUpMode == 1 ? register(width - (30 * 2), fontSize) : Container(),
               signUpMode == 2 && !passwordResetSend ? resetPassword(width - (30 * 2), fontSize) : Container(),
               signUpMode == 2 && passwordResetSend ? resetPasswordEmailSend(width - (30 * 2), fontSize) : Container(),
               signUpMode != 2 ? loginAlternatives(loginBoxSize, fontSize) : Container(),
+              signUpMode != 2 ? previewBox(width, fontSize) : Container(),
               const SizedBox(height: 40),
             ],
           ),

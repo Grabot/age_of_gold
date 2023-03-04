@@ -4,6 +4,7 @@ import '../../locator.dart';
 import '../../services/auth_service_login.dart';
 import '../../services/models/user.dart';
 import '../../services/settings.dart';
+import '../../user_interface/user_interface_util/profile_change_notifier.dart';
 import '../../util/countdown.dart';
 import '../../util/navigation_service.dart';
 import '../../util/util.dart';
@@ -25,6 +26,10 @@ class ProfileBox extends StatefulWidget {
 
 class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
 
+  // Used if any text fields are added to the profile.
+  final FocusNode _focusProfileBox = FocusNode();
+  late ProfileChangeNotifier profileChangeNotifier;
+
   final NavigationService _navigationService = locator<NavigationService>();
 
   Settings settings = Settings();
@@ -35,8 +40,13 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
   int levelClock = 0;
   bool canChangeTiles = true;
 
+  bool showProfile = false;
+
   @override
   void initState() {
+    profileChangeNotifier = ProfileChangeNotifier();
+    profileChangeNotifier.addListener(profileChangeListener);
+
     currentUser = settings.getUser();
     _controller = AnimationController(
         vsync: this,
@@ -47,6 +57,8 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
     _controller.forward();
     updateTimeLock();
 
+    _focusProfileBox.addListener(_onFocusChange);
+
     super.initState();
   }
 
@@ -54,6 +66,25 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
   void dispose() {
     _controller.dispose();
     super.dispose();
+  }
+
+  profileChangeListener() {
+    if (mounted) {
+      if (!showProfile && profileChangeNotifier.getProfileVisible()) {
+        setState(() {
+          showProfile = true;
+        });
+      }
+      if (showProfile && !profileChangeNotifier.getProfileVisible()) {
+        setState(() {
+          showProfile = false;
+        });
+      }
+    }
+  }
+
+  void _onFocusChange() {
+    widget.game.chatBoxFocus(_focusProfileBox.hasFocus);
   }
 
   updateTimeLock() {
@@ -80,7 +111,7 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
     }
   }
 
-  Widget profileBoxWidget() {
+  Widget profile() {
     double fontSize = 16;
     double width = 800;
     double height = (MediaQuery.of(context).size.height / 10) * 8;
@@ -90,12 +121,12 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
       height = MediaQuery.of(context).size.height - 250;
       fontSize = 10;
     }
+
     return Container(
       width: width,
       height: height,
       color: Colors.grey,
       child: SingleChildScrollView(
-        child: Container(
           child: Column(
               children:
               [
@@ -104,12 +135,10 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
                 SizedBox(height: 20),
                 userInformationBox(width, fontSize),
               ]
-          ),
-        ),
+          )
       ),
     );
   }
-
 
   Widget tileTimeInformation(double width, double fontSize) {
     if (canChangeTiles) {
@@ -179,12 +208,18 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
     );
   }
 
+  goBack() {
+    setState(() {
+      showProfile = false;
+    });
+  }
+
   Widget goBackToTheWorld(double width, double fontSize) {
     return Container(
       margin: EdgeInsets.only(top: 20),
       child: ElevatedButton(
         onPressed: () {
-          print("pressed 'go back to the world'");
+          goBack();
         },
         style: buttonStyle(),
         child: Container(
@@ -267,9 +302,9 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
           SizedBox(height: 20),
           verifyEmailBox(width, fontSize),
           SizedBox(height: 20),
-          logoutButton(width, fontSize),
-          SizedBox(height: 20),
           goBackToTheWorld(width, fontSize),
+          SizedBox(height: 20),
+          logoutButton(width, fontSize),
         ],
       ),
     );
@@ -279,7 +314,7 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     return Align(
       alignment: FractionalOffset.center,
-      child: profileBoxWidget(),
+      child: showProfile ? profile() : Container(),
     );
   }
 }
