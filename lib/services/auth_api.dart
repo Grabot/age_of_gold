@@ -19,7 +19,7 @@ class AuthApi {
   static Dio createDio() {
     var dio = Dio(
         BaseOptions(
-          baseUrl: baseUrlV1_1,
+          baseUrl: baseUrlV1_0,
           receiveTimeout: 15000,
           connectTimeout: 15000,
           sendTimeout: 15000,
@@ -66,7 +66,7 @@ class AppInterceptors extends Interceptor {
           String endPoint = "refresh";
           var response = await Dio(
               BaseOptions(
-                baseUrl: baseUrlV1_1,
+                baseUrl: baseUrlV1_0,
                 receiveTimeout: 15000,
                 connectTimeout: 15000,
                 sendTimeout: 15000,

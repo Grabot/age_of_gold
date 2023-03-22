@@ -2,6 +2,8 @@ import 'package:age_of_gold/locator.dart';
 import 'package:age_of_gold/services/models/login_request.dart';
 import 'package:age_of_gold/util/navigation_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../age_of_gold.dart';
 import '../constants/url_base.dart';
@@ -42,9 +44,18 @@ class LoginScreenState extends State<LoginScreen> {
   TextEditingController password2Controller = new TextEditingController();
   TextEditingController forgotPasswordEmailController = new TextEditingController();
 
+  FocusNode _focusEmail = FocusNode();
+  FocusNode _focusPassword = FocusNode();
+
   @override
   void initState() {
     super.initState();
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      _focusPassword.requestFocus();
+      Future.delayed(const Duration(milliseconds: 150), () {
+        FocusScope.of(context).unfocus();
+      });
+    });
   }
 
   @override
@@ -293,6 +304,7 @@ class LoginScreenState extends State<LoginScreen> {
                       : null;
                 },
                 controller: forgotPasswordEmailController,
+                autofillHints: [AutofillHints.email],
                 textAlign: TextAlign.center,
                 style: simpleTextStyle(fontSize),
                 decoration:
@@ -381,45 +393,55 @@ class LoginScreenState extends State<LoginScreen> {
               ),
             ],
           ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: TextFormField(
-              onTap: () {
-                if (!isLoading) {
-                  print("tapped field 1");
-                }
-              },
-              validator: (val) {
-                return val == null || val.isEmpty
-                    ? "Please provide an Email or Username"
-                    : null;
-              },
-              controller: emailOrUsernameController,
-              textAlign: TextAlign.center,
-              style: simpleTextStyle(fontSize),
-              decoration:
-              textFieldInputDecoration("Email or Username"),
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: TextFormField(
-              onTap: () {
-                if (!isLoading) {
-                  print("tapped field 3 2");
-                }
-              },
-              obscureText: true,
-              validator: (val) {
-                return val == null || val.isEmpty
-                    ? "Please provide a password"
-                    : null;
-              },
-              controller: password1Controller,
-              textAlign: TextAlign.center,
-              style: simpleTextStyle(fontSize),
-              decoration:
-              textFieldInputDecoration("Password"),
+          AutofillGroup(
+            child: Column(
+              children: [
+                TextFormField(
+                  onTap: () {
+                    if (!isLoading) {
+                      print("tapped field 1");
+                    }
+                  },
+                  validator: (val) {
+                    return val == null || val.isEmpty
+                        ? "Please provide an Email or Username"
+                        : null;
+                  },
+                  focusNode: _focusEmail,
+                  keyboardType: TextInputType.emailAddress,
+                  autofillHints: [
+                    AutofillHints.email,
+                    AutofillHints.username
+                  ],
+                  textInputAction: TextInputAction.next,
+                  controller: emailOrUsernameController,
+                  textAlign: TextAlign.center,
+                  style: simpleTextStyle(fontSize),
+                  decoration:
+                  textFieldInputDecoration("Email or Username"),
+                ),
+                TextFormField(
+                  onTap: () {
+                    if (!isLoading) {
+                      print("tapped field 3 2");
+                    }
+                  },
+                  obscureText: true,
+                  validator: (val) {
+                    return val == null || val.isEmpty
+                        ? "Please provide a password"
+                        : null;
+                  },
+                  focusNode: _focusPassword,
+                  autofillHints: [AutofillHints.password],
+                  onEditingComplete: () => TextInput.finishAutofillContext(),
+                  controller: password1Controller,
+                  textAlign: TextAlign.center,
+                  style: simpleTextStyle(fontSize),
+                  decoration:
+                  textFieldInputDecoration("Password"),
+                ),
+              ],
             ),
           ),
           SizedBox(height: 10),
@@ -504,79 +526,72 @@ class LoginScreenState extends State<LoginScreen> {
               ),
             ],
           ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: TextFormField(
-              onTap: () {
-                if (!isLoading) {
-                  print("tapped field 1.5");
-                  Settings settings = Settings();
-                  print("access token: ${settings.getAccessToken()}");
-                  print("refresh token: ${settings.getAccessToken()}");
+          TextFormField(
+            onTap: () {
+              if (!isLoading) {
+                print("tapped field 1.5");
+              }
+            },
+            validator: (val) {
+              if (val != null) {
+                if (!emailValid(val)) {
+                  return "Email not formatted correctly";
                 }
-              },
-              validator: (val) {
-                if (val != null) {
-                  if (!emailValid(val)) {
-                    return "Email not formatted correctly";
-                  }
-                }
-                return val == null || val.isEmpty
-                    ? "Please provide an Email"
-                    : null;
-              },
-              controller: emailController,
-              textAlign: TextAlign.center,
-              style: simpleTextStyle(fontSize),
-              decoration:
-              textFieldInputDecoration("Email"),
-            ),
+              }
+              return val == null || val.isEmpty
+                  ? "Please provide an Email"
+                  : null;
+            },
+            controller: emailController,
+            keyboardType: TextInputType.emailAddress,
+            autofillHints: [AutofillHints.email],
+            textAlign: TextAlign.center,
+            style: simpleTextStyle(fontSize),
+            decoration:
+            textFieldInputDecoration("Email"),
           ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: TextFormField(
-              onTap: () {
-                if (!isLoading) {
-                  print("tapped field 1.2");
+          TextFormField(
+            onTap: () {
+              if (!isLoading) {
+                print("tapped field 1.2");
+              }
+            },
+            validator: (val) {
+              if (val != null) {
+                if (emailValid(val)) {
+                  return "username cannot be formatted as an email";
                 }
-              },
-              validator: (val) {
-                if (val != null) {
-                  if (emailValid(val)) {
-                    return "username cannot be formatted as an email";
-                  }
-                }
-                return val == null || val.isEmpty
-                    ? "Please provide a username"
-                    : null;
-              },
-              controller: usernameController,
-              textAlign: TextAlign.center,
-              style: simpleTextStyle(fontSize),
-              decoration:
-              textFieldInputDecoration("Username"),
-            ),
+              }
+              return val == null || val.isEmpty
+                  ? "Please provide a username"
+                  : null;
+            },
+            keyboardType: TextInputType.name,
+            autofillHints: [AutofillHints.username],
+            controller: usernameController,
+            textAlign: TextAlign.center,
+            style: simpleTextStyle(fontSize),
+            decoration:
+            textFieldInputDecoration("Username"),
           ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: TextFormField(
-              onTap: () {
-                if (!isLoading) {
-                  print("tapped field 3 1");
-                }
-              },
-              obscureText: true,
-              validator: (val) {
-                return val == null || val.isEmpty
-                    ? "Please provide a password"
-                    : null;
-              },
-              controller: password2Controller,
-              textAlign: TextAlign.center,
-              style: simpleTextStyle(fontSize),
-              decoration:
-              textFieldInputDecoration("Password"),
-            ),
+          TextFormField(
+            onTap: () {
+              if (!isLoading) {
+                print("tapped field 3 1");
+              }
+            },
+            obscureText: true,
+            validator: (val) {
+              return val == null || val.isEmpty
+                  ? "Please provide a password"
+                  : null;
+            },
+            controller: password2Controller,
+            autofillHints: [AutofillHints.newPassword],
+            textAlign: TextAlign.center,
+            style: simpleTextStyle(fontSize),
+            decoration:
+            textFieldInputDecoration("Password"),
           ),
           const SizedBox(height: 30),
           ElevatedButton(
@@ -671,11 +686,11 @@ class LoginScreenState extends State<LoginScreen> {
     double fontSize = 16;
     double loginBoxSize = 100;
     double width = 800;
-    double height = (MediaQuery.of(context).size.height / 10) * 8;
+    double height = (MediaQuery.of(context).size.height / 10) * 9;
     // When the width is smaller than this we assume it's mobile.
     if (MediaQuery.of(context).size.width <= 800) {
       width = MediaQuery.of(context).size.width - 50;
-      height = MediaQuery.of(context).size.height - 250;
+      height = MediaQuery.of(context).size.height - 150;
       loginBoxSize = 50;
       fontSize = 10;
     }

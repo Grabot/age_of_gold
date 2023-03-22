@@ -45,6 +45,8 @@ class AgeOfGold extends FlameGame
   int fps = 0;
   int variant = 0;
 
+  int currentHexSize = 0;
+
   World? _world;
 
   double maxZoom = 4;
@@ -159,7 +161,7 @@ class AgeOfGold extends FlameGame
   }
 
   void clampZoom() {
-    camera.zoom = camera.zoom.clamp(0.25, 4);
+    camera.zoom = camera.zoom.clamp(0.1, 4);
   }
 
   @override
@@ -287,6 +289,7 @@ class AgeOfGold extends FlameGame
 
     if (frameTimes >= 1) {
       fps = frames;
+      print("fps: $fps");
       frameTimes = 0;
       frames = 0;
       worldCheck();
@@ -410,22 +413,28 @@ class AgeOfGold extends FlameGame
     double currentWidth = camera.canvasSize.x;
     double currentHeight = camera.canvasSize.y;
     if (_world != null) {
-      if (currentZoom > 3.5 && (currentWidth < 2000 && currentHeight < 1100)) {
-        _world!.setHexagonArraySize(10);
-      } else if (currentZoom > 3.5 && (currentWidth > 2000 || currentHeight > 1100)) {
-        _world!.setHexagonArraySize(14);
-      } else if ((currentZoom < 3.5 && currentZoom > 2.5) && (currentWidth < 2000 && currentHeight < 1100)) {
-        _world!.setHexagonArraySize(12);
-      } else if ((currentZoom < 3.5 && currentZoom > 2.5) && (currentWidth > 2000 || currentHeight > 1100)) {
-        _world!.setHexagonArraySize(16);
-      } else if ((currentZoom < 2.5 && currentZoom > 1.5) && (currentWidth < 2000 && currentHeight < 1100)) {
-        _world!.setHexagonArraySize(16);
-      } else if ((currentZoom < 2.5 && currentZoom > 1.5) && (currentWidth > 2000 || currentHeight > 1100)) {
-        _world!.setHexagonArraySize(22);
-      } else if ((currentZoom < 1.5 && currentZoom > 0.5) && (currentWidth < 2000 && currentHeight < 1100)) {
-        _world!.setHexagonArraySize(22);
-      } else if ((currentZoom < 1.5 && currentZoom > 0.5) && (currentWidth > 2000 || currentHeight > 1100)) {
-        _world!.setHexagonArraySize(30);
+      int hexArraySize = 0;
+      if (currentWidth < 2000 && currentHeight < 1100) {
+        // tiny monitor resolution
+        hexArraySize = 10 + (4 - currentZoom.floor()) * 4;
+        if (currentZoom < 0.2) {
+          hexArraySize += 20;
+        } else if (currentZoom < 0.5) {
+          hexArraySize += 8;
+        }
+      } else {
+        // large 4k monitor resolution on full screen
+        hexArraySize = 14 + (4 - currentZoom.floor()) * 6;
+        if (currentZoom < 0.2) {
+          hexArraySize += 36;
+        } else if (currentZoom < 0.5) {
+          hexArraySize += 10;
+        }
+      }
+      if (currentHexSize != hexArraySize) {
+        currentHexSize = hexArraySize;
+        print("changing hexSize: $currentHexSize  zoom: $currentZoom");
+        _world!.setHexagonArraySize(hexArraySize);
       }
     }
   }

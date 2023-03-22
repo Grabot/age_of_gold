@@ -3,6 +3,7 @@ import 'package:age_of_gold/services/auth_service_login.dart';
 import 'package:age_of_gold/services/models/refresh_request.dart';
 import 'package:age_of_gold/util/navigation_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../age_of_gold.dart';
 import 'package:age_of_gold/constants/route_paths.dart' as routes;
 import 'package:flutter/scheduler.dart';
@@ -127,43 +128,45 @@ class _PasswordResetState extends State<PasswordReset> {
               style: TextStyle(color: Colors.white70, fontSize: fontSize),
             ),
             SizedBox(height: 20),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: TextFormField(
-                onTap: () {
-                  print("tapped");
-                },
-                obscureText: true,
-                validator: (val) {
-                  return val == null || val.isEmpty
-                      ? "fill in new password"
-                      : null;
-                },
-                controller: passwordReset1Controller,
-                textAlign: TextAlign.center,
-                style: simpleTextStyle(fontSize),
-                decoration: textFieldInputDecoration("password"),
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: TextFormField(
-                onTap: () {
-                  print("tapped");
-                },
-                obscureText: true,
-                validator: (val) {
-                  if (passwordReset1Controller.text != passwordReset2Controller.text) {
-                    return "Passwords don't match";
-                  }
-                  return val == null || val.isEmpty
-                      ? "fill in new password"
-                      : null;
-                },
-                controller: passwordReset2Controller,
-                textAlign: TextAlign.center,
-                style: simpleTextStyle(fontSize),
-                decoration: textFieldInputDecoration("password again"),
+            AutofillGroup(
+              child: Column(
+                children: [
+                  TextFormField(
+                    onTap: () {
+                      print("tapped");
+                    },
+                    obscureText: true,
+                    validator: (val) {
+                      return val == null || val.isEmpty
+                          ? "fill in new password"
+                          : null;
+                    },
+                    textInputAction: TextInputAction.next,
+                    controller: passwordReset1Controller,
+                    textAlign: TextAlign.center,
+                    style: simpleTextStyle(fontSize),
+                    decoration: textFieldInputDecoration("password"),
+                  ),
+                  TextFormField(
+                    onTap: () {
+                      print("tapped");
+                    },
+                    obscureText: true,
+                    validator: (val) {
+                      if (passwordReset1Controller.text != passwordReset2Controller.text) {
+                        return "Passwords don't match";
+                      }
+                      return val == null || val.isEmpty
+                          ? "fill in new password"
+                          : null;
+                    },
+                    controller: passwordReset2Controller,
+                    onEditingComplete: () => TextInput.finishAutofillContext(),
+                    textAlign: TextAlign.center,
+                    style: simpleTextStyle(fontSize),
+                    decoration: textFieldInputDecoration("password again"),
+                  ),
+                ],
               ),
             ),
             SizedBox(height: 40),
@@ -245,7 +248,7 @@ class _PasswordResetState extends State<PasswordReset> {
   Widget passwordBox() {
     double fontSize = 16;
     double width = 800;
-    double height = (MediaQuery.of(context).size.height / 10) * 8;
+    double height = (MediaQuery.of(context).size.height / 10) * 9;
     // When the width is smaller than this we assume it's mobile.
     if (MediaQuery.of(context).size.width <= 800) {
       width = MediaQuery.of(context).size.width - 50;

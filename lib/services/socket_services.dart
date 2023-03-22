@@ -52,7 +52,7 @@ class SocketServices extends ChangeNotifier {
 
   startSockConnection() {
     String namespace = "sock";
-    String socketUrl = baseUrlV1_1 + namespace;
+    String socketUrl = baseUrlV1_0 + namespace;
     socket = io.io(socketUrl, <String, dynamic>{
       'autoConnect': false,
       'transports': ['websocket'],
@@ -85,7 +85,7 @@ class SocketServices extends ChangeNotifier {
   }
 
   emitHexJoin(int q, int r) {
-    print("joining hex q: $q r:$r");
+    // print("joining hex q: $q r:$r");
     socket.emit(
       "join_hex",
       {
@@ -107,7 +107,7 @@ class SocketServices extends ChangeNotifier {
   }
 
   emitHexLeave(int q, int r) {
-    print("leaving hex q: ${q} r:${r}");
+    // print("leaving hex q: ${q} r:${r}");
     socket.emit(
       "leave_hex",
       {

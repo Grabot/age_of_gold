@@ -33,8 +33,6 @@ class ChatBoxState extends State<ChatBox> {
 
   bool tileBoxVisible = false;
 
-  double chatBoxWidth = 350;
-
   @override
   void initState() {
     chatMessages = ChatMessages();
@@ -59,33 +57,57 @@ class ChatBoxState extends State<ChatBox> {
     super.dispose();
   }
 
-  Widget topBar() {
+  Widget messageButton(double messageButtonsHeight) {
+    return Row(
+      children: [
+        Container(
+          width: messageButtonsHeight,
+          height: messageButtonsHeight,
+          color: Colors.amber,
+          child: IconButton(
+            icon: const Icon(Icons.email_outlined),
+            tooltip: 'Open chat details',
+            onPressed: () {
+              print("pressed");
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget topBar(double chatBoxWidth, double topBarHeight) {
     return Container(
       width: chatBoxWidth,
-      height: 25,
+      height: topBarHeight,
       color: Colors.lightGreen,
       child: Align(
         alignment: Alignment.centerRight,
         child: Container(
-          width: 30,
-          height: 25,
+          width: topBarHeight,
+          height: topBarHeight,
           color: Colors.lightGreen,
           child: Row(
             children: [
-              GestureDetector(
-                onTap: () {
+              tileBoxVisible ? IconButton(
+                icon: const Icon(Icons.keyboard_double_arrow_down),
+                color: Colors.white,
+                tooltip: 'Hide chat',
+                onPressed: () {
                   setState(() {
                     tileBoxVisible = !tileBoxVisible;
                   });
                 },
-                child: tileBoxVisible ? const Icon(
-                  Icons.keyboard_double_arrow_down,
-                  color: Colors.white,
-                ) : const Icon(
-                  Icons.keyboard_double_arrow_up,
-                  color: Colors.white,
-                ),
-              )
+              ) : IconButton(
+                icon: const Icon(Icons.keyboard_double_arrow_up),
+                color: Colors.white,
+                tooltip: 'Show chat',
+                onPressed: () {
+                  setState(() {
+                    tileBoxVisible = !tileBoxVisible;
+                  });
+                },
+              ),
             ],
           ),
         ),
@@ -94,25 +116,41 @@ class ChatBoxState extends State<ChatBox> {
   }
 
   Widget chatBoxWidget() {
+    double chatBoxWidth = 350;
     if (MediaQuery.of(context).size.width <= 800) {
       // Here we assume that it is a phone and we set the width to the total
       chatBoxWidth = MediaQuery.of(context).size.width;
-    } else {
-      chatBoxWidth = 350;
     }
+
+    double topBarHeight = 40; // always visible
+    double messageButtonsHeight = 40; //always visible
+    double messageBoxHeight = 300;
+    double chatTextFieldHeight = 60;
+    double alwaysVisibleHeight = messageButtonsHeight + topBarHeight;
+    double totalHeight = messageBoxHeight + chatTextFieldHeight + messageButtonsHeight + topBarHeight;
+
     return Align(
       alignment: FractionalOffset.bottomLeft,
       child: Container(
         width: chatBoxWidth,
-        height: tileBoxVisible ? 300 : 25,
-        color: Colors.green,
+        height: tileBoxVisible ? totalHeight : alwaysVisibleHeight,
         child: Column(
             children: [
-              topBar(),
-              Expanded(
-                child: messageList()
+              messageButton(messageButtonsHeight),
+              topBar(chatBoxWidth, topBarHeight),
+              Container(
+                width: chatBoxWidth,
+                height: tileBoxVisible ? messageBoxHeight : 0,
+                color: Colors.blueAccent,
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: messageList(),
+                    ),
+                  ],
+                ),
               ),
-              chatBoxTextField()
+              chatBoxTextField(chatBoxWidth, chatTextFieldHeight)
             ]
         ),
       ),
@@ -126,54 +164,56 @@ class ChatBoxState extends State<ChatBox> {
     }
   }
 
-  Widget chatBoxTextField() {
+  Widget chatBoxTextField(double chatBoxWidth, double chatTextFieldHeight) {
     if (tileBoxVisible) {
-      return Row(
-          children: [
-            SizedBox(
-              width: chatBoxWidth - 35,
-              height: 50,
-              child: Form(
-                key: _chatFormKey,
-                child: TextFormField(
-                  validator: (val) {
-                    if (val == null ||
-                        val.isEmpty ||
-                        val
-                            .trimRight()
-                            .isEmpty) {
-                      return "Can't send an empty message";
-                    }
-                    return null;
-                  },
-                  onFieldSubmitted: (value) {
-                    sendMessage(value);
-                  },
-                  keyboardType: TextInputType.multiline,
-                  focusNode: _focusChatBox,
-                  controller: chatFieldController,
-                  decoration: const InputDecoration(
-                    border: UnderlineInputBorder(),
-                    labelText: 'Type your message',
+      // TODO: It gets send twice? When pressing enter?
+      return Container(
+        color: Colors.blueAccent,
+        child: Row(
+            children: [
+              SizedBox(
+                width: chatBoxWidth - 35,
+                height: chatTextFieldHeight,
+                child: Form(
+                  key: _chatFormKey,
+                  child: TextFormField(
+                    validator: (val) {
+                      if (val == null ||
+                          val.isEmpty ||
+                          val.trimRight().isEmpty) {
+                        return "Can't send an empty message";
+                      }
+                      return null;
+                    },
+                    onFieldSubmitted: (value) {
+                      sendMessage(value);
+                    },
+                    keyboardType: TextInputType.multiline,
+                    focusNode: _focusChatBox,
+                    controller: chatFieldController,
+                    decoration: const InputDecoration(
+                      border: UnderlineInputBorder(),
+                      labelText: 'Type your message',
+                    ),
                   ),
                 ),
               ),
-            ),
-            GestureDetector(
-              onTap: () {
-                sendMessage(chatFieldController.text);
-              },
-              child: Container(
-                  height: 35,
-                  width: 35,
-                  padding: const EdgeInsets.symmetric(horizontal: 6),
-                  child: const Icon(
-                    Icons.send,
-                    color: Colors.white,
-                  )
-              ),
-            )
-          ]
+              GestureDetector(
+                onTap: () {
+                  sendMessage(chatFieldController.text);
+                },
+                child: Container(
+                    height: 35,
+                    width: 35,
+                    padding: const EdgeInsets.symmetric(horizontal: 6),
+                    child: const Icon(
+                      Icons.send,
+                      color: Colors.white,
+                    )
+                ),
+              )
+            ]
+        ),
       );
     } else {
       return Container();

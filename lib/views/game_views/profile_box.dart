@@ -114,7 +114,7 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
   Widget profile() {
     double fontSize = 16;
     double width = 800;
-    double height = (MediaQuery.of(context).size.height / 10) * 8;
+    double height = (MediaQuery.of(context).size.height / 10) * 9;
     // When the width is smaller than this we assume it's mobile.
     if (MediaQuery.of(context).size.width <= 800) {
       width = MediaQuery.of(context).size.width - 50;
