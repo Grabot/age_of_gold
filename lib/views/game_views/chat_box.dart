@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import '../../age_of_gold.dart';
+import '../../services/auth_service_world.dart';
 import '../../services/socket_services.dart';
 import '../../user_interface/user_interface_components/chat_messages.dart';
 import '../../user_interface/user_interface_components/message.dart';
 import 'package:intl/intl.dart';
+
+import '../../util/util.dart';
 
 
 class ChatBox extends StatefulWidget {
@@ -33,13 +36,42 @@ class ChatBoxState extends State<ChatBox> {
 
   bool tileBoxVisible = false;
 
+  final List<RegionData> _regions = RegionData.getRegions();
+  late List<DropdownMenuItem<RegionData>> _dropdownMenuItems;
+  late RegionData _selectedRegion;
+
+  String activateTab = "All";
+
   @override
   void initState() {
     chatMessages = ChatMessages();
     socket.checkMessages(chatMessages);
     socket.addListener(socketListener);
     _focusChatBox.addListener(_onFocusChange);
+
+    _dropdownMenuItems = buildDropdownMenuItems(_regions);
+    _selectedRegion = _dropdownMenuItems[0].value!;
     super.initState();
+  }
+
+  List<DropdownMenuItem<RegionData>> buildDropdownMenuItems(List regions) {
+    List<DropdownMenuItem<RegionData>> items = [];
+    for (RegionData regionData in regions) {
+      items.add(
+        DropdownMenuItem(
+          value: regionData,
+          child: Container(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                Text(regionData.name)
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+    return items;
   }
 
   socketListener() {
@@ -57,22 +89,22 @@ class ChatBoxState extends State<ChatBox> {
     super.dispose();
   }
 
-  Widget messageButton(double messageButtonsHeight) {
-    return Row(
-      children: [
-        Container(
-          width: messageButtonsHeight,
-          height: messageButtonsHeight,
-          color: Colors.amber,
-          child: IconButton(
-            icon: const Icon(Icons.email_outlined),
-            tooltip: 'Open chat details',
-            onPressed: () {
-              print("pressed");
-            },
-          ),
-        ),
-      ],
+  Widget chatTab(String tabName) {
+    bool buttonActive = activateTab == tabName;
+
+    return ElevatedButton(
+      onPressed: () {
+        if (tabName != activateTab) {
+          setState(() {
+            activateTab = tabName;
+          });
+        }
+      },
+      style: buttonStyle(buttonActive, Colors.green),
+      child: Container(
+        width: 40,
+        child: Text(tabName),
+      ),
     );
   }
 
@@ -83,13 +115,29 @@ class ChatBoxState extends State<ChatBox> {
       color: Colors.lightGreen,
       child: Align(
         alignment: Alignment.centerRight,
-        child: Container(
-          width: topBarHeight,
-          height: topBarHeight,
-          color: Colors.lightGreen,
-          child: Row(
-            children: [
-              tileBoxVisible ? IconButton(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Container(
+              width: topBarHeight,
+              height: topBarHeight,
+              child: IconButton(
+                icon: const Icon(Icons.email_outlined),
+                tooltip: 'Open chat details',
+                onPressed: () {
+                  print("pressed");
+                },
+              ),
+            ),
+            tileBoxVisible ? chatTab("All") : Container(),
+            tileBoxVisible ? chatTab("Global") : Container(),
+            tileBoxVisible ? chatTab("Trade") : Container(),
+            tileBoxVisible ? chatTab("Clan") : Container(),
+            Container(
+              width: topBarHeight,
+              height: topBarHeight,
+              color: Colors.lightGreen,
+              child: tileBoxVisible ? IconButton(
                 icon: const Icon(Icons.keyboard_double_arrow_down),
                 color: Colors.white,
                 tooltip: 'Hide chat',
@@ -107,27 +155,26 @@ class ChatBoxState extends State<ChatBox> {
                     tileBoxVisible = !tileBoxVisible;
                   });
                 },
-              ),
-            ],
-          ),
+              )
+            )
+          ],
         ),
       ),
     );
   }
 
   Widget chatBoxWidget() {
-    double chatBoxWidth = 350;
+    double chatBoxWidth = 450;
     if (MediaQuery.of(context).size.width <= 800) {
       // Here we assume that it is a phone and we set the width to the total
       chatBoxWidth = MediaQuery.of(context).size.width;
     }
 
     double topBarHeight = 40; // always visible
-    double messageButtonsHeight = 40; //always visible
     double messageBoxHeight = 300;
     double chatTextFieldHeight = 60;
-    double alwaysVisibleHeight = messageButtonsHeight + topBarHeight;
-    double totalHeight = messageBoxHeight + chatTextFieldHeight + messageButtonsHeight + topBarHeight;
+    double alwaysVisibleHeight = topBarHeight;
+    double totalHeight = messageBoxHeight + chatTextFieldHeight + topBarHeight;
 
     return Align(
       alignment: FractionalOffset.bottomLeft,
@@ -136,7 +183,6 @@ class ChatBoxState extends State<ChatBox> {
         height: tileBoxVisible ? totalHeight : alwaysVisibleHeight,
         child: Column(
             children: [
-              messageButton(messageButtonsHeight),
               topBar(chatBoxWidth, topBarHeight),
               Container(
                 width: chatBoxWidth,
@@ -159,20 +205,40 @@ class ChatBoxState extends State<ChatBox> {
 
   sendMessage(String message) {
     if (_chatFormKey.currentState!.validate()) {
-      socket.sendMessage(message);
+      AuthServiceWorld().sendMessage(message).then((value) {
+        if (value != "success") {
+          // TODO: What to do when it is not successful
+        } else {
+          print("success!");
+        }
+      }).onError((error, stackTrace) {
+        // TODO: What to do on an error?
+      });
       chatFieldController.text = "";
     }
   }
 
   Widget chatBoxTextField(double chatBoxWidth, double chatTextFieldHeight) {
+    double sendButtonWidth = 35;
+    double regionSelectedWidth = 80;
+    double regionSpacing = 10;
     if (tileBoxVisible) {
-      // TODO: It gets send twice? When pressing enter?
       return Container(
         color: Colors.blueAccent,
         child: Row(
             children: [
+              Container(
+                padding: EdgeInsets.only(right: regionSpacing),
+                child: GestureDetector(
+                  child: Container(
+                    height: 40,
+                    width: regionSelectedWidth,
+                    child: chatDropDownRegion(),
+                  ),
+                ),
+              ),
               SizedBox(
-                width: chatBoxWidth - 35,
+                width: chatBoxWidth - regionSelectedWidth - sendButtonWidth - regionSpacing,
                 height: chatTextFieldHeight,
                 child: Form(
                   key: _chatFormKey,
@@ -204,7 +270,7 @@ class ChatBoxState extends State<ChatBox> {
                 },
                 child: Container(
                     height: 35,
-                    width: 35,
+                    width: sendButtonWidth,
                     padding: const EdgeInsets.symmetric(horizontal: 6),
                     child: const Icon(
                       Icons.send,
@@ -218,6 +284,39 @@ class ChatBoxState extends State<ChatBox> {
     } else {
       return Container();
     }
+  }
+
+  Widget chatDropDownRegion() {
+    return Container(
+      decoration: BoxDecoration(
+          color: Colors.grey.withAlpha(95),
+          borderRadius: BorderRadius.circular(30),
+          border: Border.all(
+            color: Colors.white54,
+            width: 2,
+          ),
+      ),
+      child: DropdownButton(
+        value: _selectedRegion,
+        items: _dropdownMenuItems,
+        onChanged: onChangeDropdownItem,
+        style: TextStyle(
+            color: Colors.white,
+            fontSize: 15
+        ),
+        underline: Container(),
+        isExpanded: true,
+        iconSize: 0.0,
+      ),
+    );
+  }
+
+  onChangeDropdownItem(RegionData? selectedRegion) {
+    setState(() {
+      if (selectedRegion != null) {
+        _selectedRegion = selectedRegion;
+      }
+    });
   }
 
   Widget messageList() {
@@ -303,5 +402,22 @@ class MessageTileState extends State<MessageTile> {
         ]
       ),
     );
+  }
+}
+
+class RegionData {
+  int type;
+  String name;
+
+  RegionData(this.type, this.name);
+
+  // The idea is that besides global
+  // you will have recently whispered users and clans added in the dropdown
+  static List<RegionData> getRegions() {
+    return <RegionData>[
+      RegionData(0, "Global"),
+      RegionData(0, "Trade"),
+      RegionData(0, "Clan"),
+    ];
   }
 }

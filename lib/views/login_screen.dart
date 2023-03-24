@@ -251,7 +251,7 @@ class LoginScreenState extends State<LoginScreen> {
               passwordResetSend = false;
             });
           },
-          style: buttonStyle(),
+          style: buttonStyle(false, Colors.blue),
           child: Container(
             alignment: Alignment.center,
             width: width,
@@ -342,7 +342,7 @@ class LoginScreenState extends State<LoginScreen> {
                   forgotPassword();
                 }
               },
-              style: buttonStyle(),
+              style: buttonStyle(false, Colors.blue),
               child: Container(
                 alignment: Alignment.center,
                 width: width,
@@ -475,7 +475,7 @@ class LoginScreenState extends State<LoginScreen> {
                 signInAgeOfGold();
               }
             },
-            style: buttonStyle(),
+            style: buttonStyle(false, Colors.blue),
             child: Container(
               alignment: Alignment.center,
               width: width,
@@ -600,7 +600,7 @@ class LoginScreenState extends State<LoginScreen> {
                 signUpAgeOfGold();
               }
             },
-            style: buttonStyle(),
+            style: buttonStyle(false, Colors.blue),
             child: Container(
               alignment: Alignment.center,
               width: width,
@@ -644,7 +644,7 @@ class LoginScreenState extends State<LoginScreen> {
           onPressed: () {
             _navigationService.navigateTo(routes.GameRoute);
           },
-          style: buttonStyle(),
+          style: buttonStyle(false, Colors.blue),
           child: Container(
             alignment: Alignment.center,
             width: width,
@@ -692,8 +692,9 @@ class LoginScreenState extends State<LoginScreen> {
       width = MediaQuery.of(context).size.width - 50;
       height = MediaQuery.of(context).size.height - 150;
       loginBoxSize = 50;
-      fontSize = 10;
+      fontSize = MediaQuery.of(context).size.width / 80;
     }
+
     return Align(
       alignment: FractionalOffset.center,
       child: visible ? Container(

@@ -315,19 +315,48 @@ addHexagon(HexagonList hexagonList, SocketServices socketServices, data) {
   }
 }
 
-ButtonStyle buttonStyle() {
+ButtonStyle buttonStyle2(bool active, Color buttonColor) {
   return ButtonStyle(
       overlayColor: MaterialStateProperty.resolveWith<Color?>(
             (Set<MaterialState> states) {
           if (states.contains(MaterialState.hovered)) {
-            return Colors.lightBlue;
+            return Colors.green.shade600;
           }
           if (states.contains(MaterialState.pressed)) {
-            return Colors.blueAccent;
+            return Colors.greenAccent;
           }
           return null;
         },
       ),
+      backgroundColor: MaterialStateProperty.resolveWith<Color?>(
+              (Set<MaterialState> states) {
+            return active? Colors.lightGreen.shade600 : Colors.green;
+          }),
+      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30.0),
+          )
+      )
+  );
+}
+
+ButtonStyle buttonStyle(bool active, MaterialColor buttonColor) {
+  return ButtonStyle(
+      overlayColor: MaterialStateProperty.resolveWith<Color?>(
+            (Set<MaterialState> states) {
+          if (states.contains(MaterialState.hovered)) {
+            return buttonColor.shade600;
+          }
+          if (states.contains(MaterialState.pressed)) {
+            return buttonColor.shade300;
+          }
+          return null;
+        },
+      ),
+      backgroundColor: MaterialStateProperty.resolveWith<Color?>(
+              (Set<MaterialState> states) {
+            return active? buttonColor.shade800 : buttonColor;
+          }),
       shape: MaterialStateProperty.all<RoundedRectangleBorder>(
           RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(30.0),

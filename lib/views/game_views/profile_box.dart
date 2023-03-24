@@ -173,7 +173,7 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
         onPressed: () {
           verifyEmail();
         },
-        style: buttonStyle(),
+        style: buttonStyle(false, Colors.blue),
         child: Container(
           alignment: Alignment.center,
           width: 400,
@@ -194,7 +194,7 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
         onPressed: () {
           logoutUser(settings, _navigationService);
         },
-        style: buttonStyle(),
+        style: buttonStyle(false, Colors.blue),
         child: Container(
           alignment: Alignment.center,
           width: 400,
@@ -221,7 +221,7 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
         onPressed: () {
           goBack();
         },
-        style: buttonStyle(),
+        style: buttonStyle(false, Colors.blue),
         child: Container(
           alignment: Alignment.center,
           width: 400,
@@ -275,7 +275,7 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
             onPressed: () {
               _navigationService.navigateTo(routes.HomeRoute, arguments: {'message': "Checked out the world and ready to register!"});
             },
-            style: buttonStyle(),
+            style: buttonStyle(false, Colors.blue),
             child: Container(
               alignment: Alignment.center,
               width: 400,

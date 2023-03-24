@@ -16,7 +16,7 @@ class ChatMessages {
 
   initializeChatMessages() {
     DateTime currentTime = DateTime.now();
-    String message = "Welcome to the global chat!";
+    String message = "Welcome to the Age of Gold chat!";
     Message newMessage = Message(1, "Server", message, false, currentTime);
     chatMessages.add(newMessage);
   }

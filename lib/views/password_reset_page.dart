@@ -174,7 +174,7 @@ class _PasswordResetState extends State<PasswordReset> {
               onPressed: () {
                 resetPassword();
               },
-              style: buttonStyle(),
+              style: buttonStyle(false, Colors.blue),
               child: Container(
                 alignment: Alignment.center,
                 width: width,
@@ -220,7 +220,7 @@ class _PasswordResetState extends State<PasswordReset> {
               onPressed: () {
                 backToLogin();
               },
-              style: buttonStyle(),
+              style: buttonStyle(false, Colors.blue),
               child: Container(
                 alignment: Alignment.center,
                 width: width,

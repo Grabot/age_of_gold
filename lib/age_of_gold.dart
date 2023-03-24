@@ -64,6 +64,7 @@ class AgeOfGold extends FlameGame
 
   bool finger1 = false;
   bool finger2 = false;
+  bool pinched = false;
   double? distanceBetweenFingers;
 
   SocketServices? socket;
@@ -228,13 +229,14 @@ class AgeOfGold extends FlameGame
   }
 
   pinchZoom() {
+    pinched = true;
     if (distanceBetweenFingers == null) {
       distanceBetweenFingers = firstFinger!.distanceTo(secondFinger!);
     } else {
       double currentDistance = distanceBetweenFingers!;
       distanceBetweenFingers = firstFinger!.distanceTo(secondFinger!);
       double movementFingers = currentDistance - distanceBetweenFingers!;
-      double zoomIncrease = movementFingers / 500;
+      double zoomIncrease = (movementFingers / 200).clamp(-0.04, 0.04);
       camera.zoom *= (1 - zoomIncrease);
       clampZoom();
     }
@@ -257,6 +259,10 @@ class AgeOfGold extends FlameGame
   }
 
   resetDrag() {
+    if (pinched) {
+      checkHexagonArraySize();
+      pinched = false;
+    }
     start = null;
     firstFinger = null;
     secondFinger = null;
@@ -410,6 +416,7 @@ class AgeOfGold extends FlameGame
 
   checkHexagonArraySize() {
     double currentZoom = camera.zoom;
+    print("current zoom: $currentZoom");
     double currentWidth = camera.canvasSize.x;
     double currentHeight = camera.canvasSize.y;
     if (_world != null) {
@@ -422,6 +429,7 @@ class AgeOfGold extends FlameGame
         } else if (currentZoom < 0.5) {
           hexArraySize += 8;
         }
+        print("small: $hexArraySize  width: $currentWidth  height: $currentHeight");
       } else {
         // large 4k monitor resolution on full screen
         hexArraySize = 14 + (4 - currentZoom.floor()) * 6;
@@ -430,6 +438,7 @@ class AgeOfGold extends FlameGame
         } else if (currentZoom < 0.5) {
           hexArraySize += 10;
         }
+        print("large: $hexArraySize");
       }
       if (currentHexSize != hexArraySize) {
         currentHexSize = hexArraySize;

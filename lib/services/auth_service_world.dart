@@ -130,4 +130,29 @@ class AuthServiceWorld {
       }
     }
   }
+
+  Future<String> sendMessage(String message) async {
+    String endPoint = "send/message";
+    var response = await AuthApi().dio.post(endPoint,
+        options: Options(headers: {
+          HttpHeaders.contentTypeHeader: "application/json",
+        }),
+        data: jsonEncode(<String, String>{
+          "message": message,
+        }
+      )
+    );
+
+    Map<String, dynamic> json = response.data;
+    print("response is $json");
+    if (!json.containsKey("result")) {
+      return "an error occurred";
+    } else {
+      if (json["result"]) {
+        return "success";
+      } else {
+        return json["message"];
+      }
+    }
+  }
 }
