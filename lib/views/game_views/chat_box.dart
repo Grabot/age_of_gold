@@ -1,3 +1,6 @@
+import 'package:age_of_gold/user_interface/user_interface_components/messages/event_message.dart';
+import 'package:age_of_gold/user_interface/user_interface_components/messages/global_message.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import '../../age_of_gold.dart';
 import '../../services/auth_service_world.dart';
@@ -6,6 +9,10 @@ import '../../user_interface/user_interface_components/chat_messages.dart';
 import '../../user_interface/user_interface_components/message.dart';
 import 'package:intl/intl.dart';
 
+import '../../user_interface/user_interface_components/messages/guild_message.dart';
+import '../../user_interface/user_interface_components/messages/local_message.dart';
+import '../../user_interface/user_interface_components/messages/personal_message.dart';
+import '../../user_interface/user_interface_components/messages/trade_message.dart';
 import '../../util/util.dart';
 
 
@@ -40,7 +47,8 @@ class ChatBoxState extends State<ChatBox> {
   late List<DropdownMenuItem<RegionData>> _dropdownMenuItems;
   late RegionData _selectedRegion;
 
-  String activateTab = "All";
+  String activateTab = "General";
+  String currentPersonal = "";
 
   @override
   void initState() {
@@ -102,7 +110,7 @@ class ChatBoxState extends State<ChatBox> {
       },
       style: buttonStyle(buttonActive, Colors.green),
       child: Container(
-        width: 40,
+        width: 50,
         child: Text(tabName),
       ),
     );
@@ -112,7 +120,7 @@ class ChatBoxState extends State<ChatBox> {
     return Container(
       width: chatBoxWidth,
       height: topBarHeight,
-      color: Colors.lightGreen,
+      color: Colors.lightGreen.withOpacity(0.75),
       child: Align(
         alignment: Alignment.centerRight,
         child: Row(
@@ -129,14 +137,11 @@ class ChatBoxState extends State<ChatBox> {
                 },
               ),
             ),
-            tileBoxVisible ? chatTab("All") : Container(),
-            tileBoxVisible ? chatTab("Global") : Container(),
-            tileBoxVisible ? chatTab("Trade") : Container(),
-            tileBoxVisible ? chatTab("Clan") : Container(),
+            tileBoxVisible ? chatTab("General") : Container(),
+            tileBoxVisible ? chatTab("Events") : Container(),
             Container(
               width: topBarHeight,
               height: topBarHeight,
-              color: Colors.lightGreen,
               child: tileBoxVisible ? IconButton(
                 icon: const Icon(Icons.keyboard_double_arrow_down),
                 color: Colors.white,
@@ -176,6 +181,11 @@ class ChatBoxState extends State<ChatBox> {
     double alwaysVisibleHeight = topBarHeight;
     double totalHeight = messageBoxHeight + chatTextFieldHeight + topBarHeight;
 
+    bool isEvent = activateTab == "Events";
+    if (isEvent) {
+      messageBoxHeight += chatTextFieldHeight;
+    }
+
     return Align(
       alignment: FractionalOffset.bottomLeft,
       child: Container(
@@ -187,16 +197,16 @@ class ChatBoxState extends State<ChatBox> {
               Container(
                 width: chatBoxWidth,
                 height: tileBoxVisible ? messageBoxHeight : 0,
-                color: Colors.blueAccent,
+                color: Colors.black.withOpacity(0.4),
                 child: Column(
                   children: [
                     Expanded(
-                      child: messageList(),
+                      child: messageList(isEvent),
                     ),
                   ],
                 ),
               ),
-              chatBoxTextField(chatBoxWidth, chatTextFieldHeight)
+              !isEvent ? chatBoxTextField(chatBoxWidth, chatTextFieldHeight) : Container()
             ]
         ),
       ),
@@ -205,10 +215,11 @@ class ChatBoxState extends State<ChatBox> {
 
   sendMessage(String message) {
     if (_chatFormKey.currentState!.validate()) {
-      AuthServiceWorld().sendMessage(message).then((value) {
+      AuthServiceWorld().sendMessage(message, _selectedRegion.type).then((value) {
         if (value != "success") {
           // TODO: What to do when it is not successful
         } else {
+          // The socket should handle the receiving and placing of the message
           print("success!");
         }
       }).onError((error, stackTrace) {
@@ -224,7 +235,7 @@ class ChatBoxState extends State<ChatBox> {
     double regionSpacing = 10;
     if (tileBoxVisible) {
       return Container(
-        color: Colors.blueAccent,
+        color: Colors.black.withOpacity(0.7),
         child: Row(
             children: [
               Container(
@@ -319,17 +330,24 @@ class ChatBoxState extends State<ChatBox> {
     });
   }
 
-  Widget messageList() {
-    return chatMessages.chatMessages.isNotEmpty && tileBoxVisible
+  Widget messageList(bool isEvent) {
+    List<Message> messages = chatMessages.chatMessages;
+    if (isEvent) {
+      messages = chatMessages.eventMessages;
+    }
+    return messages.isNotEmpty && tileBoxVisible
         ? ListView.builder(
-        itemCount: chatMessages.chatMessages.length,
+        itemCount: messages.length,
         reverse: true,
         controller: messageScrollController,
         itemBuilder: (context, index) {
-          final reversedIndex = chatMessages.chatMessages.length - 1 - index;
+          final reversedIndex = messages.length - 1 - index;
           return MessageTile(
-              key: UniqueKey(),
-              message: chatMessages.chatMessages[reversedIndex]);
+            key: UniqueKey(),
+            message: messages[reversedIndex],
+            region: _selectedRegion.name,
+            userInteraction: userInteraction,
+          );
         })
         : Container();
   }
@@ -339,15 +357,53 @@ class ChatBoxState extends State<ChatBox> {
     return chatBoxWidget();
   }
 
+  userInteraction(bool message, String userName) {
+    if (message) {
+      // message the user
+      // select personal region if it exists, otherwise just create it first.
+      bool exists = false;
+      for (int i = 0; i < _regions.length; i++) {
+        if (_regions[i].name == userName) {
+          _selectedRegion = _dropdownMenuItems[i].value!;
+          exists = true;
+        }
+      }
+      if (!exists) {
+        RegionData newRegionData = RegionData(3, "to: $userName");
+        // probably not needed
+        _regions.add(newRegionData);
+        DropdownMenuItem<RegionData> newDropDownItem = DropdownMenuItem(
+          value: newRegionData,
+          child: Container(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                Text(newRegionData.name)
+              ],
+            ),
+          ),
+        );
+        _dropdownMenuItems.add(newDropDownItem);
+        _selectedRegion = _dropdownMenuItems.last.value!;
+      }
+      setState(() {});
+    } else {
+      // open the user overview panel.
+    }
+  }
 }
 
 class MessageTile extends StatefulWidget {
   final Message message;
+  final String region;
+  final userInteraction;
 
   const MessageTile(
       {
         required Key key,
-        required this.message
+        required this.message,
+        required this.region,
+        required this.userInteraction
       })
       : super(key: key);
 
@@ -357,51 +413,114 @@ class MessageTile extends StatefulWidget {
 
 class MessageTileState extends State<MessageTile> {
 
+  bool showMessage = false;
   @override
   void initState() {
+    if (widget.region == "Global" && (
+        widget.message is GlobalMessage
+            || widget.message is LocalMessage
+            || widget.message is PersonalMessage
+            || widget.message is GuildMessage
+    )) {
+      showMessage = true;
+    } else if (widget.region == "Guild" && widget.message is GuildMessage) {
+      showMessage = true;
+    } else if (widget.region == "Local" && widget.message is LocalMessage) {
+      showMessage = true;
+    } else if (widget.region == "Personal" && widget.message is PersonalMessage) {
+      showMessage = true;
+    } else if (widget.message is EventMessage) {
+      // Event messages are always true because they are not visible until you open the events tab.
+      showMessage = true;
+    }
     super.initState();
   }
 
   Widget getMessageContent() {
+    Color textColour = widget.message.messageColour;
     return RichText(
       text: TextSpan(
         children: [
           TextSpan(
             text: "[${DateFormat('HH:mm')
                 .format(widget.message.timestamp)}] ",
-            style:
-            const TextStyle(color: Colors.white54, fontSize: 12),
+            style: TextStyle(
+                color: textColour.withOpacity(0.54),
+                fontSize: 12
+            ),
           ),
           TextSpan(
             text: "${widget.message.senderName}: ",
-            style: const TextStyle(color: Colors.white70, fontSize: 16),
+            recognizer: TapGestureRecognizer()..onTapDown = _showPopupMenu,
+            style: TextStyle(
+                color: textColour,
+                fontWeight: FontWeight.bold,
+                fontSize: 16
+            ),
           ),
           TextSpan(
             text: widget.message.body,
-            style: const TextStyle(color: Colors.white, fontSize: 16),
+            style: TextStyle(
+                color: textColour.withOpacity(0.70),
+                fontSize: 16
+            ),
           ),
         ],
       ),
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget message() {
     return Material(
       color: Colors.transparent,
       child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-            width: MediaQuery.of(context).size.width,
-            alignment: Alignment.bottomLeft,
-            child: Container(
-              child: getMessageContent()
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              width: MediaQuery.of(context).size.width,
+              alignment: Alignment.bottomLeft,
+              child: Container(
+                  child: getMessageContent()
+              ),
             ),
-          ),
-        ]
+          ]
       ),
     );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return showMessage ? message() : Container();
+  }
+
+  Offset? _tapPosition;
+
+  void _showPopupMenu(TapDownDetails details) {
+    _storePosition(details);
+    _showChatDetailPopupMenu();
+  }
+
+  void _showChatDetailPopupMenu() {
+    final RenderBox overlay =
+    Overlay.of(context).context.findRenderObject() as RenderBox;
+
+    showMenu(
+        context: context,
+        items: [ChatDetailPopup(key: UniqueKey())],
+        position: RelativeRect.fromRect(
+            _tapPosition! & const Size(40, 40), Offset.zero & overlay.size))
+        .then((int? delta) {
+      if (delta == 1) {
+        widget.userInteraction(true, widget.message.senderName);
+      } else if (delta == 2) {
+        widget.userInteraction(false, widget.message.senderName);
+      }
+      return;
+    });
+  }
+
+  void _storePosition(TapDownDetails details) {
+    _tapPosition = details.globalPosition;
   }
 }
 
@@ -416,8 +535,67 @@ class RegionData {
   static List<RegionData> getRegions() {
     return <RegionData>[
       RegionData(0, "Global"),
-      RegionData(0, "Trade"),
-      RegionData(0, "Clan"),
+      RegionData(1, "Local"),
+      RegionData(2, "Guild"),
+      RegionData(3, "Personal"),
     ];
   }
+}
+
+class ChatDetailPopup extends PopupMenuEntry<int> {
+
+  ChatDetailPopup({required Key key}) : super(key: key);
+
+  @override
+  bool represents(int? n) => n == 1 || n == -1;
+
+  @override
+  ChatDetailPopupState createState() => ChatDetailPopupState();
+
+  @override
+  double get height => 1;
+}
+
+class ChatDetailPopupState extends State<ChatDetailPopup> {
+  @override
+  Widget build(BuildContext context) {
+    return getPopupItems(context);
+  }
+}
+
+void buttonMessageUser(BuildContext context) {
+  Navigator.pop<int>(context, 1);
+}
+
+void buttonViewUser(BuildContext context) {
+  Navigator.pop<int>(context, 2);
+}
+
+Widget getPopupItems(BuildContext context) {
+  return Column(children: [
+    Container(
+      alignment: Alignment.centerLeft,
+      child: TextButton(
+          onPressed: () {
+            buttonMessageUser(context);
+          },
+          child: Text(
+            'Message user',
+            textAlign: TextAlign.left,
+            style: TextStyle(color: Colors.white, fontSize: 14),
+          )),
+    ),
+    Container(
+      alignment: Alignment.centerLeft,
+      child: TextButton(
+          onPressed: () {
+            buttonViewUser(context);
+          },
+          child: Text(
+            "View user",
+            textAlign: TextAlign.left,
+            style: TextStyle(color: Colors.white, fontSize: 14),
+          )),
+    ),
+  ]);
 }

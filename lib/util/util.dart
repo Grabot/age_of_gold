@@ -315,31 +315,6 @@ addHexagon(HexagonList hexagonList, SocketServices socketServices, data) {
   }
 }
 
-ButtonStyle buttonStyle2(bool active, Color buttonColor) {
-  return ButtonStyle(
-      overlayColor: MaterialStateProperty.resolveWith<Color?>(
-            (Set<MaterialState> states) {
-          if (states.contains(MaterialState.hovered)) {
-            return Colors.green.shade600;
-          }
-          if (states.contains(MaterialState.pressed)) {
-            return Colors.greenAccent;
-          }
-          return null;
-        },
-      ),
-      backgroundColor: MaterialStateProperty.resolveWith<Color?>(
-              (Set<MaterialState> states) {
-            return active? Colors.lightGreen.shade600 : Colors.green;
-          }),
-      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-          RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(30.0),
-          )
-      )
-  );
-}
-
 ButtonStyle buttonStyle(bool active, MaterialColor buttonColor) {
   return ButtonStyle(
       overlayColor: MaterialStateProperty.resolveWith<Color?>(
@@ -381,4 +356,58 @@ InputDecoration textFieldInputDecoration(String hintText) {
       enabledBorder: const UnderlineInputBorder(
         borderSide: BorderSide(color: Colors.white54),
       ));
+}
+
+String getTileColour(int tileType) {
+  if (tileType == 0) {
+    return "Amethyst";
+  } else if (tileType == 1) {
+    return "Black";
+  } else if (tileType == 2) {
+    return "Bondi Blue";
+  } else if (tileType == 3) {
+    return "Bright Sun";
+  } else if (tileType == 4) {
+    return "Caribbean Green";
+  } else if (tileType == 5) {
+    return "Cerulean Blue";
+  } else if (tileType == 6) {
+    return "Conifer";
+  } else if (tileType == 7) {
+    return "Cornflower Blue";
+  } else if (tileType == 8) {
+    return "Governor Bay";
+  } else if (tileType == 9) {
+    return "Green Haze";
+  } else if (tileType == 10) {
+    return "Iron";
+  } else if (tileType == 11) {
+    return "Monza";
+  } else if (tileType == 12) {
+    return "Oslo Gray";
+  } else if (tileType == 13) {
+    return "Paarl";
+  } else if (tileType == 14) {
+    return "Picton Blue";
+  } else if (tileType == 15) {
+    return "Pine Green";
+  } else if (tileType == 16) {
+    return "Pink Salmon";
+  } else if (tileType == 17) {
+    return "Seance";
+  } else if (tileType == 18) {
+    return "Spice";
+  } else if (tileType == 19) {
+    return "Spray";
+  } else if (tileType == 20) {
+    return "Vermillion";
+  } else if (tileType == 21) {
+    return "Web Orange";
+  } else if (tileType == 22) {
+    return "White";
+  } else if (tileType == 23) {
+    return "Wild Strawberry";
+  } else {
+    return "Type unknown";
+  }
 }

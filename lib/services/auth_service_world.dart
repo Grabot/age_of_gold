@@ -131,7 +131,7 @@ class AuthServiceWorld {
     }
   }
 
-  Future<String> sendMessage(String message) async {
+  Future<String> sendMessage(String message, int regionType) async {
     String endPoint = "send/message";
     var response = await AuthApi().dio.post(endPoint,
         options: Options(headers: {
@@ -139,6 +139,7 @@ class AuthServiceWorld {
         }),
         data: jsonEncode(<String, String>{
           "message": message,
+          "region_type": regionType.toString()
         }
       )
     );

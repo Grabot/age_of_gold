@@ -143,26 +143,16 @@ class SocketServices extends ChangeNotifier {
   void checkMessages(ChatMessages chatMessages) {
     this.chatMessages = chatMessages;
     socket.on('send_message_success', (data) {
-      receivedMessage(data["user_name"], data["message"]);
+      String from = data["user_name"];
+      String message = data["message"];
+      int regionType = int.parse(data["region_type"]);
+      receivedMessage(from, message, regionType);
       notifyListeners();
     });
   }
 
-  void changeTileType(int q, int r, int tileType) {
-    // The q and r will correspond to the correct tile,
-    // we send the wrap variables of the hexagon too in case
-    // the user is currently wrapped around the map
-    print("user id: $userId");
-    socket.emit("change_tile_type", {
-      "id": userId,
-      "q": q,
-      "r": r,
-      "type": tileType
-    });
-  }
-
-  void receivedMessage(String userName, String message) {
-    chatMessages.addMessage(userName, message);
+  void receivedMessage(String from, String message, int regionType) {
+    chatMessages.addMessage(from, message, regionType);
   }
 
   void sendMessage(String message) {
@@ -252,10 +242,14 @@ class SocketServices extends ChangeNotifier {
 
     Tile? currentTile = getTile(hexagonList, wrapCoordinates, data);
     if (currentTile != null) {
+      String oldColour = getTileColour(currentTile.getTileType());
       currentTile.setTileType(newTileType);
       currentTile.hexagon!.updateHexagon();
 
       addTileInfo(data, currentTile);
+      String newColour = getTileColour(currentTile.getTileType());
+      String tileEvent = "tile q: ${currentTile.q} r: ${currentTile.r} changed from the colour: $oldColour to $newColour";
+      chatMessages.addEventMessage(tileEvent);
     }
   }
 
