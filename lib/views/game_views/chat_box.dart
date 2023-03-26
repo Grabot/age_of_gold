@@ -4,6 +4,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import '../../age_of_gold.dart';
 import '../../services/auth_service_world.dart';
+import '../../services/models/user.dart';
+import '../../services/settings.dart';
 import '../../services/socket_services.dart';
 import '../../user_interface/user_interface_components/chat_messages.dart';
 import '../../user_interface/user_interface_components/message.dart';
@@ -48,7 +50,6 @@ class ChatBoxState extends State<ChatBox> {
   late RegionData _selectedChatRegion;
 
   String activateTab = "Chat";
-  String currentPersonal = "";
 
   int currentHexQ = 0;
   int currentHexR = 0;
@@ -85,12 +86,14 @@ class ChatBoxState extends State<ChatBox> {
             padding: const EdgeInsets.all(8.0),
             child: Row(
               children: [
-                Text(
-                  regionData.name,
-                  style: TextStyle(
-                      color: dropDownColour,
-                      fontSize: 15
-                  ),
+                Expanded(child:
+                  Text(
+                    regionData.name,
+                    style: TextStyle(
+                        color: dropDownColour,
+                        fontSize: 15
+                    ),
+                  )
                 )
               ],
             ),
@@ -252,8 +255,8 @@ class ChatBoxState extends State<ChatBox> {
       } else if (_selectedChatRegion.type == 2) {
         AuthServiceWorld().sendMessageChatGuild(message, "TODO");
       } else if (_selectedChatRegion.type == 3) {
-        // The message should go to 1 person. Pass this as argument.
         toUser = _selectedChatRegion.name;
+        AuthServiceWorld().sendMessageChatPersonal(message, toUser);
       }
       chatFieldController.text = "";
     }
@@ -407,7 +410,18 @@ class ChatBoxState extends State<ChatBox> {
             padding: const EdgeInsets.all(8.0),
             child: Row(
               children: [
-                Text(newRegionData.name)
+                Expanded(
+                  child: Text(
+                    newRegionData.name,
+                    overflow: TextOverflow.fade,
+                    maxLines: 1,
+                    softWrap: false,
+                    style: TextStyle(
+                        color: Colors.purpleAccent.shade200,
+                        fontSize: 15
+                    ),
+                  ),
+                )
               ],
             ),
           ),
@@ -507,8 +521,15 @@ class MessageTileState extends State<MessageTile> {
   Offset? _tapPosition;
 
   void _showPopupMenu(TapDownDetails details) {
-    _storePosition(details);
-    _showChatDetailPopupMenu();
+    User? myself = Settings().getUser();
+    if (myself != null) {
+      // only show popup for different users. Not myself or the server.
+      if (widget.message.senderName != myself.userName
+          && widget.message.senderName != "Server") {
+        _storePosition(details);
+        _showChatDetailPopupMenu();
+      }
+    }
   }
 
   void _showChatDetailPopupMenu() {

@@ -162,6 +162,12 @@ class SocketServices extends ChangeNotifier {
       receivedMessage(from, message, 2);
       notifyListeners();
     });
+    socket.on('send_message_personal', (data) {
+      String from = data["user_name"];
+      String message = data["message"];
+      receivedMessage(from, message, 3);
+      notifyListeners();
+    });
   }
 
   void receivedMessage(String from, String message, int regionType) {

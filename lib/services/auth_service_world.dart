@@ -167,6 +167,18 @@ class AuthServiceWorld {
     });
   }
 
+  sendMessageChatPersonal(String message, String userTo) {
+    sendMessagePersonal(message, userTo).then((value) {
+      if (value != "success") {
+        // TODO: What to do when it is not successful
+      } else {
+        // The socket should handle the receiving and placing of the message
+      }
+    }).onError((error, stackTrace) {
+      // TODO: What to do on an error?
+    });
+  }
+
   Future<String> sendMessageGlobal(String message) async {
     String endPoint = "send/message/global";
     var response = await AuthApi().dio.post(endPoint,
@@ -230,6 +242,32 @@ class AuthServiceWorld {
         data: jsonEncode(<String, String>{
           "message": message,
           "guild_name": guildName
+        }
+      )
+    );
+
+    Map<String, dynamic> json = response.data;
+    print("response is $json");
+    if (!json.containsKey("result")) {
+      return "an error occurred";
+    } else {
+      if (json["result"]) {
+        return "success";
+      } else {
+        return json["message"];
+      }
+    }
+  }
+
+  Future<String> sendMessagePersonal(String message, String toUser) async {
+    String endPoint = "send/message/personal";
+    var response = await AuthApi().dio.post(endPoint,
+        options: Options(headers: {
+          HttpHeaders.contentTypeHeader: "application/json",
+        }),
+        data: jsonEncode(<String, String>{
+          "message": message,
+          "to_user": toUser
         }
       )
     );

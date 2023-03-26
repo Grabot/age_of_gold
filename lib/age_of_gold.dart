@@ -86,13 +86,13 @@ class AgeOfGold extends FlameGame
     checkHexagonArraySize();
 
     socket = SocketServices();
+    checkLogIn(_navigationService);
+
     socket!.joinRoom();
     socket!.addListener(socketListener);
     html.window.onBeforeUnload.listen((event) async {
       socket!.leaveRoom();
     });
-
-    checkLogIn(_navigationService);
   }
 
   checkLogIn(NavigationService navigationService) {
