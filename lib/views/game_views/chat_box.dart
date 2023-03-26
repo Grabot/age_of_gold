@@ -45,10 +45,15 @@ class ChatBoxState extends State<ChatBox> {
 
   final List<RegionData> _regions = RegionData.getRegions();
   late List<DropdownMenuItem<RegionData>> _dropdownMenuItems;
-  late RegionData _selectedRegion;
+  late RegionData _selectedChatRegion;
 
-  String activateTab = "General";
+  String activateTab = "Chat";
   String currentPersonal = "";
+
+  int currentHexQ = 0;
+  int currentHexR = 0;
+  int currentTileQ = 0;
+  int currentTileR = 0;
 
   @override
   void initState() {
@@ -58,13 +63,21 @@ class ChatBoxState extends State<ChatBox> {
     _focusChatBox.addListener(_onFocusChange);
 
     _dropdownMenuItems = buildDropdownMenuItems(_regions);
-    _selectedRegion = _dropdownMenuItems[0].value!;
+    _selectedChatRegion = _dropdownMenuItems[0].value!;
     super.initState();
   }
 
   List<DropdownMenuItem<RegionData>> buildDropdownMenuItems(List regions) {
     List<DropdownMenuItem<RegionData>> items = [];
     for (RegionData regionData in regions) {
+      Color dropDownColour = Colors.white;
+      if (regionData.type == 1) {
+        dropDownColour = Colors.orange.shade300;
+      } else if (regionData.type == 2) {
+        dropDownColour = Colors.green.shade300;
+      } else if (regionData.type == 3) {
+        dropDownColour = Colors.purpleAccent.shade200;
+      }
       items.add(
         DropdownMenuItem(
           value: regionData,
@@ -72,7 +85,13 @@ class ChatBoxState extends State<ChatBox> {
             padding: const EdgeInsets.all(8.0),
             child: Row(
               children: [
-                Text(regionData.name)
+                Text(
+                  regionData.name,
+                  style: TextStyle(
+                      color: dropDownColour,
+                      fontSize: 15
+                  ),
+                )
               ],
             ),
           ),
@@ -90,6 +109,16 @@ class ChatBoxState extends State<ChatBox> {
 
   void _onFocusChange() {
     widget.game.chatBoxFocus(_focusChatBox.hasFocus);
+    if (_focusChatBox.hasFocus) {
+      // When it gets the focus we want to know where it is right now.
+      List<int>? cameraProperties = widget.game.getCameraPos();
+      if (cameraProperties != null) {
+        currentHexQ = cameraProperties[0];
+        currentHexR = cameraProperties[1];
+        currentTileQ = cameraProperties[2];
+        currentTileR = cameraProperties[3];
+      }
+    }
   }
 
   @override
@@ -137,7 +166,7 @@ class ChatBoxState extends State<ChatBox> {
                 },
               ),
             ),
-            tileBoxVisible ? chatTab("General") : Container(),
+            tileBoxVisible ? chatTab("Chat") : Container(),
             tileBoxVisible ? chatTab("Events") : Container(),
             Container(
               width: topBarHeight,
@@ -215,16 +244,17 @@ class ChatBoxState extends State<ChatBox> {
 
   sendMessage(String message) {
     if (_chatFormKey.currentState!.validate()) {
-      AuthServiceWorld().sendMessage(message, _selectedRegion.type).then((value) {
-        if (value != "success") {
-          // TODO: What to do when it is not successful
-        } else {
-          // The socket should handle the receiving and placing of the message
-          print("success!");
-        }
-      }).onError((error, stackTrace) {
-        // TODO: What to do on an error?
-      });
+      String? toUser;
+      if (_selectedChatRegion.type == 0) {
+        AuthServiceWorld().sendMessageChatGlobal(message);
+      } else if (_selectedChatRegion.type == 1) {
+        AuthServiceWorld().sendMessageChatLocal(message, currentHexQ, currentHexR, currentTileQ, currentTileR);
+      } else if (_selectedChatRegion.type == 2) {
+        AuthServiceWorld().sendMessageChatGuild(message, "TODO");
+      } else if (_selectedChatRegion.type == 3) {
+        // The message should go to 1 person. Pass this as argument.
+        toUser = _selectedChatRegion.name;
+      }
       chatFieldController.text = "";
     }
   }
@@ -298,23 +328,20 @@ class ChatBoxState extends State<ChatBox> {
   }
 
   Widget chatDropDownRegion() {
+    Color dropDownColour = Colors.white;
     return Container(
       decoration: BoxDecoration(
           color: Colors.grey.withAlpha(95),
           borderRadius: BorderRadius.circular(30),
           border: Border.all(
-            color: Colors.white54,
+            color: dropDownColour.withOpacity(0.54),
             width: 2,
           ),
       ),
       child: DropdownButton(
-        value: _selectedRegion,
+        value: _selectedChatRegion,
         items: _dropdownMenuItems,
         onChanged: onChangeDropdownItem,
-        style: TextStyle(
-            color: Colors.white,
-            fontSize: 15
-        ),
         underline: Container(),
         isExpanded: true,
         iconSize: 0.0,
@@ -325,7 +352,7 @@ class ChatBoxState extends State<ChatBox> {
   onChangeDropdownItem(RegionData? selectedRegion) {
     setState(() {
       if (selectedRegion != null) {
-        _selectedRegion = selectedRegion;
+        _selectedChatRegion = selectedRegion;
       }
     });
   }
@@ -345,7 +372,7 @@ class ChatBoxState extends State<ChatBox> {
           return MessageTile(
             key: UniqueKey(),
             message: messages[reversedIndex],
-            region: _selectedRegion.name,
+            region: _selectedChatRegion.name,
             userInteraction: userInteraction,
           );
         })
@@ -357,19 +384,21 @@ class ChatBoxState extends State<ChatBox> {
     return chatBoxWidget();
   }
 
+  String userSelected = "";
   userInteraction(bool message, String userName) {
     if (message) {
       // message the user
       // select personal region if it exists, otherwise just create it first.
+      userSelected = userName;
       bool exists = false;
       for (int i = 0; i < _regions.length; i++) {
         if (_regions[i].name == userName) {
-          _selectedRegion = _dropdownMenuItems[i].value!;
+          _selectedChatRegion = _dropdownMenuItems[i].value!;
           exists = true;
         }
       }
       if (!exists) {
-        RegionData newRegionData = RegionData(3, "to: $userName");
+        RegionData newRegionData = RegionData(3, userName);
         // probably not needed
         _regions.add(newRegionData);
         DropdownMenuItem<RegionData> newDropDownItem = DropdownMenuItem(
@@ -384,7 +413,7 @@ class ChatBoxState extends State<ChatBox> {
           ),
         );
         _dropdownMenuItems.add(newDropDownItem);
-        _selectedRegion = _dropdownMenuItems.last.value!;
+        _selectedChatRegion = _dropdownMenuItems.last.value!;
       }
       setState(() {});
     } else {
@@ -396,7 +425,7 @@ class ChatBoxState extends State<ChatBox> {
 class MessageTile extends StatefulWidget {
   final Message message;
   final String region;
-  final userInteraction;
+  final Function(bool, String) userInteraction;
 
   const MessageTile(
       {
@@ -413,26 +442,8 @@ class MessageTile extends StatefulWidget {
 
 class MessageTileState extends State<MessageTile> {
 
-  bool showMessage = false;
   @override
   void initState() {
-    if (widget.region == "Global" && (
-        widget.message is GlobalMessage
-            || widget.message is LocalMessage
-            || widget.message is PersonalMessage
-            || widget.message is GuildMessage
-    )) {
-      showMessage = true;
-    } else if (widget.region == "Guild" && widget.message is GuildMessage) {
-      showMessage = true;
-    } else if (widget.region == "Local" && widget.message is LocalMessage) {
-      showMessage = true;
-    } else if (widget.region == "Personal" && widget.message is PersonalMessage) {
-      showMessage = true;
-    } else if (widget.message is EventMessage) {
-      // Event messages are always true because they are not visible until you open the events tab.
-      showMessage = true;
-    }
     super.initState();
   }
 
@@ -490,7 +501,7 @@ class MessageTileState extends State<MessageTile> {
 
   @override
   Widget build(BuildContext context) {
-    return showMessage ? message() : Container();
+    return message();
   }
 
   Offset? _tapPosition;
@@ -536,8 +547,7 @@ class RegionData {
     return <RegionData>[
       RegionData(0, "Global"),
       RegionData(1, "Local"),
-      RegionData(2, "Guild"),
-      RegionData(3, "Personal"),
+      RegionData(2, "Guild"),  // TODO: only make visible when in a guild
     ];
   }
 }

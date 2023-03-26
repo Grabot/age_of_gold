@@ -1,3 +1,4 @@
+import 'package:age_of_gold/component/hexagon.dart';
 import 'package:age_of_gold/constants/route_paths.dart' as routes;
 import 'package:age_of_gold/locator.dart';
 import 'package:age_of_gold/services/auth_service_login.dart';
@@ -469,4 +470,17 @@ class AgeOfGold extends FlameGame
     }
   }
 
+  List<int>? getCameraPos() {
+    List<int> tileProperties = getTileFromPos(cameraPosition.x, cameraPosition.y);
+    int q = tileProperties[0];
+    int r = tileProperties[1];
+
+    Hexagon? hexagon = _world!.getHexFromTile(q, r);
+    if (hexagon != null) {
+      int hexQ = hexagon.hexQArray;
+      int hexR = hexagon.hexRArray;
+      return [hexQ, hexR, q, r];
+    }
+    return null;
+  }
 }

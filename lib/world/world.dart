@@ -4,6 +4,7 @@ import 'package:age_of_gold/util/render_hexagons.dart';
 import 'package:age_of_gold/util/tapped_map.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
+import '../component/hexagon.dart';
 import '../services/auth_service_world.dart';
 import '../user_interface/user_interface_util/selected_tile_info.dart';
 import '../constants/global.dart';
@@ -137,5 +138,16 @@ class World extends Component {
   resetWorld(int hexQ, int hexR) {
     // Only use in emergencies
     hexagonList.retrieveHexagons(hexQ, hexR);
+  }
+
+  Hexagon? getHexFromTile(int tileQ, int tileR) {
+    Tile? tile = hexagonList.getTileFromCoordinates(tileQ, tileR);
+    if (tile != null) {
+      Hexagon? hexagon = tile.hexagon;
+      if (hexagon != null) {
+        return hexagon;
+      }
+    }
+    return null;
   }
 }

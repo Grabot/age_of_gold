@@ -142,11 +142,24 @@ class SocketServices extends ChangeNotifier {
 
   void checkMessages(ChatMessages chatMessages) {
     this.chatMessages = chatMessages;
-    socket.on('send_message_success', (data) {
+    socket.on('send_message_global', (data) {
       String from = data["user_name"];
       String message = data["message"];
-      int regionType = int.parse(data["region_type"]);
-      receivedMessage(from, message, regionType);
+      receivedMessage(from, message, 0);
+      notifyListeners();
+    });
+    socket.on('send_message_local', (data) {
+      String from = data["user_name"];
+      String message = data["message"];
+      String tileQ = data["tile_q"];
+      String tileR = data["tile_r"];
+      receivedMessageLocal(from, message, 1, tileQ, tileR);
+      notifyListeners();
+    });
+    socket.on('send_message_guild', (data) {
+      String from = data["user_name"];
+      String message = data["message"];
+      receivedMessage(from, message, 2);
       notifyListeners();
     });
   }
@@ -155,13 +168,9 @@ class SocketServices extends ChangeNotifier {
     chatMessages.addMessage(from, message, regionType);
   }
 
-  void sendMessage(String message) {
-    if (socket.connected) {
-      socket.emit("send_message", {
-        'user_name': userName,
-        'message': message
-      });
-    }
+  void receivedMessageLocal(String from, String message, int regionType, String tileQ, String tileR) {
+    String localMessage = "from tile($tileQ, $tileR): $message";
+    chatMessages.addMessage(from, localMessage, regionType);
   }
 
   void leaveRoom() {
@@ -248,7 +257,7 @@ class SocketServices extends ChangeNotifier {
 
       addTileInfo(data, currentTile);
       String newColour = getTileColour(currentTile.getTileType());
-      String tileEvent = "tile q: ${currentTile.q} r: ${currentTile.r} changed from the colour: $oldColour to $newColour";
+      String tileEvent = "tile(${currentTile.q}, ${currentTile.r}) changed from the colour: $oldColour to $newColour";
       chatMessages.addEventMessage(tileEvent);
     }
   }

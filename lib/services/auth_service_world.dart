@@ -131,15 +131,105 @@ class AuthServiceWorld {
     }
   }
 
-  Future<String> sendMessage(String message, int regionType) async {
-    String endPoint = "send/message";
+  sendMessageChatGlobal(String message) {
+    sendMessageGlobal(message).then((value) {
+      if (value != "success") {
+        // TODO: What to do when it is not successful
+      } else {
+        // The socket should handle the receiving and placing of the message
+      }
+    }).onError((error, stackTrace) {
+      // TODO: What to do on an error?
+    });
+  }
+
+  sendMessageChatLocal(String message, int hexQ, int hexR, int tileQ, int tileR) {
+    sendMessageLocal(message, hexQ, hexR, tileQ, tileR).then((value) {
+      if (value != "success") {
+        // TODO: What to do when it is not successful
+      } else {
+        // The socket should handle the receiving and placing of the message
+      }
+    }).onError((error, stackTrace) {
+      // TODO: What to do on an error?
+    });
+  }
+
+  sendMessageChatGuild(String message, String guildName) {
+    sendMessageGuild(message, guildName).then((value) {
+      if (value != "success") {
+        // TODO: What to do when it is not successful
+      } else {
+        // The socket should handle the receiving and placing of the message
+      }
+    }).onError((error, stackTrace) {
+      // TODO: What to do on an error?
+    });
+  }
+
+  Future<String> sendMessageGlobal(String message) async {
+    String endPoint = "send/message/global";
     var response = await AuthApi().dio.post(endPoint,
         options: Options(headers: {
           HttpHeaders.contentTypeHeader: "application/json",
         }),
         data: jsonEncode(<String, String>{
           "message": message,
-          "region_type": regionType.toString()
+        }
+      )
+    );
+
+    Map<String, dynamic> json = response.data;
+    print("response is $json");
+    if (!json.containsKey("result")) {
+      return "an error occurred";
+    } else {
+      if (json["result"]) {
+        return "success";
+      } else {
+        return json["message"];
+      }
+    }
+  }
+
+  Future<String> sendMessageLocal(String message, int hexQ, int hexR, int tileQ, int tileR) async {
+    String endPoint = "send/message/local";
+    var response = await AuthApi().dio.post(endPoint,
+        options: Options(headers: {
+          HttpHeaders.contentTypeHeader: "application/json",
+        }),
+        data: jsonEncode(<String, String>{
+          "message": message,
+          "hex_q": hexQ.toString(),
+          "hex_r": hexR.toString(),
+          "tile_q": tileQ.toString(),
+          "tile_r": tileR.toString()
+        }
+      )
+    );
+
+    Map<String, dynamic> json = response.data;
+    print("response is $json");
+    if (!json.containsKey("result")) {
+      return "an error occurred";
+    } else {
+      if (json["result"]) {
+        return "success";
+      } else {
+        return json["message"];
+      }
+    }
+  }
+
+  Future<String> sendMessageGuild(String message, String guildName) async {
+    String endPoint = "send/message/guild";
+    var response = await AuthApi().dio.post(endPoint,
+        options: Options(headers: {
+          HttpHeaders.contentTypeHeader: "application/json",
+        }),
+        data: jsonEncode(<String, String>{
+          "message": message,
+          "guild_name": guildName
         }
       )
     );
