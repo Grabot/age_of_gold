@@ -1,12 +1,12 @@
 import 'package:age_of_gold/component/tile.dart';
-import 'package:age_of_gold/user_interface/user_interface_util/profile_change_notifier.dart';
 import 'package:age_of_gold/util/render_hexagons.dart';
 import 'package:age_of_gold/util/tapped_map.dart';
+import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/profile_change_notifier.dart';
+import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/selected_tile_info.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import '../component/hexagon.dart';
 import '../services/auth_service_world.dart';
-import '../user_interface/user_interface_util/selected_tile_info.dart';
 import '../constants/global.dart';
 import '../util/hexagon_list.dart';
 import '../util/selected_tile.dart';

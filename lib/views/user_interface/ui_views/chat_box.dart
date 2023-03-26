@@ -1,21 +1,14 @@
-import 'package:age_of_gold/user_interface/user_interface_components/messages/event_message.dart';
-import 'package:age_of_gold/user_interface/user_interface_components/messages/global_message.dart';
+import 'package:age_of_gold/services/auth_service_world.dart';
+import 'package:age_of_gold/services/models/user.dart';
+import 'package:age_of_gold/services/settings.dart';
+import 'package:age_of_gold/util/util.dart';
+import 'package:age_of_gold/views/user_interface/ui_function/user_interface_components/chat_messages.dart';
+import 'package:age_of_gold/views/user_interface/ui_function/user_interface_components/message.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import '../../age_of_gold.dart';
-import '../../services/auth_service_world.dart';
-import '../../services/models/user.dart';
-import '../../services/settings.dart';
-import '../../services/socket_services.dart';
-import '../../user_interface/user_interface_components/chat_messages.dart';
-import '../../user_interface/user_interface_components/message.dart';
 import 'package:intl/intl.dart';
-
-import '../../user_interface/user_interface_components/messages/guild_message.dart';
-import '../../user_interface/user_interface_components/messages/local_message.dart';
-import '../../user_interface/user_interface_components/messages/personal_message.dart';
-import '../../user_interface/user_interface_components/messages/trade_message.dart';
-import '../../util/util.dart';
+import 'package:age_of_gold/age_of_gold.dart';
+import 'package:age_of_gold/services/socket_services.dart';
 
 
 class ChatBox extends StatefulWidget {

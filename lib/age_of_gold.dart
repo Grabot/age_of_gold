@@ -5,7 +5,6 @@ import 'package:age_of_gold/services/auth_service_login.dart';
 import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/constants/global.dart';
 import 'package:age_of_gold/services/socket_services.dart';
-import 'package:age_of_gold/user_interface/user_interface_util/profile_change_notifier.dart';
 import 'package:age_of_gold/util/navigation_service.dart';
 import 'package:age_of_gold/util/tapped_map.dart';
 import 'package:age_of_gold/util/util.dart';
@@ -17,6 +16,8 @@ import 'package:flame/components.dart';
 import 'package:flutter/services.dart';
 import 'package:universal_html/html.dart' as html;
 import 'package:age_of_gold/world/world.dart';
+
+import 'views/user_interface/ui_function/user_interface_util/profile_change_notifier.dart';
 
 
 // flutter run -d chrome --release --web-hostname localhost --web-port 7357
@@ -130,6 +131,13 @@ class AgeOfGold extends FlameGame
   }
 
   socketListener() {
+  }
+
+  userBoxFocus(bool userFocus) {
+    playFieldFocus = !userFocus;
+    if (playFieldFocus) {
+      gameFocus.requestFocus();
+    }
   }
 
   chatBoxFocus(bool chatFocus) {

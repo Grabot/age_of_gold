@@ -6,10 +6,9 @@ import 'package:socket_io_client/socket_io_client.dart' as io;
 import '../component/hexagon.dart';
 import '../component/tile.dart';
 import '../constants/url_base.dart';
-import '../user_interface/user_interface_components/chat_messages.dart';
 import '../util/hexagon_list.dart';
 import 'package:tuple/tuple.dart';
-
+import '../views/user_interface/ui_function/user_interface_components/chat_messages.dart';
 import 'auth_service_world.dart';
 
 

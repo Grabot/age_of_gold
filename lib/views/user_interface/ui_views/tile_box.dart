@@ -1,17 +1,14 @@
+import 'package:age_of_gold/age_of_gold.dart';
 import 'package:age_of_gold/locator.dart';
 import 'package:age_of_gold/services/auth_service_world.dart';
 import 'package:age_of_gold/services/settings.dart';
-import 'package:age_of_gold/user_interface/user_interface_util/profile_change_notifier.dart';
-import 'package:age_of_gold/user_interface/user_interface_util/selected_tile_info.dart';
+import 'package:age_of_gold/services/socket_services.dart';
 import 'package:age_of_gold/util/countdown.dart';
-import 'package:age_of_gold/util/hexagon_list.dart';
 import 'package:age_of_gold/util/navigation_service.dart';
 import 'package:age_of_gold/util/util.dart';
+import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/profile_change_notifier.dart';
+import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/selected_tile_info.dart';
 import 'package:flutter/material.dart';
-import '../../age_of_gold.dart';
-import '../../component/tile.dart';
-import '../../services/socket_services.dart';
-import 'package:age_of_gold/constants/route_paths.dart' as routes;
 
 
 class TileBox extends StatefulWidget {

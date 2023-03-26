@@ -1,6 +1,5 @@
-import 'package:age_of_gold/user_interface/user_interface_components/messages/event_message.dart';
-
 import 'message.dart';
+import 'messages/event_message.dart';
 import 'messages/guild_message.dart';
 import 'messages/global_message.dart';
 import 'messages/local_message.dart';

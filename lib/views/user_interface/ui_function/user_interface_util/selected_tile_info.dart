@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../../../component/tile.dart';
-import '../../util/util.dart';
+import '../../../../util/util.dart';
 
 
 class SelectedTileInfo extends ChangeNotifier {

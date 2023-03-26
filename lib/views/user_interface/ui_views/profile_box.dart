@@ -1,13 +1,13 @@
+import 'package:age_of_gold/age_of_gold.dart';
+import 'package:age_of_gold/locator.dart';
+import 'package:age_of_gold/services/auth_service_login.dart';
+import 'package:age_of_gold/services/models/user.dart';
+import 'package:age_of_gold/services/settings.dart';
+import 'package:age_of_gold/util/countdown.dart';
+import 'package:age_of_gold/util/navigation_service.dart';
+import 'package:age_of_gold/util/util.dart';
+import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/profile_change_notifier.dart';
 import 'package:flutter/material.dart';
-import '../../age_of_gold.dart';
-import '../../locator.dart';
-import '../../services/auth_service_login.dart';
-import '../../services/models/user.dart';
-import '../../services/settings.dart';
-import '../../user_interface/user_interface_util/profile_change_notifier.dart';
-import '../../util/countdown.dart';
-import '../../util/navigation_service.dart';
-import '../../util/util.dart';
 import 'package:age_of_gold/constants/route_paths.dart' as routes;
 
 

@@ -1,11 +1,8 @@
 import 'dart:async';
 import 'package:age_of_gold/locator.dart';
 import 'package:age_of_gold/services/settings.dart';
-import 'package:age_of_gold/views/game_views/chat_box.dart';
 import 'package:age_of_gold/util/navigation_service.dart';
 import 'package:age_of_gold/views/email_verification_page.dart';
-import 'package:age_of_gold/views/game_views/profile_box.dart';
-import 'package:age_of_gold/views/game_views/tile_box.dart';
 import 'package:age_of_gold/views/login_screen.dart';
 import 'package:age_of_gold/constants/route_paths.dart' as routes;
 import 'package:age_of_gold/views/home_page.dart';
@@ -17,6 +14,10 @@ import 'package:flutter/material.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:url_strategy/url_strategy.dart';
 import 'age_of_gold.dart';
+import 'views/user_interface/ui_views/chat_box.dart';
+import 'views/user_interface/ui_views/profile_box.dart';
+import 'views/user_interface/ui_views/tile_box.dart';
+import 'views/user_interface/ui_views/user_box.dart';
 
 
 Future<void> main() async {
@@ -40,12 +41,14 @@ Future<void> main() async {
         overlayBuilderMap: const {
           'chatBox': _chatBoxBuilder,
           'tileBox': _tileBoxBuilder,
-          'profileBox': _profileBoxBuilder
+          'profileBox': _profileBoxBuilder,
+          'userBox': _userBoxBuilder
         },
         initialActiveOverlays: const [
           'chatBox',
           'tileBox',
-          'profileBox'
+          'profileBox',
+          'userBox'
         ],
       )
   );
@@ -124,4 +127,8 @@ Widget _tileBoxBuilder(BuildContext buildContext, AgeOfGold game) {
 
 Widget _profileBoxBuilder(BuildContext buildContext, AgeOfGold game) {
   return ProfileBox(key: UniqueKey(), game: game);
+}
+
+Widget _userBoxBuilder(BuildContext buildContext, AgeOfGold game) {
+  return UserBox(key: UniqueKey(), game: game);
 }
