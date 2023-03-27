@@ -1,4 +1,5 @@
 import 'package:age_of_gold/age_of_gold.dart';
+import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/user_box_change_notifier.dart';
 import 'package:flutter/material.dart';
 
 
@@ -18,10 +19,14 @@ class UserBox extends StatefulWidget {
 class UserBoxState extends State<UserBox> with TickerProviderStateMixin {
 
   final FocusNode _focusUserBox = FocusNode();
-  bool showUser = true;
+  bool showUser = false;
 
+  late UserBoxChangeNotifier userBoxChangeNotifier;
   @override
   void initState() {
+    userBoxChangeNotifier = UserBoxChangeNotifier();
+    userBoxChangeNotifier.addListener(userBoxChangeListener);
+
     _focusUserBox.addListener(_onFocusChange);
     super.initState();
   }
@@ -29,6 +34,21 @@ class UserBoxState extends State<UserBox> with TickerProviderStateMixin {
   @override
   void dispose() {
     super.dispose();
+  }
+
+  userBoxChangeListener() {
+    if (mounted) {
+      if (!showUser && userBoxChangeNotifier.getUserBoxVisible()) {
+        setState(() {
+          showUser = true;
+        });
+      }
+      if (showUser && !userBoxChangeNotifier.getUserBoxVisible()) {
+        setState(() {
+          showUser = false;
+        });
+      }
+    }
   }
 
   void _onFocusChange() {

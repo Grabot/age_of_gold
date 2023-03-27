@@ -20,20 +20,32 @@ class SelectedTileInfo extends ChangeNotifier {
     return _instance;
   }
 
-  String getTileChangedBy() {
+  String? getTileChangedBy() {
     if (selectedTile == null) {
-      return "";
+      return null;
     } else {
       if (selectedTile!.lastChangedBy == null) {
-        return "Tile untouched";
+        return null;
       } else {
-        String lastChange = "Last changed by: ${selectedTile!.lastChangedBy}";
+        return selectedTile!.getLastChangedBy();
+      }
+    }
+  }
 
+  String? getChangedAt() {
+    if (selectedTile == null) {
+      return null;
+    } else {
+      if (selectedTile!.lastChangedBy == null) {
+        return null;
+      } else {
         if (selectedTile!.lastChangedTime != null) {
-          String time = DateFormat('dd:MM:yyyy - HH:mm').format(selectedTile!.lastChangedTime!);
-          lastChange += "\nat $time";
+          String time = DateFormat('dd:MM:yyyy - HH:mm').format(
+              selectedTile!.lastChangedTime!);
+          return "at $time";
+        } else {
+          return null;
         }
-        return lastChange;
       }
     }
   }

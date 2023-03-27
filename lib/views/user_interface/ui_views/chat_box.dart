@@ -1,9 +1,11 @@
+import 'package:age_of_gold/services/auth_service_message.dart';
 import 'package:age_of_gold/services/auth_service_world.dart';
 import 'package:age_of_gold/services/models/user.dart';
 import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/util/util.dart';
 import 'package:age_of_gold/views/user_interface/ui_function/user_interface_components/chat_messages.dart';
 import 'package:age_of_gold/views/user_interface/ui_function/user_interface_components/message.dart';
+import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/user_box_change_notifier.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -35,6 +37,7 @@ class ChatBoxState extends State<ChatBox> {
 
   SocketServices socket = SocketServices();
   late ChatMessages chatMessages;
+  UserBoxChangeNotifier userBoxChangeNotifier = UserBoxChangeNotifier();
 
   bool tileBoxVisible = false;
 
@@ -242,14 +245,14 @@ class ChatBoxState extends State<ChatBox> {
     if (_chatFormKey.currentState!.validate()) {
       String? toUser;
       if (_selectedChatRegion.type == 0) {
-        AuthServiceWorld().sendMessageChatGlobal(message);
+        AuthServiceMessage().sendMessageChatGlobal(message);
       } else if (_selectedChatRegion.type == 1) {
-        AuthServiceWorld().sendMessageChatLocal(message, currentHexQ, currentHexR, currentTileQ, currentTileR);
+        AuthServiceMessage().sendMessageChatLocal(message, currentHexQ, currentHexR, currentTileQ, currentTileR);
       } else if (_selectedChatRegion.type == 2) {
-        AuthServiceWorld().sendMessageChatGuild(message, "TODO");
+        AuthServiceMessage().sendMessageChatGuild(message, "TODO");
       } else if (_selectedChatRegion.type == 3) {
         toUser = _selectedChatRegion.name;
-        AuthServiceWorld().sendMessageChatPersonal(message, toUser);
+        AuthServiceMessage().sendMessageChatPersonal(message, toUser);
       }
       chatFieldController.text = "";
     }
@@ -380,12 +383,10 @@ class ChatBoxState extends State<ChatBox> {
     return chatBoxWidget();
   }
 
-  String userSelected = "";
   userInteraction(bool message, String userName) {
     if (message) {
       // message the user
       // select personal region if it exists, otherwise just create it first.
-      userSelected = userName;
       bool exists = false;
       for (int i = 0; i < _regions.length; i++) {
         if (_regions[i].name == userName) {
@@ -425,6 +426,14 @@ class ChatBoxState extends State<ChatBox> {
       setState(() {});
     } else {
       // open the user overview panel.
+      AuthServiceWorld().getUser(userName).then((value) {
+        if (value != null) {
+          UserBoxChangeNotifier().setUser(value);
+          UserBoxChangeNotifier().setUserBoxVisible(true);
+        } else {
+          showToastMessage("Something went wrong");
+        }
+      });
     }
   }
 }

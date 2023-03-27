@@ -3,6 +3,7 @@ import 'package:age_of_gold/util/render_hexagons.dart';
 import 'package:age_of_gold/util/tapped_map.dart';
 import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/profile_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/selected_tile_info.dart';
+import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/user_box_change_notifier.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import '../component/hexagon.dart';
@@ -34,6 +35,7 @@ class World extends Component {
   World(this.startHexQ, this.startHexR);
 
   late ProfileChangeNotifier profileChangeNotifier;
+  late UserBoxChangeNotifier userBoxChangeNotifier;
 
   @override
   Future<void> onLoad() async {
@@ -48,6 +50,7 @@ class World extends Component {
     hexagonList.retrieveHexagons(startHexQ, startHexR);
 
     profileChangeNotifier = ProfileChangeNotifier();
+    userBoxChangeNotifier = UserBoxChangeNotifier();
   }
 
   @override
@@ -81,6 +84,7 @@ class World extends Component {
 
   focusWorld() {
     profileChangeNotifier.setProfileVisible(false);
+    userBoxChangeNotifier.setUserBoxVisible(false);
   }
 
   getAdditionalTileInfo(Tile tile) {

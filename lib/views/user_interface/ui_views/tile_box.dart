@@ -1,4 +1,5 @@
 import 'package:age_of_gold/age_of_gold.dart';
+import 'package:age_of_gold/component/tile.dart';
 import 'package:age_of_gold/locator.dart';
 import 'package:age_of_gold/services/auth_service_world.dart';
 import 'package:age_of_gold/services/settings.dart';
@@ -8,6 +9,8 @@ import 'package:age_of_gold/util/navigation_service.dart';
 import 'package:age_of_gold/util/util.dart';
 import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/profile_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/selected_tile_info.dart';
+import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/user_box_change_notifier.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 
@@ -31,8 +34,6 @@ class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
   final NavigationService _navigationService = locator<NavigationService>();
   SocketServices socket = SocketServices();
   Settings settings = Settings();
-
-  double tileBoxWidth = 350;
 
   // Initial Selected Value
   final List<TileData> _tiles = TileData.getTiles();
@@ -211,14 +212,65 @@ class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
   }
 
   Widget currentTileInformation() {
-    return Column(
-      children: [
-        Text(
-            selectedTileInfo.getTileChangedBy(),
-            style: const TextStyle(color: Colors.white60, fontSize: 18)
+    String? lastChangedBy = selectedTileInfo.getTileChangedBy();
+    if (lastChangedBy != null) {
+      return Expanded(
+        child: Column(
+          children: [
+            RichText(
+              overflow: TextOverflow.fade,
+              maxLines: 2,
+              softWrap: false,
+              text: TextSpan(
+                children: [
+                  TextSpan(
+                    text: "Last changed by: ",
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16
+                    ),
+                  ),
+                  TextSpan(
+                    text: lastChangedBy,
+                    recognizer: TapGestureRecognizer()..onTapDown = clickedUser,
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            RichText(
+              text: TextSpan(
+                text: selectedTileInfo.getChangedAt(),
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16
+                ),
+              ),
+            )
+          ],
         ),
-      ],
-    );
+      );
+    } else {
+      return Text("Tile untouched");
+    }
+  }
+
+  clickedUser(TapDownDetails details) {
+    AuthServiceWorld().getUser(selectedTileInfo.getTileChangedBy()!).then((value) {
+      if (value != null) {
+        UserBoxChangeNotifier().setUser(value);
+        UserBoxChangeNotifier().setUserBoxVisible(true);
+        print("you have just clicked a user ${selectedTileInfo.getTileChangedBy()})");
+      } else {
+        showToastMessage("Failed to get user");
+      }
+    }).onError((error, stackTrace) {
+      showToastMessage("Failed to get user");
+    });
   }
 
   Widget currentTileWindow() {
@@ -284,7 +336,7 @@ class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
     }
   }
 
-  Widget profileWidget() {
+  Widget profileWidget(double tileBoxWidth) {
     return Container(
       width: tileBoxWidth,
       height: 100,
@@ -321,6 +373,8 @@ class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
   }
 
   Widget tileBoxWidget() {
+    double tileBoxWidth = 350;
+    double tileBoxHeight = 300;
     if (MediaQuery.of(context).size.width <= 800) {
       // Here we assume that it is a phone and we set the width to the total
       tileBoxWidth = MediaQuery.of(context).size.width;
@@ -336,10 +390,10 @@ class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
       alignment: FractionalOffset.topRight,
       child: Column(
         children: [
-          profileWidget(),
+          profileWidget(tileBoxWidth),
           Container(
             width: tileBoxWidth,
-            height: showTileDetail ? 280 : 0,
+            height: showTileDetail ? tileBoxHeight : 0,
             color: Colors.orange,
             child: Column(
                 children: [
@@ -349,7 +403,6 @@ class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
                   dropdownThing(),
                   const SizedBox(height: 10),
                   currentTileInformation(),
-                  const SizedBox(height: 10),
                 ]
             ),
           )
