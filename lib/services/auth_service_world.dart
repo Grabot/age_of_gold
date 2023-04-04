@@ -160,4 +160,34 @@ class AuthServiceWorld {
       }
     }
   }
+
+  Future<String?> getAvatar(String userName) async {
+
+    String endPoint = "get/avatar";
+    var response = await AuthApi().dio.post(endPoint,
+        options: Options(headers: {
+          HttpHeaders.contentTypeHeader: "application/json",
+        }),
+        data: jsonEncode(<String, String>{
+          "user_name": userName,
+        }
+      )
+    );
+
+    Map<String, dynamic> json = response.data;
+    print("response is $json");
+    if (!json.containsKey("result")) {
+      return null;
+    } else {
+      if (json["result"]) {
+        if (!json.containsKey("avatar")) {
+          return null;
+        } else {
+          return json["avatar"].replaceAll("\n", "");
+        }
+      } else {
+        return null;
+      }
+    }
+  }
 }

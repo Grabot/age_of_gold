@@ -11,6 +11,7 @@ import 'package:oktoast/oktoast.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:tuple/tuple.dart';
 import '../component/hexagon.dart';
+import '../services/auth_service_world.dart';
 import '../services/models/user.dart';
 import '../services/settings.dart';
 import '../constants/global.dart';
@@ -116,6 +117,14 @@ successfulLogin(LoginResponse loginResponse) {
   if (user != null) {
     settings.setUser(user);
     SocketServices().setUser(user);
+    // Retrieve the avatar
+    AuthServiceWorld().getAvatar(user.getUserName()).then((value) {
+      if (value != null) {
+        settings.setAvatar(value);
+      } else {
+        showToastMessage("Something went wrong");
+      }
+    });
   }
 }
 

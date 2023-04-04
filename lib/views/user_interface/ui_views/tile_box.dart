@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:age_of_gold/age_of_gold.dart';
 import 'package:age_of_gold/component/tile.dart';
 import 'package:age_of_gold/locator.dart';
@@ -40,10 +42,6 @@ class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
   late List<DropdownMenuItem<TileData>> _dropdownMenuItems;
   late TileData _selectedTile;
 
-  late AnimationController _controller;
-  int levelClock = 0;
-  bool canChangeTiles = true;
-
   @override
   void initState() {
     super.initState();
@@ -52,20 +50,12 @@ class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
 
     profileChangeNotifier = ProfileChangeNotifier();
     profileChangeNotifier.addListener(profileChangeListener);
+    settings.addListener(profileChangeListener);
 
     socket.addListener(socketListener);
 
     _dropdownMenuItems = buildDropdownMenuItems(_tiles);
     _selectedTile = _dropdownMenuItems[0].value!;
-
-    _controller = AnimationController(
-        vsync: this,
-        duration: Duration(
-            seconds:
-            levelClock)
-    );
-    _controller.forward();
-    updateTimeLock();
   }
 
   List<DropdownMenuItem<TileData>> buildDropdownMenuItems(List tiles) {
@@ -99,38 +89,14 @@ class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
 
   socketListener() {
     if (mounted) {
-      updateTimeLock();
       setState(() {});
-    }
-  }
-
-  updateTimeLock() {
-    if (settings.getUser() != null) {
-      DateTime timeLock = settings.getUser()!.getTileLock();
-      if (timeLock.isAfter(DateTime.now())) {
-        levelClock = timeLock.difference(DateTime.now()).inSeconds;
-        _controller = AnimationController(
-            vsync: this,
-            duration: Duration(
-                seconds:
-                levelClock)
-        );
-        _controller.forward();
-        _controller.addStatusListener((status) {
-          if(status == AnimationStatus.completed) {
-            setState(() {
-              canChangeTiles = true;
-            });
-          }
-        });
-        canChangeTiles = false;
-      }
     }
   }
 
   profileChangeListener() {
     if (mounted) {
       print("profile change in tilebox");
+      setState(() {});
     }
   }
 
@@ -146,7 +112,6 @@ class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
 
   @override
   void dispose() {
-    _controller.dispose();
     super.dispose();
   }
 
@@ -163,8 +128,7 @@ class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
         ).then((value) {
           if (value == "success") {
             selectedTileInfo.selectedTile!.tileType = tileType;
-            updateTimeLock();
-            setState(() {});
+            // TODO: update the tilelock in profile overview?
           } else if(value == "not allowed") {
             showToastMessage("Failed to change tile to $tileName");
           } else if(value == "back to login") {
@@ -213,6 +177,11 @@ class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
 
   Widget currentTileInformation() {
     String? lastChangedBy = selectedTileInfo.getTileChangedBy();
+    if (settings.getUser() != null) {
+      if (lastChangedBy == settings.getUser()!.getUserName()) {
+        lastChangedBy = "You!";
+      }
+    }
     if (lastChangedBy != null) {
       return Expanded(
         child: Column(
@@ -260,17 +229,21 @@ class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
   }
 
   clickedUser(TapDownDetails details) {
-    AuthServiceWorld().getUser(selectedTileInfo.getTileChangedBy()!).then((value) {
-      if (value != null) {
-        UserBoxChangeNotifier().setUser(value);
-        UserBoxChangeNotifier().setUserBoxVisible(true);
-        print("you have just clicked a user ${selectedTileInfo.getTileChangedBy()})");
-      } else {
+    String? lastChangedBy = selectedTileInfo.getTileChangedBy();
+    if (lastChangedBy == null || settings.getUser() == null || lastChangedBy != settings.getUser()!.getUserName()) {
+      AuthServiceWorld().getUser(selectedTileInfo.getTileChangedBy()!).then((value) {
+        if (value != null) {
+          UserBoxChangeNotifier().setUser(value);
+          UserBoxChangeNotifier().setUserBoxVisible(true);
+          print("you have just clicked a user ${selectedTileInfo
+              .getTileChangedBy()})");
+        } else {
+          showToastMessage("Failed to get user");
+        }
+      }).onError((error, stackTrace) {
         showToastMessage("Failed to get user");
-      }
-    }).onError((error, stackTrace) {
-      showToastMessage("Failed to get user");
-    });
+      });
+    }
   }
 
   Widget currentTileWindow() {
@@ -314,64 +287,6 @@ class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
     });
   }
 
-  goToProfile() {
-    if (!profileChangeNotifier.getProfileVisible()) {
-      profileChangeNotifier.setProfileVisible(true);
-    } else if (profileChangeNotifier.getProfileVisible()) {
-      profileChangeNotifier.setProfileVisible(false);
-    }
-  }
-
-  Widget tileTimeInformation() {
-    if (canChangeTiles) {
-      return Container();
-    } else {
-      return Countdown(
-        key: UniqueKey(),
-        animation: StepTween(
-          begin: levelClock,
-          end: 0,
-        ).animate(_controller),
-      );
-    }
-  }
-
-  Widget profileWidget(double tileBoxWidth) {
-    return Container(
-      width: tileBoxWidth,
-      height: 100,
-      color: Colors.orange,
-      child: GestureDetector(
-        onTap: () {
-          goToProfile();
-        },
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            SizedBox(
-              width: 100,
-              child: tileTimeInformation()
-            ),
-            SizedBox(
-              width: 150,
-              child: Text(
-                socket.getUserName(),
-                style: const TextStyle(color: Colors.white, fontSize: 24),
-              ),
-            ),
-            SizedBox(width: 10),
-            Image.asset(
-                "assets/images/default_avatar.png",
-                width: 70,
-                height: 70,
-            ),
-            SizedBox(width: 20),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget tileBoxWidget() {
     double tileBoxWidth = 350;
     double tileBoxHeight = 300;
@@ -388,25 +303,20 @@ class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
     }
     return Align(
       alignment: FractionalOffset.topRight,
-      child: Column(
-        children: [
-          profileWidget(tileBoxWidth),
-          Container(
-            width: tileBoxWidth,
-            height: showTileDetail ? tileBoxHeight : 0,
-            color: Colors.orange,
-            child: Column(
-                children: [
-                  const SizedBox(height: 20),
-                  currentTileWindow(),
-                  const SizedBox(height: 10),
-                  dropdownThing(),
-                  const SizedBox(height: 10),
-                  currentTileInformation(),
-                ]
-            ),
-          )
-        ],
+      child: Container(
+        width: tileBoxWidth,
+        height: showTileDetail ? tileBoxHeight : 0,
+        color: Colors.orange,
+        child: Column(
+          children: [
+            const SizedBox(height: 20),
+            currentTileWindow(),
+            const SizedBox(height: 10),
+            dropdownThing(),
+            const SizedBox(height: 10),
+            currentTileInformation(),
+          ]
+        ),
       ),
     );
   }

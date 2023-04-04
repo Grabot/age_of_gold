@@ -83,8 +83,12 @@ class World extends Component {
   }
 
   focusWorld() {
-    profileChangeNotifier.setProfileVisible(false);
-    userBoxChangeNotifier.setUserBoxVisible(false);
+    if (profileChangeNotifier.getProfileVisible()) {
+      profileChangeNotifier.setProfileVisible(false);
+    }
+    if (userBoxChangeNotifier.getUserBoxVisible()) {
+      userBoxChangeNotifier.setUserBoxVisible(false);
+    }
   }
 
   getAdditionalTileInfo(Tile tile) {
@@ -98,7 +102,6 @@ class World extends Component {
     }).onError((error, stackTrace) {
       // TODO: What to do on an error?
     });
-    // socketServices.getTileInfo(tile.tileQ, tile.tileR);
   }
 
   updateVariant(int variant) {

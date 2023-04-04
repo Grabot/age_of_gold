@@ -16,6 +16,7 @@ import 'package:url_strategy/url_strategy.dart';
 import 'age_of_gold.dart';
 import 'views/user_interface/ui_views/chat_box.dart';
 import 'views/user_interface/ui_views/profile_box.dart';
+import 'views/user_interface/ui_views/profile_overview.dart';
 import 'views/user_interface/ui_views/tile_box.dart';
 import 'views/user_interface/ui_views/user_box.dart';
 
@@ -42,12 +43,14 @@ Future<void> main() async {
           'chatBox': _chatBoxBuilder,
           'tileBox': _tileBoxBuilder,
           'profileBox': _profileBoxBuilder,
+          'profileOverview': _profileOverviewBuilder,
           'userBox': _userBoxBuilder
         },
         initialActiveOverlays: const [
           'chatBox',
           'tileBox',
           'profileBox',
+          'profileOverview',
           'userBox'
         ],
       )
@@ -127,6 +130,10 @@ Widget _tileBoxBuilder(BuildContext buildContext, AgeOfGold game) {
 
 Widget _profileBoxBuilder(BuildContext buildContext, AgeOfGold game) {
   return ProfileBox(key: UniqueKey(), game: game);
+}
+
+Widget _profileOverviewBuilder(BuildContext buildContext, AgeOfGold game) {
+  return ProfileOverview(key: UniqueKey(), game: game);
 }
 
 Widget _userBoxBuilder(BuildContext buildContext, AgeOfGold game) {

@@ -1,8 +1,8 @@
-
-
+import 'package:flutter/material.dart';
 import 'models/user.dart';
 
-class Settings {
+
+class Settings extends ChangeNotifier {
   static final Settings _instance = Settings._internal();
 
   String accessToken = "";
@@ -10,6 +10,8 @@ class Settings {
   int accessTokenExpiration = 0;
 
   User? user;
+
+  String? avatar;
 
   Settings._internal();
 
@@ -46,6 +48,15 @@ class Settings {
 
   User? getUser() {
     return user;
+  }
+
+  setAvatar(String avatar) {
+    this.avatar = avatar;
+    notifyListeners();
+  }
+
+  String? getAvatar() {
+    return avatar;
   }
 
   setAccessTokenExpiration(int accessTokenExpiration) {

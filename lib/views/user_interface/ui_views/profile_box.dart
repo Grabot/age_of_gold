@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:age_of_gold/age_of_gold.dart';
 import 'package:age_of_gold/locator.dart';
 import 'package:age_of_gold/services/auth_service_login.dart';
+import 'package:age_of_gold/services/auth_service_world.dart';
 import 'package:age_of_gold/services/models/user.dart';
 import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/util/countdown.dart';
@@ -305,6 +308,7 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
           goBackToTheWorld(width, fontSize),
           SizedBox(height: 20),
           logoutButton(width, fontSize),
+          settings.getAvatar() != null ? Image.memory(base64Decode(settings.getAvatar()!)) : Container()
         ],
       ),
     );
