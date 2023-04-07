@@ -48,10 +48,16 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
   GlobalKey settingsKey = GlobalKey();
 
   bool changeUserName = false;
-  bool changePassword = false;
   final GlobalKey<FormState> userNameKey = GlobalKey<FormState>();
   final TextEditingController userNameController = TextEditingController();
   final FocusNode _focusUsernameChange = FocusNode();
+
+  bool changePassword = false;
+  final GlobalKey<FormState> passwordKey = GlobalKey<FormState>();
+  final TextEditingController passwordController = TextEditingController();
+  final FocusNode _focusPasswordChange = FocusNode();
+
+  bool changeAvatar = false;
 
   @override
   void initState() {
@@ -70,6 +76,7 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
 
     _focusProfileBox.addListener(_onFocusChange);
     _focusUsernameChange.addListener(_onFocusUsernameChange);
+    _focusPasswordChange.addListener(_onFocusPasswordChange);
 
     super.initState();
   }
@@ -93,6 +100,10 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
         });
       }
     }
+  }
+
+  _onFocusPasswordChange() {
+    widget.game.profileFocus(_focusPasswordChange.hasFocus);
   }
 
   _onFocusUsernameChange() {
@@ -206,27 +217,6 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
     );
   }
 
-  Widget logoutButton(double width, double fontSize) {
-    return Container(
-      margin: EdgeInsets.only(top: 20),
-      child: ElevatedButton(
-        onPressed: () {
-          logoutUser(settings, _navigationService);
-        },
-        style: buttonStyle(false, Colors.blue),
-        child: Container(
-          alignment: Alignment.center,
-          width: 400,
-          height: 50,
-          child: Text(
-            'Log out',
-            style: simpleTextStyle(fontSize),
-          ),
-        ),
-      ),
-    );
-  }
-
   goBack() {
     setState(() {
       showProfile = false;
@@ -255,25 +245,21 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
     }
   }
 
-  Widget goBackToTheWorld(double width, double fontSize) {
-    return Container(
-      margin: EdgeInsets.only(top: 20),
-      child: ElevatedButton(
-        onPressed: () {
-          goBack();
-        },
-        style: buttonStyle(false, Colors.blue),
-        child: Container(
-          alignment: Alignment.center,
-          width: 400,
-          height: 50,
-          child: Text(
-            'Go back to the world',
-            style: simpleTextStyle(fontSize),
-          ),
-        ),
-      ),
-    );
+  passwordChange() {
+    if (passwordKey.currentState!.validate()) {
+      AuthServiceSetting().changePassword(passwordController.text).then((response) {
+        if (response.getResult()) {
+          setState(() {
+            setState(() {
+              showToastMessage("password changed!");
+              changePassword = false;
+            });
+          });
+        } else {
+          showToastMessage(response.getMessage());
+        }
+      });
+    }
   }
 
   Widget userVerified(double width, double fontSize) {
@@ -294,16 +280,30 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
   }
 
   Widget profileHeader(double width, double fontSize) {
-    return Container(
-      child: settings.getUser() == null
-          ? Text(
-        "No user logged in",
-        style: simpleTextStyle(fontSize),
-      )
-          : Text(
-        "Profile Page",
-        style: simpleTextStyle(fontSize)
-      ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Container(
+          margin: EdgeInsets.all(20),
+          child: settings.getUser() == null
+              ? Text(
+            "No user logged in",
+            style: simpleTextStyle(fontSize),
+          )
+              : Text(
+            "Profile Page",
+            style: simpleTextStyle(fontSize)
+          ),
+        ),
+        IconButton(
+          icon: const Icon(Icons.close),
+          color: Colors.orangeAccent.shade200,
+          tooltip: 'cancel',
+          onPressed: () {
+            goBack();
+          }
+        ),
+      ]
     );
   }
 
@@ -328,12 +328,11 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
             ),
           ),
         ),
-        goBackToTheWorld(width, fontSize),
       ],
     );
   }
 
-  Widget sombodyLoggedInNormal(double width, double fontSize) {
+  Widget somebodyLoggedInNormal(double width, double fontSize) {
     return Row(
       children: [
         profileAvatar(300, fontSize),
@@ -341,14 +340,9 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
           width: 500,
           child: Column(
             children: [
-              tileTimeInformation(width, fontSize),
+              tileTimeInformation(width, fontSize),  // TODO: tileinformation not working?
               SizedBox(height: 20),
               verifyEmailBox(width, fontSize),
-              SizedBox(height: 20),
-              goBackToTheWorld(width, fontSize),
-              SizedBox(height: 20),
-              logoutButton(width, fontSize),
-              SizedBox(height: 120),
             ],
           ),
         ),
@@ -427,10 +421,93 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
     );
   }
 
+  Widget changePasswordField(double avatarWidth, double fontSize) {
+    return Container(
+      margin: EdgeInsets.all(10),
+      decoration: BoxDecoration(
+          border: Border.all(color: Colors.blueAccent)
+      ),
+      child: Container(
+        margin: EdgeInsets.all(4),
+        child: Column(
+          children: [
+            Container(
+              height: 40,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text("Change password", style: simpleTextStyle(fontSize)),
+                  Align(
+                    alignment: Alignment.topRight,
+                    child: IconButton(
+                        icon: const Icon(Icons.close),
+                        color: Colors.orangeAccent.shade200,
+                        tooltip: 'cancel',
+                        onPressed: () {
+                          setState(() {
+                            changePassword = false;
+                          });
+                        }
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Form(
+              key: passwordKey,
+              child: TextFormField(
+                controller: passwordController,
+                focusNode: _focusPasswordChange,
+                validator: (val) {
+                  return val == null || val.isEmpty
+                      ? "fill in new password"
+                      : null;
+                },
+                decoration: const InputDecoration(
+                  hintText: "New password",
+                  hintStyle: TextStyle(color: Colors.white54),
+                  border: InputBorder.none,
+                ),
+                obscureText: true,
+                autofillHints: [AutofillHints.newPassword],
+                style: TextStyle(color: Colors.white, fontSize: fontSize),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                passwordChange();
+              },
+              style: buttonStyle(false, Colors.blue),
+              child: Container(
+                alignment: Alignment.center,
+                width: avatarWidth,
+                height: 50,
+                child: Text(
+                  'Change password',
+                  style: TextStyle(color: Colors.white, fontSize: fontSize),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget changeAvatarField(double avatarWidth, double fontSize) {
+    // TODO: changing avatar
+    return Container(
+      width: 300,
+      height: 300,
+      color: Colors.black,
+    );
+  }
+
   Widget profileAvatar(double avatarWidth, double fontSize) {
     return Container(
         width: avatarWidth,
-        child: Column(children: [
+        child: Column(
+            children: [
           settings.getAvatar() != null
               ? avatarBox(avatarWidth, avatarWidth, settings.getAvatar()!)
               : Container(),
@@ -452,6 +529,8 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
             ],
           ),
           changeUserName ? changeUserNameField(avatarWidth, fontSize) : Container(),
+          changePassword ? changePasswordField(avatarWidth, fontSize) : Container(),
+          changeAvatar ? changeAvatarField(avatarWidth, fontSize) : Container(),
         ]
       )
     );
@@ -468,11 +547,6 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
         tileTimeInformation(width, fontSize),
         SizedBox(height: 20),
         verifyEmailBox(width, fontSize),
-        SizedBox(height: 20),
-        goBackToTheWorld(width, fontSize),
-        SizedBox(height: 20),
-        logoutButton(width, fontSize),
-        SizedBox(height: 120),
       ],
     );
   }
@@ -480,7 +554,7 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
   Widget normalModeProfile(double width, double fontSize) {
     return Container(
         child: settings.getUser() != null
-            ? sombodyLoggedInNormal(width, fontSize)
+            ? somebodyLoggedInNormal(width, fontSize)
             : nobodyLoggedIn(width, fontSize)
     );
   }
@@ -509,19 +583,27 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
     );
   }
 
-  changeProfilePicture() {
-    print("change profile picture");
-  }
-
   showChangeUsername() {
     setState(() {
       changeUserName = true;
+      changeAvatar = false;
+      changePassword = false;
     });
   }
 
   showChangePassword() {
     setState(() {
-      changePassword = true;  // TODO: add this
+      changePassword = true;
+      changeUserName = false;
+      changeAvatar = false;
+    });
+  }
+
+  showChangeAvatar() {
+    setState(() {
+      changePassword = false;
+      changeUserName = false;
+      changeAvatar = true;
     });
   }
 
@@ -543,8 +625,8 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
             _tapPosition! & const Size(40, 40), Offset.zero & overlay.size))
         .then((int? delta) {
       if (delta == 0) {
-        // change profile picture
-        changeProfilePicture();
+        // change avatar
+        showChangeAvatar();
       } else if (delta == 1) {
         // change username
         showChangeUsername();
@@ -616,7 +698,7 @@ Widget getPopupItems(BuildContext context) {
             child: Row(
               children:const [
                 Text(
-                  'Change profile picture',
+                  'Change avatar',
                   textAlign: TextAlign.left,
                   style: TextStyle(color: Colors.white, fontSize: 14),
                 )
@@ -645,17 +727,17 @@ Widget getPopupItems(BuildContext context) {
         alignment: Alignment.centerLeft,
         child: TextButton(
             onPressed: () {
-              buttonChangeUsername(context);
+              buttonChangePassword(context);
             },
             child: Row(
-                children: const [
-                  Text(
-                    "Change password",
-                    textAlign: TextAlign.left,
-                    style: TextStyle(color: Colors.white, fontSize: 14),
-                  ),
-                ]
-            )
+              children: const [
+                Text(
+                  "Change password",
+                  textAlign: TextAlign.left,
+                  style: TextStyle(color: Colors.white, fontSize: 14),
+                ),
+              ]
+          )
         ),
       ),
       Container(

@@ -29,7 +29,6 @@ class _PasswordResetState extends State<PasswordReset> {
   final NavigationService _navigationService = locator<NavigationService>();
 
   TextEditingController passwordReset1Controller = TextEditingController();
-  TextEditingController passwordReset2Controller = TextEditingController();
 
   final formKeyPasswordReset = GlobalKey<FormState>();
 
@@ -132,46 +131,26 @@ class _PasswordResetState extends State<PasswordReset> {
               style: TextStyle(color: Colors.white70, fontSize: fontSize),
             ),
             SizedBox(height: 20),
-            AutofillGroup(
-              child: Column(
-                children: [
-                  TextFormField(
-                    onTap: () {
-                      print("tapped");
-                    },
-                    obscureText: true,
-                    validator: (val) {
-                      return val == null || val.isEmpty
-                          ? "fill in new password"
-                          : null;
-                    },
-                    textInputAction: TextInputAction.next,
-                    controller: passwordReset1Controller,
-                    textAlign: TextAlign.center,
-                    style: simpleTextStyle(fontSize),
-                    decoration: textFieldInputDecoration("password"),
-                  ),
-                  TextFormField(
-                    onTap: () {
-                      print("tapped");
-                    },
-                    obscureText: true,
-                    validator: (val) {
-                      if (passwordReset1Controller.text != passwordReset2Controller.text) {
-                        return "Passwords don't match";
-                      }
-                      return val == null || val.isEmpty
-                          ? "fill in new password"
-                          : null;
-                    },
-                    controller: passwordReset2Controller,
-                    onEditingComplete: () => TextInput.finishAutofillContext(),
-                    textAlign: TextAlign.center,
-                    style: simpleTextStyle(fontSize),
-                    decoration: textFieldInputDecoration("password again"),
-                  ),
-                ],
-              ),
+            Column(
+              children: [
+                TextFormField(
+                  onTap: () {
+                    print("tapped");
+                  },
+                  obscureText: true,
+                  validator: (val) {
+                    return val == null || val.isEmpty
+                        ? "fill in new password"
+                        : null;
+                  },
+                  textInputAction: TextInputAction.next,
+                  controller: passwordReset1Controller,
+                  autofillHints: [AutofillHints.newPassword],
+                  textAlign: TextAlign.center,
+                  style: simpleTextStyle(fontSize),
+                  decoration: textFieldInputDecoration("password"),
+                ),
+              ],
             ),
             SizedBox(height: 40),
             ElevatedButton(

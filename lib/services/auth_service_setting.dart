@@ -28,4 +28,20 @@ class AuthServiceSetting {
     BaseResponse baseResponse = BaseResponse.fromJson(response.data);
     return baseResponse;
   }
+
+  Future<BaseResponse> changePassword(String newPassword) async {
+    String endPoint = "change/password";
+    var response = await AuthApi().dio.post(endPoint,
+        options: Options(headers: {
+          HttpHeaders.contentTypeHeader: "application/json",
+        }),
+        data: jsonEncode(<String, String>{
+          "password": newPassword,
+        }
+      )
+    );
+
+    BaseResponse baseResponse = BaseResponse.fromJson(response.data);
+    return baseResponse;
+  }
 }
