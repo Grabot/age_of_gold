@@ -116,11 +116,11 @@ successfulLogin(LoginResponse loginResponse) {
   User? user = loginResponse.getUser();
   if (user != null) {
     settings.setUser(user);
-    SocketServices().setUser(user);
     // Retrieve the avatar
     AuthServiceWorld().getAvatar(user.getUserName()).then((value) {
       if (value != null) {
         settings.setAvatar(value);
+        settings.notify();
       } else {
         showToastMessage("Something went wrong");
       }

@@ -4,6 +4,7 @@ import 'package:age_of_gold/age_of_gold.dart';
 import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/services/socket_services.dart';
 import 'package:age_of_gold/util/countdown.dart';
+import 'package:age_of_gold/util/render_objects.dart';
 import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/profile_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/selected_tile_info.dart';
 import 'package:flutter/material.dart';
@@ -128,21 +129,11 @@ class ProfileOverviewState extends State<ProfileOverview> with TickerProviderSta
 
   Widget getAvatar() {
     return Container(
-        decoration: BoxDecoration(
-          border: Border.all(
-              color: Colors.black,
-              width: 2
-          ),
-        ),
-        child: settings.getAvatar() != null ? Image.memory(
-            base64Decode(settings.getAvatar()!),
-            gaplessPlayback: true,
-            width: 70,
-            height: 70
-        ) : Image.asset(
+        child: settings.getAvatar() != null ? avatarBox(100, 100, settings.getAvatar()!)
+            : Image.asset(
           "assets/images/default_avatar.png",
-          width: 70,
-          height: 70,
+          width: 100,
+          height: 100,
         )
     );
   }
@@ -151,7 +142,7 @@ class ProfileOverviewState extends State<ProfileOverview> with TickerProviderSta
     return Container(
       width: tileBoxWidth,
       height: 100,
-      color: Colors.orange,
+      color: Colors.grey,
       child: GestureDetector(
         onTap: () {
           goToProfile();
@@ -159,13 +150,11 @@ class ProfileOverviewState extends State<ProfileOverview> with TickerProviderSta
         child: Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            SizedBox(width: 5),
             getAvatar(),
-            SizedBox(width: 5),
             SizedBox(
-              width: 130,
+              width: 110,
               child: Text(
-                socket.getUserName(),
+                settings.getUser() != null ? settings.getUser()!.getUserName() : "",
                 style: const TextStyle(color: Colors.white, fontSize: 24),
               ),
             ),

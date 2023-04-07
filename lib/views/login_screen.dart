@@ -240,9 +240,13 @@ class LoginScreenState extends State<LoginScreen> {
           style: TextStyle(color: Colors.white, fontSize: fontSize*2),
         ),
         SizedBox(height: 10),
-        Text(
-          "Please check the email address $resetEmail for instructions to reset your password. \nThis might take a few minutes",
-          style: TextStyle(color: Colors.white70, fontSize: fontSize),
+        Column(
+          children: [
+            Text(
+              "Please check the email address $resetEmail for instructions to reset your password. \nThis might take a few minutes",
+              style: TextStyle(color: Colors.white70, fontSize: fontSize),
+            ),
+          ]
         ),
         const SizedBox(height: 50),
         ElevatedButton(
@@ -281,12 +285,11 @@ class LoginScreenState extends State<LoginScreen> {
               ],
             ),
             SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            Column(
               children: [
                 Text(
-                    "Enter your email address and we will send you instructions to reset your password.",
-                    style: TextStyle(color: Colors.white70, fontSize: fontSize),
+                  "Enter your email address and we will send you instructions to reset your password.",
+                  style: TextStyle(color: Colors.white70, fontSize: fontSize),
                 ),
               ]
             ),
@@ -692,7 +695,7 @@ class LoginScreenState extends State<LoginScreen> {
       width = MediaQuery.of(context).size.width - 50;
       height = MediaQuery.of(context).size.height - 150;
       loginBoxSize = 50;
-      fontSize = MediaQuery.of(context).size.width / 80;
+      fontSize = MediaQuery.of(context).size.width / 40;
     }
 
     return Align(

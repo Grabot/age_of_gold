@@ -18,6 +18,10 @@ class User {
     return userName;
   }
 
+  setUsername(String username) {
+    userName = username;
+  }
+
   DateTime getTileLock() {
     return tileLock;
   }

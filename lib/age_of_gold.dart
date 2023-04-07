@@ -89,17 +89,19 @@ class AgeOfGold extends FlameGame
     socket = SocketServices();
     checkLogIn(_navigationService);
 
-    socket!.joinRoom();
     socket!.addListener(socketListener);
     html.window.onBeforeUnload.listen((event) async {
-      socket!.leaveRoom();
+      Settings settings = Settings();
+      if (settings.getUser() != null) {
+        socket!.leaveRoom(settings.getUser()!.id);
+      }
     });
   }
 
   checkLogIn(NavigationService navigationService) {
     Settings settings = Settings();
     if (settings.getUser() != null) {
-      socket!.setUser(settings.getUser()!);
+      socket!.joinRoom(settings.getUser()!.id);
     } else {
       // User was not found, maybe not logged in?! or refreshed?!
       // Find accessToken to quickly fix this.
@@ -124,8 +126,11 @@ class AgeOfGold extends FlameGame
     AuthServiceLogin authService = AuthServiceLogin();
     authService.getTokenLogin(accessToken).then((loginResponse) {
       if (loginResponse.getResult()) {
-        print("successfully logged in!");
-        socket!.setUser(settings.getUser()!);
+        // successfully logged in user has been set in settings.
+        Settings settings = Settings();
+        if (settings.getUser() != null) {
+          socket!.joinRoom(settings.getUser()!.id);
+        }
       }
     });
   }

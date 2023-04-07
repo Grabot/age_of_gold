@@ -96,10 +96,14 @@ class _PasswordResetState extends State<PasswordReset> {
             "Invalid link",
             style: TextStyle(color: Colors.white, fontSize: fontSize*2),
           ),
-          Text(
-            "This link has already been used. \nTo reset your password, return to the login page and select \"Forgot Password\" to send a new email.",
-            style: TextStyle(color: Colors.white70, fontSize: fontSize),
-            textAlign: TextAlign.center,
+          Column(
+            children: [
+              Text(
+                "This link has already been used. \nTo reset your password, return to the login page and select \"Forgot Password\" to send a new email.",
+                style: TextStyle(color: Colors.white70, fontSize: fontSize),
+                textAlign: TextAlign.center,
+              ),
+            ],
           )
         ]
       ),

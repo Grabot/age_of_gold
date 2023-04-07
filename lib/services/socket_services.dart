@@ -15,10 +15,6 @@ import 'auth_service_world.dart';
 class SocketServices extends ChangeNotifier {
   late io.Socket socket;
 
-  // We will use this to store the user's id, might change it later.
-  int userId = -1;
-  String userName = "Not logged in";
-
   static final SocketServices _instance = SocketServices._internal();
 
   HexagonList hexagonList = HexagonList();
@@ -39,14 +35,6 @@ class SocketServices extends ChangeNotifier {
   }
 
   logout() {
-    userId = -1;
-    userName ="Not logged in";
-  }
-
-  void setUser(User user) {
-    userId = user.id;
-    userName = user.getUserName();
-    notifyListeners();
   }
 
   startSockConnection() {
@@ -116,7 +104,7 @@ class SocketServices extends ChangeNotifier {
     );
   }
 
-  void joinRoom() {
+  void joinRoom(int userId) {
     if (userId != -1) {
       socket.emit(
         "join",
@@ -178,7 +166,7 @@ class SocketServices extends ChangeNotifier {
     chatMessages.addMessage(from, localMessage, regionType);
   }
 
-  void leaveRoom() {
+  void leaveRoom(int userId) {
     if (socket.connected) {
       socket.emit("leave", {
         'userId': userId,
@@ -285,7 +273,4 @@ class SocketServices extends ChangeNotifier {
     );
   }
 
-  String getUserName() {
-    return userName;
-  }
 }

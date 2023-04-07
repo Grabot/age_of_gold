@@ -544,9 +544,9 @@ class MessageTileState extends State<MessageTile> {
         position: RelativeRect.fromRect(
             _tapPosition! & const Size(40, 40), Offset.zero & overlay.size))
         .then((int? delta) {
-      if (delta == 1) {
+      if (delta == 0) {
         widget.userInteraction(true, widget.message.senderName);
-      } else if (delta == 2) {
+      } else if (delta == 1) {
         widget.userInteraction(false, widget.message.senderName);
       }
       return;
@@ -597,11 +597,11 @@ class ChatDetailPopupState extends State<ChatDetailPopup> {
 }
 
 void buttonMessageUser(BuildContext context) {
-  Navigator.pop<int>(context, 1);
+  Navigator.pop<int>(context, 0);
 }
 
 void buttonViewUser(BuildContext context) {
-  Navigator.pop<int>(context, 2);
+  Navigator.pop<int>(context, 1);
 }
 
 Widget getPopupItems(BuildContext context) {

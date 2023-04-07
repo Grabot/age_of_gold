@@ -102,4 +102,8 @@ flutter:
     - assets/images/gogle_button.png
     - assets/images/github_button.png
     - assets/images/default_avatar.png
+    - assets/images/ui/shield_emblem.png
+    - assets/images/ui/shield_emblem_2.png
+    - assets/images/ui/shield_emblem3.png
+    - assets/images/ui/hexagon_frame_small.png
 

@@ -52,6 +52,9 @@ class Settings extends ChangeNotifier {
 
   setAvatar(String avatar) {
     this.avatar = avatar;
+  }
+
+  notify() {
     notifyListeners();
   }
 
