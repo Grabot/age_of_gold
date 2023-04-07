@@ -46,6 +46,7 @@ dependencies:
   jwt_decode: ^0.3.1
   get_it: ^7.2.0
   tuple: ^2.0.1
+  crop_your_image: ^0.7.4
 
 dev_dependencies:
   flutter_test:

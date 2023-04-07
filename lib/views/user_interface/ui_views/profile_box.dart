@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:html';
+import 'dart:typed_data';
 import 'package:age_of_gold/age_of_gold.dart';
 import 'package:age_of_gold/constants/route_paths.dart' as routes;
 import 'package:age_of_gold/locator.dart';
@@ -9,7 +12,9 @@ import 'package:age_of_gold/util/countdown.dart';
 import 'package:age_of_gold/util/navigation_service.dart';
 import 'package:age_of_gold/util/render_objects.dart';
 import 'package:age_of_gold/util/util.dart';
+import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/change_avatar_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/profile_change_notifier.dart';
+import 'package:crop_your_image/crop_your_image.dart';
 import 'package:flutter/material.dart';
 
 
@@ -496,11 +501,19 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
 
   Widget changeAvatarField(double avatarWidth, double fontSize) {
     // TODO: changing avatar
-    return Container(
-      width: 300,
-      height: 300,
-      color: Colors.black,
-    );
+    // _imageData = base64.decode(settings.getAvatar()!);
+    // if (_imageData != null) {
+    //   return Crop(
+    //       image: _imageData,
+    //       controller: cropController,
+    //       onCropped: (image) {
+    //         // do something with image data
+    //       }
+    //   );
+    // } else {
+    //   return Container();
+    // }
+    return Container();
   }
 
   Widget profileAvatar(double avatarWidth, double fontSize) {
@@ -601,6 +614,8 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
 
   showChangeAvatar() {
     setState(() {
+      ChangeAvatarChangeNotifier().setAvatar(base64.decode(settings.getAvatar()!));
+      ChangeAvatarChangeNotifier().setChangeAvatarVisible(true);
       changePassword = false;
       changeUserName = false;
       changeAvatar = true;
