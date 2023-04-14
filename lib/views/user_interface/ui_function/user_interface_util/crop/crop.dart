@@ -172,13 +172,11 @@ class _CropEditorState extends State<_CropEditor> {
   }
 
   resizeImage(int width, int height, image.Image converted) {
-    print("bytes length pre conversion: ${converted.getBytes().length}");
     if (width < height) {
       converted = image.copyResize(converted, height: maxSize);
     } else {
       converted = image.copyResize(converted, width: maxSize);
     }
-    print("bytes length after conversion: ${converted.getBytes().length}");
     Uint8List data = image.encodePng(converted);
     widget.onResize?.call(data);
   }
@@ -192,9 +190,6 @@ class _CropEditorState extends State<_CropEditor> {
       _resetCroppingArea(imageRatio);
       _crop();
     }
-    print(DateTime
-        .now()
-        .millisecondsSinceEpoch);
     if (!cropping) {
       widget.onStatusChanged?.call(CropStatus.ready);
     }
@@ -209,12 +204,10 @@ class _CropEditorState extends State<_CropEditor> {
         int width = converted.width;
         int height = converted.height;
         if (width > maxSize || height > maxSize) {
-          print("resize Mobile");
           // The image is too large, resize it too a more manageable size
           resizeImage(width, height, converted);
           // The resize will trigger an onImageChanged, so don't set image here.
         } else {
-          print("set Mobile");
           setState(() {
             _targetImage = converted;
             _lastComputed = null;

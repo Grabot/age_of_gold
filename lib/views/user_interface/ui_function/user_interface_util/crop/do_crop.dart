@@ -2,8 +2,6 @@ import 'dart:typed_data';
 import 'package:image/image.dart' as image;
 
 
-/// process cropping image.
-/// this method is supposed to be called only via compute()
 Uint8List doCrop(List<dynamic> cropData) {
   print("do crop mobile");
   final originalImage = cropData[0] as image.Image;

@@ -20,7 +20,7 @@ class Settings extends ChangeNotifier {
 
   Settings._internal() {
     if (kIsWeb) {
-      JsIsolatedWorker().importScripts(['crop_web.js']).then((value) {
+      JsIsolatedWorker().importScripts(['crop/crop_web.js']).then((value) {
         print("importScripts");
       });
     }

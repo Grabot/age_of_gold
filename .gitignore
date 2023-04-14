@@ -47,3 +47,5 @@ app.*.map.json
 # url definitions
 url_base.dart
 base_url.dart
+
+web/crop/

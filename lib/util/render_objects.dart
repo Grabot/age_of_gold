@@ -55,8 +55,8 @@ class HexagonClipper extends CustomClipper<Path> {
 
     point2[1] = size.height;
     point3[1] = size.height;
-    point5[1] = 0;
-    point6[1] = 0;
+    point5[1] = 0.0;
+    point6[1] = 0.0;
 
     path.moveTo(point1[0], point1[1]);
     path.lineTo(point2[0], point2[1]);
