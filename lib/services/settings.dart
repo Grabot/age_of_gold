@@ -1,4 +1,8 @@
+import 'dart:typed_data';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:isolated_worker/js_isolated_worker.dart';
 import 'models/user.dart';
 
 
@@ -11,9 +15,16 @@ class Settings extends ChangeNotifier {
 
   User? user;
 
-  String? avatar;
+  // String? avatar;
+  Uint8List? avatar;
 
-  Settings._internal();
+  Settings._internal() {
+    if (kIsWeb) {
+      JsIsolatedWorker().importScripts(['crop_web.js']).then((value) {
+        print("importScripts");
+      });
+    }
+  }
 
   factory Settings() {
     return _instance;
@@ -50,7 +61,7 @@ class Settings extends ChangeNotifier {
     return user;
   }
 
-  setAvatar(String avatar) {
+  setAvatar(Uint8List avatar) {
     this.avatar = avatar;
   }
 
@@ -58,7 +69,7 @@ class Settings extends ChangeNotifier {
     notifyListeners();
   }
 
-  String? getAvatar() {
+  Uint8List? getAvatar() {
     return avatar;
   }
 

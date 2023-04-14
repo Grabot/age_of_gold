@@ -38,7 +38,6 @@ class AuthServiceWorld {
     );
 
     Map<String, dynamic> json = response.data;
-    print("response is $json");
     if (json.containsKey("result")) {
       if (json["result"]) {
         // update the lock time of the user.
@@ -105,7 +104,6 @@ class AuthServiceWorld {
     );
 
     Map<String, dynamic> json = response.data;
-    print("response is $json");
     if (!json.containsKey("result")) {
       return "an error occurred";
     } else {
@@ -144,7 +142,6 @@ class AuthServiceWorld {
     );
 
     Map<String, dynamic> json = response.data;
-    print("response is $json");
     if (!json.containsKey("result")) {
       return null;
     } else {
@@ -161,21 +158,19 @@ class AuthServiceWorld {
     }
   }
 
-  Future<String?> getAvatar(String userName) async {
+  Future<String?> getAvatarUser() async {
 
-    String endPoint = "get/avatar";
+    String endPoint = "get/avatar/user";
     var response = await AuthApi().dio.post(endPoint,
         options: Options(headers: {
           HttpHeaders.contentTypeHeader: "application/json",
         }),
         data: jsonEncode(<String, String>{
-          "user_name": userName,
         }
       )
     );
 
     Map<String, dynamic> json = response.data;
-    print("response is $json");
     if (!json.containsKey("result")) {
       return null;
     } else {

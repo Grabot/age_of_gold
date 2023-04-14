@@ -1,6 +1,8 @@
 import 'package:age_of_gold/component/tile.dart';
 import 'package:age_of_gold/util/render_hexagons.dart';
 import 'package:age_of_gold/util/tapped_map.dart';
+import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/change_avatar_change_notifier.dart';
+import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/loading_box_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/profile_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/selected_tile_info.dart';
 import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/user_box_change_notifier.dart';
@@ -36,6 +38,8 @@ class World extends Component {
 
   late ProfileChangeNotifier profileChangeNotifier;
   late UserBoxChangeNotifier userBoxChangeNotifier;
+  late ChangeAvatarChangeNotifier changeAvatarChangeNotifier;
+  late LoadingBoxChangeNotifier loadingBoxChangeNotifier;
 
   @override
   Future<void> onLoad() async {
@@ -51,6 +55,8 @@ class World extends Component {
 
     profileChangeNotifier = ProfileChangeNotifier();
     userBoxChangeNotifier = UserBoxChangeNotifier();
+    changeAvatarChangeNotifier = ChangeAvatarChangeNotifier();
+    loadingBoxChangeNotifier = LoadingBoxChangeNotifier();
   }
 
   @override
@@ -88,6 +94,12 @@ class World extends Component {
     }
     if (userBoxChangeNotifier.getUserBoxVisible()) {
       userBoxChangeNotifier.setUserBoxVisible(false);
+    }
+    if (changeAvatarChangeNotifier.getChangeAvatarVisible()) {
+      changeAvatarChangeNotifier.setChangeAvatarVisible(false);
+    }
+    if (loadingBoxChangeNotifier.getLoadingBoxVisible()) {
+      loadingBoxChangeNotifier.setLoadingBoxVisible(false);
     }
   }
 

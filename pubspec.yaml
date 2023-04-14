@@ -46,7 +46,9 @@ dependencies:
   jwt_decode: ^0.3.1
   get_it: ^7.2.0
   tuple: ^2.0.1
-  crop_your_image: ^0.7.4
+  image: ^4.0.6
+  file_picker: ^5.2.7
+  isolated_worker: ^0.1.1
 
 dev_dependencies:
   flutter_test:
@@ -106,5 +108,5 @@ flutter:
     - assets/images/ui/shield_emblem.png
     - assets/images/ui/shield_emblem_2.png
     - assets/images/ui/shield_emblem3.png
-    - assets/images/ui/hexagon_frame_small.png
+    - assets/images/ui/hexagon_frame_small_fill.png
 

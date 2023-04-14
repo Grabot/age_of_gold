@@ -84,7 +84,6 @@ class AuthServiceMessage {
     );
 
     Map<String, dynamic> json = response.data;
-    print("response is $json");
     if (!json.containsKey("result")) {
       return "an error occurred";
     } else {
@@ -113,7 +112,6 @@ class AuthServiceMessage {
     );
 
     Map<String, dynamic> json = response.data;
-    print("response is $json");
     if (!json.containsKey("result")) {
       return "an error occurred";
     } else {
@@ -139,7 +137,6 @@ class AuthServiceMessage {
     );
 
     Map<String, dynamic> json = response.data;
-    print("response is $json");
     if (!json.containsKey("result")) {
       return "an error occurred";
     } else {
@@ -165,7 +162,6 @@ class AuthServiceMessage {
     );
 
     Map<String, dynamic> json = response.data;
-    print("response is $json");
     if (!json.containsKey("result")) {
       return "an error occurred";
     } else {

@@ -35,8 +35,60 @@ class AuthServiceSetting {
         options: Options(headers: {
           HttpHeaders.contentTypeHeader: "application/json",
         }),
-        data: jsonEncode(<String, String>{
+        data: jsonEncode(<String, String> {
           "password": newPassword,
+        }
+      )
+    );
+
+    BaseResponse baseResponse = BaseResponse.fromJson(response.data);
+    return baseResponse;
+  }
+
+  Future<BaseResponse> changeAvatar(String newAvatarRegular, String newAvatarSmall) async {
+    String endPoint = "change/avatar";
+    var response = await AuthApi().dio.post(endPoint,
+        options: Options(headers: {
+          HttpHeaders.contentTypeHeader: "application/json",
+        }),
+        data: jsonEncode(<String, String>{
+          "avatar": newAvatarRegular,
+          "avatar_small": newAvatarSmall,
+        }
+      )
+    );
+
+    BaseResponse baseResponse = BaseResponse.fromJson(response.data);
+    return baseResponse;
+  }
+
+  Future<bool> getIsAvatarDefault() async {
+    // A quick request to see if the current avatar is the default avatar
+    String endPoint = "get/avatar/default";
+    var response = await AuthApi().dio.post(endPoint,
+        options: Options(headers: {
+          HttpHeaders.contentTypeHeader: "application/json",
+        }),
+        data: jsonEncode(<String, String>{
+        }
+      )
+    );
+
+    Map<String, dynamic> json = response.data;
+    if (json.containsKey("result")) {
+      return json["result"];
+    }
+
+    return false;
+  }
+
+  Future<BaseResponse> resetAvatar() async {
+    String endPoint = "reset/avatar";
+    var response = await AuthApi().dio.post(endPoint,
+        options: Options(headers: {
+          HttpHeaders.contentTypeHeader: "application/json",
+        }),
+        data: jsonEncode(<String, String>{
         }
       )
     );

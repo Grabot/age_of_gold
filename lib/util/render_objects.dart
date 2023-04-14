@@ -1,22 +1,22 @@
-import 'dart:convert';
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 
 
-Widget avatarBox(double width, double height, String avatar) {
+Widget avatarBox(double avatarBoxWidth, double avatarBoxHeight, Uint8List avatar) {
   return Stack(
     children: [
       Container(
-        width: width,
-        height: height,
+        width: avatarBoxWidth,
+        height: avatarBoxHeight,
         child: Center(
           child: ClipPath(
               clipper: HexagonClipper(),
               child: Image.memory(
-                base64Decode(avatar),
-                width: width * 0.78,  // some scale that I determined by trial and error
-                height: height * 0.78,  // some scale that I determined by trial and error
+                avatar,
+                width: avatarBoxWidth * 0.785,  // some scale that I determined by trial and error
+                height: avatarBoxHeight * 0.785,  // some scale that I determined by trial and error
                 gaplessPlayback: true,
                 fit: BoxFit.cover,
               )
@@ -24,13 +24,13 @@ Widget avatarBox(double width, double height, String avatar) {
         ),
       ),
       Container(
-          width: width,
-          height: height,
+          width: avatarBoxWidth,
+          height: avatarBoxHeight,
           child: Center(
             child: Image.asset(
-              "assets/images/ui/hexagon_frame_small.png",
-              width: width,
-              height: height,
+              "assets/images/ui/hexagon_frame_small_fill.png",
+              width: avatarBoxWidth,
+              height: avatarBoxHeight,
               fit: BoxFit.cover,
             ),
           )
@@ -52,6 +52,11 @@ class HexagonClipper extends CustomClipper<Path> {
     List point4 = getPointyHexCorner(size, 3);
     List point5 = getPointyHexCorner(size, 4);
     List point6 = getPointyHexCorner(size, 5);
+
+    point2[1] = size.height;
+    point3[1] = size.height;
+    point5[1] = 0;
+    point6[1] = 0;
 
     path.moveTo(point1[0], point1[1]);
     path.lineTo(point2[0], point2[1]);

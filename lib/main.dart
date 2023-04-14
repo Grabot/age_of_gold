@@ -12,10 +12,12 @@ import 'package:age_of_gold/views/world_access_page.dart';
 import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
+import 'package:isolated_worker/worker_delegator.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:url_strategy/url_strategy.dart';
 import 'age_of_gold.dart';
 import 'views/user_interface/ui_views/chat_box.dart';
+import 'views/user_interface/ui_views/loading_box.dart';
 import 'views/user_interface/ui_views/profile_box.dart';
 import 'views/user_interface/ui_views/profile_overview.dart';
 import 'views/user_interface/ui_views/tile_box.dart';
@@ -47,6 +49,7 @@ Future<void> main() async {
           'profileOverview': _profileOverviewBuilder,
           'userBox': _userBoxBuilder,
           'changeAvatar': _changeAvatarBoxBuilder,
+          'loadingBox': _loadingBoxBuilder,
         },
         initialActiveOverlays: const [
           'chatBox',
@@ -54,7 +57,8 @@ Future<void> main() async {
           'profileBox',
           'profileOverview',
           'userBox',
-          'changeAvatar'
+          'changeAvatar',
+          'loadingBox',
         ],
       )
   );
@@ -145,4 +149,8 @@ Widget _userBoxBuilder(BuildContext buildContext, AgeOfGold game) {
 
 Widget _changeAvatarBoxBuilder(BuildContext buildContext, AgeOfGold game) {
   return ChangeAvatarBox(key: UniqueKey(), game: game);
+}
+
+Widget _loadingBoxBuilder(BuildContext buildContext, AgeOfGold game) {
+  return LoadingBox(key: UniqueKey(), game: game);
 }

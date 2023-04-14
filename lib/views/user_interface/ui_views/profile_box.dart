@@ -1,6 +1,4 @@
 import 'dart:convert';
-import 'dart:html';
-import 'dart:typed_data';
 import 'package:age_of_gold/age_of_gold.dart';
 import 'package:age_of_gold/constants/route_paths.dart' as routes;
 import 'package:age_of_gold/locator.dart';
@@ -14,7 +12,6 @@ import 'package:age_of_gold/util/render_objects.dart';
 import 'package:age_of_gold/util/util.dart';
 import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/change_avatar_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/profile_change_notifier.dart';
-import 'package:crop_your_image/crop_your_image.dart';
 import 'package:flutter/material.dart';
 
 
@@ -80,6 +77,7 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
     updateTimeLock();
 
     _focusProfileBox.addListener(_onFocusChange);
+    settings.addListener(settingsChangeListener);
     _focusUsernameChange.addListener(_onFocusUsernameChange);
     _focusPasswordChange.addListener(_onFocusPasswordChange);
 
@@ -117,6 +115,12 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
 
   _onFocusChange() {
     widget.game.profileFocus(_focusProfileBox.hasFocus);
+  }
+
+  settingsChangeListener() {
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   updateTimeLock() {
@@ -224,7 +228,7 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
 
   goBack() {
     setState(() {
-      showProfile = false;
+      profileChangeNotifier.setProfileVisible(false);
     });
   }
 
@@ -500,7 +504,7 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
   }
 
   Widget changeAvatarField(double avatarWidth, double fontSize) {
-    // TODO: changing avatar
+    // TODO: changing avatar. remove? Done with seperate UI box
     // _imageData = base64.decode(settings.getAvatar()!);
     // if (_imageData != null) {
     //   return Crop(
@@ -614,7 +618,7 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
 
   showChangeAvatar() {
     setState(() {
-      ChangeAvatarChangeNotifier().setAvatar(base64.decode(settings.getAvatar()!));
+      ChangeAvatarChangeNotifier().setAvatar(settings.getAvatar()!);
       ChangeAvatarChangeNotifier().setChangeAvatarVisible(true);
       changePassword = false;
       changeUserName = false;
