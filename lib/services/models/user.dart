@@ -1,10 +1,14 @@
 
+import 'dart:convert';
+import 'dart:typed_data';
+
 class User {
 
   late int id;
   late String userName;
   late DateTime tileLock;
   late bool verified;
+  Uint8List? avatar;
 
   User(this.id, this.userName, this.verified, String timeLock) {
     if (!timeLock.endsWith("Z")) {
@@ -30,6 +34,14 @@ class User {
     return verified;
   }
 
+  Uint8List? getAvatar() {
+    return avatar;
+  }
+
+  void setAvatar(Uint8List avatar) {
+    this.avatar = avatar;
+  }
+
   updateTileLock(String tileLock) {
     if (!tileLock.endsWith("Z")) {
       // The server has utc timestamp, but it's not formatted with the 'Z'.
@@ -41,13 +53,21 @@ class User {
   User.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     userName = json["username"];
-    verified = json["verified"];
-    String timeLock = json["tile_lock"];
-    if (!timeLock.endsWith("Z")) {
-      // The server has utc timestamp, but it's not formatted with the 'Z'.
-      timeLock += "Z";
+    if (json.containsKey("verified")) {
+      verified = json["verified"];
     }
-    tileLock = DateTime.parse(timeLock).toLocal();
+    if (json.containsKey("tile_lock")) {
+      String timeLock = json["tile_lock"];
+      if (!timeLock.endsWith("Z")) {
+        // The server has utc timestamp, but it's not formatted with the 'Z'.
+        timeLock += "Z";
+      }
+      tileLock = DateTime.parse(timeLock).toLocal();
+    }
+    if (json.containsKey("avatar")) {
+      avatar = base64Decode(json["avatar"].replaceAll("\n", ""));
+    }
+
   }
 
   @override

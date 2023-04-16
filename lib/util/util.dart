@@ -104,17 +104,7 @@ successfulLogin(LoginResponse loginResponse) {
     // the access token will be set in memory and local storage.
     settings.setAccessToken(accessToken);
     settings.setAccessTokenExpiration(Jwt.parseJwt(accessToken)['exp']);
-    secureStorage.setAccessToken(accessToken).then((value) {
-      // Retrieve the avatar after the access token is set.
-      AuthServiceWorld().getAvatarUser().then((value) {
-        if (value != null) {
-          settings.setAvatar(base64Decode(value));
-          settings.notify();
-        } else {
-          showToastMessage("Something went wrong");
-        }
-      });
-    });
+    secureStorage.setAccessToken(accessToken);
   }
 
   String? refreshToken = loginResponse.getRefreshToken();
@@ -126,6 +116,9 @@ successfulLogin(LoginResponse loginResponse) {
   User? user = loginResponse.getUser();
   if (user != null) {
     settings.setUser(user);
+    if (user.getAvatar() != null) {
+      settings.setAvatar(user.getAvatar()!);
+    }
   }
 }
 

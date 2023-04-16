@@ -16,7 +16,6 @@ import 'package:flame/components.dart';
 import 'package:flutter/services.dart';
 import 'package:universal_html/html.dart' as html;
 import 'package:age_of_gold/world/world.dart';
-
 import 'views/user_interface/ui_function/user_interface_util/profile_change_notifier.dart';
 
 
@@ -188,8 +187,9 @@ class AgeOfGold extends FlameGame
 
   @override
   void onTapUp(int pointerId, TapUpInfo info) {
-    Vector2 tapPos = Vector2(info.eventPosition.game.x, info.eventPosition.game.y);
-    _world!.onTappedUp(tapPos);
+    Vector2 tapPos = info.eventPosition.game;
+    Vector2 screenPos = info.eventPosition.global;
+    _world!.onTappedUp(tapPos, screenPos);
     _world!.focusWorld();
     super.onTapUp(pointerId, info);
   }

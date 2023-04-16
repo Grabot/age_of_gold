@@ -94,7 +94,7 @@ class _CropEditorState extends State<_CropEditor> {
   Future<image.Image?>? _lastComputed;
 
   bool imageLoaded = false;
-  int maxSize = 4096;
+  int maxSize = 1024;
 
   _Calculator get calculator => _isFitVertically
       ? const _VerticalCalculator()
@@ -365,7 +365,6 @@ class _CropEditorState extends State<_CropEditor> {
               );
             },
             onPanEnd: (details) {
-              print("positioned 0");
               _crop();
             },
             child: Container(

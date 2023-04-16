@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:age_of_gold/services/models/user.dart';
 import 'package:age_of_gold/util/util.dart';
+import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/selected_tile_info.dart';
 import 'package:flutter/material.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 import '../component/hexagon.dart';
@@ -226,7 +227,6 @@ class SocketServices extends ChangeNotifier {
 
   addTileInfo(data, Tile prevTile) {
     if (data["last_changed_by"] != null && data["last_changed_time"] != null) {
-      print("data: " + data.toString());
       User user = User.fromJson(data["last_changed_by"]);
       String nameLastChanged = user.getUserName();
       String lastChanged = data["last_changed_time"];
@@ -234,8 +234,10 @@ class SocketServices extends ChangeNotifier {
         // The server has utc timestamp, but it's not formatted with the 'Z'.
         lastChanged += "Z";
       }
-      prevTile.setLastChangedBy(nameLastChanged);
-      prevTile.setLastChangedTime(DateTime.parse(lastChanged).toLocal());
+
+      SelectedTileInfo selectedTileInfo = SelectedTileInfo();
+      selectedTileInfo.setLastChangedBy(nameLastChanged);
+      selectedTileInfo.setLastChangedTime(DateTime.parse(lastChanged).toLocal());
     }
   }
 

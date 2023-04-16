@@ -30,7 +30,7 @@ dependencies:
   flutter:
     sdk: flutter
 
-  flame: ^1.4.0
+  flame: ^1.7.0
   universal_html: ^2.0.8
   intl: ^0.17.0
   flutter_lints: ^2.0.1

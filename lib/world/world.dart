@@ -73,9 +73,10 @@ class World extends Component {
   resetClick() {
     mouseTile = null;
     selectedTileInfo.setCurrentTile(null);
+    selectedTileInfo.notifyListeners();
   }
 
-  void onTappedUp(Vector2 mouseTapped) {
+  void onTappedUp(Vector2 mouseTapped, Vector2 screenPos) {
     List<int> tileProperties = getTileFromPos(mouseTapped.x, mouseTapped.y);
     int q = tileProperties[0];
     int r = tileProperties[1];
@@ -84,7 +85,7 @@ class World extends Component {
     selectedTileInfo.setCurrentTile(mouseTileTap);
     if (mouseTileTap != null) {
       mouseTile = mouseTileTap;
-      getAdditionalTileInfo(mouseTile!);
+      getAdditionalTileInfo(mouseTile!, screenPos);
     }
   }
 
@@ -103,13 +104,12 @@ class World extends Component {
     }
   }
 
-  getAdditionalTileInfo(Tile tile) {
-    AuthServiceWorld().getTileInfo(tile).then((value) {
+  getAdditionalTileInfo(Tile tile, Vector2 screenPos) {
+    AuthServiceWorld().getTileInfo(tile, screenPos).then((value) {
       if (value != "success") {
         // TODO: What to do when it is not successful
       } else {
         print("success!");
-        socketServices.notifyListeners();
       }
     }).onError((error, stackTrace) {
       // TODO: What to do on an error?

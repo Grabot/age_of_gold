@@ -1,13 +1,10 @@
-import 'dart:convert';
-
 import 'package:age_of_gold/age_of_gold.dart';
-import 'package:age_of_gold/component/tile.dart';
 import 'package:age_of_gold/locator.dart';
 import 'package:age_of_gold/services/auth_service_world.dart';
 import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/services/socket_services.dart';
-import 'package:age_of_gold/util/countdown.dart';
 import 'package:age_of_gold/util/navigation_service.dart';
+import 'package:age_of_gold/util/render_objects.dart';
 import 'package:age_of_gold/util/util.dart';
 import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/profile_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/selected_tile_info.dart';
@@ -41,6 +38,15 @@ class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
   final List<TileData> _tiles = TileData.getTiles();
   late List<DropdownMenuItem<TileData>> _dropdownMenuItems;
   late TileData _selectedTile;
+
+  double offsetLeft = 0;
+  double offsetTop = 0;
+
+  double tileBoxWidth = 350;
+  double tileBoxHeight = 260;
+
+  double totalWidth = 0;  // Will be set later and it can change
+  double totalHeight = 0;  // Will be set later and it can change
 
   @override
   void initState() {
@@ -95,7 +101,6 @@ class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
 
   profileChangeListener() {
     if (mounted) {
-      print("profile change in tilebox");
       setState(() {});
     }
   }
@@ -106,7 +111,30 @@ class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
         _selectedTile =
         _dropdownMenuItems[selectedTileInfo.selectedTile!.tileType].value!;
       }
+      setTileBoxPosition();
       setState(() {});
+    }
+  }
+
+  setTileBoxPosition() {
+    if (selectedTileInfo.getTapPos() != null) {
+      offsetLeft = selectedTileInfo.getTapPos()!.x;
+      offsetTop = selectedTileInfo.getTapPos()!.y;
+
+      offsetLeft -= tileBoxWidth/2;
+
+      double rightSide = offsetLeft + tileBoxWidth;
+      double leftSide = offsetLeft - tileBoxWidth/2;
+      double bottomSide = offsetTop + tileBoxHeight;
+
+      if (rightSide > totalWidth) {
+        offsetLeft = totalWidth - tileBoxWidth;
+      } else if (leftSide < 0) {
+        offsetLeft = 0;
+      }
+      if (bottomSide > totalHeight) {
+        offsetTop = offsetTop - tileBoxHeight;
+      }
     }
   }
 
@@ -175,59 +203,6 @@ class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
     return Container();
   }
 
-  Widget currentTileInformation() {
-    String? lastChangedBy = selectedTileInfo.getTileChangedBy();
-    if (settings.getUser() != null) {
-      if (lastChangedBy == settings.getUser()!.getUserName()) {
-        lastChangedBy = "You!";
-      }
-    }
-    if (lastChangedBy != null) {
-      return Expanded(
-        child: Column(
-          children: [
-            RichText(
-              overflow: TextOverflow.fade,
-              maxLines: 2,
-              softWrap: false,
-              text: TextSpan(
-                children: [
-                  TextSpan(
-                    text: "Last changed by: ",
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16
-                    ),
-                  ),
-                  TextSpan(
-                    text: lastChangedBy,
-                    recognizer: TapGestureRecognizer()..onTapDown = clickedUser,
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            RichText(
-              text: TextSpan(
-                text: selectedTileInfo.getChangedAt(),
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16
-                ),
-              ),
-            )
-          ],
-        ),
-      );
-    } else {
-      return Text("Tile untouched");
-    }
-  }
-
   clickedUser(TapDownDetails details) {
     String? lastChangedBy = selectedTileInfo.getTileChangedBy();
     if (lastChangedBy == null || settings.getUser() == null || lastChangedBy != settings.getUser()!.getUserName()) {
@@ -246,32 +221,16 @@ class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
     }
   }
 
-  Widget currentTileWindow() {
-    return Column(
-      children:[
-        const Text(
-            "current tile:",
-            style: TextStyle(color: Colors.white, fontSize: 24)
-        ),
-        Text(
-            "type: ${selectedTileInfo.getTileType()}",
-            style: const TextStyle(color: Colors.white, fontSize: 24)
-        ),
-        getImage(),
-        Text(
-            selectedTileInfo.tileInfo(),
-            style: const TextStyle(color: Colors.white, fontSize: 20)
-        ),
-      ]
-    );
-  }
-
-  Widget dropdownThing() {
+  Widget dropdownThing(double dropDownWidth, double dropDownHeight) {
     if (selectedTileInfo.selectedTile != null) {
-      return DropdownButton(
-        value: _selectedTile,
-        items: _dropdownMenuItems,
-        onChanged: onChangeDropdownItem,
+      return Container(
+        width: dropDownWidth,
+        height: dropDownHeight,
+        child: DropdownButton(
+          value: _selectedTile,
+          items: _dropdownMenuItems,
+          onChanged: onChangeDropdownItem,
+        ),
       );
     } else {
       return Container();
@@ -287,42 +246,102 @@ class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
     });
   }
 
-  Widget tileBoxWidget() {
-    double tileBoxWidth = 350;
-    double tileBoxHeight = 300;
-    if (MediaQuery.of(context).size.width <= 800) {
-      // Here we assume that it is a phone and we set the width to the total
-      tileBoxWidth = MediaQuery.of(context).size.width;
-    } else {
-      tileBoxWidth = 350;
-    }
-
-    bool showTileDetail = false;
-    if (selectedTileInfo.selectedTile != null) {
-      showTileDetail = true;
-    }
-    return Align(
-      alignment: FractionalOffset.topRight,
-      child: Container(
-        width: tileBoxWidth,
-        height: showTileDetail ? tileBoxHeight : 0,
-        color: Colors.orange,
-        child: Column(
-          children: [
-            const SizedBox(height: 20),
-            currentTileWindow(),
-            const SizedBox(height: 10),
-            dropdownThing(),
-            const SizedBox(height: 10),
-            currentTileInformation(),
-          ]
-        ),
+  Widget tileDetail(double tileDetailWidth, double tileDetailHeight) {
+    return Container(
+      width: tileDetailWidth,
+      height: tileDetailHeight,
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Text("Tile:"),
+              Column(
+                children: [
+                  Text("Q: ${selectedTileInfo.selectedTile!.tileQ}"),
+                  Text("R: ${selectedTileInfo.selectedTile!.tileR}"),
+                ],
+              )
+            ],
+          ),
+        ],
       ),
     );
   }
 
+  Widget changedDetail(double changedDetailWidth, double changedDetailHeight) {
+    double avatarBoxHeight = 69;
+    double changedAtHeight = 15;
+    double changedHeight = changedDetailHeight - avatarBoxHeight - changedAtHeight;
+    return Container(
+      width: changedDetailWidth,
+      height: changedDetailHeight,
+      child: Column(
+        children: [
+          SizedBox(
+            width: changedDetailWidth,
+            height: changedHeight,
+            child: selectedTileInfo.getTileChangedBy() != null
+                ? Text("Last changed by:")
+                : Text("Tile untouched")
+          ),
+          Row(
+            children: [
+              selectedTileInfo.getLastChangedByAvatar() != null
+                  ? avatarBox(avatarBoxHeight, avatarBoxHeight, selectedTileInfo.getLastChangedByAvatar()!)
+                  : Container(),
+              selectedTileInfo.getTileChangedBy() != null
+                  ? Container(
+                      width: changedDetailWidth - avatarBoxHeight,
+                      height: avatarBoxHeight,
+                      child: Text(selectedTileInfo.getTileChangedBy()!)
+                    )
+                  : Container(),
+            ],
+          ),
+          Container(
+            width: changedDetailWidth,
+            height: changedAtHeight,
+            child: selectedTileInfo.getChangedAt() != null
+                ? Text(selectedTileInfo.getChangedAt()!)
+                : Container(),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget tileBoxWidget() {
+    double currentTileHeight = 40;
+    double changedDetailHeight = 104;
+    double dropDownHeight = 70;
+    double tileInformationHeight = tileBoxHeight - currentTileHeight - dropDownHeight;
+    bool showTileDetail = false;
+    if (selectedTileInfo.selectedTile != null) {
+      showTileDetail = true;
+    }
+    return showTileDetail ? Positioned(
+      left: offsetLeft,
+      top: offsetTop,
+      child: Container(
+        width: tileBoxWidth,
+        height: tileBoxHeight,
+        color: Colors.orange,
+        child: Column(
+          children: [
+            tileDetail(tileBoxWidth, currentTileHeight),
+            changedDetail(tileBoxWidth, changedDetailHeight),
+            dropdownThing(tileBoxWidth, dropDownHeight),
+            // currentTileInformation(tileBoxWidth, tileInformationHeight),
+          ]
+        ),
+      ),
+    ) : Container();
+  }
+
   @override
   Widget build(BuildContext context) {
+    totalWidth = MediaQuery.of(context).size.width;
+    totalHeight = MediaQuery.of(context).size.height;
     return tileBoxWidget();
   }
 }
@@ -363,4 +382,3 @@ class TileData {
     ];
   }
 }
-
