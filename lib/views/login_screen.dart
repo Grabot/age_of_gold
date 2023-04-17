@@ -50,6 +50,10 @@ class LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
+    if (widget.game.isMounted) {
+      print("game is mounted!");
+      widget.game.endGame();
+    }
     SchedulerBinding.instance.addPostFrameCallback((_) {
       _focusPassword.requestFocus();
       Future.delayed(const Duration(milliseconds: 150), () {
@@ -81,7 +85,7 @@ class LoginScreenState extends State<LoginScreen> {
       authService.getLogin(LoginRequest(emailOrUserName, password)).then((loginResponse) {
         if (loginResponse.getResult()) {
           print("signing in");
-          _navigationService.navigateTo(routes.GameRoute);
+          goToGame(_navigationService, widget.game);
         } else if (!loginResponse.getResult()) {
           showToastMessage(loginResponse.getMessage());
         }
@@ -100,7 +104,7 @@ class LoginScreenState extends State<LoginScreen> {
       authService.getRegister(RegisterRequest(email, userName, password)).then((loginResponse) {
         if (loginResponse.getResult()) {
           print("signing up");
-          _navigationService.navigateTo(routes.GameRoute);
+          goToGame(_navigationService, widget.game);
         } else if (!loginResponse.getResult()) {
           showToastMessage(loginResponse.getMessage());
         }
@@ -645,7 +649,7 @@ class LoginScreenState extends State<LoginScreen> {
         ),
         ElevatedButton(
           onPressed: () {
-            _navigationService.navigateTo(routes.GameRoute);
+            goToGame(_navigationService, widget.game);
           },
           style: buttonStyle(false, Colors.blue),
           child: Container(

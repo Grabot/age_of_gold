@@ -35,7 +35,12 @@ class SocketServices extends ChangeNotifier {
     return _instance;
   }
 
-  logout() {
+  login(int userId) {
+    joinRoom(userId);
+  }
+
+  logout(int userId) {
+    leaveRoom(userId);
   }
 
   startSockConnection() {

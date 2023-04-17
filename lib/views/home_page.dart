@@ -45,7 +45,7 @@ class _HomePageState extends State<HomePage> {
           authService.getTokenLogin(accessToken).then((loginResponse) {
             if (loginResponse.getResult()) {
               print("access token still valid!");
-              _navigationService.navigateTo(routes.GameRoute);
+              goToGame(_navigationService, widget.game);
             } else if (!loginResponse.getResult()) {
               print("access token login debug: ${loginResponse.getMessage()}");
               setState(() {

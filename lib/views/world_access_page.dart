@@ -7,6 +7,8 @@ import '../age_of_gold.dart';
 import 'package:age_of_gold/constants/route_paths.dart' as routes;
 import 'package:flutter/scheduler.dart';
 
+import '../util/util.dart';
+
 
 class WorldAccess extends StatefulWidget {
 
@@ -43,7 +45,7 @@ class _WorldAccessState extends State<WorldAccess> {
       authService.getRefresh(RefreshRequest(accessToken, refreshToken)).then((loginResponse) {
         if (loginResponse.getResult()) {
           print("it was a success");
-          _navigationService.navigateTo(routes.GameRoute);
+          goToGame(_navigationService, widget.game);
         } else {
           print("it failed");
           _navigationService.navigateTo(routes.HomeRoute);

@@ -1,4 +1,5 @@
 import 'package:age_of_gold/age_of_gold.dart';
+import 'package:age_of_gold/util/render_objects.dart';
 import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/user_box_change_notifier.dart';
 import 'package:flutter/material.dart';
 
@@ -55,11 +56,40 @@ class UserBoxState extends State<UserBox> with TickerProviderStateMixin {
     widget.game.userBoxFocus(_focusUserBox.hasFocus);
   }
 
+  Widget avatarOverview() {
+    return avatarBox(300, 300, userBoxChangeNotifier.getUser()!.getAvatar()!);
+  }
+
+  Widget userNameOverview() {
+    return RichText(
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      text: TextSpan(
+        children: [
+          TextSpan(
+            text: userBoxChangeNotifier.getUser()!.getUserName(),
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 30,
+              fontWeight: FontWeight.bold
+            )
+          )
+        ]
+      )
+    );
+  }
+
   Widget userBox() {
     return Container(
       width: 540,
       height: 540,
-      color: Colors.black,
+      color: Colors.grey,
+      child: Column(
+        children: [
+          avatarOverview(),
+          userNameOverview(),
+        ],
+      )
     );
   }
 

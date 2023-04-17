@@ -42,8 +42,8 @@ class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
   double offsetLeft = 0;
   double offsetTop = 0;
 
-  double tileBoxWidth = 350;
-  double tileBoxHeight = 260;
+  double tileBoxWidth = 290;
+  double tileBoxHeight = 280;
 
   double totalWidth = 0;  // Will be set later and it can change
   double totalHeight = 0;  // Will be set later and it can change
@@ -156,7 +156,11 @@ class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
         ).then((value) {
           if (value == "success") {
             selectedTileInfo.selectedTile!.tileType = tileType;
-            // TODO: update the tilelock in profile overview?
+            selectedTileInfo.setLastChangedByAvatar(settings.getAvatar()!);
+            selectedTileInfo.setLastChangedTime(DateTime.now());
+            setState(() {
+              selectedTileInfo.setLastChangedBy(settings.getUser()!.getUserName());
+            });
           } else if(value == "not allowed") {
             showToastMessage("Failed to change tile to $tileName");
           } else if(value == "back to login") {
@@ -203,24 +207,6 @@ class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
     return Container();
   }
 
-  clickedUser(TapDownDetails details) {
-    String? lastChangedBy = selectedTileInfo.getTileChangedBy();
-    if (lastChangedBy == null || settings.getUser() == null || lastChangedBy != settings.getUser()!.getUserName()) {
-      AuthServiceWorld().getUser(selectedTileInfo.getTileChangedBy()!).then((value) {
-        if (value != null) {
-          UserBoxChangeNotifier().setUser(value);
-          UserBoxChangeNotifier().setUserBoxVisible(true);
-          print("you have just clicked a user ${selectedTileInfo
-              .getTileChangedBy()})");
-        } else {
-          showToastMessage("Failed to get user");
-        }
-      }).onError((error, stackTrace) {
-        showToastMessage("Failed to get user");
-      });
-    }
-  }
-
   Widget dropdownThing(double dropDownWidth, double dropDownHeight) {
     if (selectedTileInfo.selectedTile != null) {
       return Container(
@@ -253,8 +239,9 @@ class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
       child: Column(
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text("Tile:"),
+              Text("Tile:  "),
               Column(
                 children: [
                   Text("Q: ${selectedTileInfo.selectedTile!.tileQ}"),
@@ -268,10 +255,37 @@ class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
     );
   }
 
+  int detailUserColour = 0;
+
+  Color getUserDetailColour() {
+    if (detailUserColour == 0) {
+      return Colors.orange;
+    } else if (detailUserColour == 1) {
+      return Colors.orange.shade700;
+    } else {
+      return Colors.orange.shade300;
+    }
+  }
+
+  viewUser() {
+    String userName = selectedTileInfo.getTileChangedBy()!;
+    if (userName != null) {
+      AuthServiceWorld().getUser(userName).then((value) {
+        if (value != null) {
+          setState(() {
+            selectedTileInfo.selectedTile = null;
+          });
+          UserBoxChangeNotifier().setUser(value);
+          UserBoxChangeNotifier().setUserBoxVisible(true);
+        }
+      });
+    }
+  }
+
   Widget changedDetail(double changedDetailWidth, double changedDetailHeight) {
     double avatarBoxHeight = 69;
     double changedAtHeight = 15;
-    double changedHeight = changedDetailHeight - avatarBoxHeight - changedAtHeight;
+    double changedHeight = changedDetailHeight - avatarBoxHeight - changedAtHeight - 20;
     return Container(
       width: changedDetailWidth,
       height: changedDetailHeight,
@@ -280,31 +294,54 @@ class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
           SizedBox(
             width: changedDetailWidth,
             height: changedHeight,
-            child: selectedTileInfo.getTileChangedBy() != null
-                ? Text("Last changed by:")
-                : Text("Tile untouched")
+            child: Text("Last changed by:")
           ),
-          Row(
-            children: [
-              selectedTileInfo.getLastChangedByAvatar() != null
-                  ? avatarBox(avatarBoxHeight, avatarBoxHeight, selectedTileInfo.getLastChangedByAvatar()!)
-                  : Container(),
-              selectedTileInfo.getTileChangedBy() != null
-                  ? Container(
-                      width: changedDetailWidth - avatarBoxHeight,
-                      height: avatarBoxHeight,
-                      child: Text(selectedTileInfo.getTileChangedBy()!)
-                    )
-                  : Container(),
-            ],
+          InkWell(
+            onTap: () {
+              setState(() {
+                detailUserColour = 2;
+              });
+              viewUser();
+            },
+            onHover: (hovering) {
+              setState(() {
+                if (hovering) {
+                  detailUserColour = 1;
+                } else {
+                  detailUserColour = 0;
+                }
+              });
+            },
+            child: Container(
+              color: getUserDetailColour(),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  avatarBox(avatarBoxHeight, avatarBoxHeight, selectedTileInfo.getLastChangedByAvatar()!),
+                  Expanded(
+                    child: Container(
+                        width: changedDetailWidth - avatarBoxHeight,
+                        child: RichText(
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            text: TextSpan(
+                              text: selectedTileInfo.getTileChangedBy()!,
+                              style: simpleTextStyle(16)
+                            )
+                        )
+                    ),
+                  )
+                ],
+              ),
+            ),
           ),
+          SizedBox(height: 10),
           Container(
-            width: changedDetailWidth,
-            height: changedAtHeight,
-            child: selectedTileInfo.getChangedAt() != null
-                ? Text(selectedTileInfo.getChangedAt()!)
-                : Container(),
-          )
+              width: changedDetailWidth,
+              height: changedAtHeight,
+              child: Text(selectedTileInfo.getChangedAt()!)
+          ),
+          SizedBox(height: 10)
         ],
       ),
     );
@@ -312,9 +349,13 @@ class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
 
   Widget tileBoxWidget() {
     double currentTileHeight = 40;
-    double changedDetailHeight = 104;
+    double changedDetailHeight = 124;
+    if (selectedTileInfo.getLastChangedBy() == null) {
+      tileBoxHeight = 156;
+    } else {
+      tileBoxHeight = 280;
+    }
     double dropDownHeight = 70;
-    double tileInformationHeight = tileBoxHeight - currentTileHeight - dropDownHeight;
     bool showTileDetail = false;
     if (selectedTileInfo.selectedTile != null) {
       showTileDetail = true;
@@ -324,14 +365,15 @@ class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
       top: offsetTop,
       child: Container(
         width: tileBoxWidth,
-        height: tileBoxHeight,
         color: Colors.orange,
         child: Column(
           children: [
             tileDetail(tileBoxWidth, currentTileHeight),
-            changedDetail(tileBoxWidth, changedDetailHeight),
+            if (selectedTileInfo.getLastChangedBy() != null && selectedTileInfo.getLastChangedByAvatar() != null)
+              changedDetail(tileBoxWidth, changedDetailHeight),
+            if (selectedTileInfo.getLastChangedBy() == null)
+                Text("Tile untouched"),
             dropdownThing(tileBoxWidth, dropDownHeight),
-            // currentTileInformation(tileBoxWidth, tileInformationHeight),
           ]
         ),
       ),

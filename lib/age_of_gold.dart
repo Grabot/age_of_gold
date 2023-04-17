@@ -73,7 +73,10 @@ class AgeOfGold extends FlameGame
   @override
   Future<void> onLoad() async {
     await super.onLoad();
+    startGame();
+  }
 
+  startGame() {
     camera.followVector2(cameraPosition, relativeOffset: Anchor.center);
     camera.zoom = 4;
 
@@ -97,10 +100,14 @@ class AgeOfGold extends FlameGame
     });
   }
 
+  endGame() {
+    remove(_world!);
+  }
+
   checkLogIn(NavigationService navigationService) {
     Settings settings = Settings();
     if (settings.getUser() != null) {
-      socket!.joinRoom(settings.getUser()!.id);
+      socket!.login(settings.getUser()!.id);
     } else {
       // User was not found, maybe not logged in?! or refreshed?!
       // Find accessToken to quickly fix this.
