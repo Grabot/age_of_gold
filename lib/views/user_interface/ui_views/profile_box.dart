@@ -59,8 +59,6 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
   final TextEditingController passwordController = TextEditingController();
   final FocusNode _focusPasswordChange = FocusNode();
 
-  bool changeAvatar = false;
-
   @override
   void initState() {
     profileChangeNotifier = ProfileChangeNotifier();
@@ -503,23 +501,6 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
     );
   }
 
-  Widget changeAvatarField(double avatarWidth, double fontSize) {
-    // TODO: changing avatar. remove? Done with seperate UI box
-    // _imageData = base64.decode(settings.getAvatar()!);
-    // if (_imageData != null) {
-    //   return Crop(
-    //       image: _imageData,
-    //       controller: cropController,
-    //       onCropped: (image) {
-    //         // do something with image data
-    //       }
-    //   );
-    // } else {
-    //   return Container();
-    // }
-    return Container();
-  }
-
   Widget profileAvatar(double avatarWidth, double fontSize) {
     return Container(
         width: avatarWidth,
@@ -531,9 +512,15 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                settings.getUser()!.getUserName(),
-                style: TextStyle(color: Colors.white, fontSize: 34),
+              Expanded(
+                child: RichText(
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  text: TextSpan(
+                    text: settings.getUser()!.getUserName(),
+                    style: TextStyle(color: Colors.white, fontSize: 34),
+                  ),
+                ),
               ),
               IconButton(
                   key: settingsKey,
@@ -547,7 +534,6 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
           ),
           changeUserName ? changeUserNameField(avatarWidth, fontSize) : Container(),
           changePassword ? changePasswordField(avatarWidth, fontSize) : Container(),
-          changeAvatar ? changeAvatarField(avatarWidth, fontSize) : Container(),
         ]
       )
     );
@@ -603,7 +589,6 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
   showChangeUsername() {
     setState(() {
       changeUserName = true;
-      changeAvatar = false;
       changePassword = false;
     });
   }
@@ -612,7 +597,6 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
     setState(() {
       changePassword = true;
       changeUserName = false;
-      changeAvatar = false;
     });
   }
 
@@ -622,7 +606,6 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
       ChangeAvatarChangeNotifier().setChangeAvatarVisible(true);
       changePassword = false;
       changeUserName = false;
-      changeAvatar = true;
     });
   }
 

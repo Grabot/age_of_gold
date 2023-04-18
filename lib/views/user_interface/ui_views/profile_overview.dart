@@ -152,18 +152,16 @@ class ProfileOverviewState extends State<ProfileOverview> with TickerProviderSta
           children: [
             getAvatar(),
             SizedBox(
-              width: 110,
-              child: Text(
-                settings.getUser() != null ? settings.getUser()!.getUserName() : "",
-                style: const TextStyle(color: Colors.white, fontSize: 24),
+              width: 240,
+              child: RichText(
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                text: TextSpan(
+                  text: settings.getUser() != null ? settings.getUser()!.getUserName() : "",
+                  style: const TextStyle(color: Colors.white, fontSize: 24),
+                ),
               ),
             ),
-            SizedBox(width: 10),
-            SizedBox(
-                width: 100,
-                child: tileTimeInformation()
-            ),
-            SizedBox(width: 20),
           ],
         ),
       ),

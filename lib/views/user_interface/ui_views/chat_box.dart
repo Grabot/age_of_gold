@@ -5,6 +5,7 @@ import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/util/util.dart';
 import 'package:age_of_gold/views/user_interface/ui_function/user_interface_components/chat_messages.dart';
 import 'package:age_of_gold/views/user_interface/ui_function/user_interface_components/message.dart';
+import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/chat_box_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/user_box_change_notifier.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -37,7 +38,7 @@ class ChatBoxState extends State<ChatBox> {
 
   SocketServices socket = SocketServices();
   late ChatMessages chatMessages;
-  UserBoxChangeNotifier userBoxChangeNotifier = UserBoxChangeNotifier();
+  late ChatBoxChangeNotifier chatBoxChangeNotifier;
 
   bool tileBoxVisible = false;
 
@@ -54,6 +55,9 @@ class ChatBoxState extends State<ChatBox> {
 
   @override
   void initState() {
+    chatBoxChangeNotifier = ChatBoxChangeNotifier();
+    chatBoxChangeNotifier.addListener(chatBoxChangeListener);
+
     chatMessages = ChatMessages();
     socket.checkMessages(chatMessages);
     socket.addListener(socketListener);
@@ -62,6 +66,24 @@ class ChatBoxState extends State<ChatBox> {
     _dropdownMenuItems = buildDropdownMenuItems(_regions);
     _selectedChatRegion = _dropdownMenuItems[0].value!;
     super.initState();
+  }
+
+  chatBoxChangeListener() {
+    if (mounted) {
+      if (!tileBoxVisible && chatBoxChangeNotifier.getChatBoxVisible()) {
+        setState(() {
+          if (chatBoxChangeNotifier.getChatUser() != null) {
+            userInteraction(true, chatBoxChangeNotifier.getChatUser()!);
+          }
+          tileBoxVisible = true;
+        });
+      }
+      if (tileBoxVisible && !chatBoxChangeNotifier.getChatBoxVisible()) {
+        setState(() {
+          tileBoxVisible = false;
+        });
+      }
+    }
   }
 
   List<DropdownMenuItem<RegionData>> buildDropdownMenuItems(List regions) {
@@ -176,6 +198,7 @@ class ChatBoxState extends State<ChatBox> {
                 tooltip: 'Hide chat',
                 onPressed: () {
                   setState(() {
+                    _selectedChatRegion = _dropdownMenuItems[0].value!;
                     tileBoxVisible = !tileBoxVisible;
                   });
                 },
@@ -501,16 +524,16 @@ class MessageTileState extends State<MessageTile> {
     return Material(
       color: Colors.transparent,
       child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-              width: MediaQuery.of(context).size.width,
-              alignment: Alignment.bottomLeft,
-              child: Container(
-                  child: getMessageContent()
-              ),
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            width: MediaQuery.of(context).size.width,
+            alignment: Alignment.bottomLeft,
+            child: Container(
+                child: getMessageContent()
             ),
-          ]
+          ),
+        ]
       ),
     );
   }
