@@ -49,6 +49,7 @@ dependencies:
   image: ^4.0.6
   file_picker: ^5.2.7
   isolated_worker: ^0.1.1
+  dropdown_button2: ^1.0.0
 
 dev_dependencies:
   flutter_test:

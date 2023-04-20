@@ -2,6 +2,7 @@ import 'package:age_of_gold/age_of_gold.dart';
 import 'package:age_of_gold/util/render_objects.dart';
 import 'package:age_of_gold/util/util.dart';
 import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/chat_box_change_notifier.dart';
+import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/send_message_box_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/user_box_change_notifier.dart';
 import 'package:flutter/material.dart';
 
@@ -64,6 +65,22 @@ class UserBoxState extends State<UserBox> with TickerProviderStateMixin {
     widget.game.userBoxFocus(_focusUserBox.hasFocus);
   }
 
+  sendMessage() {
+    print("send message");
+    setState(() {
+      SendMessageBoxChangeNotifier().setToUser(userBoxChangeNotifier.getUser());
+      SendMessageBoxChangeNotifier().setSendMessageBoxVisible(true);
+    });
+  }
+
+  whisperUser() {
+    setState(() {
+      ChatBoxChangeNotifier chatBoxChangeNotifier = ChatBoxChangeNotifier();
+      chatBoxChangeNotifier.setChatUser(userBoxChangeNotifier.getUser()!.getUserName());
+      chatBoxChangeNotifier.setChatBoxVisible(true);
+    });
+  }
+
   Widget userHeader() {
     return Align(
       alignment: Alignment.topRight,
@@ -113,12 +130,7 @@ class UserBoxState extends State<UserBox> with TickerProviderStateMixin {
       height: buttonHeight,
       child: ElevatedButton(
         onPressed: () {
-          print("Whisper user");
-          setState(() {
-            ChatBoxChangeNotifier chatBoxChangeNotifier = ChatBoxChangeNotifier();
-            chatBoxChangeNotifier.setChatUser(userBoxChangeNotifier.getUser()!.getUserName());
-            chatBoxChangeNotifier.setChatBoxVisible(true);
-          });
+          whisperUser();
         },
         style: buttonStyle(false, Colors.blue),
         child: Container(
@@ -138,7 +150,7 @@ class UserBoxState extends State<UserBox> with TickerProviderStateMixin {
       height: buttonHeight,
       child: ElevatedButton(
         onPressed: () {
-          print("message user");
+          sendMessage();
         },
         style: buttonStyle(false, Colors.blue),
         child: Container(
@@ -236,8 +248,8 @@ class UserBoxState extends State<UserBox> with TickerProviderStateMixin {
 
     return Container(
       padding: EdgeInsets.only(left: 10, right: 10),
-      width: 700,
-      height: 540,
+      width: width,
+      height: height,
       color: Colors.grey,
       child: normalMode
           ? userBoxNormal(width, height, fontSize)

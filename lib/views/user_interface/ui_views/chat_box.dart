@@ -7,6 +7,7 @@ import 'package:age_of_gold/views/user_interface/ui_function/user_interface_comp
 import 'package:age_of_gold/views/user_interface/ui_function/user_interface_components/message.dart';
 import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/chat_box_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/user_box_change_notifier.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -42,11 +43,12 @@ class ChatBoxState extends State<ChatBox> {
 
   bool tileBoxVisible = false;
 
-  final List<RegionData> _regions = RegionData.getRegions();
-  late List<DropdownMenuItem<RegionData>> _dropdownMenuItems;
-  late RegionData _selectedChatRegion;
+  // final List<RegionData> _regions = RegionData.getRegions();
+  List<ChatData> _regions = [];
+  late List<DropdownMenuItem<ChatData>> _dropdownMenuItems;
+  ChatData? _selectedChatData;
 
-  String activateTab = "Chat";
+  String activateTab = "World";
 
   int currentHexQ = 0;
   int currentHexR = 0;
@@ -63,10 +65,14 @@ class ChatBoxState extends State<ChatBox> {
     socket.addListener(socketListener);
     _focusChatBox.addListener(_onFocusChange);
 
+    // populate chatData with guilds or friends?
+    ChatData chatData = ChatData(0, "No Channels Found!");
+    _regions.add(chatData);
     _dropdownMenuItems = buildDropdownMenuItems(_regions);
-    _selectedChatRegion = _dropdownMenuItems[0].value!;
+    // _selectedChatData = _dropdownMenuItems[0].value!;
     super.initState();
   }
+
 
   chatBoxChangeListener() {
     if (mounted) {
@@ -74,6 +80,7 @@ class ChatBoxState extends State<ChatBox> {
         setState(() {
           if (chatBoxChangeNotifier.getChatUser() != null) {
             userInteraction(true, chatBoxChangeNotifier.getChatUser()!);
+            activateTab = "Personal";
           }
           tileBoxVisible = true;
         });
@@ -86,27 +93,26 @@ class ChatBoxState extends State<ChatBox> {
     }
   }
 
-  List<DropdownMenuItem<RegionData>> buildDropdownMenuItems(List regions) {
-    List<DropdownMenuItem<RegionData>> items = [];
-    for (RegionData regionData in regions) {
+  List<DropdownMenuItem<ChatData>> buildDropdownMenuItems(List regions) {
+    List<DropdownMenuItem<ChatData>> items = [];
+    for (ChatData chatData in regions) {
       Color dropDownColour = Colors.white;
-      if (regionData.type == 1) {
+      if (chatData.type == 1) {
         dropDownColour = Colors.orange.shade300;
-      } else if (regionData.type == 2) {
+      } else if (chatData.type == 2) {
         dropDownColour = Colors.green.shade300;
-      } else if (regionData.type == 3) {
+      } else if (chatData.type == 3) {
         dropDownColour = Colors.purpleAccent.shade200;
       }
       items.add(
         DropdownMenuItem(
-          value: regionData,
+          value: chatData,
           child: Container(
-            padding: const EdgeInsets.all(8.0),
             child: Row(
               children: [
                 Expanded(child:
                   Text(
-                    regionData.name,
+                    chatData.name,
                     style: TextStyle(
                         color: dropDownColour,
                         fontSize: 15
@@ -155,6 +161,7 @@ class ChatBoxState extends State<ChatBox> {
         if (tabName != activateTab) {
           setState(() {
             activateTab = tabName;
+            _selectedChatData = null;
           });
         }
       },
@@ -162,6 +169,45 @@ class ChatBoxState extends State<ChatBox> {
       child: Container(
         width: 50,
         child: Text(tabName),
+      ),
+    );
+  }
+
+  Widget showOrHideChatBox() {
+    return tileBoxVisible
+        ? IconButton(
+      icon: const Icon(Icons.keyboard_double_arrow_down),
+      color: Colors.white,
+      tooltip: 'Hide chat',
+      onPressed: () {
+        setState(() {
+          // TODO: select nothing when hiding chat box
+          // _selectedChatData = _dropdownMenuItems[0].value!;
+          tileBoxVisible = !tileBoxVisible;
+        });
+      },
+    )
+        : IconButton(
+      icon: const Icon(Icons.keyboard_double_arrow_up),
+      color: Colors.white,
+      tooltip: 'Show chat',
+      onPressed: () {
+        setState(() {
+          tileBoxVisible = !tileBoxVisible;
+        });
+      },
+    );
+  }
+
+  Widget chatDropDownRegionTopBar() {
+    return Container(
+      padding: EdgeInsets.only(left: 5, right: 5),
+      child: GestureDetector(
+        child: Container(
+          height: 34,
+          width: 120,
+          child: chatDropDownRegion(),
+        ),
       ),
     );
   }
@@ -176,43 +222,11 @@ class ChatBoxState extends State<ChatBox> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Container(
-              width: topBarHeight,
-              height: topBarHeight,
-              child: IconButton(
-                icon: const Icon(Icons.email_outlined),
-                tooltip: 'Open chat details',
-                onPressed: () {
-                  print("pressed");
-                },
-              ),
-            ),
-            tileBoxVisible ? chatTab("Chat") : Container(),
+            SizedBox(),
+            tileBoxVisible ? chatTab("World") : Container(),
             tileBoxVisible ? chatTab("Events") : Container(),
-            Container(
-              width: topBarHeight,
-              height: topBarHeight,
-              child: tileBoxVisible ? IconButton(
-                icon: const Icon(Icons.keyboard_double_arrow_down),
-                color: Colors.white,
-                tooltip: 'Hide chat',
-                onPressed: () {
-                  setState(() {
-                    _selectedChatRegion = _dropdownMenuItems[0].value!;
-                    tileBoxVisible = !tileBoxVisible;
-                  });
-                },
-              ) : IconButton(
-                icon: const Icon(Icons.keyboard_double_arrow_up),
-                color: Colors.white,
-                tooltip: 'Show chat',
-                onPressed: () {
-                  setState(() {
-                    tileBoxVisible = !tileBoxVisible;
-                  });
-                },
-              )
-            )
+            tileBoxVisible ? chatDropDownRegionTopBar() : Container(),
+            showOrHideChatBox()
           ],
         ),
       ),
@@ -226,7 +240,7 @@ class ChatBoxState extends State<ChatBox> {
       chatBoxWidth = MediaQuery.of(context).size.width;
     }
 
-    double topBarHeight = 40; // always visible
+    double topBarHeight = 34; // always visible
     double messageBoxHeight = 300;
     double chatTextFieldHeight = 60;
     double alwaysVisibleHeight = topBarHeight;
@@ -267,15 +281,13 @@ class ChatBoxState extends State<ChatBox> {
   sendMessage(String message) {
     if (_chatFormKey.currentState!.validate()) {
       String? toUser;
-      if (_selectedChatRegion.type == 0) {
+      if (activateTab == "World") {
         AuthServiceMessage().sendMessageChatGlobal(message);
-      } else if (_selectedChatRegion.type == 1) {
-        AuthServiceMessage().sendMessageChatLocal(message, currentHexQ, currentHexR, currentTileQ, currentTileR);
-      } else if (_selectedChatRegion.type == 2) {
-        AuthServiceMessage().sendMessageChatGuild(message, "TODO");
-      } else if (_selectedChatRegion.type == 3) {
-        toUser = _selectedChatRegion.name;
-        AuthServiceMessage().sendMessageChatPersonal(message, toUser);
+      } else if (activateTab == "Personal") {
+        if (_selectedChatData != null) {
+          toUser = _selectedChatData!.name;
+          AuthServiceMessage().sendMessageChatPersonal(message, toUser);
+        }
       }
       chatFieldController.text = "";
     }
@@ -290,18 +302,8 @@ class ChatBoxState extends State<ChatBox> {
         color: Colors.black.withOpacity(0.7),
         child: Row(
             children: [
-              Container(
-                padding: EdgeInsets.only(right: regionSpacing),
-                child: GestureDetector(
-                  child: Container(
-                    height: 40,
-                    width: regionSelectedWidth,
-                    child: chatDropDownRegion(),
-                  ),
-                ),
-              ),
               SizedBox(
-                width: chatBoxWidth - regionSelectedWidth - sendButtonWidth - regionSpacing,
+                width: chatBoxWidth - sendButtonWidth - regionSpacing,
                 height: chatTextFieldHeight,
                 child: Form(
                   key: _chatFormKey,
@@ -360,21 +362,39 @@ class ChatBoxState extends State<ChatBox> {
             width: 2,
           ),
       ),
-      child: DropdownButton(
-        value: _selectedChatRegion,
-        items: _dropdownMenuItems,
-        onChanged: onChangeDropdownItem,
-        underline: Container(),
-        isExpanded: true,
-        iconSize: 0.0,
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton2(
+          value: _selectedChatData,
+          disabledHint: null,
+          items: _dropdownMenuItems,
+          dropdownWidth: 300,
+          onChanged: onChangeDropdownItem,
+          hint: RichText(
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            text: TextSpan(
+              text: "Chats",
+              style: TextStyle(
+                color: Colors.white,
+              ),
+            ),
+          ),
+          isExpanded: true,
+          iconSize: 0.0,
+        ),
       ),
     );
   }
 
-  onChangeDropdownItem(RegionData? selectedRegion) {
+  onChangeDropdownItem(ChatData? selectedChat) {
     setState(() {
-      if (selectedRegion != null) {
-        _selectedChatRegion = selectedRegion;
+      if (selectedChat != null) {
+        // There is a placeholder text when there are no chats active
+        // If the user decides to click this anyway it will do nothing
+        if (selectedChat.name != "No Channels Found!") {
+          _selectedChatData = selectedChat;
+          activateTab = "Personal";
+        }
       }
     });
   }
@@ -394,7 +414,6 @@ class ChatBoxState extends State<ChatBox> {
           return MessageTile(
             key: UniqueKey(),
             message: messages[reversedIndex],
-            region: _selectedChatRegion.name,
             userInteraction: userInteraction,
           );
         })
@@ -413,23 +432,22 @@ class ChatBoxState extends State<ChatBox> {
       bool exists = false;
       for (int i = 0; i < _regions.length; i++) {
         if (_regions[i].name == userName) {
-          _selectedChatRegion = _dropdownMenuItems[i].value!;
+          _selectedChatData = _dropdownMenuItems[i].value!;
           exists = true;
         }
       }
       if (!exists) {
-        RegionData newRegionData = RegionData(3, userName);
-        // probably not needed
-        _regions.add(newRegionData);
-        DropdownMenuItem<RegionData> newDropDownItem = DropdownMenuItem(
-          value: newRegionData,
+        ChatData newChatData = ChatData(3, userName);
+        _regions.add(newChatData);
+        DropdownMenuItem<ChatData> newDropDownItem = DropdownMenuItem(
+          value: newChatData,
           child: Container(
             padding: const EdgeInsets.all(8.0),
             child: Row(
               children: [
                 Expanded(
                   child: Text(
-                    newRegionData.name,
+                    newChatData.name,
                     overflow: TextOverflow.fade,
                     maxLines: 1,
                     softWrap: false,
@@ -444,7 +462,13 @@ class ChatBoxState extends State<ChatBox> {
           ),
         );
         _dropdownMenuItems.add(newDropDownItem);
-        _selectedChatRegion = _dropdownMenuItems.last.value!;
+        _selectedChatData = _dropdownMenuItems.last.value!;
+        // Check if the placeholder "No Channels Found!" is in the list and remove it.
+        if (_dropdownMenuItems.length > 1) {
+          if (_dropdownMenuItems[0].value!.name == "No Channels Found!") {
+            _dropdownMenuItems.removeAt(0);
+          }
+        }
       }
       setState(() {});
     } else {
@@ -463,14 +487,12 @@ class ChatBoxState extends State<ChatBox> {
 
 class MessageTile extends StatefulWidget {
   final Message message;
-  final String region;
   final Function(bool, String) userInteraction;
 
   const MessageTile(
       {
         required Key key,
         required this.message,
-        required this.region,
         required this.userInteraction
       })
       : super(key: key);
@@ -581,21 +603,11 @@ class MessageTileState extends State<MessageTile> {
   }
 }
 
-class RegionData {
+class ChatData {
   int type;
   String name;
 
-  RegionData(this.type, this.name);
-
-  // The idea is that besides global
-  // you will have recently whispered users and clans added in the dropdown
-  static List<RegionData> getRegions() {
-    return <RegionData>[
-      RegionData(0, "Global"),
-      RegionData(1, "Local"),
-      RegionData(2, "Guild"),  // TODO: only make visible when in a guild
-    ];
-  }
+  ChatData(this.type, this.name);
 }
 
 class ChatDetailPopup extends PopupMenuEntry<int> {

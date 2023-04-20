@@ -8,6 +8,7 @@ import 'package:age_of_gold/constants/route_paths.dart' as routes;
 import 'package:age_of_gold/views/home_page.dart';
 import 'package:age_of_gold/views/password_reset_page.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/change_avatar_box.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/send_message_box.dart';
 import 'package:age_of_gold/views/world_access_page.dart';
 import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
@@ -50,6 +51,7 @@ Future<void> main() async {
           'userBox': _userBoxBuilder,
           'changeAvatar': _changeAvatarBoxBuilder,
           'loadingBox': _loadingBoxBuilder,
+          'sendMessage': _sendMessageBoxBuilder,
         },
         initialActiveOverlays: const [
           'chatBox',
@@ -59,6 +61,7 @@ Future<void> main() async {
           'userBox',
           'changeAvatar',
           'loadingBox',
+          'sendMessage',
         ],
       )
   );
@@ -153,4 +156,8 @@ Widget _changeAvatarBoxBuilder(BuildContext buildContext, AgeOfGold game) {
 
 Widget _loadingBoxBuilder(BuildContext buildContext, AgeOfGold game) {
   return LoadingBox(key: UniqueKey(), game: game);
+}
+
+Widget _sendMessageBoxBuilder(BuildContext buildContext, AgeOfGold game) {
+  return SendMessageBox(key: UniqueKey(), game: game);
 }
