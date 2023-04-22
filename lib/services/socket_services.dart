@@ -133,7 +133,12 @@ class SocketServices extends ChangeNotifier {
     });
   }
 
+  bool joinedChatRooms = false;
   void checkMessages(ChatMessages chatMessages) {
+    if (joinedChatRooms) {
+      return;
+    }
+    joinedChatRooms = true;
     this.chatMessages = chatMessages;
     socket.on('send_message_global', (data) {
       String from = data["user_name"];
@@ -156,15 +161,20 @@ class SocketServices extends ChangeNotifier {
       notifyListeners();
     });
     socket.on('send_message_personal', (data) {
-      String from = data["user_name"];
+      String from = data["from_user"];
+      String to = data["to_user"];
       String message = data["message"];
-      receivedMessage(from, message, 3);
+      receivedMessagePersonal(from, to, message);
       notifyListeners();
     });
   }
 
   void receivedMessage(String from, String message, int regionType) {
     chatMessages.addMessage(from, message, regionType);
+  }
+
+  void receivedMessagePersonal(String from, String to, String message) {
+    chatMessages.addPersonalMessage(from, to, message);
   }
 
   void receivedMessageLocal(String from, String message, int regionType, String tileQ, String tileR) {

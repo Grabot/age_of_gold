@@ -1,4 +1,5 @@
 import 'package:age_of_gold/age_of_gold.dart';
+import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/util/render_objects.dart';
 import 'package:age_of_gold/util/util.dart';
 import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/chat_box_change_notifier.dart';
@@ -26,6 +27,9 @@ class UserBoxState extends State<UserBox> with TickerProviderStateMixin {
   bool showUser = false;
 
   late UserBoxChangeNotifier userBoxChangeNotifier;
+
+  bool isMe = false;
+
   @override
   void initState() {
     userBoxChangeNotifier = UserBoxChangeNotifier();
@@ -43,6 +47,11 @@ class UserBoxState extends State<UserBox> with TickerProviderStateMixin {
   userBoxChangeListener() {
     if (mounted) {
       if (!showUser && userBoxChangeNotifier.getUserBoxVisible()) {
+        if (Settings().getUser()!.getUserName() == userBoxChangeNotifier.getUser()!.getUserName()) {
+          isMe = true;
+        } else {
+          isMe = false;
+        }
         setState(() {
           showUser = true;
         });
@@ -184,15 +193,31 @@ class UserBoxState extends State<UserBox> with TickerProviderStateMixin {
     );
   }
 
-  Widget userSocialBox() {
-    return Column(
-      children: [
-        whisperUserButton(200, 40, 16),
-        SizedBox(height: 10),
-        messageUserButton(200, 40, 16),
-        SizedBox(height: 10),
-        addFriendButton(200, 40, 16),
-      ],
+  Widget userSocialBox(double userSocialBoxWidth) {
+    return Container(
+      width: userSocialBoxWidth,
+      child: Column(
+        children: [
+          whisperUserButton(userSocialBoxWidth, 40, 16),
+          SizedBox(height: 10),
+          messageUserButton(userSocialBoxWidth, 40, 16),
+          SizedBox(height: 10),
+          addFriendButton(userSocialBoxWidth, 40, 16),
+        ],
+      ),
+    );
+  }
+
+  Widget userSocialBoxMe(double userSocialBoxWidth) {
+    return Container(
+      width: userSocialBoxWidth,
+      child: Align(
+        alignment: Alignment.center,
+        child: Text(
+          "This is You!",
+          style: simpleTextStyle(16),
+        ),
+      ),
     );
   }
 
@@ -214,7 +239,7 @@ class UserBoxState extends State<UserBox> with TickerProviderStateMixin {
         avatarOverview(),
         Row(
           children: [
-            userSocialBox(),
+            !isMe ? userSocialBox(200) : userSocialBoxMe(200),
             scoreBox(),
           ],
         )
@@ -227,7 +252,7 @@ class UserBoxState extends State<UserBox> with TickerProviderStateMixin {
       children: [
         userHeader(),
         avatarOverview(),
-        userSocialBox(),
+        !isMe ? userSocialBox(userBoxWidth) : userSocialBoxMe(userBoxWidth),
         scoreBox(),
       ],
     );

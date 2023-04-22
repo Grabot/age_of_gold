@@ -34,6 +34,7 @@ class Settings extends ChangeNotifier {
   }
 
   logout() {
+    // TODO: clear messages?
     accessToken = "";
     refreshToken = "";
     accessTokenExpiration = 0;

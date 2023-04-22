@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import 'message.dart';
 import 'messages/event_message.dart';
 import 'messages/guild_message.dart';
@@ -6,7 +8,7 @@ import 'messages/local_message.dart';
 import 'messages/personal_message.dart';
 
 
-class ChatMessages {
+class ChatMessages extends ChangeNotifier {
   List<Message> chatMessages = [];
   List<EventMessage> eventMessages = [];
 
@@ -23,8 +25,18 @@ class ChatMessages {
   initializeChatMessages() {
     DateTime currentTime = DateTime.now();
     String message = "Welcome to the Age of Gold chat!";
-    Message newMessage = Message(1, "Server", message, false, currentTime);
+    Message newMessage = Message(1, "Server", message, false, currentTime, true);
     chatMessages.add(newMessage);
+    String messageEvent = "Here you can see any event that happened in your view!";
+    EventMessage newEventMessage = EventMessage(1, "Server", messageEvent, false, currentTime, true);
+    eventMessages.add(newEventMessage);
+  }
+
+  addPersonalMessage(String from, String to, String message) {
+    DateTime currentTime = DateTime.now();
+    Message newMessage = PersonalMessage(1, from, message, false, currentTime, false, to);
+    chatMessages.add(newMessage);
+    notifyListeners();
   }
 
   addMessage(String userName, String message, int regionType) {
@@ -34,20 +46,28 @@ class ChatMessages {
     // functionally work different, but for now see them as placeholders
     // TODO: what to do with id's? Use them or remove them?
     if (regionType == 1) {
-      newMessage = LocalMessage(1, userName, message, false, currentTime);
+      newMessage = LocalMessage(1, userName, message, false, currentTime, false);
     } else if (regionType == 2) {
-      newMessage = GuildMessage(1, userName, message, false, currentTime);
-    } else if (regionType == 3) {
-      newMessage = PersonalMessage(1, userName, message, false, currentTime);
+      newMessage = GuildMessage(1, userName, message, false, currentTime, false);
     } else {
-      newMessage = GlobalMessage(1, userName, message, false, currentTime);
+      newMessage = GlobalMessage(1, userName, message, false, currentTime, false);
     }
     chatMessages.add(newMessage);
+    notifyListeners();
+  }
+
+  List<Message> getMessagesFromUser(String senderName, String me) {
+    List<PersonalMessage> personalMessages = chatMessages.whereType<PersonalMessage>().toList();
+    return personalMessages.where((message) =>
+          (message.senderName == senderName && message.to == me)
+        || (message.senderName == me && message.to == senderName)
+    ).toList();
   }
 
   addEventMessage(String message) {
     DateTime currentTime = DateTime.now();
-    EventMessage newMessage = EventMessage(1, "Server", message, false, currentTime);
+    EventMessage newMessage = EventMessage(1, "Server", message, false, currentTime, false);
     eventMessages.add(newMessage);
+    notifyListeners();
   }
 }

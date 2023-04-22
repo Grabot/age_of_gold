@@ -5,6 +5,8 @@ import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/util/util.dart';
 import 'package:age_of_gold/views/user_interface/ui_function/user_interface_components/chat_messages.dart';
 import 'package:age_of_gold/views/user_interface/ui_function/user_interface_components/message.dart';
+import 'package:age_of_gold/views/user_interface/ui_function/user_interface_components/messages/event_message.dart';
+import 'package:age_of_gold/views/user_interface/ui_function/user_interface_components/messages/personal_message.dart';
 import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/chat_box_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/user_box_change_notifier.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
@@ -50,6 +52,7 @@ class ChatBoxState extends State<ChatBox> {
 
   String activateTab = "World";
 
+  // TODO: Will the "local" chat option remain? This can be removed if not.
   int currentHexQ = 0;
   int currentHexR = 0;
   int currentTileQ = 0;
@@ -61,18 +64,147 @@ class ChatBoxState extends State<ChatBox> {
     chatBoxChangeNotifier.addListener(chatBoxChangeListener);
 
     chatMessages = ChatMessages();
+    chatMessages.addListener(newMessageListener);
     socket.checkMessages(chatMessages);
     socket.addListener(socketListener);
     _focusChatBox.addListener(_onFocusChange);
 
     // populate chatData with guilds or friends?
-    ChatData chatData = ChatData(0, "No Channels Found!");
+    ChatData chatData = ChatData(0, "No Channels Found!", false);
     _regions.add(chatData);
     _dropdownMenuItems = buildDropdownMenuItems(_regions);
-    // _selectedChatData = _dropdownMenuItems[0].value!;
     super.initState();
   }
 
+  newDropDownItem(ChatData newChatData) {
+    return DropdownMenuItem(
+      value: newChatData,
+      child: Container(
+        padding: const EdgeInsets.only(left: 6.0),
+        child: Row(
+          children: [
+            newChatData.unreadMessages ? Text("! ") : Text("  "),
+            Expanded(
+              child: Text(
+                newChatData.name,
+                overflow: TextOverflow.fade,
+                maxLines: 1,
+                softWrap: false,
+                style: TextStyle(
+                    color: Colors.purpleAccent.shade200,
+                    fontSize: 16
+                ),
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  removeUnreadPersonalMessage(ChatData removeUnreadMessage) {
+
+    DropdownMenuItem<ChatData>? messageDropDown;
+    for (DropdownMenuItem<ChatData> dropdownMenuItem in _dropdownMenuItems) {
+      if (dropdownMenuItem.value!.name == removeUnreadMessage.name) {
+        messageDropDown = dropdownMenuItem;
+      }
+    }
+    if (messageDropDown != null) {
+      ChatData newChatData = ChatData(removeUnreadMessage.type, removeUnreadMessage.name, false);
+      DropdownMenuItem<ChatData> newMessageDropDown = newDropDownItem(newChatData);
+      // add the new objects to their lists
+      _regions.add(newChatData);
+      _dropdownMenuItems.add(newMessageDropDown);
+
+      if (_selectedChatData == removeUnreadMessage) {
+        _selectedChatData = newChatData;
+      }
+      // remove the old objects from their lists
+      _regions.remove(removeUnreadMessage);
+      _dropdownMenuItems.remove(messageDropDown);
+    }
+  }
+
+  checkForUnreadPersonalMessages(PersonalMessage lastMessage) {
+    // If the Chatbox is open but they get a personal message,
+    // show the indicator within the dropdown menu from who it was.
+    // Not sure why, but the only way I got it too work was to find
+    // both the objects in the regions and dropdownmenuitems and clone them.
+    // After that remove the old objects and add the cloned objects
+    // to the list with the correct boolean set.
+    ChatData? messageChat;
+    for (ChatData chatData in _regions) {
+      if (chatData.name == lastMessage.senderName) {
+        messageChat = chatData;
+      }
+    }
+    DropdownMenuItem<ChatData>? messageDropDown;
+    for (DropdownMenuItem<ChatData> dropdownMenuItem in _dropdownMenuItems) {
+      if (dropdownMenuItem.value!.name == lastMessage.senderName) {
+        messageDropDown = dropdownMenuItem;
+      }
+    }
+    if (messageChat != null && messageDropDown != null) {
+      if (_selectedChatData != messageChat) {
+        ChatData newChatData = ChatData(
+            messageChat.type, messageChat.name, true);
+        DropdownMenuItem<ChatData> newMessageDropDown = newDropDownItem(
+            newChatData);
+        // add the new objects to their lists
+        _regions.add(newChatData);
+        _dropdownMenuItems.add(newMessageDropDown);
+
+        if (_selectedChatData == messageChat) {
+          _selectedChatData = newChatData;
+        }
+        // remove the old objects from their lists
+        _regions.remove(messageChat);
+        _dropdownMenuItems.remove(messageDropDown);
+      }
+    } else {
+      // if the dropdown item is not present yet create it with unread messages
+      // As long as it is not the current user. or if the chatbox is open on this chatbox
+      if (Settings().getUser()!.getUserName() != lastMessage.senderName) {
+        ChatData newChatData = ChatData(3, lastMessage.senderName, true);
+        DropdownMenuItem<ChatData> newMessageDropDown = newDropDownItem(
+            newChatData);
+        _regions.add(newChatData);
+        _dropdownMenuItems.add(newMessageDropDown);
+        removePlaceholder();
+      }
+    }
+  }
+
+  bool unreadWorldMessages = false;
+  bool unreadEventMessages = false;
+  newMessageListener() {
+    print("new message!");
+    if (mounted) {
+      Message lastMessage = chatMessages.chatMessages.last;
+      EventMessage eventMessage = chatMessages.eventMessages.last;
+
+      if (lastMessage is PersonalMessage && !lastMessage.read) {
+        checkForUnreadPersonalMessages(lastMessage);
+      }
+
+      if (tileBoxVisible) {
+        unreadWorldMessages = false;
+        unreadEventMessages = false;
+        lastMessage.read = true;
+        eventMessage.read = true;
+      } else {
+        if (!lastMessage.read) {
+          unreadWorldMessages = true;
+        }
+        if (!eventMessage.read) {
+          unreadEventMessages = true;
+        }
+      }
+      // TODO: personal chat message indicators?
+      setState(() {});
+    }
+  }
 
   chatBoxChangeListener() {
     if (mounted) {
@@ -90,6 +222,12 @@ class ChatBoxState extends State<ChatBox> {
           tileBoxVisible = false;
         });
       }
+      if (tileBoxVisible && chatBoxChangeNotifier.getChatUser() != null) {
+        // The user has selected a user to whisper. Change to that chat.
+        userInteraction(true, chatBoxChangeNotifier.getChatUser()!);
+        activateTab = "Personal";
+        _focusChatBox.requestFocus();
+      }
     }
   }
 
@@ -104,26 +242,7 @@ class ChatBoxState extends State<ChatBox> {
       } else if (chatData.type == 3) {
         dropDownColour = Colors.purpleAccent.shade200;
       }
-      items.add(
-        DropdownMenuItem(
-          value: chatData,
-          child: Container(
-            child: Row(
-              children: [
-                Expanded(child:
-                  Text(
-                    chatData.name,
-                    style: TextStyle(
-                        color: dropDownColour,
-                        fontSize: 15
-                    ),
-                  )
-                )
-              ],
-            ),
-          ),
-        ),
-      );
+      items.add(newDropDownItem(chatData));
     }
     return items;
   }
@@ -153,7 +272,7 @@ class ChatBoxState extends State<ChatBox> {
     super.dispose();
   }
 
-  Widget chatTab(String tabName) {
+  Widget chatTab(String tabName, bool hasUnreadMessages) {
     bool buttonActive = activateTab == tabName;
 
     return ElevatedButton(
@@ -166,11 +285,28 @@ class ChatBoxState extends State<ChatBox> {
         }
       },
       style: buttonStyle(buttonActive, Colors.green),
-      child: Container(
-        width: 50,
-        child: Text(tabName),
+      child: Row(
+        children: [
+          hasUnreadMessages ? Text("!  ") : Text("   "),
+          Container(
+            width: 50,
+            child: Text(tabName),
+          ),
+        ]
       ),
     );
+  }
+
+  readMessages() {
+    if (activateTab == "World") {
+      unreadWorldMessages = false;
+      // We only set the last one to true,
+      // since that's the one we use to determine if there are unread messages
+      chatMessages.chatMessages.last.read = true;
+    } else if (activateTab == "Event") {
+      unreadEventMessages = false;
+      chatMessages.eventMessages.last.read = true;
+    }
   }
 
   Widget showOrHideChatBox() {
@@ -181,8 +317,8 @@ class ChatBoxState extends State<ChatBox> {
       tooltip: 'Hide chat',
       onPressed: () {
         setState(() {
-          // TODO: select nothing when hiding chat box
-          // _selectedChatData = _dropdownMenuItems[0].value!;
+          _selectedChatData = null;
+          activateTab = "World";
           tileBoxVisible = !tileBoxVisible;
         });
       },
@@ -193,6 +329,7 @@ class ChatBoxState extends State<ChatBox> {
       tooltip: 'Show chat',
       onPressed: () {
         setState(() {
+          readMessages();
           tileBoxVisible = !tileBoxVisible;
         });
       },
@@ -212,6 +349,18 @@ class ChatBoxState extends State<ChatBox> {
     );
   }
 
+  Widget chatTabWorld() {
+    return chatTab("World", unreadWorldMessages);
+  }
+
+  Widget chatTabEvents() {
+    return chatTab("Events", unreadEventMessages);
+  }
+
+  Widget chatTabChats() {
+    return chatDropDownRegionTopBar();
+  }
+
   Widget topBar(double chatBoxWidth, double topBarHeight) {
     return Container(
       width: chatBoxWidth,
@@ -223,9 +372,9 @@ class ChatBoxState extends State<ChatBox> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             SizedBox(),
-            tileBoxVisible ? chatTab("World") : Container(),
-            tileBoxVisible ? chatTab("Events") : Container(),
-            tileBoxVisible ? chatDropDownRegionTopBar() : Container(),
+            chatTabWorld(),
+            chatTabEvents(),
+            chatTabChats(),
             showOrHideChatBox()
           ],
         ),
@@ -351,7 +500,9 @@ class ChatBoxState extends State<ChatBox> {
     }
   }
 
+
   Widget chatDropDownRegion() {
+    String hintText = _regions.any((element) => element.unreadMessages) ? "! Chats" : "Chats";
     Color dropDownColour = Colors.white;
     return Container(
       decoration: BoxDecoration(
@@ -369,13 +520,16 @@ class ChatBoxState extends State<ChatBox> {
           items: _dropdownMenuItems,
           dropdownWidth: 300,
           onChanged: onChangeDropdownItem,
-          hint: RichText(
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            text: TextSpan(
-              text: "Chats",
-              style: TextStyle(
-                color: Colors.white,
+          hint: Container(
+            padding: EdgeInsets.only(left: 15),
+            child: RichText(
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              text: TextSpan(
+                text: hintText,
+                style: TextStyle(
+                  color: Colors.white,
+                ),
               ),
             ),
           ),
@@ -393,6 +547,7 @@ class ChatBoxState extends State<ChatBox> {
         // If the user decides to click this anyway it will do nothing
         if (selectedChat.name != "No Channels Found!") {
           _selectedChatData = selectedChat;
+          removeUnreadPersonalMessage(selectedChat);
           activateTab = "Personal";
         }
       }
@@ -403,6 +558,13 @@ class ChatBoxState extends State<ChatBox> {
     List<Message> messages = chatMessages.chatMessages;
     if (isEvent) {
       messages = chatMessages.eventMessages;
+    } else {
+      if (_selectedChatData != null) {
+        messages = chatMessages.getMessagesFromUser(
+            _selectedChatData!.name,
+            Settings().getUser()!.getUserName()
+        );
+      }
     }
     return messages.isNotEmpty && tileBoxVisible
         ? ListView.builder(
@@ -425,6 +587,20 @@ class ChatBoxState extends State<ChatBox> {
     return chatBoxWidget();
   }
 
+  removePlaceholder() {
+    // Check if the placeholder "No Channels Found!" is in the list and remove it.
+    if (_dropdownMenuItems.length > 1) {
+      if (_dropdownMenuItems[0].value!.name == "No Channels Found!") {
+        _dropdownMenuItems.removeAt(0);
+      }
+    }
+    if (_regions.length > 1) {
+      if (_regions[0].name == "No Channels Found!") {
+        _regions.removeAt(0);
+      }
+    }
+  }
+
   userInteraction(bool message, String userName) {
     if (message) {
       // message the user
@@ -433,43 +609,21 @@ class ChatBoxState extends State<ChatBox> {
       for (int i = 0; i < _regions.length; i++) {
         if (_regions[i].name == userName) {
           _selectedChatData = _dropdownMenuItems[i].value!;
+          removeUnreadPersonalMessage(_dropdownMenuItems[i].value!);
           exists = true;
         }
       }
       if (!exists) {
-        ChatData newChatData = ChatData(3, userName);
+        ChatData newChatData = ChatData(3, userName, false);
         _regions.add(newChatData);
-        DropdownMenuItem<ChatData> newDropDownItem = DropdownMenuItem(
-          value: newChatData,
-          child: Container(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    newChatData.name,
-                    overflow: TextOverflow.fade,
-                    maxLines: 1,
-                    softWrap: false,
-                    style: TextStyle(
-                        color: Colors.purpleAccent.shade200,
-                        fontSize: 15
-                    ),
-                  ),
-                )
-              ],
-            ),
-          ),
-        );
-        _dropdownMenuItems.add(newDropDownItem);
+        DropdownMenuItem<ChatData> dropDownItem = newDropDownItem(newChatData);
+        _dropdownMenuItems.add(dropDownItem);
         _selectedChatData = _dropdownMenuItems.last.value!;
+        removeUnreadPersonalMessage(_dropdownMenuItems.last.value!);
         // Check if the placeholder "No Channels Found!" is in the list and remove it.
-        if (_dropdownMenuItems.length > 1) {
-          if (_dropdownMenuItems[0].value!.name == "No Channels Found!") {
-            _dropdownMenuItems.removeAt(0);
-          }
-        }
+        removePlaceholder();
       }
+      activateTab = "Personal";
       setState(() {});
     } else {
       // open the user overview panel.
@@ -571,21 +725,21 @@ class MessageTileState extends State<MessageTile> {
     User? myself = Settings().getUser();
     if (myself != null) {
       // only show popup for different users. Not myself or the server.
-      if (widget.message.senderName != myself.userName
-          && widget.message.senderName != "Server") {
+      bool isMe = widget.message.senderName == myself.userName;
+      if (widget.message.senderName != "Server") {
         _storePosition(details);
-        _showChatDetailPopupMenu();
+        _showChatDetailPopupMenu(isMe);
       }
     }
   }
 
-  void _showChatDetailPopupMenu() {
+  void _showChatDetailPopupMenu(bool isMe) {
     final RenderBox overlay =
     Overlay.of(context).context.findRenderObject() as RenderBox;
 
     showMenu(
         context: context,
-        items: [ChatDetailPopup(key: UniqueKey())],
+        items: [ChatDetailPopup(key: UniqueKey(), isMe: isMe)],
         position: RelativeRect.fromRect(
             _tapPosition! & const Size(40, 40), Offset.zero & overlay.size))
         .then((int? delta) {
@@ -606,13 +760,18 @@ class MessageTileState extends State<MessageTile> {
 class ChatData {
   int type;
   String name;
+  bool unreadMessages;
 
-  ChatData(this.type, this.name);
+  ChatData(this.type, this.name, this.unreadMessages);
 }
 
 class ChatDetailPopup extends PopupMenuEntry<int> {
 
-  ChatDetailPopup({required Key key}) : super(key: key);
+  bool isMe;
+  ChatDetailPopup({
+    required Key key,
+    required this.isMe
+  }) : super(key: key);
 
   @override
   bool represents(int? n) => n == 1 || n == -1;
@@ -627,7 +786,7 @@ class ChatDetailPopup extends PopupMenuEntry<int> {
 class ChatDetailPopupState extends State<ChatDetailPopup> {
   @override
   Widget build(BuildContext context) {
-    return getPopupItems(context);
+    return getPopupItems(context, widget.isMe);
   }
 }
 
@@ -639,9 +798,9 @@ void buttonViewUser(BuildContext context) {
   Navigator.pop<int>(context, 1);
 }
 
-Widget getPopupItems(BuildContext context) {
+Widget getPopupItems(BuildContext context, bool isMe) {
   return Column(children: [
-    Container(
+    !isMe ? Container(
       alignment: Alignment.centerLeft,
       child: TextButton(
           onPressed: () {
@@ -652,7 +811,7 @@ Widget getPopupItems(BuildContext context) {
             textAlign: TextAlign.left,
             style: TextStyle(color: Colors.white, fontSize: 14),
           )),
-    ),
+    ) : Container(),
     Container(
       alignment: Alignment.centerLeft,
       child: TextButton(

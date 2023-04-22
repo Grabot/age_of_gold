@@ -7,7 +7,8 @@ class Message {
   late String body;
   late DateTime timestamp;
   late bool me;
+  late bool read;
   Color messageColour = Colors.white;
 
-  Message(this.id, this.senderName, this.body, this.me, this.timestamp);
+  Message(this.id, this.senderName, this.body, this.me, this.timestamp, this.read);
 }
