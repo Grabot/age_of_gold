@@ -253,6 +253,10 @@ class SocketServices extends ChangeNotifier {
       SelectedTileInfo selectedTileInfo = SelectedTileInfo();
       selectedTileInfo.setLastChangedBy(nameLastChanged);
       selectedTileInfo.setLastChangedTime(DateTime.parse(lastChanged).toLocal());
+
+      String newColour = getTileColour(prevTile.getTileType());
+      String tileEvent = "tile(${prevTile.q}, ${prevTile.r}) changed to the colour: $newColour";
+      chatMessages.addEventMessage(tileEvent, nameLastChanged);
     }
   }
 
@@ -261,14 +265,10 @@ class SocketServices extends ChangeNotifier {
 
     Tile? currentTile = getTile(hexagonList, wrapCoordinates, data);
     if (currentTile != null) {
-      String oldColour = getTileColour(currentTile.getTileType());
       currentTile.setTileType(newTileType);
       currentTile.hexagon!.updateHexagon();
 
       addTileInfo(data, currentTile);
-      String newColour = getTileColour(currentTile.getTileType());
-      String tileEvent = "tile(${currentTile.q}, ${currentTile.r}) changed from the colour: $oldColour to $newColour";
-      chatMessages.addEventMessage(tileEvent);
     }
   }
 

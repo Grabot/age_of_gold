@@ -64,10 +64,25 @@ class ChatMessages extends ChangeNotifier {
     ).toList();
   }
 
-  addEventMessage(String message) {
+  addEventMessage(String message, String userName) {
     DateTime currentTime = DateTime.now();
-    EventMessage newMessage = EventMessage(1, "Server", message, false, currentTime, false);
+    EventMessage newMessage = EventMessage(1, userName, message, false, currentTime, false);
     eventMessages.add(newMessage);
     notifyListeners();
+  }
+
+  removeOldMessages() {
+    if (chatMessages.length > 1000) {
+      chatMessages.removeAt(0);
+    }
+    if (eventMessages.length > 100) {
+      eventMessages.removeAt(0);
+    }
+  }
+
+  clearMessages() {
+    chatMessages = [];
+    eventMessages = [];
+    initializeChatMessages();
   }
 }

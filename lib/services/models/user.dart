@@ -51,8 +51,12 @@ class User {
   }
 
   User.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    userName = json["username"];
+    if (json.containsKey("id")) {
+      id = json['id'];
+    }
+    if (json.containsKey("username")) {
+      userName = json["username"];
+    }
     if (json.containsKey("verified")) {
       verified = json["verified"];
     }

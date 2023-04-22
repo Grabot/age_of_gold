@@ -58,6 +58,9 @@ class ChatBoxState extends State<ChatBox> {
   int currentTileQ = 0;
   int currentTileR = 0;
 
+  bool unreadWorldMessages = false;
+  bool unreadEventMessages = false;
+
   @override
   void initState() {
     chatBoxChangeNotifier = ChatBoxChangeNotifier();
@@ -176,10 +179,7 @@ class ChatBoxState extends State<ChatBox> {
     }
   }
 
-  bool unreadWorldMessages = false;
-  bool unreadEventMessages = false;
   newMessageListener() {
-    print("new message!");
     if (mounted) {
       Message lastMessage = chatMessages.chatMessages.last;
       EventMessage eventMessage = chatMessages.eventMessages.last;
@@ -187,22 +187,24 @@ class ChatBoxState extends State<ChatBox> {
       if (lastMessage is PersonalMessage && !lastMessage.read) {
         checkForUnreadPersonalMessages(lastMessage);
       }
-
+      if (!lastMessage.read) {
+        unreadWorldMessages = true;
+      }
+      if (!eventMessage.read) {
+        unreadEventMessages = true;
+      }
       if (tileBoxVisible) {
-        unreadWorldMessages = false;
-        unreadEventMessages = false;
-        lastMessage.read = true;
-        eventMessage.read = true;
-      } else {
-        if (!lastMessage.read) {
-          unreadWorldMessages = true;
+        if (activateTab == "World") {
+          unreadWorldMessages = false;
+          lastMessage.read = true;
         }
-        if (!eventMessage.read) {
-          unreadEventMessages = true;
+        if (activateTab == "Events") {
+          unreadEventMessages = false;
+          eventMessage.read = true;
         }
       }
-      // TODO: personal chat message indicators?
       setState(() {});
+      chatMessages.removeOldMessages();
     }
   }
 
@@ -272,17 +274,29 @@ class ChatBoxState extends State<ChatBox> {
     super.dispose();
   }
 
+  pressedChatTab(String tabName) {
+    print("pressed chat tab");
+    if (!tileBoxVisible) {
+      tileBoxVisible = true;
+    }
+    if (tabName != activateTab) {
+      setState(() {
+        activateTab = tabName;
+        _selectedChatData = null;
+        readMessages();
+      });
+    }
+  }
+
   Widget chatTab(String tabName, bool hasUnreadMessages) {
     bool buttonActive = activateTab == tabName;
-
+    if (!tileBoxVisible) {
+      buttonActive = false;
+      activateTab = "";
+    }
     return ElevatedButton(
       onPressed: () {
-        if (tabName != activateTab) {
-          setState(() {
-            activateTab = tabName;
-            _selectedChatData = null;
-          });
-        }
+        pressedChatTab(tabName);
       },
       style: buttonStyle(buttonActive, Colors.green),
       child: Row(
@@ -298,12 +312,16 @@ class ChatBoxState extends State<ChatBox> {
   }
 
   readMessages() {
+    if (activateTab == "") {
+      // If there is no tab active we will activate the world tab
+      activateTab = "World";
+    }
     if (activateTab == "World") {
       unreadWorldMessages = false;
       // We only set the last one to true,
       // since that's the one we use to determine if there are unread messages
       chatMessages.chatMessages.last.read = true;
-    } else if (activateTab == "Event") {
+    } else if (activateTab == "Events") {
       unreadEventMessages = false;
       chatMessages.eventMessages.last.read = true;
     }
@@ -396,7 +414,8 @@ class ChatBoxState extends State<ChatBox> {
     double totalHeight = messageBoxHeight + chatTextFieldHeight + topBarHeight;
 
     bool isEvent = activateTab == "Events";
-    if (isEvent) {
+    bool userLoggedIn = Settings().getUser() != null;
+    if (isEvent || !userLoggedIn) {
       messageBoxHeight += chatTextFieldHeight;
     }
 
@@ -420,7 +439,7 @@ class ChatBoxState extends State<ChatBox> {
                   ],
                 ),
               ),
-              !isEvent ? chatBoxTextField(chatBoxWidth, chatTextFieldHeight) : Container()
+              !isEvent && userLoggedIn ? chatBoxTextField(chatBoxWidth, chatTextFieldHeight) : Container()
             ]
         ),
       ),
@@ -439,6 +458,8 @@ class ChatBoxState extends State<ChatBox> {
         }
       }
       chatFieldController.text = "";
+      // Keep the focus on the textfield in case of second message
+      _focusChatBox.requestFocus();
     }
   }
 
@@ -465,6 +486,7 @@ class ChatBoxState extends State<ChatBox> {
                       }
                       return null;
                     },
+                    enabled: Settings().getUser() != null,
                     onFieldSubmitted: (value) {
                       sendMessage(value);
                     },
@@ -543,6 +565,9 @@ class ChatBoxState extends State<ChatBox> {
   onChangeDropdownItem(ChatData? selectedChat) {
     setState(() {
       if (selectedChat != null) {
+        if (!tileBoxVisible) {
+          tileBoxVisible = true;
+        }
         // There is a placeholder text when there are no chats active
         // If the user decides to click this anyway it will do nothing
         if (selectedChat.name != "No Channels Found!") {

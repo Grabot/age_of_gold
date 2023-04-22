@@ -6,6 +6,7 @@ import 'package:age_of_gold/services/models/login_response.dart';
 import 'package:age_of_gold/services/socket_services.dart';
 import 'package:age_of_gold/util/hexagon_list.dart';
 import 'package:age_of_gold/util/web_storage.dart';
+import 'package:age_of_gold/views/user_interface/ui_function/user_interface_components/chat_messages.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import 'package:oktoast/oktoast.dart';
@@ -189,6 +190,7 @@ Tile? getTileWrap(HexagonList hexagonList, int qArray, int rArray, int newTileQ,
 
 logoutUser(Settings settings, NavigationService navigationService) {
   SocketServices().logout(settings.getUser()!.id);
+  ChatMessages().clearMessages();
   settings.logout();
   SecureStorage().logout().then((value) {
     navigationService.navigateTo(routes.HomeRoute, arguments: {'message': "Logged out"});
