@@ -1,6 +1,16 @@
 import 'package:age_of_gold/age_of_gold.dart';
+import 'package:age_of_gold/services/auth_service_world.dart';
+import 'package:age_of_gold/services/settings.dart';
+import 'package:age_of_gold/services/socket_services.dart';
 import 'package:age_of_gold/util/util.dart';
+import 'package:age_of_gold/views/user_interface/ui_function/user_interface_components/chat_messages.dart';
+import 'package:age_of_gold/views/user_interface/ui_function/user_interface_components/message.dart';
+import 'package:age_of_gold/views/user_interface/ui_function/user_interface_components/messages/event_message.dart';
+import 'package:age_of_gold/views/user_interface/ui_function/user_interface_components/messages/personal_message.dart';
 import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/chat_window_change_notifier.dart';
+import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/message_util.dart';
+import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/user_box_change_notifier.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/chat_box.dart';
 import 'package:flutter/material.dart';
 
 
@@ -117,7 +127,7 @@ class ChatWindowState extends State<ChatWindow> {
               ),
               Column(
                 children: [
-
+                  // messageList(chatMessages, messageScrollController, userInteraction, _selectedChatData, false, true)
                 ],
               )
             ],
@@ -164,4 +174,5 @@ class ChatWindowState extends State<ChatWindow> {
         child: showChatWindow ? chatWindow(context) : Container()
     );
   }
+
 }

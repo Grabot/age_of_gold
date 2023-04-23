@@ -1,10 +1,9 @@
-
-
 import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/views/user_interface/ui_function/user_interface_components/chat_messages.dart';
 import 'package:age_of_gold/views/user_interface/ui_function/user_interface_components/message.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/chat_box.dart';
 import 'package:flutter/material.dart';
+
 
 Widget messageList(ChatMessages chatMessages, ScrollController messageScrollController, Function(bool, String) userInteraction, ChatData? selectedChatData, bool isEvent, bool show) {
   List<Message> messages = chatMessages.chatMessages;
@@ -13,11 +12,10 @@ Widget messageList(ChatMessages chatMessages, ScrollController messageScrollCont
   } else {
     if (selectedChatData != null) {
       messages = chatMessages.getMessagesFromUser(
-          selectedChatData.name,
-          Settings().getUser()!.getUserName()
+          selectedChatData.name
       );
     } else {
-      // In the regular world chat we want to filter out the personal messages that were send by the user
+      // In the regular world chat we want to get all the messages except the personal messages that were send by the user
       messages = chatMessages.getAllWorldMessages(Settings().getUser()!.getUserName());
     }
   }
