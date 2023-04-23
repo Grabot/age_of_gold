@@ -2,10 +2,10 @@ import 'package:age_of_gold/component/tile.dart';
 import 'package:age_of_gold/util/render_hexagons.dart';
 import 'package:age_of_gold/util/tapped_map.dart';
 import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/change_avatar_change_notifier.dart';
+import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/chat_window_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/loading_box_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/profile_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/selected_tile_info.dart';
-import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/send_message_box_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/user_box_change_notifier.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
@@ -41,7 +41,7 @@ class World extends Component {
   late UserBoxChangeNotifier userBoxChangeNotifier;
   late ChangeAvatarChangeNotifier changeAvatarChangeNotifier;
   late LoadingBoxChangeNotifier loadingBoxChangeNotifier;
-  late SendMessageBoxChangeNotifier sendMessageBoxChangeNotifier;
+  late ChatWindowChangeNotifier chatWindowChangeNotifier;
 
   @override
   Future<void> onLoad() async {
@@ -59,7 +59,7 @@ class World extends Component {
     userBoxChangeNotifier = UserBoxChangeNotifier();
     changeAvatarChangeNotifier = ChangeAvatarChangeNotifier();
     loadingBoxChangeNotifier = LoadingBoxChangeNotifier();
-    sendMessageBoxChangeNotifier = SendMessageBoxChangeNotifier();
+    chatWindowChangeNotifier = ChatWindowChangeNotifier();
   }
 
   @override
@@ -105,14 +105,8 @@ class World extends Component {
     if (loadingBoxChangeNotifier.getLoadingBoxVisible()) {
       loadingBoxChangeNotifier.setLoadingBoxVisible(false);
     }
-    if (loadingBoxChangeNotifier.getLoadingBoxVisible()) {
-      loadingBoxChangeNotifier.setLoadingBoxVisible(false);
-    }
-    if (loadingBoxChangeNotifier.getLoadingBoxVisible()) {
-      loadingBoxChangeNotifier.setLoadingBoxVisible(false);
-    }
-    if (loadingBoxChangeNotifier.getLoadingBoxVisible()) {
-      loadingBoxChangeNotifier.setLoadingBoxVisible(false);
+    if (chatWindowChangeNotifier.getChatWindowVisible()) {
+      chatWindowChangeNotifier.setChatWindowVisible(false);
     }
   }
 

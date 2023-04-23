@@ -1,23 +1,24 @@
 import 'dart:async';
+
+import 'package:age_of_gold/constants/route_paths.dart' as routes;
 import 'package:age_of_gold/locator.dart';
 import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/util/navigation_service.dart';
 import 'package:age_of_gold/views/email_verification_page.dart';
-import 'package:age_of_gold/views/login_screen.dart';
-import 'package:age_of_gold/constants/route_paths.dart' as routes;
 import 'package:age_of_gold/views/home_page.dart';
+import 'package:age_of_gold/views/login_screen.dart';
 import 'package:age_of_gold/views/password_reset_page.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/change_avatar_box.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/send_message_box.dart';
 import 'package:age_of_gold/views/world_access_page.dart';
 import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
-import 'package:isolated_worker/worker_delegator.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:url_strategy/url_strategy.dart';
+
 import 'age_of_gold.dart';
 import 'views/user_interface/ui_views/chat_box.dart';
+import 'views/user_interface/ui_views/chat_window.dart';
 import 'views/user_interface/ui_views/loading_box.dart';
 import 'views/user_interface/ui_views/profile_box.dart';
 import 'views/user_interface/ui_views/profile_overview.dart';
@@ -51,7 +52,7 @@ Future<void> main() async {
           'userBox': _userBoxBuilder,
           'changeAvatar': _changeAvatarBoxBuilder,
           'loadingBox': _loadingBoxBuilder,
-          'sendMessage': _sendMessageBoxBuilder,
+          'chatWindow': _chatWindowBuilder,
         },
         initialActiveOverlays: const [
           'chatBox',
@@ -61,7 +62,7 @@ Future<void> main() async {
           'userBox',
           'changeAvatar',
           'loadingBox',
-          'sendMessage',
+          'chatWindow',
         ],
       )
   );
@@ -158,6 +159,6 @@ Widget _loadingBoxBuilder(BuildContext buildContext, AgeOfGold game) {
   return LoadingBox(key: UniqueKey(), game: game);
 }
 
-Widget _sendMessageBoxBuilder(BuildContext buildContext, AgeOfGold game) {
-  return SendMessageBox(key: UniqueKey(), game: game);
+Widget _chatWindowBuilder(BuildContext buildContext, AgeOfGold game) {
+  return ChatWindow(key: UniqueKey(), game: game);
 }

@@ -144,6 +144,13 @@ class AgeOfGold extends FlameGame
   socketListener() {
   }
 
+  chatWindowFocus(bool chatWindowFocus) {
+    playFieldFocus = !chatWindowFocus;
+    if (playFieldFocus) {
+      gameFocus.requestFocus();
+    }
+  }
+
   userBoxFocus(bool userFocus) {
     playFieldFocus = !userFocus;
     if (playFieldFocus) {

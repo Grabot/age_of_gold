@@ -8,6 +8,8 @@ import 'package:age_of_gold/views/user_interface/ui_function/user_interface_comp
 import 'package:age_of_gold/views/user_interface/ui_function/user_interface_components/messages/event_message.dart';
 import 'package:age_of_gold/views/user_interface/ui_function/user_interface_components/messages/personal_message.dart';
 import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/chat_box_change_notifier.dart';
+import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/chat_window_change_notifier.dart';
+import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/message_util.dart';
 import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/user_box_change_notifier.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/gestures.dart';
@@ -224,7 +226,7 @@ class ChatBoxState extends State<ChatBox> {
         });
       }
       if (tileBoxVisible && chatBoxChangeNotifier.getChatUser() != null) {
-        // The user has selected a user to whisper. Change to that chat.
+        // The user has selected a user to message. Change to that chat.
         userInteraction(true, chatBoxChangeNotifier.getChatUser()!);
         activateTab = "Personal";
         _focusChatBox.requestFocus();
@@ -330,23 +332,29 @@ class ChatBoxState extends State<ChatBox> {
     }
   }
 
+  showChatWindow() {
+    print("showing chat window");
+    ChatBoxChangeNotifier().setChatBoxVisible(false);
+    ChatWindowChangeNotifier().setChatWindowVisible(true);
+  }
+
   Widget showOrHideChatBox(double iconSize) {
     if (tileBoxVisible) {
       return Container(
-        width: iconSize,
-        height: iconSize,
-        child: IconButton(
-        icon: const Icon(Icons.keyboard_double_arrow_down),
-        color: Colors.white,
-        tooltip: 'Hide chat',
-        onPressed: () {
-          setState(() {
-            _selectedChatData = null;
-            activateTab = "World";
-            tileBoxVisible = !tileBoxVisible;
-          });
-        },
-    ),
+          width: iconSize,
+          height: iconSize,
+          child: IconButton(
+          icon: const Icon(Icons.keyboard_double_arrow_down),
+          color: Colors.white,
+          tooltip: 'Hide chat',
+          onPressed: () {
+            setState(() {
+              _selectedChatData = null;
+              activateTab = "World";
+              tileBoxVisible = !tileBoxVisible;
+            });
+          },
+        ),
       );
     } else {
       return Container(
@@ -392,6 +400,21 @@ class ChatBoxState extends State<ChatBox> {
     return chatDropDownRegionTopBar();
   }
 
+  Widget showMesssageWindow(double iconSize) {
+    return Container(
+      width: iconSize,
+      height: iconSize,
+      child: IconButton(
+        icon: const Icon(Icons.mail),
+        color: Colors.white,
+        tooltip: 'Show chat window',
+        onPressed: () {
+          showChatWindow();
+        },
+      ),
+    );
+  }
+
   Widget topBar(double chatBoxWidth, double topBarHeight) {
     return Container(
       width: chatBoxWidth,
@@ -402,7 +425,7 @@ class ChatBoxState extends State<ChatBox> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            SizedBox(),
+            showMesssageWindow(topBarHeight),
             chatTabWorld(),
             chatTabEvents(),
             chatTabChats(),
@@ -427,6 +450,8 @@ class ChatBoxState extends State<ChatBox> {
       messageBoxHeight += chatTextFieldHeight;
     }
 
+    bool showMessageField = (tileBoxVisible || !normalMode);
+
     return Container(
       width: chatBoxWidth,
       height: tileBoxVisible ? totalHeight : alwaysVisibleHeight,
@@ -440,7 +465,7 @@ class ChatBoxState extends State<ChatBox> {
               child: Column(
                 children: [
                   Expanded(
-                    child: messageList(isEvent),
+                    child: messageList(chatMessages, messageScrollController, userInteraction, _selectedChatData, isEvent, showMessageField),
                   ),
                 ],
               ),
@@ -451,9 +476,11 @@ class ChatBoxState extends State<ChatBox> {
     );
   }
 
-  Widget mobileMinimized(double chatBoxWidth) {
+  Widget mobileMinimized(double chatBoxWidth, double topBarHeight) {
+    bool showMessageField = (tileBoxVisible || !normalMode);
     return Row(
       children: [
+        showMesssageWindow(topBarHeight),
         GestureDetector(
           onTap: () {
             setState(() {
@@ -462,17 +489,17 @@ class ChatBoxState extends State<ChatBox> {
             });
           },
           child: SizedBox(
-            width: chatBoxWidth - 50,
+            width: chatBoxWidth - (topBarHeight * 2),
             child: Column(
               children: [
                 Expanded(
-                  child: messageList(false),
+                  child: messageList(chatMessages, messageScrollController, userInteraction, _selectedChatData, false, showMessageField),
                 ),
               ],
             ),
           ),
         ),
-        showOrHideChatBox(50)
+        showOrHideChatBox(topBarHeight)
       ],
     );
   }
@@ -486,6 +513,7 @@ class ChatBoxState extends State<ChatBox> {
     if (isEvent || !userLoggedIn) {
       messageBoxHeight += chatTextFieldHeight;
     }
+    bool showMessageField = (tileBoxVisible || !normalMode);
 
     return Container(
       width: chatBoxWidth,
@@ -499,7 +527,7 @@ class ChatBoxState extends State<ChatBox> {
             child: Column(
               children: [
                 Expanded(
-                  child: messageList(isEvent),
+                  child: messageList(chatMessages, messageScrollController, userInteraction, _selectedChatData, isEvent, showMessageField),
                 ),
               ],
             ),
@@ -519,7 +547,7 @@ class ChatBoxState extends State<ChatBox> {
       width: chatBoxWidth,
       height: tileBoxVisible ? totalHeight : alwaysVisibleHeight,
       color: Colors.black.withOpacity(0.4),
-      child: tileBoxVisible ? mobileMaximized(chatBoxWidth, totalHeight, topBarHeight) : mobileMinimized(chatBoxWidth),
+      child: tileBoxVisible ? mobileMaximized(chatBoxWidth, totalHeight, topBarHeight) : mobileMinimized(chatBoxWidth, topBarHeight),
     );
   }
 
@@ -667,41 +695,11 @@ class ChatBoxState extends State<ChatBox> {
           _selectedChatData = selectedChat;
           removeUnreadPersonalMessage(selectedChat);
           activateTab = "Personal";
+        } else {
+          activateTab = "World";
         }
       }
     });
-  }
-
-  Widget messageList(bool isEvent) {
-    List<Message> messages = chatMessages.chatMessages;
-    if (isEvent) {
-      messages = chatMessages.eventMessages;
-    } else {
-      if (_selectedChatData != null) {
-        messages = chatMessages.getMessagesFromUser(
-            _selectedChatData!.name,
-            Settings().getUser()!.getUserName()
-        );
-      } else {
-        // In the regular world chat we want to filter out the personal messages that were send by the user
-        messages = chatMessages.getAllWorldMessages(Settings().getUser()!.getUserName());
-      }
-    }
-    // In the mobile mode there is always a small section of the chat visible.
-    return messages.isNotEmpty && (tileBoxVisible || !normalMode)
-        ? ListView.builder(
-        itemCount: messages.length,
-        reverse: true,
-        controller: messageScrollController,
-        itemBuilder: (context, index) {
-          final reversedIndex = messages.length - 1 - index;
-          return MessageTile(
-            key: UniqueKey(),
-            message: messages[reversedIndex],
-            userInteraction: userInteraction,
-          );
-        })
-        : Container();
   }
 
   @override
