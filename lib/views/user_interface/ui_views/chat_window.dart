@@ -31,16 +31,29 @@ class ChatWindowState extends State<ChatWindow> {
 
   final FocusNode _focusChatWindow = FocusNode();
   bool showChatWindow = false;
+  late ChatMessages chatMessages;
 
   late ChatWindowChangeNotifier chatWindowChangeNotifier;
+  var messageScrollController = ScrollController();
+
+  ChatData? _selectedChatData;
 
   @override
   void initState() {
     chatWindowChangeNotifier = ChatWindowChangeNotifier();
     chatWindowChangeNotifier.addListener(chatWindowChangeListener);
 
+    chatMessages = ChatMessages();
+    chatMessages.addListener(newMessageListener);
+
     _focusChatWindow.addListener(_onFocusChange);
     super.initState();
+  }
+
+  newMessageListener() {
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   @override
@@ -127,7 +140,11 @@ class ChatWindowState extends State<ChatWindow> {
               ),
               Column(
                 children: [
-                  // messageList(chatMessages, messageScrollController, userInteraction, _selectedChatData, false, true)
+                  Container(
+                    width: chatWindowWidth - ((chatWindowWidth/3)*2),
+                    height: 400,
+                    child: messageList(chatMessages, messageScrollController, userInteraction, _selectedChatData, false, true)
+                  )
                 ],
               )
             ],
@@ -173,6 +190,41 @@ class ChatWindowState extends State<ChatWindow> {
         alignment: FractionalOffset.center,
         child: showChatWindow ? chatWindow(context) : Container()
     );
+  }
+
+  userInteraction(bool message, String userName) {
+    if (message) {
+      // message the user
+      // select personal region if it exists, otherwise just create it first.
+      bool exists = false;
+      for (int i = 0; i < chatMessages.regions.length; i++) {
+        if (chatMessages.regions[i].name == userName) {
+          _selectedChatData = chatMessages.regions[i];
+          chatMessages.setMessageUser(chatMessages.regions[i].name);
+          exists = true;
+        }
+      }
+      if (!exists) {
+        ChatData newChatData = ChatData(3, userName, false);
+        chatMessages.addNewRegion(newChatData);
+        chatMessages.setMessageUser(newChatData.name);
+        _selectedChatData = newChatData;
+        // Check if the placeholder "No Chats Found!" is in the list and remove it.
+        chatMessages.removePlaceholder();
+      }
+      chatMessages.setActiveTab("Personal");
+      setState(() {});
+    } else {
+      // open the user overview panel.
+      AuthServiceWorld().getUser(userName).then((value) {
+        if (value != null) {
+          UserBoxChangeNotifier().setUser(value);
+          UserBoxChangeNotifier().setUserBoxVisible(true);
+        } else {
+          showToastMessage("Something went wrong");
+        }
+      });
+    }
   }
 
 }

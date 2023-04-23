@@ -1,8 +1,11 @@
+import 'package:age_of_gold/services/models/user.dart';
 import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/views/user_interface/ui_function/user_interface_components/chat_messages.dart';
 import 'package:age_of_gold/views/user_interface/ui_function/user_interface_components/message.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/chat_box.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 
 Widget messageList(ChatMessages chatMessages, ScrollController messageScrollController, Function(bool, String) userInteraction, ChatData? selectedChatData, bool isEvent, bool show) {
@@ -35,4 +38,165 @@ Widget messageList(ChatMessages chatMessages, ScrollController messageScrollCont
       })
       : Container();
 }
+
+
+class MessageTile extends StatefulWidget {
+  final Message message;
+  final Function(bool, String) userInteraction;
+
+  const MessageTile(
+      {
+        required Key key,
+        required this.message,
+        required this.userInteraction
+      })
+      : super(key: key);
+
+  @override
+  MessageTileState createState() => MessageTileState();
+}
+
+class MessageTileState extends State<MessageTile> {
+
+  bool isMe = false;
+  @override
+  void initState() {
+    if (widget.message.senderName == Settings().getUser()!.getUserName()) {
+      isMe = true;
+    }
+    super.initState();
+  }
+
+  TextSpan textBody(Color textColour) {
+    return TextSpan(
+      text: widget.message.body,
+      style: TextStyle(
+          color: textColour.withOpacity(0.70),
+          fontSize: 16
+      ),
+    );
+  }
+
+  TextSpan textSenderName(Color textColour) {
+    return TextSpan(
+      text: " ${widget.message.senderName} ",
+      recognizer: TapGestureRecognizer()
+        ..onTapDown = _showPopupMenu,
+      style: TextStyle(
+          color: textColour,
+          fontWeight: FontWeight.bold,
+          fontSize: 16
+      ),
+    );
+  }
+
+  TextSpan textDate(Color textColour) {
+    return TextSpan(
+      text: "[${DateFormat('HH:mm')
+          .format(widget.message.timestamp)}] ",
+      style: TextStyle(
+          color: textColour.withOpacity(0.54),
+          fontSize: 12
+      ),
+    );
+  }
+
+  Widget messageBubbleMe() {
+    Color textColour = Colors.blue;
+    return Container(
+      alignment: Alignment.bottomRight,
+      child: RichText(
+          textAlign: TextAlign.right,
+          text: TextSpan(
+              children: [
+                textDate(textColour),
+                textSenderName(textColour),
+                textBody(textColour),
+              ]
+          )
+      )
+    );
+  }
+
+  Widget messageBubble(Color textColour) {
+    return Container(
+        alignment: Alignment.bottomLeft,
+        child: RichText(
+            textAlign: TextAlign.left,
+            text: TextSpan(
+                children: [
+                  textDate(textColour),
+                  textSenderName(textColour),
+                  textBody(textColour),
+                ]
+            )
+        )
+    );
+  }
+
+  Widget getMessageContent() {
+    return isMe ? messageBubbleMe() : messageBubble(widget.message.messageColour);
+  }
+
+  Widget message() {
+    return Material(
+      color: Colors.transparent,
+      child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              width: MediaQuery.of(context).size.width,
+              alignment: Alignment.bottomLeft,
+              child: Container(
+                  child: getMessageContent()
+              ),
+            ),
+          ]
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return message();
+  }
+
+  Offset? _tapPosition;
+
+  void _showPopupMenu(TapDownDetails details) {
+    User? myself = Settings().getUser();
+    if (myself != null) {
+      // only show popup for different users. Not myself or the server.
+      bool isMe = widget.message.senderName == myself.userName;
+      if (widget.message.senderName != "Server") {
+        _storePosition(details);
+        _showChatDetailPopupMenu(isMe);
+      }
+    }
+  }
+
+  void _showChatDetailPopupMenu(bool isMe) {
+    final RenderBox overlay =
+    Overlay.of(context).context.findRenderObject() as RenderBox;
+
+    showMenu(
+        context: context,
+        items: [ChatDetailPopup(key: UniqueKey(), isMe: isMe)],
+        position: RelativeRect.fromRect(
+            _tapPosition! & const Size(40, 40), Offset.zero & overlay.size))
+        .then((int? delta) {
+      if (delta == 0) {
+        widget.userInteraction(true, widget.message.senderName);
+      } else if (delta == 1) {
+        widget.userInteraction(false, widget.message.senderName);
+      }
+      return;
+    });
+  }
+
+  void _storePosition(TapDownDetails details) {
+    _tapPosition = details.globalPosition;
+  }
+}
+
 
