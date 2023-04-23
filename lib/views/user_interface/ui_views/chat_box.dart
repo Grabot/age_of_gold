@@ -73,13 +73,13 @@ class ChatBoxState extends State<ChatBox> {
     _focusChatBox.addListener(_onFocusChange);
 
     // populate chatData with guilds or friends?
-    ChatData chatData = ChatData(0, "No Channels Found!", false);
+    ChatData chatData = ChatData(0, "No Chats Found!", false);
     _regions.add(chatData);
     _dropdownMenuItems = buildDropdownMenuItems(_regions);
     super.initState();
   }
 
-  newDropDownItem(ChatData newChatData) {
+  newDropDownItem(ChatData newChatData, Color textColour) {
     return DropdownMenuItem(
       value: newChatData,
       child: Container(
@@ -94,7 +94,7 @@ class ChatBoxState extends State<ChatBox> {
                 maxLines: 1,
                 softWrap: false,
                 style: TextStyle(
-                    color: Colors.purpleAccent.shade200,
+                    color: textColour,
                     fontSize: 16
                 ),
               ),
@@ -115,7 +115,7 @@ class ChatBoxState extends State<ChatBox> {
     }
     if (messageDropDown != null) {
       ChatData newChatData = ChatData(removeUnreadMessage.type, removeUnreadMessage.name, false);
-      DropdownMenuItem<ChatData> newMessageDropDown = newDropDownItem(newChatData);
+      DropdownMenuItem<ChatData> newMessageDropDown = newDropDownItem(newChatData, getChatColour(newChatData.type));
       // add the new objects to their lists
       _regions.add(newChatData);
       _dropdownMenuItems.add(newMessageDropDown);
@@ -152,8 +152,7 @@ class ChatBoxState extends State<ChatBox> {
       if (_selectedChatData != messageChat) {
         ChatData newChatData = ChatData(
             messageChat.type, messageChat.name, true);
-        DropdownMenuItem<ChatData> newMessageDropDown = newDropDownItem(
-            newChatData);
+        DropdownMenuItem<ChatData> newMessageDropDown = newDropDownItem(newChatData, getChatColour(newChatData.type));
         // add the new objects to their lists
         _regions.add(newChatData);
         _dropdownMenuItems.add(newMessageDropDown);
@@ -171,7 +170,7 @@ class ChatBoxState extends State<ChatBox> {
       if (Settings().getUser()!.getUserName() != lastMessage.senderName) {
         ChatData newChatData = ChatData(3, lastMessage.senderName, true);
         DropdownMenuItem<ChatData> newMessageDropDown = newDropDownItem(
-            newChatData);
+            newChatData, getChatColour(newChatData.type));
         _regions.add(newChatData);
         _dropdownMenuItems.add(newMessageDropDown);
         removePlaceholder();
@@ -187,10 +186,10 @@ class ChatBoxState extends State<ChatBox> {
       if (lastMessage is PersonalMessage && !lastMessage.read) {
         checkForUnreadPersonalMessages(lastMessage);
       }
-      if (!lastMessage.read) {
+      if (!lastMessage.read && lastMessage.senderName != Settings().getUser()!.getUserName()) {
         unreadWorldMessages = true;
       }
-      if (!eventMessage.read) {
+      if (!eventMessage.read && eventMessage.senderName != Settings().getUser()!.getUserName()) {
         unreadEventMessages = true;
       }
       if (tileBoxVisible) {
@@ -236,17 +235,21 @@ class ChatBoxState extends State<ChatBox> {
   List<DropdownMenuItem<ChatData>> buildDropdownMenuItems(List regions) {
     List<DropdownMenuItem<ChatData>> items = [];
     for (ChatData chatData in regions) {
-      Color dropDownColour = Colors.white;
-      if (chatData.type == 1) {
-        dropDownColour = Colors.orange.shade300;
-      } else if (chatData.type == 2) {
-        dropDownColour = Colors.green.shade300;
-      } else if (chatData.type == 3) {
-        dropDownColour = Colors.purpleAccent.shade200;
-      }
-      items.add(newDropDownItem(chatData));
+      items.add(newDropDownItem(chatData, getChatColour(chatData.type)));
     }
     return items;
+  }
+
+  Color getChatColour(int chatType) {
+    Color dropDownColour = Colors.white;
+    if (chatType == 1) {
+      dropDownColour = Colors.orange.shade300;
+    } else if (chatType == 2) {
+      dropDownColour = Colors.green.shade300;
+    } else if (chatType == 3) {
+      dropDownColour = Colors.purpleAccent.shade200;
+    }
+    return dropDownColour;
   }
 
   socketListener() {
@@ -327,31 +330,41 @@ class ChatBoxState extends State<ChatBox> {
     }
   }
 
-  Widget showOrHideChatBox() {
-    return tileBoxVisible
-        ? IconButton(
-      icon: const Icon(Icons.keyboard_double_arrow_down),
-      color: Colors.white,
-      tooltip: 'Hide chat',
-      onPressed: () {
-        setState(() {
-          _selectedChatData = null;
-          activateTab = "World";
-          tileBoxVisible = !tileBoxVisible;
-        });
-      },
-    )
-        : IconButton(
-      icon: const Icon(Icons.keyboard_double_arrow_up),
-      color: Colors.white,
-      tooltip: 'Show chat',
-      onPressed: () {
-        setState(() {
-          readMessages();
-          tileBoxVisible = !tileBoxVisible;
-        });
-      },
-    );
+  Widget showOrHideChatBox(double iconSize) {
+    if (tileBoxVisible) {
+      return Container(
+        width: iconSize,
+        height: iconSize,
+        child: IconButton(
+        icon: const Icon(Icons.keyboard_double_arrow_down),
+        color: Colors.white,
+        tooltip: 'Hide chat',
+        onPressed: () {
+          setState(() {
+            _selectedChatData = null;
+            activateTab = "World";
+            tileBoxVisible = !tileBoxVisible;
+          });
+        },
+    ),
+      );
+    } else {
+      return Container(
+        width: iconSize,
+        height: iconSize,
+        child: IconButton(
+        icon: const Icon(Icons.keyboard_double_arrow_up),
+        color: Colors.white,
+        tooltip: 'Show chat',
+        onPressed: () {
+          setState(() {
+            readMessages();
+            tileBoxVisible = !tileBoxVisible;
+          });
+        },
+    ),
+      );
+    }
   }
 
   Widget chatDropDownRegionTopBar() {
@@ -393,19 +406,14 @@ class ChatBoxState extends State<ChatBox> {
             chatTabWorld(),
             chatTabEvents(),
             chatTabChats(),
-            showOrHideChatBox()
+            showOrHideChatBox(topBarHeight)
           ],
         ),
       ),
     );
   }
 
-  Widget chatBoxWidget() {
-    double chatBoxWidth = 450;
-    if (MediaQuery.of(context).size.width <= 800) {
-      // Here we assume that it is a phone and we set the width to the total
-      chatBoxWidth = MediaQuery.of(context).size.width;
-    }
+  Widget chatBoxNormal(double chatBoxWidth) {
 
     double topBarHeight = 34; // always visible
     double messageBoxHeight = 300;
@@ -419,30 +427,115 @@ class ChatBoxState extends State<ChatBox> {
       messageBoxHeight += chatTextFieldHeight;
     }
 
+    return Container(
+      width: chatBoxWidth,
+      height: tileBoxVisible ? totalHeight : alwaysVisibleHeight,
+      child: Column(
+          children: [
+            topBar(chatBoxWidth, topBarHeight),
+            Container(
+              width: chatBoxWidth,
+              height: tileBoxVisible ? messageBoxHeight : 0,
+              color: Colors.black.withOpacity(0.4),
+              child: Column(
+                children: [
+                  Expanded(
+                    child: messageList(isEvent),
+                  ),
+                ],
+              ),
+            ),
+            !isEvent && userLoggedIn ? chatBoxTextField(chatBoxWidth, chatTextFieldHeight) : Container()
+          ]
+      ),
+    );
+  }
+
+  Widget mobileMinimized(double chatBoxWidth) {
+    return Row(
+      children: [
+        GestureDetector(
+          onTap: () {
+            setState(() {
+              tileBoxVisible = true;
+              readMessages();
+            });
+          },
+          child: SizedBox(
+            width: chatBoxWidth - 50,
+            child: Column(
+              children: [
+                Expanded(
+                  child: messageList(false),
+                ),
+              ],
+            ),
+          ),
+        ),
+        showOrHideChatBox(50)
+      ],
+    );
+  }
+
+  Widget mobileMaximized(double chatBoxWidth, double totalHeight, double topBarHeight) {
+    double chatTextFieldHeight = 60;
+    double messageBoxHeight = totalHeight - chatTextFieldHeight - topBarHeight;
+
+    bool isEvent = activateTab == "Events";
+    bool userLoggedIn = Settings().getUser() != null;
+    if (isEvent || !userLoggedIn) {
+      messageBoxHeight += chatTextFieldHeight;
+    }
+
+    return Container(
+      width: chatBoxWidth,
+      child: Column(
+        children: [
+          topBar(chatBoxWidth, topBarHeight),
+          Container(
+            width: chatBoxWidth,
+            height: tileBoxVisible ? messageBoxHeight : 0,
+            color: Colors.black.withOpacity(0.4),
+            child: Column(
+              children: [
+                Expanded(
+                  child: messageList(isEvent),
+                ),
+              ],
+            ),
+          ),
+          !isEvent && userLoggedIn ? chatBoxTextField(chatBoxWidth, chatTextFieldHeight) : Container()
+        ],
+      ),
+    );
+  }
+
+  Widget chatBoxMobile(double chatBoxWidth) {
+    double topBarHeight = tileBoxVisible ? 34 : 50;
+    double totalHeight = MediaQuery.of(context).size.height - 200;
+    double alwaysVisibleHeight = topBarHeight;
+
+    return Container(
+      width: chatBoxWidth,
+      height: tileBoxVisible ? totalHeight : alwaysVisibleHeight,
+      color: Colors.black.withOpacity(0.4),
+      child: tileBoxVisible ? mobileMaximized(chatBoxWidth, totalHeight, topBarHeight) : mobileMinimized(chatBoxWidth),
+    );
+  }
+
+  bool normalMode = true;
+  Widget chatBoxWidget() {
+    normalMode = true;
+    double chatBoxWidth = 500;
+    if (MediaQuery.of(context).size.width <= 800) {
+      // Here we assume that it is a phone and we set the width to the total
+      chatBoxWidth = MediaQuery.of(context).size.width;
+      normalMode = false;
+    }
+
     return Align(
       alignment: FractionalOffset.bottomLeft,
-      child: Container(
-        width: chatBoxWidth,
-        height: tileBoxVisible ? totalHeight : alwaysVisibleHeight,
-        child: Column(
-            children: [
-              topBar(chatBoxWidth, topBarHeight),
-              Container(
-                width: chatBoxWidth,
-                height: tileBoxVisible ? messageBoxHeight : 0,
-                color: Colors.black.withOpacity(0.4),
-                child: Column(
-                  children: [
-                    Expanded(
-                      child: messageList(isEvent),
-                    ),
-                  ],
-                ),
-              ),
-              !isEvent && userLoggedIn ? chatBoxTextField(chatBoxWidth, chatTextFieldHeight) : Container()
-            ]
-        ),
-      ),
+      child: normalMode ? chatBoxNormal(chatBoxWidth) : chatBoxMobile(chatBoxWidth)
     );
   }
 
@@ -570,7 +663,7 @@ class ChatBoxState extends State<ChatBox> {
         }
         // There is a placeholder text when there are no chats active
         // If the user decides to click this anyway it will do nothing
-        if (selectedChat.name != "No Channels Found!") {
+        if (selectedChat.name != "No Chats Found!") {
           _selectedChatData = selectedChat;
           removeUnreadPersonalMessage(selectedChat);
           activateTab = "Personal";
@@ -589,9 +682,13 @@ class ChatBoxState extends State<ChatBox> {
             _selectedChatData!.name,
             Settings().getUser()!.getUserName()
         );
+      } else {
+        // In the regular world chat we want to filter out the personal messages that were send by the user
+        messages = chatMessages.getAllWorldMessages(Settings().getUser()!.getUserName());
       }
     }
-    return messages.isNotEmpty && tileBoxVisible
+    // In the mobile mode there is always a small section of the chat visible.
+    return messages.isNotEmpty && (tileBoxVisible || !normalMode)
         ? ListView.builder(
         itemCount: messages.length,
         reverse: true,
@@ -613,14 +710,14 @@ class ChatBoxState extends State<ChatBox> {
   }
 
   removePlaceholder() {
-    // Check if the placeholder "No Channels Found!" is in the list and remove it.
+    // Check if the placeholder "No Chats Found!" is in the list and remove it.
     if (_dropdownMenuItems.length > 1) {
-      if (_dropdownMenuItems[0].value!.name == "No Channels Found!") {
+      if (_dropdownMenuItems[0].value!.name == "No Chats Found!") {
         _dropdownMenuItems.removeAt(0);
       }
     }
     if (_regions.length > 1) {
-      if (_regions[0].name == "No Channels Found!") {
+      if (_regions[0].name == "No Chats Found!") {
         _regions.removeAt(0);
       }
     }
@@ -641,14 +738,17 @@ class ChatBoxState extends State<ChatBox> {
       if (!exists) {
         ChatData newChatData = ChatData(3, userName, false);
         _regions.add(newChatData);
-        DropdownMenuItem<ChatData> dropDownItem = newDropDownItem(newChatData);
+        DropdownMenuItem<ChatData> dropDownItem = newDropDownItem(newChatData, getChatColour(newChatData.type));
         _dropdownMenuItems.add(dropDownItem);
         _selectedChatData = _dropdownMenuItems.last.value!;
         removeUnreadPersonalMessage(_dropdownMenuItems.last.value!);
-        // Check if the placeholder "No Channels Found!" is in the list and remove it.
+        // Check if the placeholder "No Chats Found!" is in the list and remove it.
         removePlaceholder();
       }
       activateTab = "Personal";
+      if (!tileBoxVisible) {
+        tileBoxVisible = true;
+      }
       setState(() {});
     } else {
       // open the user overview panel.
@@ -682,13 +782,20 @@ class MessageTile extends StatefulWidget {
 
 class MessageTileState extends State<MessageTile> {
 
+  bool isMe = false;
   @override
   void initState() {
+    if (widget.message.senderName == Settings().getUser()!.getUserName()) {
+      isMe = true;
+    }
     super.initState();
   }
 
   Widget getMessageContent() {
     Color textColour = widget.message.messageColour;
+    if (isMe) {
+      textColour = Colors.blue;
+    }
     return RichText(
       text: TextSpan(
         children: [

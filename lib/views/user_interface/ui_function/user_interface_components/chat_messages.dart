@@ -64,6 +64,17 @@ class ChatMessages extends ChangeNotifier {
     ).toList();
   }
 
+  // We want all the messages except the personal messages send by the user.
+  List<Message> getAllWorldMessages(String me) {
+    List<Message> all = chatMessages.where((element) {
+      if (element is PersonalMessage) {
+        return element.senderName != me;
+      }
+      return true;
+    }).toList();
+    return all;
+  }
+
   addEventMessage(String message, String userName) {
     DateTime currentTime = DateTime.now();
     EventMessage newMessage = EventMessage(1, userName, message, false, currentTime, false);

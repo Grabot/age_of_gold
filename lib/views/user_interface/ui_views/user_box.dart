@@ -74,16 +74,17 @@ class UserBoxState extends State<UserBox> with TickerProviderStateMixin {
     widget.game.userBoxFocus(_focusUserBox.hasFocus);
   }
 
-  sendMessage() {
-    print("send message");
-    setState(() {
-      SendMessageBoxChangeNotifier().setToUser(userBoxChangeNotifier.getUser());
-      SendMessageBoxChangeNotifier().setSendMessageBoxVisible(true);
-    });
-  }
+  // sendMessage() {
+  //   print("send message");
+  //   setState(() {
+  //     SendMessageBoxChangeNotifier().setToUser(userBoxChangeNotifier.getUser());
+  //     SendMessageBoxChangeNotifier().setSendMessageBoxVisible(true);
+  //   });
+  // }
 
-  whisperUser() {
+  sendMessage() {
     setState(() {
+      goBack(); // close user box
       ChatBoxChangeNotifier chatBoxChangeNotifier = ChatBoxChangeNotifier();
       chatBoxChangeNotifier.setChatUser(userBoxChangeNotifier.getUser()!.getUserName());
       chatBoxChangeNotifier.setChatBoxVisible(true);
@@ -133,26 +134,6 @@ class UserBoxState extends State<UserBox> with TickerProviderStateMixin {
     );
   }
 
-  Widget whisperUserButton(double buttonWidth, double buttonHeight, double fontSize) {
-    return Container(
-      width: buttonWidth,
-      height: buttonHeight,
-      child: ElevatedButton(
-        onPressed: () {
-          whisperUser();
-        },
-        style: buttonStyle(false, Colors.blue),
-        child: Container(
-          alignment: Alignment.center,
-          child: Text(
-            'Whisper user',
-            style: simpleTextStyle(fontSize),
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget messageUserButton(double buttonWidth, double buttonHeight, double fontSize) {
     return Container(
       width: buttonWidth,
@@ -198,8 +179,6 @@ class UserBoxState extends State<UserBox> with TickerProviderStateMixin {
       width: userSocialBoxWidth,
       child: Column(
         children: [
-          whisperUserButton(userSocialBoxWidth, 40, 16),
-          SizedBox(height: 10),
           messageUserButton(userSocialBoxWidth, 40, 16),
           SizedBox(height: 10),
           addFriendButton(userSocialBoxWidth, 40, 16),
