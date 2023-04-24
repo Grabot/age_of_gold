@@ -63,6 +63,7 @@ class ChatBoxState extends State<ChatBox> {
     socket.checkMessages(chatMessages);
     socket.addListener(socketListener);
     _focusChatBox.addListener(_onFocusChange);
+    chatMessages.setActiveChatBoxTab("");
 
     super.initState();
   }
@@ -79,7 +80,7 @@ class ChatBoxState extends State<ChatBox> {
         setState(() {
           if (chatBoxChangeNotifier.getChatUser() != null) {
             userInteraction(true, chatBoxChangeNotifier.getChatUser()!);
-            chatMessages.setActiveTab("Personal");
+            chatMessages.setActiveChatBoxTab("Personal");
           }
           tileBoxVisible = true;
         });
@@ -87,12 +88,13 @@ class ChatBoxState extends State<ChatBox> {
       if (tileBoxVisible && !chatBoxChangeNotifier.getChatBoxVisible()) {
         setState(() {
           tileBoxVisible = false;
+          chatMessages.setActiveChatBoxTab("");
         });
       }
       if (tileBoxVisible && chatBoxChangeNotifier.getChatUser() != null) {
         // The user has selected a user to message. Change to that chat.
         userInteraction(true, chatBoxChangeNotifier.getChatUser()!);
-        chatMessages.setActiveTab("Personal");
+        chatMessages.setActiveChatBoxTab("Personal");
         _focusChatBox.requestFocus();
       }
     }
@@ -128,21 +130,19 @@ class ChatBoxState extends State<ChatBox> {
     if (!tileBoxVisible) {
       tileBoxVisible = true;
     }
-    if (tabName != chatMessages.getActiveTab()) {
-      setState(() {
-        chatMessages.setActiveTab(tabName);
-        _selectedChatData = null;
-        chatMessages.setMessageUser(null);
-        readMessages();
-      });
-    }
+    setState(() {
+      chatMessages.setActiveChatBoxTab(tabName);
+      _selectedChatData = null;
+      chatMessages.setMessageUser(null);
+      readMessages();
+    });
   }
 
   Widget chatTab(String tabName, bool hasUnreadMessages) {
-    bool buttonActive = chatMessages.getActiveTab() == tabName;
+    bool buttonActive = chatMessages.getActiveChatBoxTab() == tabName;
     if (!tileBoxVisible) {
       buttonActive = false;
-      chatMessages.setActiveTab("");
+      // chatMessages.setActiveTab("");
     }
     return ElevatedButton(
       onPressed: () {
@@ -162,16 +162,16 @@ class ChatBoxState extends State<ChatBox> {
   }
 
   readMessages() {
-    if (chatMessages.getActiveTab() == "") {
+    if (chatMessages.getActiveChatBoxTab() == "") {
       // If there is no tab active we will activate the world tab
-      chatMessages.setActiveTab("World");
+      chatMessages.setActiveChatBoxTab("World");
     }
-    if (chatMessages.getActiveTab() == "World") {
+    if (chatMessages.getActiveChatBoxTab() == "World") {
       chatMessages.unreadWorldMessages = false;
       // We only set the last one to true,
       // since that's the one we use to determine if there are unread messages
       chatMessages.chatMessages.last.read = true;
-    } else if (chatMessages.getActiveTab() == "Events") {
+    } else if (chatMessages.getActiveChatBoxTab() == "Events") {
       chatMessages.setUnreadEventMessages(false);
       chatMessages.eventMessages.last.read = true;
     }
@@ -195,8 +195,8 @@ class ChatBoxState extends State<ChatBox> {
             setState(() {
               _selectedChatData = null;
               chatMessages.setMessageUser(null);
-              chatMessages.setActiveTab("World");
-              tileBoxVisible = !tileBoxVisible;
+              chatMessages.setActiveChatBoxTab("");
+              tileBoxVisible = false;
             });
           },
         ),
@@ -212,7 +212,7 @@ class ChatBoxState extends State<ChatBox> {
         onPressed: () {
           setState(() {
             readMessages();
-            tileBoxVisible = !tileBoxVisible;
+            tileBoxVisible = true;
           });
         },
     ),
@@ -289,7 +289,7 @@ class ChatBoxState extends State<ChatBox> {
     double alwaysVisibleHeight = topBarHeight;
     double totalHeight = messageBoxHeight + chatTextFieldHeight + topBarHeight;
 
-    bool isEvent = chatMessages.getActiveTab() == "Events";
+    bool isEvent = chatMessages.getActiveChatBoxTab() == "Events";
     bool userLoggedIn = Settings().getUser() != null;
     if (isEvent || !userLoggedIn) {
       messageBoxHeight += chatTextFieldHeight;
@@ -315,7 +315,9 @@ class ChatBoxState extends State<ChatBox> {
                 ],
               ),
             ),
-            !isEvent && userLoggedIn ? chatBoxTextField(chatBoxWidth, chatTextFieldHeight) : Container()
+            !isEvent && userLoggedIn
+                ? chatBoxTextField(chatBoxWidth, chatTextFieldHeight, tileBoxVisible, chatMessages.getActiveChatBoxTab(), _chatFormKey, _focusChatBox, chatFieldController, _selectedChatData)
+                : Container()
           ]
       ),
     );
@@ -353,7 +355,7 @@ class ChatBoxState extends State<ChatBox> {
     double chatTextFieldHeight = 60;
     double messageBoxHeight = totalHeight - chatTextFieldHeight - topBarHeight;
 
-    bool isEvent = chatMessages.getActiveTab() == "Events";
+    bool isEvent = chatMessages.getActiveChatBoxTab() == "Events";
     bool userLoggedIn = Settings().getUser() != null;
     if (isEvent || !userLoggedIn) {
       messageBoxHeight += chatTextFieldHeight;
@@ -377,7 +379,9 @@ class ChatBoxState extends State<ChatBox> {
               ],
             ),
           ),
-          !isEvent && userLoggedIn ? chatBoxTextField(chatBoxWidth, chatTextFieldHeight) : Container()
+          !isEvent && userLoggedIn
+              ? chatBoxTextField(chatBoxWidth, chatTextFieldHeight, tileBoxVisible, chatMessages.getActiveChatBoxTab(), _chatFormKey, _focusChatBox, chatFieldController, _selectedChatData)
+              : Container()
         ],
       ),
     );
@@ -411,82 +415,6 @@ class ChatBoxState extends State<ChatBox> {
       child: normalMode ? chatBoxNormal(chatBoxWidth) : chatBoxMobile(chatBoxWidth)
     );
   }
-
-  sendMessage(String message) {
-    if (_chatFormKey.currentState!.validate()) {
-      String? toUser;
-      if (chatMessages.getActiveTab() == "World") {
-        AuthServiceMessage().sendMessageChatGlobal(message);
-      } else if (chatMessages.getActiveTab() == "Personal") {
-        if (_selectedChatData != null) {
-          toUser = _selectedChatData!.name;
-          AuthServiceMessage().sendMessageChatPersonal(message, toUser);
-        }
-      }
-      chatFieldController.text = "";
-      // Keep the focus on the textfield in case of second message
-      _focusChatBox.requestFocus();
-    }
-  }
-
-  Widget chatBoxTextField(double chatBoxWidth, double chatTextFieldHeight) {
-    double sendButtonWidth = 35;
-    double regionSpacing = 10;
-    if (tileBoxVisible) {
-      return Container(
-        color: Colors.black.withOpacity(0.7),
-        child: Row(
-            children: [
-              SizedBox(
-                width: chatBoxWidth - sendButtonWidth - regionSpacing,
-                height: chatTextFieldHeight,
-                child: Form(
-                  key: _chatFormKey,
-                  child: TextFormField(
-                    validator: (val) {
-                      if (val == null ||
-                          val.isEmpty ||
-                          val.trimRight().isEmpty) {
-                        return "Can't send an empty message";
-                      }
-                      return null;
-                    },
-                    enabled: Settings().getUser() != null,
-                    onFieldSubmitted: (value) {
-                      sendMessage(value);
-                    },
-                    keyboardType: TextInputType.multiline,
-                    focusNode: _focusChatBox,
-                    controller: chatFieldController,
-                    decoration: const InputDecoration(
-                      border: UnderlineInputBorder(),
-                      labelText: 'Type your message',
-                    ),
-                  ),
-                ),
-              ),
-              GestureDetector(
-                onTap: () {
-                  sendMessage(chatFieldController.text);
-                },
-                child: Container(
-                    height: 35,
-                    width: sendButtonWidth,
-                    padding: const EdgeInsets.symmetric(horizontal: 6),
-                    child: const Icon(
-                      Icons.send,
-                      color: Colors.white,
-                    )
-                ),
-              )
-            ]
-        ),
-      );
-    } else {
-      return Container();
-    }
-  }
-
 
   Widget chatDropDownRegion() {
     String hintText = chatMessages.hintText();
@@ -539,9 +467,9 @@ class ChatBoxState extends State<ChatBox> {
           _selectedChatData = selectedChat;
           chatMessages.setMessageUser(selectedChat.name);
           // removeUnreadPersonalMessage(selectedChat);
-          chatMessages.setActiveTab("Personal");
+          chatMessages.setActiveChatBoxTab("Personal");
         } else {
-          chatMessages.setActiveTab("World");
+          chatMessages.setActiveChatBoxTab("World");
         }
       }
     });
@@ -572,7 +500,7 @@ class ChatBoxState extends State<ChatBox> {
         // Check if the placeholder "No Chats Found!" is in the list and remove it.
         chatMessages.removePlaceholder();
       }
-      chatMessages.setActiveTab("Personal");
+      chatMessages.setActiveChatBoxTab("Personal");
       if (!tileBoxVisible) {
         tileBoxVisible = true;
       }

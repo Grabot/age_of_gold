@@ -1,3 +1,4 @@
+import 'package:age_of_gold/services/auth_service_message.dart';
 import 'package:age_of_gold/services/models/user.dart';
 import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/views/user_interface/ui_function/user_interface_components/chat_messages.dart';
@@ -199,4 +200,80 @@ class MessageTileState extends State<MessageTile> {
   }
 }
 
+Widget chatBoxTextField(double chatBoxWidth, double chatTextFieldHeight, bool visible, String activeTab, GlobalKey<FormState> chatFormKey, FocusNode focusChatBox, TextEditingController chatFieldController, ChatData? selectedChatData) {
+  double sendButtonWidth = 35;
+  double regionSpacing = 10;
+  if (visible) {
+    return Container(
+      color: Colors.black.withOpacity(0.7),
+      child: Row(
+          children: [
+            SizedBox(
+              width: chatBoxWidth - sendButtonWidth - regionSpacing,
+              height: chatTextFieldHeight,
+              child: Form(
+                key: chatFormKey,
+                child: TextFormField(
+                  validator: (val) {
+                    if (val == null ||
+                        val.isEmpty ||
+                        val
+                            .trimRight()
+                            .isEmpty) {
+                      return "Can't send an empty message";
+                    }
+                    return null;
+                  },
+                  enabled: Settings().getUser() != null,
+                  onFieldSubmitted: (value) {
+                    sendMessage(value, activeTab, chatFormKey, selectedChatData);
+                    chatFieldController.text = "";
+                    focusChatBox.requestFocus();
+                  },
+                  keyboardType: TextInputType.multiline,
+                  focusNode: focusChatBox,
+                  controller: chatFieldController,
+                  decoration: const InputDecoration(
+                    border: UnderlineInputBorder(),
+                    labelText: 'Type your message',
+                  ),
+                ),
+              ),
+            ),
+            GestureDetector(
+              onTap: () {
+                sendMessage(chatFieldController.text, activeTab, chatFormKey, selectedChatData);
+                chatFieldController.text = "";
+                focusChatBox.requestFocus();
+              },
+              child: Container(
+                  height: 35,
+                  width: sendButtonWidth,
+                  padding: const EdgeInsets.symmetric(horizontal: 6),
+                  child: const Icon(
+                    Icons.send,
+                    color: Colors.white,
+                  )
+              ),
+            )
+          ]
+      ),
+    );
+  } else {
+    return Container();
+  }
+}
 
+sendMessage(String message, String activeTab, GlobalKey<FormState> chatFormKey, ChatData? selectedChatData) {
+  if (chatFormKey.currentState!.validate()) {
+    String? toUser;
+    if (activeTab == "World") {
+      AuthServiceMessage().sendMessageChatGlobal(message);
+    } else if (activeTab == "Personal") {
+      if (selectedChatData != null) {
+        toUser = selectedChatData.name;
+        AuthServiceMessage().sendMessageChatPersonal(message, toUser);
+      }
+    }
+  }
+}

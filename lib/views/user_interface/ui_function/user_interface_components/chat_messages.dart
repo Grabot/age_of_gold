@@ -21,7 +21,7 @@ class ChatMessages extends ChangeNotifier {
   late List<DropdownMenuItem<ChatData>> dropdownMenuItems;
 
   // We make a distinction between "World", "Events" and "Personal" for friends and guilds
-  String activateTab = "World";
+  String activateChatBoxTab = "World";
 
   bool unreadWorldMessages = false;
   bool unreadEventMessages = false;
@@ -146,7 +146,7 @@ class ChatMessages extends ChangeNotifier {
       unreadEventMessages = true;
     }
 
-    if (activateTab == "Events") {
+    if (activateChatBoxTab == "Events") {
       unreadEventMessages = false;
       lastMessage.read = true;
     }
@@ -163,7 +163,7 @@ class ChatMessages extends ChangeNotifier {
       unreadWorldMessages = true;
     }
 
-    if (activateTab == "World") {
+    if (activateChatBoxTab == "World") {
       unreadWorldMessages = false;
       lastMessage.read = true;
     }
@@ -174,12 +174,12 @@ class ChatMessages extends ChangeNotifier {
     notifyListeners();
   }
 
-  setActiveTab(String tab) {
-    activateTab = tab;
+  setActiveChatBoxTab(String tab) {
+    activateChatBoxTab = tab;
   }
 
-  String getActiveTab() {
-    return activateTab;
+  String getActiveChatBoxTab() {
+    return activateChatBoxTab;
   }
 
   setUnreadEventMessages(bool unread) {

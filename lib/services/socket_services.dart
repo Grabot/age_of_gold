@@ -170,6 +170,7 @@ class SocketServices extends ChangeNotifier {
   }
 
   void receivedMessage(String from, String message, int regionType) {
+    print("received message");
     chatMessages.addMessage(from, message, regionType);
   }
 

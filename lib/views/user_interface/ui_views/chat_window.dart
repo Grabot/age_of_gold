@@ -1,16 +1,11 @@
 import 'package:age_of_gold/age_of_gold.dart';
 import 'package:age_of_gold/services/auth_service_world.dart';
-import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/services/socket_services.dart';
 import 'package:age_of_gold/util/util.dart';
 import 'package:age_of_gold/views/user_interface/ui_function/user_interface_components/chat_messages.dart';
-import 'package:age_of_gold/views/user_interface/ui_function/user_interface_components/message.dart';
-import 'package:age_of_gold/views/user_interface/ui_function/user_interface_components/messages/event_message.dart';
-import 'package:age_of_gold/views/user_interface/ui_function/user_interface_components/messages/personal_message.dart';
 import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/chat_window_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/message_util.dart';
 import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/user_box_change_notifier.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/chat_box.dart';
 import 'package:flutter/material.dart';
 
 
@@ -33,6 +28,7 @@ class ChatWindowState extends State<ChatWindow> {
   bool showChatWindow = false;
   late ChatMessages chatMessages;
 
+  SocketServices socket = SocketServices();
   late ChatWindowChangeNotifier chatWindowChangeNotifier;
   var messageScrollController = ScrollController();
 
@@ -45,12 +41,20 @@ class ChatWindowState extends State<ChatWindow> {
 
     chatMessages = ChatMessages();
     chatMessages.addListener(newMessageListener);
+    socket.checkMessages(chatMessages);
+    socket.addListener(socketListener);
 
     _focusChatWindow.addListener(_onFocusChange);
     super.initState();
   }
 
   newMessageListener() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  socketListener() {
     if (mounted) {
       setState(() {});
     }
@@ -86,23 +90,31 @@ class ChatWindowState extends State<ChatWindow> {
     });
   }
 
-  Widget chatWindowHeader(double width, double fontSize) {
+  final GlobalKey<FormState> _chatFormKey = GlobalKey<FormState>();
+  final FocusNode _focusChatBox = FocusNode();
+  TextEditingController chatFieldController = TextEditingController();
+
+  Widget chatWindowHeader(double headerWidth, double headerHeight, double fontSize) {
     return Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Container(
+          SizedBox(
+            height: headerHeight,
             child: Text(
               "Chat window",
               style: simpleTextStyle(fontSize),
             )
           ),
-          IconButton(
-              icon: const Icon(Icons.close),
-              color: Colors.orangeAccent.shade200,
-              tooltip: 'cancel',
-              onPressed: () {
-                goBack();
-              }
+          SizedBox(
+            height: headerHeight,
+            child: IconButton(
+                icon: const Icon(Icons.close),
+                color: Colors.orangeAccent.shade200,
+                tooltip: 'cancel',
+                onPressed: () {
+                  goBack();
+                }
+            ),
           ),
         ]
     );
@@ -126,26 +138,45 @@ class ChatWindowState extends State<ChatWindow> {
     );
   }
 
-  Widget chatWindowNormal(double chatWindowWidth, double fontSize) {
+  Widget leftColumn(double leftColumnWidth, double leftColumnHeight, double fontSize) {
+    return Column(
+      children: [
+        worldChatButton(leftColumnWidth, fontSize)
+      ],
+    );
+  }
+
+  Widget rightColumn(double rightColumnWidth, double leftColumnHeight, double fontSize) {
+    double chatTextFieldHeight = 60;
+    return Column(
+      children: [
+        Container(
+            width: rightColumnWidth,
+            height: leftColumnHeight - chatTextFieldHeight,
+            color: Colors.green,
+            child: messageList(chatMessages, messageScrollController, userInteraction, _selectedChatData, false, true)
+        ),
+        chatBoxTextField(rightColumnWidth, chatTextFieldHeight, true, "World", _chatFormKey, _focusChatBox, chatFieldController, _selectedChatData)
+      ],
+    );
+  }
+
+  Widget chatWindowNormal(double chatWindowWidth, double chatWindowHeight, double fontSize) {
+    double leftColumnWidth = chatWindowWidth / 3;
+    double rightColumnWidth = leftColumnWidth * 2;
     return Container(
       child: Column(
         children: [
-          chatWindowHeader(chatWindowWidth, fontSize),
+          chatWindowHeader(chatWindowWidth, 40, fontSize),
           Row(
             children: [
-              Column(
-                children: [
-                  worldChatButton((chatWindowWidth/3), fontSize)
-                ],
+              SizedBox(
+                width: leftColumnWidth,
+                child: leftColumn(leftColumnWidth, chatWindowHeight-40, fontSize),
               ),
-              Column(
-                children: [
-                  Container(
-                    width: chatWindowWidth - ((chatWindowWidth/3)*2),
-                    height: 400,
-                    child: messageList(chatMessages, messageScrollController, userInteraction, _selectedChatData, false, true)
-                  )
-                ],
+              SizedBox(
+                width: rightColumnWidth,
+                child: rightColumn(rightColumnWidth, chatWindowHeight-40, fontSize),
               )
             ],
           )
@@ -154,11 +185,11 @@ class ChatWindowState extends State<ChatWindow> {
     );
   }
 
-  Widget chatWindowMobile(double chatWindowWidth, double fontSize) {
+  Widget chatWindowMobile(double chatWindowWidth, double chatWindowHeight, double fontSize) {
     return Container(
       child: Column(
         children: [
-          chatWindowHeader(chatWindowWidth, fontSize),
+          chatWindowHeader(chatWindowWidth, 40, fontSize),
         ],
       ),
     );
@@ -180,8 +211,8 @@ class ChatWindowState extends State<ChatWindow> {
       height: chatWindowHeight,
       color: Colors.brown,
       child: normalMode
-          ? chatWindowNormal(chatWindowWidth, fontSize)
-          : chatWindowMobile(chatWindowWidth, fontSize)
+          ? chatWindowNormal(chatWindowWidth, chatWindowHeight, fontSize)
+          : chatWindowMobile(chatWindowWidth, chatWindowHeight, fontSize)
     );
   }
 
@@ -212,7 +243,6 @@ class ChatWindowState extends State<ChatWindow> {
         // Check if the placeholder "No Chats Found!" is in the list and remove it.
         chatMessages.removePlaceholder();
       }
-      chatMessages.setActiveTab("Personal");
       setState(() {});
     } else {
       // open the user overview panel.
