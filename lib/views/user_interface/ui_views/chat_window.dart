@@ -28,11 +28,25 @@ class ChatWindowState extends State<ChatWindow> {
   bool showChatWindow = false;
   late ChatMessages chatMessages;
 
+  final GlobalKey<FormState> _chatFormKey = GlobalKey<FormState>();
+  TextEditingController chatFieldController = TextEditingController();
+
   SocketServices socket = SocketServices();
   late ChatWindowChangeNotifier chatWindowChangeNotifier;
   var messageScrollController = ScrollController();
 
+  bool isEvent = false;
+
+  bool hasPersonalChats = false;
   ChatData? _selectedChatData;
+
+  bool hasGroupChats = false;
+
+  final FocusNode _focusSearch = FocusNode();
+  final TextEditingController searchController = TextEditingController();
+  bool searchActive = false;
+  List<ChatData> shownChatData = [];
+
 
   @override
   void initState() {
@@ -45,6 +59,7 @@ class ChatWindowState extends State<ChatWindow> {
     socket.addListener(socketListener);
 
     _focusChatWindow.addListener(_onFocusChange);
+    _focusSearch.addListener(_onFocusChangeSearch);
     super.initState();
   }
 
@@ -69,12 +84,20 @@ class ChatWindowState extends State<ChatWindow> {
     if (mounted) {
       if (!showChatWindow && chatWindowChangeNotifier.getChatWindowVisible()) {
         setState(() {
+          hasPersonalChats = false;
           showChatWindow = true;
+          chatMessages.setChatWindowActive(true);
+          if (chatMessages.regions[0].name != "No Chats Found!") {
+            hasPersonalChats = true;
+            shownChatData = chatMessages.regions;
+          }
         });
       }
       if (showChatWindow && !chatWindowChangeNotifier.getChatWindowVisible()) {
         setState(() {
+          resetSearch();
           showChatWindow = false;
+          chatMessages.setChatWindowActive(false);
         });
       }
     }
@@ -84,15 +107,15 @@ class ChatWindowState extends State<ChatWindow> {
     widget.game.chatWindowFocus(_focusChatWindow.hasFocus);
   }
 
+  void _onFocusChangeSearch() {
+    widget.game.chatWindowFocus(_focusSearch.hasFocus);
+  }
+
   goBack() {
     setState(() {
       chatWindowChangeNotifier.setChatWindowVisible(false);
     });
   }
-
-  final GlobalKey<FormState> _chatFormKey = GlobalKey<FormState>();
-  final FocusNode _focusChatBox = FocusNode();
-  TextEditingController chatFieldController = TextEditingController();
 
   Widget chatWindowHeader(double headerWidth, double headerHeight, double fontSize) {
     return Row(
@@ -120,43 +143,278 @@ class ChatWindowState extends State<ChatWindow> {
     );
   }
 
-  Widget worldChatButton(double chatPickWidth, fontSize) {
+  pressedWorldChat() {
+    setState(() {
+      chatMessages.setActivateChatWindowTab("World");
+      isEvent = false;
+    });
+  }
+
+  pressedEventsChats() {
+    setState(() {
+      chatMessages.setActivateChatWindowTab("Events");
+      isEvent = true;
+    });
+  }
+
+  Widget worldChatButton(double chatPickWidth, double worldChatButtonHeight, fontSize) {
     return ElevatedButton(
       onPressed: () {
-        print("world chat button");
+        pressedWorldChat();
       },
       style: buttonStyle(false, Colors.blue),
-      child: Container(
-        alignment: Alignment.center,
-        width: chatPickWidth,
-        height: 50,
-        child: Text(
-          'World Chat',
-          style: simpleTextStyle(fontSize),
-        ),
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            child: Image.asset(
+              "assets/images/ui/globe_icon_no_colour.png",
+            ),
+          ),
+          Expanded(
+            child: Container(
+              alignment: Alignment.center,
+              height: worldChatButtonHeight,
+              child: Text(
+                'World Chat',
+                style: simpleTextStyle(fontSize),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget leftColumn(double leftColumnWidth, double leftColumnHeight, double fontSize) {
-    return Column(
-      children: [
-        worldChatButton(leftColumnWidth, fontSize)
-      ],
+  Widget eventsButton(double chatPickWidth, double eventsButtonHeight, fontSize) {
+    return ElevatedButton(
+      onPressed: () {
+        pressedEventsChats();
+      },
+      style: buttonStyle(false, Colors.blue),
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 50,
+            child: Icon(
+              Icons.event_note,
+              color: Colors.grey,
+              size: 30,
+            ),
+          ),
+          Expanded(
+            child: Container(
+              alignment: Alignment.center,
+              height: eventsButtonHeight,
+              child: Text(
+                'Events',
+                style: simpleTextStyle(fontSize),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
+  List<Widget> buildPersonalButtons(double chatPickWidth, fontSize) {
+    List<Widget> buttonsList = [];
+
+    // We already have filtered out the "No Chats Found!" Chat region
+    for (ChatData chatData in shownChatData) {
+      buttonsList.add(personalButton(chatPickWidth, chatData, fontSize));
+    }
+    return buttonsList;
+  }
+
+  pressedPersonalButton(ChatData chatData) {
+    setState(() {
+      isEvent = false;
+      _selectedChatData = chatData;
+      chatMessages.setMessageUser(chatData.name);
+      chatMessages.setActiveChatBoxTab("Personal");
+    });
+  }
+
+  Widget personalButton(double chatPickWidth, ChatData chatData, fontSize) {
+    return ElevatedButton(
+      onPressed: () {
+        pressedPersonalButton(chatData);
+      },
+      style: buttonStyle(false, Colors.blue),
+      child: Row(
+        children: [
+          Container(
+            width: 30,
+            height: 50,
+            child: Icon(
+              Icons.person,
+              color: Colors.grey,
+              size: 40,
+            ),
+          ),
+          SizedBox(width: 10),
+          Expanded(
+            child: Container(
+              alignment: Alignment.center,
+              height: 50,
+              child: Text(
+                chatData.name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: simpleTextStyle(fontSize),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void onChangedSearchField(String typedText) {
+    if (typedText.isNotEmpty) {
+      shownChatData = chatMessages.regions
+          .where((element) => element
+          .name.toLowerCase()
+          .contains(typedText.toLowerCase()))
+          .toList();
+    } else {
+      shownChatData = chatMessages.regions;
+    }
+    setState(() {});
+  }
+
+  Widget personalChatSearch(double leftColumnWidth, double fontSize) {
+    if (searchActive) {
+      return TextFormField(
+        onTap: () {
+          if (!_focusSearch.hasFocus) {
+            _focusSearch.requestFocus();
+          }
+        },
+        focusNode: _focusSearch,
+        controller: searchController,
+        textAlign: TextAlign.center,
+        style: simpleTextStyle(fontSize),
+        onChanged: (text) {
+          onChangedSearchField(text);
+        },
+        decoration: textFieldInputDecoration("Search for your friends"),
+      );
+    } else {
+      return Container();
+    }
+  }
+
+  resetSearch() {
+    chatFieldController.text = "";
+    searchController.text = "";
+    searchActive = false;
+    shownChatData = chatMessages.regions;
+  }
+
+  Widget personalChatHeader(double leftColumnWidth, double personalChatHeaderHeight, double fontSize) {
+    return Container(
+      height: personalChatHeaderHeight,
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "Personal Chats",
+                style: simpleTextStyle(fontSize)
+              ),
+              IconButton(
+                icon: const Icon(Icons.search),
+                color: Colors.white,
+                tooltip: 'search chats',
+                onPressed: () {
+                  setState(() {
+                    searchActive = !searchActive;
+                    if (!searchActive) {
+                      resetSearch();
+                    }
+                    _focusSearch.requestFocus();
+                  });
+                },
+              ),
+            ]
+          ),
+          personalChatSearch(leftColumnWidth, fontSize),
+        ]
+      ),
+    );
+  }
+
+  Widget personalChats(double leftColumnWidth, double remainingHeight, double fontSize) {
+    double personalChatHeaderHeight = remainingHeight;
+    if (hasGroupChats) {
+      personalChatHeaderHeight = remainingHeight/2;
+    }
+    if (hasPersonalChats) {
+      return Column(
+        children: [
+          SizedBox(height: 20),
+          personalChatHeader(leftColumnWidth, 50, fontSize),
+          Container(
+            constraints: BoxConstraints(minHeight: 50, maxHeight: personalChatHeaderHeight - 20 - 50),
+            child: SingleChildScrollView(
+              child: Column(
+                children: buildPersonalButtons(leftColumnWidth, fontSize),
+              )
+            )
+          ),
+        ],
+      );
+    } else {
+      return Container();
+    }
+  }
+
+  Widget groupChats(double leftColumnWidth, double remainingHeight, double fontSize) {
+    // TODO: implement groupChats
+    return Container();
+  }
+
+  Widget leftColumn(double leftColumnWidth, double leftColumnHeight, double fontSize) {
+    double worldChatButtonHeight = 50;
+    double eventsButtonHeight = 50;
+    double remainingHeight = leftColumnHeight - worldChatButtonHeight - eventsButtonHeight;
+    return Column(
+      children: [
+        Container(
+          height: leftColumnHeight-50,
+          child: Column(
+            children: [
+              worldChatButton(leftColumnWidth, worldChatButtonHeight, fontSize),
+              personalChats(leftColumnWidth, remainingHeight, fontSize),
+              groupChats(leftColumnWidth, remainingHeight, fontSize),
+            ],
+          ),
+        ),
+        eventsButton(leftColumnWidth, eventsButtonHeight, fontSize),
+      ]
+    );
+  }
   Widget rightColumn(double rightColumnWidth, double leftColumnHeight, double fontSize) {
     double chatTextFieldHeight = 60;
+    if (isEvent) {
+      chatTextFieldHeight = 0;
+    }
     return Column(
       children: [
         Container(
             width: rightColumnWidth,
             height: leftColumnHeight - chatTextFieldHeight,
             color: Colors.green,
-            child: messageList(chatMessages, messageScrollController, userInteraction, _selectedChatData, false, true)
+            child: messageList(chatMessages, messageScrollController, userInteraction, _selectedChatData, isEvent, true)
         ),
-        chatBoxTextField(rightColumnWidth, chatTextFieldHeight, true, "World", _chatFormKey, _focusChatBox, chatFieldController, _selectedChatData)
+        !isEvent
+            ? chatBoxTextField(rightColumnWidth, chatTextFieldHeight, true, "World", _chatFormKey, _focusChatWindow, chatFieldController, _selectedChatData)
+            : Container()
       ],
     );
   }
@@ -164,19 +422,22 @@ class ChatWindowState extends State<ChatWindow> {
   Widget chatWindowNormal(double chatWindowWidth, double chatWindowHeight, double fontSize) {
     double leftColumnWidth = chatWindowWidth / 3;
     double rightColumnWidth = leftColumnWidth * 2;
+    double headerHeight = 40;
     return Container(
       child: Column(
         children: [
-          chatWindowHeader(chatWindowWidth, 40, fontSize),
+          chatWindowHeader(chatWindowWidth, headerHeight, fontSize),
           Row(
             children: [
               SizedBox(
                 width: leftColumnWidth,
-                child: leftColumn(leftColumnWidth, chatWindowHeight-40, fontSize),
+                height: chatWindowHeight-headerHeight,
+                child: leftColumn(leftColumnWidth, chatWindowHeight-headerHeight, fontSize),
               ),
               SizedBox(
                 width: rightColumnWidth,
-                child: rightColumn(rightColumnWidth, chatWindowHeight-40, fontSize),
+                height: chatWindowHeight-headerHeight,
+                child: rightColumn(rightColumnWidth, chatWindowHeight-headerHeight, fontSize),
               )
             ],
           )
@@ -197,12 +458,13 @@ class ChatWindowState extends State<ChatWindow> {
 
   Widget chatWindow(BuildContext context) {
     double fontSize = 16;
-    double chatWindowWidth = 800;
+    double chatWindowWidth = 1500;
     double chatWindowHeight = (MediaQuery.of(context).size.height / 10) * 9;
     bool normalMode = true;
-    if (MediaQuery.of(context).size.width <= 800) {
+    if (MediaQuery.of(context).size.width <= 1500) {
       // Here we assume that it is a phone and we set the width to the total
       chatWindowWidth = MediaQuery.of(context).size.width;
+    } else if (MediaQuery.of(context).size.width <= 800) {
       normalMode = false;
     }
 

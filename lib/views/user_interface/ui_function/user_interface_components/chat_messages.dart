@@ -22,7 +22,9 @@ class ChatMessages extends ChangeNotifier {
 
   // We make a distinction between "World", "Events" and "Personal" for friends and guilds
   String activateChatBoxTab = "World";
+  String activateChatWindowTab = "World";
 
+  bool chatWindowActive = false;
   bool unreadWorldMessages = false;
   bool unreadEventMessages = false;
 
@@ -38,6 +40,10 @@ class ChatMessages extends ChangeNotifier {
 
   factory ChatMessages() {
     return _instance;
+  }
+
+  setChatWindowActive(bool value) {
+    chatWindowActive = value;
   }
 
   initializeChatMessages() {
@@ -146,7 +152,7 @@ class ChatMessages extends ChangeNotifier {
       unreadEventMessages = true;
     }
 
-    if (activateChatBoxTab == "Events") {
+    if (activateChatBoxTab == "Events" || (chatWindowActive && activateChatWindowTab == "Events")) {
       unreadEventMessages = false;
       lastMessage.read = true;
     }
@@ -163,7 +169,7 @@ class ChatMessages extends ChangeNotifier {
       unreadWorldMessages = true;
     }
 
-    if (activateChatBoxTab == "World") {
+    if (activateChatBoxTab == "World" || (chatWindowActive && activateChatWindowTab == "World")) {
       unreadWorldMessages = false;
       lastMessage.read = true;
     }
@@ -180,6 +186,14 @@ class ChatMessages extends ChangeNotifier {
 
   String getActiveChatBoxTab() {
     return activateChatBoxTab;
+  }
+
+  setActivateChatWindowTab(String tab) {
+    activateChatWindowTab = tab;
+  }
+
+  String getActivateChatWindowTab() {
+    return activateChatWindowTab;
   }
 
   setUnreadEventMessages(bool unread) {

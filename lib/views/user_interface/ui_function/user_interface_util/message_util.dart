@@ -20,7 +20,10 @@ Widget messageList(ChatMessages chatMessages, ScrollController messageScrollCont
       );
     } else {
       // In the regular world chat we want to get all the messages except the personal messages that were send by the user
-      messages = chatMessages.getAllWorldMessages(Settings().getUser()!.getUserName());
+      if (Settings().getUser() != null) {
+        messages = chatMessages.getAllWorldMessages(
+            Settings().getUser()!.getUserName());
+      }
     }
   }
   // In the mobile mode there is always a small section of the chat visible.

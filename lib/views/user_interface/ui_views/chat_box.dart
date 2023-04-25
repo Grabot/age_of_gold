@@ -142,7 +142,6 @@ class ChatBoxState extends State<ChatBox> {
     bool buttonActive = chatMessages.getActiveChatBoxTab() == tabName;
     if (!tileBoxVisible) {
       buttonActive = false;
-      // chatMessages.setActiveTab("");
     }
     return ElevatedButton(
       onPressed: () {
