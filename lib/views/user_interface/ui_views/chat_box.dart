@@ -315,7 +315,7 @@ class ChatBoxState extends State<ChatBox> {
               ),
             ),
             !isEvent && userLoggedIn
-                ? chatBoxTextField(chatBoxWidth, chatTextFieldHeight, tileBoxVisible, chatMessages.getActiveChatBoxTab(), _chatFormKey, _focusChatBox, chatFieldController, _selectedChatData)
+                ? chatTextField(chatBoxWidth, chatTextFieldHeight, tileBoxVisible, chatMessages.getActiveChatBoxTab(), _chatFormKey, _focusChatBox, chatFieldController, _selectedChatData)
                 : Container()
           ]
       ),
@@ -379,7 +379,7 @@ class ChatBoxState extends State<ChatBox> {
             ),
           ),
           !isEvent && userLoggedIn
-              ? chatBoxTextField(chatBoxWidth, chatTextFieldHeight, tileBoxVisible, chatMessages.getActiveChatBoxTab(), _chatFormKey, _focusChatBox, chatFieldController, _selectedChatData)
+              ? chatTextField(chatBoxWidth, chatTextFieldHeight, tileBoxVisible, chatMessages.getActiveChatBoxTab(), _chatFormKey, _focusChatBox, chatFieldController, _selectedChatData)
               : Container()
         ],
       ),
@@ -387,7 +387,7 @@ class ChatBoxState extends State<ChatBox> {
   }
 
   Widget chatBoxMobile(double chatBoxWidth) {
-    double topBarHeight = tileBoxVisible ? 34 : 50;
+    double topBarHeight = tileBoxVisible ? 34 : 60;
     double totalHeight = MediaQuery.of(context).size.height - 200;
     double alwaysVisibleHeight = topBarHeight;
 

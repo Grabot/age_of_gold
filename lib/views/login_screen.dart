@@ -13,6 +13,8 @@ import '../services/settings.dart';
 import '../util/util.dart';
 import 'package:age_of_gold/constants/route_paths.dart' as routes;
 
+import 'user_interface/ui_function/user_interface_util/loading_box_change_notifier.dart';
+
 
 class LoginScreen extends StatefulWidget {
 
@@ -77,7 +79,8 @@ class LoginScreenState extends State<LoginScreen> {
   String resetEmail = "";
 
   signInAgeOfGold() {
-    if (formKeyLogin.currentState!.validate()) {
+    if (formKeyLogin.currentState!.validate() && !isLoading) {
+      isLoading = true;
       // send login request
       String emailOrUserName = emailOrUsernameController.text;
       String password = password1Controller.text;
@@ -88,15 +91,18 @@ class LoginScreenState extends State<LoginScreen> {
           goToGame(_navigationService, widget.game);
         } else if (!loginResponse.getResult()) {
           showToastMessage(loginResponse.getMessage());
+          isLoading = false;
         }
       }).onError((error, stackTrace) {
         showToastMessage(error.toString());
+        isLoading = false;
       });
     }
   }
 
   signUpAgeOfGold() {
-    if (formKeyRegister.currentState!.validate()) {
+    if (formKeyRegister.currentState!.validate() && !isLoading) {
+      isLoading = true;
       String email = emailController.text;
       String userName = usernameController.text;
       String password = password2Controller.text;
@@ -107,15 +113,18 @@ class LoginScreenState extends State<LoginScreen> {
           goToGame(_navigationService, widget.game);
         } else if (!loginResponse.getResult()) {
           showToastMessage(loginResponse.getMessage());
+          isLoading = false;
         }
       }).onError((error, stackTrace) {
         showToastMessage(error.toString());
+        isLoading = false;
       });
     }
   }
 
   forgotPassword() {
-    if (formKeyReset.currentState!.validate()) {
+    if (formKeyReset.currentState!.validate() && !isLoading) {
+      isLoading = true;
       print("this guy forgot his gosh darned password");
       resetEmail = forgotPasswordEmailController.text;
       AuthServiceLogin authService = AuthServiceLogin();
@@ -124,13 +133,16 @@ class LoginScreenState extends State<LoginScreen> {
           setState(() {
             passwordResetSend = true;
           });
+          isLoading = true;
         } else if (!passwordResetResponse.getResult()) {
           showToastMessage(passwordResetResponse.getMessage());
           resetEmail = "";
+          isLoading = true;
         }
       }).onError((error, stackTrace) {
         showToastMessage(error.toString());
         resetEmail = "";
+        isLoading = true;
       });
     }
   }

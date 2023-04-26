@@ -7,5 +7,5 @@ class PersonalMessage extends Message {
   PersonalMessage(super.id, super.senderName, super.body, super.me, super.timestamp, super.read, this.to);
 
   @override
-  Color messageColour = Colors.purpleAccent.shade100;
+  Color messageColour = Colors.purpleAccent;
 }

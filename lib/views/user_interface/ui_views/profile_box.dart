@@ -79,6 +79,9 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
     _focusUsernameChange.addListener(_onFocusUsernameChange);
     _focusPasswordChange.addListener(_onFocusPasswordChange);
 
+    setState(() {
+
+    });
     super.initState();
   }
 

@@ -71,30 +71,33 @@ class MessageTileState extends State<MessageTile> {
     super.initState();
   }
 
-  TextSpan textBody(Color textColour) {
+  TextSpan textBody() {
+    Color textColour = Colors.white;
     return TextSpan(
       text: widget.message.body,
       style: TextStyle(
-          color: textColour.withOpacity(0.70),
-          fontSize: 16
+          color: textColour.withOpacity(0.80),
+          fontSize: 18
       ),
     );
   }
 
-  TextSpan textSenderName(Color textColour) {
+  TextSpan textSenderName() {
+    Color textColour = Colors.white;
     return TextSpan(
-      text: " ${widget.message.senderName} ",
+      text: " ${widget.message.senderName}: ",
       recognizer: TapGestureRecognizer()
         ..onTapDown = _showPopupMenu,
       style: TextStyle(
           color: textColour,
           fontWeight: FontWeight.bold,
-          fontSize: 16
+          fontSize: 18
       ),
     );
   }
 
-  TextSpan textDate(Color textColour) {
+  TextSpan textDate() {
+    Color textColour = Colors.white;
     return TextSpan(
       text: "[${DateFormat('HH:mm')
           .format(widget.message.timestamp)}] ",
@@ -106,18 +109,25 @@ class MessageTileState extends State<MessageTile> {
   }
 
   Widget messageBubbleMe() {
-    Color textColour = Colors.blue;
+    Color textColour = Colors.white;
     return Container(
       alignment: Alignment.bottomRight,
-      child: RichText(
+      child: Container(
+        padding: new EdgeInsets.only(left: 10.0, right: 10, top: 2, bottom: 2),
+        decoration: BoxDecoration(
+          borderRadius: new BorderRadius.circular(20.0),
+          color: Color(0xFF009E00).withOpacity(0.6),
+        ),
+        child: RichText(
           textAlign: TextAlign.right,
           text: TextSpan(
-              children: [
-                textDate(textColour),
-                textSenderName(textColour),
-                textBody(textColour),
-              ]
+            children: [
+              textDate(),
+              textSenderName(),
+              textBody(),
+            ]
           )
+        ),
       )
     );
   }
@@ -125,15 +135,22 @@ class MessageTileState extends State<MessageTile> {
   Widget messageBubble(Color textColour) {
     return Container(
         alignment: Alignment.bottomLeft,
-        child: RichText(
-            textAlign: TextAlign.left,
-            text: TextSpan(
-                children: [
-                  textDate(textColour),
-                  textSenderName(textColour),
-                  textBody(textColour),
-                ]
-            )
+        child: Container(
+          padding: new EdgeInsets.only(left: 10.0, right: 10, top: 2, bottom: 2),
+          decoration: BoxDecoration(
+            borderRadius: new BorderRadius.circular(20.0),
+            color: textColour.withOpacity(0.6),
+          ),
+          child: RichText(
+              textAlign: TextAlign.left,
+              text: TextSpan(
+                  children: [
+                    textDate(),
+                    textSenderName(),
+                    textBody(),
+                  ]
+              )
+          ),
         )
     );
   }
@@ -203,7 +220,7 @@ class MessageTileState extends State<MessageTile> {
   }
 }
 
-Widget chatBoxTextField(double chatBoxWidth, double chatTextFieldHeight, bool visible, String activeTab, GlobalKey<FormState> chatFormKey, FocusNode focusChatBox, TextEditingController chatFieldController, ChatData? selectedChatData) {
+Widget chatTextField(double chatBoxWidth, double chatTextFieldHeight, bool visible, String activeTab, GlobalKey<FormState> chatFormKey, FocusNode focusChatBox, TextEditingController chatFieldController, ChatData? selectedChatData) {
   double sendButtonWidth = 35;
   double regionSpacing = 10;
   if (visible) {
@@ -236,8 +253,8 @@ Widget chatBoxTextField(double chatBoxWidth, double chatTextFieldHeight, bool vi
                   keyboardType: TextInputType.multiline,
                   focusNode: focusChatBox,
                   controller: chatFieldController,
-                  decoration: const InputDecoration(
-                    border: UnderlineInputBorder(),
+                  decoration:  const InputDecoration(
+                    border: InputBorder.none,
                     labelText: 'Type your message',
                   ),
                 ),

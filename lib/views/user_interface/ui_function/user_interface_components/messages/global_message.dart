@@ -6,5 +6,5 @@ class GlobalMessage extends Message {
   GlobalMessage(super.id, super.senderName, super.body, super.me, super.timestamp, super.read);
 
   @override
-  Color messageColour = Colors.white;
+  Color messageColour = Colors.black26;
 }

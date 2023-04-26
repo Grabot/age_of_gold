@@ -6,5 +6,5 @@ class GuildMessage extends Message {
   GuildMessage(super.id, super.senderName, super.body, super.me, super.timestamp, super.read);
 
   @override
-  Color messageColour = Colors.green.shade300;
+  Color messageColour = Colors.orangeAccent;
 }

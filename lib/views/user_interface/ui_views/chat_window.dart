@@ -35,6 +35,7 @@ class ChatWindowState extends State<ChatWindow> {
   late ChatWindowChangeNotifier chatWindowChangeNotifier;
   var messageScrollController = ScrollController();
 
+  bool isWorld = false;
   bool isEvent = false;
 
   bool hasPersonalChats = false;
@@ -146,23 +147,33 @@ class ChatWindowState extends State<ChatWindow> {
   pressedWorldChat() {
     setState(() {
       chatMessages.setActivateChatWindowTab("World");
+      _selectedChatData = null;
+      chatMessages.setMessageUser(null);
       isEvent = false;
+      isWorld = true;
     });
   }
 
   pressedEventsChats() {
     setState(() {
       chatMessages.setActivateChatWindowTab("Events");
+      _selectedChatData = null;
+      chatMessages.setMessageUser(null);
       isEvent = true;
+      isWorld = false;
     });
   }
 
   Widget worldChatButton(double chatPickWidth, double worldChatButtonHeight, fontSize) {
+    MaterialColor buttonColour = Colors.blue;
+    if (isWorld) {
+      buttonColour = Colors.green;
+    }
     return ElevatedButton(
       onPressed: () {
         pressedWorldChat();
       },
-      style: buttonStyle(false, Colors.blue),
+      style: buttonStyle(false, buttonColour),
       child: Row(
         children: [
           Container(
@@ -188,11 +199,15 @@ class ChatWindowState extends State<ChatWindow> {
   }
 
   Widget eventsButton(double chatPickWidth, double eventsButtonHeight, fontSize) {
+    MaterialColor buttonColour = Colors.blue;
+    if (isEvent) {
+      buttonColour = Colors.green;
+    }
     return ElevatedButton(
       onPressed: () {
         pressedEventsChats();
       },
-      style: buttonStyle(false, Colors.blue),
+      style: buttonStyle(false, buttonColour),
       child: Row(
         children: [
           Container(
@@ -231,19 +246,25 @@ class ChatWindowState extends State<ChatWindow> {
 
   pressedPersonalButton(ChatData chatData) {
     setState(() {
+      print("setting personal stuff");
       isEvent = false;
+      isWorld = false;
       _selectedChatData = chatData;
       chatMessages.setMessageUser(chatData.name);
-      chatMessages.setActiveChatBoxTab("Personal");
+      chatMessages.setActivateChatWindowTab("Personal");
     });
   }
 
   Widget personalButton(double chatPickWidth, ChatData chatData, fontSize) {
+    MaterialColor buttonColour = Colors.blue;
+    if (!isEvent && !isWorld && _selectedChatData != null && _selectedChatData!.name == chatData.name) {
+      buttonColour = Colors.green;
+    }
     return ElevatedButton(
       onPressed: () {
         pressedPersonalButton(chatData);
       },
-      style: buttonStyle(false, Colors.blue),
+      style: buttonStyle(false, buttonColour),
       child: Row(
         children: [
           Container(
@@ -399,6 +420,7 @@ class ChatWindowState extends State<ChatWindow> {
       ]
     );
   }
+
   Widget rightColumn(double rightColumnWidth, double leftColumnHeight, double fontSize) {
     double chatTextFieldHeight = 60;
     if (isEvent) {
@@ -409,11 +431,10 @@ class ChatWindowState extends State<ChatWindow> {
         Container(
             width: rightColumnWidth,
             height: leftColumnHeight - chatTextFieldHeight,
-            color: Colors.green,
             child: messageList(chatMessages, messageScrollController, userInteraction, _selectedChatData, isEvent, true)
         ),
         !isEvent
-            ? chatBoxTextField(rightColumnWidth, chatTextFieldHeight, true, "World", _chatFormKey, _focusChatWindow, chatFieldController, _selectedChatData)
+            ? chatTextField(rightColumnWidth, chatTextFieldHeight, true, chatMessages.getActivateChatWindowTab(), _chatFormKey, _focusChatWindow, chatFieldController, _selectedChatData)
             : Container()
       ],
     );
@@ -423,36 +444,32 @@ class ChatWindowState extends State<ChatWindow> {
     double leftColumnWidth = chatWindowWidth / 3;
     double rightColumnWidth = leftColumnWidth * 2;
     double headerHeight = 40;
-    return Container(
-      child: Column(
-        children: [
-          chatWindowHeader(chatWindowWidth, headerHeight, fontSize),
-          Row(
-            children: [
-              SizedBox(
-                width: leftColumnWidth,
-                height: chatWindowHeight-headerHeight,
-                child: leftColumn(leftColumnWidth, chatWindowHeight-headerHeight, fontSize),
-              ),
-              SizedBox(
-                width: rightColumnWidth,
-                height: chatWindowHeight-headerHeight,
-                child: rightColumn(rightColumnWidth, chatWindowHeight-headerHeight, fontSize),
-              )
-            ],
-          )
-        ],
-      ),
+    return Column(
+      children: [
+        chatWindowHeader(chatWindowWidth, headerHeight, fontSize),
+        Row(
+          children: [
+            SizedBox(
+              width: leftColumnWidth,
+              height: chatWindowHeight-headerHeight,
+              child: leftColumn(leftColumnWidth, chatWindowHeight-headerHeight, fontSize),
+            ),
+            SizedBox(
+              width: rightColumnWidth,
+              height: chatWindowHeight-headerHeight,
+              child: rightColumn(rightColumnWidth, chatWindowHeight-headerHeight, fontSize),
+            )
+          ],
+        )
+      ],
     );
   }
 
   Widget chatWindowMobile(double chatWindowWidth, double chatWindowHeight, double fontSize) {
-    return Container(
-      child: Column(
-        children: [
-          chatWindowHeader(chatWindowWidth, 40, fontSize),
-        ],
-      ),
+    return Column(
+      children: [
+        chatWindowHeader(chatWindowWidth, 40, fontSize),
+      ],
     );
   }
 
@@ -471,7 +488,7 @@ class ChatWindowState extends State<ChatWindow> {
     return Container(
       width: chatWindowWidth,
       height: chatWindowHeight,
-      color: Colors.brown,
+      color: Colors.blueGrey,
       child: normalMode
           ? chatWindowNormal(chatWindowWidth, chatWindowHeight, fontSize)
           : chatWindowMobile(chatWindowWidth, chatWindowHeight, fontSize)
