@@ -2,10 +2,11 @@ import 'package:age_of_gold/age_of_gold.dart';
 import 'package:age_of_gold/services/auth_service_world.dart';
 import 'package:age_of_gold/services/socket_services.dart';
 import 'package:age_of_gold/util/util.dart';
-import 'package:age_of_gold/views/user_interface/ui_function/user_interface_components/chat_messages.dart';
-import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/chat_window_change_notifier.dart';
-import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/message_util.dart';
-import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/user_box_change_notifier.dart';
+import 'package:age_of_gold/views/user_interface/ui_util/chat_messages.dart';
+import 'package:age_of_gold/views/user_interface/ui_util/message_util.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/chat_box/chat_box_change_notifier.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/chat_window/chat_window_change_notifier.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/user_box/user_box_change_notifier.dart';
 import 'package:flutter/material.dart';
 
 
@@ -48,6 +49,9 @@ class ChatWindowState extends State<ChatWindow> {
   bool searchActive = false;
   List<ChatData> shownChatData = [];
 
+  // Only used with mobile mode
+  bool normalMode = false;
+  bool selectionScreen = false;
 
   @override
   void initState() {
@@ -87,11 +91,7 @@ class ChatWindowState extends State<ChatWindow> {
         setState(() {
           hasPersonalChats = false;
           showChatWindow = true;
-          chatMessages.setChatWindowActive(true);
-          if (chatMessages.regions[0].name != "No Chats Found!") {
-            hasPersonalChats = true;
-            shownChatData = chatMessages.regions;
-          }
+          setChatWindowActive();
         });
       }
       if (showChatWindow && !chatWindowChangeNotifier.getChatWindowVisible()) {
@@ -101,6 +101,36 @@ class ChatWindowState extends State<ChatWindow> {
           chatMessages.setChatWindowActive(false);
         });
       }
+    }
+  }
+
+  setChatWindowActive() {
+    chatMessages.setChatWindowActive(true);
+    if (chatMessages.getActivateChatWindowTab() == "") {
+      chatMessages.setActivateChatWindowTab("World");
+      isWorld = true;
+      isEvent = false;
+    } if (chatMessages.getActivateChatWindowTab() == "World") {
+      isWorld = true;
+      isEvent = false;
+    } else if (chatMessages.getActivateChatWindowTab() == "Events") {
+      isWorld = false;
+      isEvent = true;
+    } else if (chatMessages.getActivateChatWindowTab() == "Personal") {
+      // Find the user that was currently active in the chatbox.
+      for (ChatData chatData in chatMessages.regions) {
+        if (chatData.name == chatMessages.getMessageUser()) {
+          isEvent = false;
+          isWorld = false;
+          _selectedChatData = chatData;
+          chatMessages.setActivateChatWindowTab("Personal");
+          break;
+        }
+      }
+    }
+    if (chatMessages.regions[0].name != "No Chats Found!") {
+      hasPersonalChats = true;
+      shownChatData = chatMessages.regions;
     }
   }
 
@@ -114,6 +144,7 @@ class ChatWindowState extends State<ChatWindow> {
 
   goBack() {
     setState(() {
+      selectionScreen = false;
       chatWindowChangeNotifier.setChatWindowVisible(false);
     });
   }
@@ -122,6 +153,17 @@ class ChatWindowState extends State<ChatWindow> {
     return Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
+          !normalMode && !selectionScreen
+              ? IconButton(
+              icon: const Icon(Icons.arrow_back),
+              color: Colors.orangeAccent.shade200,
+              tooltip: 'go to chat selection',
+              onPressed: () {
+                setState(() {
+                  selectionScreen = true;
+                });
+              }
+          ) : Container(),
           SizedBox(
             height: headerHeight,
             child: Text(
@@ -147,20 +189,24 @@ class ChatWindowState extends State<ChatWindow> {
   pressedWorldChat() {
     setState(() {
       chatMessages.setActivateChatWindowTab("World");
+      ChatBoxChangeNotifier().setActiveTab("World");
       _selectedChatData = null;
       chatMessages.setMessageUser(null);
       isEvent = false;
       isWorld = true;
+      selectionScreen = false;
     });
   }
 
   pressedEventsChats() {
     setState(() {
       chatMessages.setActivateChatWindowTab("Events");
+      ChatBoxChangeNotifier().setActiveTab("Events");
       _selectedChatData = null;
       chatMessages.setMessageUser(null);
       isEvent = true;
       isWorld = false;
+      selectionScreen = false;
     });
   }
 
@@ -252,6 +298,7 @@ class ChatWindowState extends State<ChatWindow> {
       _selectedChatData = chatData;
       chatMessages.setMessageUser(chatData.name);
       chatMessages.setActivateChatWindowTab("Personal");
+      selectionScreen = false;
     });
   }
 
@@ -421,7 +468,7 @@ class ChatWindowState extends State<ChatWindow> {
     );
   }
 
-  Widget rightColumn(double rightColumnWidth, double leftColumnHeight, double fontSize) {
+  Widget rightColumn(double rightColumnWidth, double rightColumnHeight, double fontSize) {
     double chatTextFieldHeight = 60;
     if (isEvent) {
       chatTextFieldHeight = 0;
@@ -430,7 +477,7 @@ class ChatWindowState extends State<ChatWindow> {
       children: [
         Container(
             width: rightColumnWidth,
-            height: leftColumnHeight - chatTextFieldHeight,
+            height: rightColumnHeight - chatTextFieldHeight,
             child: messageList(chatMessages, messageScrollController, userInteraction, _selectedChatData, isEvent, true)
         ),
         !isEvent
@@ -466,23 +513,45 @@ class ChatWindowState extends State<ChatWindow> {
   }
 
   Widget chatWindowMobile(double chatWindowWidth, double chatWindowHeight, double fontSize) {
-    return Column(
-      children: [
-        chatWindowHeader(chatWindowWidth, 40, fontSize),
-      ],
-    );
+    double headerHeight = 40;
+    if (selectionScreen) {
+      return Column(
+        children: [
+          chatWindowHeader(chatWindowWidth, headerHeight, fontSize),
+          SizedBox(
+            width: chatWindowWidth,
+            height: chatWindowHeight-headerHeight,
+            child: leftColumn(chatWindowWidth, chatWindowHeight-headerHeight, fontSize),
+          ),
+        ],
+      );
+    } else {
+      return Column(
+        children: [
+          chatWindowHeader(chatWindowWidth, headerHeight, fontSize),
+          SizedBox(
+            width: chatWindowWidth,
+            height: chatWindowHeight-headerHeight,
+            child: rightColumn(chatWindowWidth, chatWindowHeight-headerHeight, fontSize),
+          )
+        ],
+      );
+    }
   }
 
   Widget chatWindow(BuildContext context) {
     double fontSize = 16;
     double chatWindowWidth = 1500;
+    // We use the total height to hide the chatbox below
     double chatWindowHeight = (MediaQuery.of(context).size.height / 10) * 9;
-    bool normalMode = true;
-    if (MediaQuery.of(context).size.width <= 1500) {
+    normalMode = true;
+    if (MediaQuery.of(context).size.width <= 800) {
+      chatWindowWidth = MediaQuery.of(context).size.width;
+      chatWindowHeight = MediaQuery.of(context).size.height;
+      normalMode = false;
+    } else if (MediaQuery.of(context).size.width <= 1500) {
       // Here we assume that it is a phone and we set the width to the total
       chatWindowWidth = MediaQuery.of(context).size.width;
-    } else if (MediaQuery.of(context).size.width <= 800) {
-      normalMode = false;
     }
 
     return Container(
@@ -522,6 +591,9 @@ class ChatWindowState extends State<ChatWindow> {
         // Check if the placeholder "No Chats Found!" is in the list and remove it.
         chatMessages.removePlaceholder();
       }
+      chatMessages.setActivateChatWindowTab("Personal");
+      hasPersonalChats = true;
+      resetSearch();
       setState(() {});
     } else {
       // open the user overview panel.

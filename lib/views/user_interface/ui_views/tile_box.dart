@@ -6,10 +6,9 @@ import 'package:age_of_gold/services/socket_services.dart';
 import 'package:age_of_gold/util/navigation_service.dart';
 import 'package:age_of_gold/util/render_objects.dart';
 import 'package:age_of_gold/util/util.dart';
-import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/profile_change_notifier.dart';
-import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/selected_tile_info.dart';
-import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/user_box_change_notifier.dart';
-import 'package:flutter/gestures.dart';
+import 'package:age_of_gold/views/user_interface/ui_util/selected_tile_info.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/profile_box/profile_change_notifier.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/user_box/user_box_change_notifier.dart';
 import 'package:flutter/material.dart';
 
 

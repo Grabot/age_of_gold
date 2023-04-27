@@ -1,13 +1,11 @@
 import 'package:age_of_gold/services/settings.dart';
+import 'package:age_of_gold/views/user_interface/ui_util/messages/event_message.dart';
+import 'package:age_of_gold/views/user_interface/ui_util/messages/global_message.dart';
+import 'package:age_of_gold/views/user_interface/ui_util/messages/guild_message.dart';
+import 'package:age_of_gold/views/user_interface/ui_util/messages/local_message.dart';
+import 'package:age_of_gold/views/user_interface/ui_util/messages/message.dart';
+import 'package:age_of_gold/views/user_interface/ui_util/messages/personal_message.dart';
 import 'package:flutter/material.dart';
-
-import 'message.dart';
-import 'messages/event_message.dart';
-import 'messages/guild_message.dart';
-import 'messages/global_message.dart';
-import 'messages/local_message.dart';
-import 'messages/personal_message.dart';
-
 
 class ChatMessages extends ChangeNotifier {
   List<Message> chatMessages = [];
@@ -44,6 +42,7 @@ class ChatMessages extends ChangeNotifier {
 
   setChatWindowActive(bool value) {
     chatWindowActive = value;
+    activateChatWindowTab = activateChatBoxTab;
   }
 
   initializeChatMessages() {
@@ -190,6 +189,8 @@ class ChatMessages extends ChangeNotifier {
 
   setActivateChatWindowTab(String tab) {
     activateChatWindowTab = tab;
+    // We also set the chatbox tab.
+    activateChatBoxTab = tab;
   }
 
   String getActivateChatWindowTab() {
@@ -259,6 +260,10 @@ class ChatMessages extends ChangeNotifier {
         break;
       }
     }
+  }
+
+  getMessageUser() {
+    return messageUser;
   }
 
   String hintText() {

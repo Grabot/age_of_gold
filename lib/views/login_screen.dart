@@ -13,7 +13,7 @@ import '../services/settings.dart';
 import '../util/util.dart';
 import 'package:age_of_gold/constants/route_paths.dart' as routes;
 
-import 'user_interface/ui_function/user_interface_util/loading_box_change_notifier.dart';
+import 'user_interface/ui_views/loading_box/loading_box_change_notifier.dart';
 
 
 class LoginScreen extends StatefulWidget {

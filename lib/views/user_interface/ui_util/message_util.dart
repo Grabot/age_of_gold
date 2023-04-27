@@ -1,9 +1,8 @@
 import 'package:age_of_gold/services/auth_service_message.dart';
 import 'package:age_of_gold/services/models/user.dart';
 import 'package:age_of_gold/services/settings.dart';
-import 'package:age_of_gold/views/user_interface/ui_function/user_interface_components/chat_messages.dart';
-import 'package:age_of_gold/views/user_interface/ui_function/user_interface_components/message.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/chat_box.dart';
+import 'package:age_of_gold/views/user_interface/ui_util/chat_messages.dart';
+import 'package:age_of_gold/views/user_interface/ui_util/messages/message.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -65,8 +64,10 @@ class MessageTileState extends State<MessageTile> {
   bool isMe = false;
   @override
   void initState() {
-    if (widget.message.senderName == Settings().getUser()!.getUserName()) {
-      isMe = true;
+    if (Settings().getUser() != null) {
+      if (widget.message.senderName == Settings().getUser()!.getUserName()) {
+        isMe = true;
+      }
     }
     super.initState();
   }

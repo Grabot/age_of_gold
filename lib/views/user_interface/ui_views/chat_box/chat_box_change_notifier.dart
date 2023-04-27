@@ -6,6 +6,8 @@ class ChatBoxChangeNotifier extends ChangeNotifier {
 
   bool showChatBox = false;
   String? chatUser;
+  String? activeTab;
+
   static final ChatBoxChangeNotifier _instance = ChatBoxChangeNotifier._internal();
 
   ChatBoxChangeNotifier._internal();
@@ -29,5 +31,14 @@ class ChatBoxChangeNotifier extends ChangeNotifier {
 
   setChatUser(String userName) {
     this.chatUser = userName;
+  }
+
+  setActiveTab(String tab) {
+    this.activeTab = tab;
+    notifyListeners();
+  }
+
+  String? getActiveTab() {
+    return activeTab;
   }
 }

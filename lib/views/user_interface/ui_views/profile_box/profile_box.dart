@@ -10,8 +10,8 @@ import 'package:age_of_gold/util/countdown.dart';
 import 'package:age_of_gold/util/navigation_service.dart';
 import 'package:age_of_gold/util/render_objects.dart';
 import 'package:age_of_gold/util/util.dart';
-import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/change_avatar_change_notifier.dart';
-import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/profile_change_notifier.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/change_avatar_box/change_avatar_change_notifier.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/profile_box/profile_change_notifier.dart';
 import 'package:flutter/material.dart';
 
 
@@ -351,8 +351,8 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
           child: Column(
             children: [
               tileTimeInformation(width, fontSize),  // TODO: tileinformation not working?
-              SizedBox(height: 20),
-              verifyEmailBox(width, fontSize),
+              // SizedBox(height: 20),
+              // verifyEmailBox(width, fontSize),
             ],
           ),
         ),
@@ -551,8 +551,8 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
       children: [
         profileAvatar(widthAvatar, fontSize),
         tileTimeInformation(width, fontSize),
-        SizedBox(height: 20),
-        verifyEmailBox(width, fontSize),
+        // SizedBox(height: 20),
+        // verifyEmailBox(width, fontSize),
       ],
     );
   }

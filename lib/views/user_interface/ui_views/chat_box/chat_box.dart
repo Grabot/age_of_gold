@@ -1,20 +1,15 @@
 import 'package:age_of_gold/age_of_gold.dart';
-import 'package:age_of_gold/services/auth_service_message.dart';
 import 'package:age_of_gold/services/auth_service_world.dart';
-import 'package:age_of_gold/services/models/user.dart';
 import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/services/socket_services.dart';
 import 'package:age_of_gold/util/util.dart';
-import 'package:age_of_gold/views/user_interface/ui_function/user_interface_components/chat_messages.dart';
-import 'package:age_of_gold/views/user_interface/ui_function/user_interface_components/message.dart';
-import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/chat_box_change_notifier.dart';
-import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/chat_window_change_notifier.dart';
-import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/message_util.dart';
-import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/user_box_change_notifier.dart';
+import 'package:age_of_gold/views/user_interface/ui_util/chat_messages.dart';
+import 'package:age_of_gold/views/user_interface/ui_util/message_util.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/chat_box/chat_box_change_notifier.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/chat_window/chat_window_change_notifier.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/user_box/user_box_change_notifier.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 
 class ChatBox extends StatefulWidget {
@@ -76,6 +71,15 @@ class ChatBoxState extends State<ChatBox> {
 
   chatBoxChangeListener() {
     if (mounted) {
+      if (!normalMode) {
+        if (chatBoxChangeNotifier.getActiveTab() != null) {
+          if (chatBoxChangeNotifier.getActiveTab() == "World" || chatBoxChangeNotifier.getActiveTab() == "Events") {
+            setState(() {
+              _selectedChatData = null;
+            });
+          }
+        }
+      }
       if (!tileBoxVisible && chatBoxChangeNotifier.getChatBoxVisible()) {
         setState(() {
           if (chatBoxChangeNotifier.getChatUser() != null) {
@@ -88,7 +92,6 @@ class ChatBoxState extends State<ChatBox> {
       if (tileBoxVisible && !chatBoxChangeNotifier.getChatBoxVisible()) {
         setState(() {
           tileBoxVisible = false;
-          chatMessages.setActiveChatBoxTab("");
         });
       }
       if (tileBoxVisible && chatBoxChangeNotifier.getChatUser() != null) {
@@ -326,16 +329,15 @@ class ChatBoxState extends State<ChatBox> {
     bool showMessageField = (tileBoxVisible || !normalMode);
     return Row(
       children: [
-        showMesssageWindow(topBarHeight),
         GestureDetector(
           onTap: () {
             setState(() {
-              tileBoxVisible = true;
+              showChatWindow();
               readMessages();
             });
           },
           child: SizedBox(
-            width: chatBoxWidth - (topBarHeight * 2),
+            width: chatBoxWidth - topBarHeight,
             child: Column(
               children: [
                 Expanded(
@@ -345,7 +347,7 @@ class ChatBoxState extends State<ChatBox> {
             ),
           ),
         ),
-        showOrHideChatBox(topBarHeight)
+        showMesssageWindow(topBarHeight),
       ],
     );
   }
@@ -500,8 +502,10 @@ class ChatBoxState extends State<ChatBox> {
         chatMessages.removePlaceholder();
       }
       chatMessages.setActiveChatBoxTab("Personal");
-      if (!tileBoxVisible) {
+      if (normalMode && !tileBoxVisible) {
         tileBoxVisible = true;
+      } else if (!normalMode) {
+        showChatWindow();
       }
       setState(() {});
     } else {

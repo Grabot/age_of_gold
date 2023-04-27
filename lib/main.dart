@@ -8,7 +8,7 @@ import 'package:age_of_gold/views/email_verification_page.dart';
 import 'package:age_of_gold/views/home_page.dart';
 import 'package:age_of_gold/views/login_screen.dart';
 import 'package:age_of_gold/views/password_reset_page.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/change_avatar_box.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/change_avatar_box/change_avatar_box.dart';
 import 'package:age_of_gold/views/world_access_page.dart';
 import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
@@ -17,13 +17,14 @@ import 'package:oktoast/oktoast.dart';
 import 'package:url_strategy/url_strategy.dart';
 
 import 'age_of_gold.dart';
-import 'views/user_interface/ui_views/chat_box.dart';
-import 'views/user_interface/ui_views/chat_window.dart';
-import 'views/user_interface/ui_views/loading_box.dart';
-import 'views/user_interface/ui_views/profile_box.dart';
+import 'views/user_interface/ui_views/chat_box/chat_box.dart';
+import 'views/user_interface/ui_views/chat_window/chat_window.dart';
+import 'views/user_interface/ui_views/friend_window/friend_window.dart';
+import 'views/user_interface/ui_views/loading_box/loading_box.dart';
+import 'views/user_interface/ui_views/profile_box/profile_box.dart';
 import 'views/user_interface/ui_views/profile_overview.dart';
 import 'views/user_interface/ui_views/tile_box.dart';
-import 'views/user_interface/ui_views/user_box.dart';
+import 'views/user_interface/ui_views/user_box/user_box.dart';
 
 
 Future<void> main() async {
@@ -53,6 +54,7 @@ Future<void> main() async {
           'changeAvatar': _changeAvatarBoxBuilder,
           'loadingBox': _loadingBoxBuilder,
           'chatWindow': _chatWindowBuilder,
+          'friendWindow': _friendWindowBuilder,
         },
         initialActiveOverlays: const [
           'chatBox',
@@ -63,6 +65,7 @@ Future<void> main() async {
           'changeAvatar',
           'loadingBox',
           'chatWindow',
+          'friendWindow',
         ],
       )
   );
@@ -161,4 +164,8 @@ Widget _loadingBoxBuilder(BuildContext buildContext, AgeOfGold game) {
 
 Widget _chatWindowBuilder(BuildContext buildContext, AgeOfGold game) {
   return ChatWindow(key: UniqueKey(), game: game);
+}
+
+Widget _friendWindowBuilder(BuildContext buildContext, AgeOfGold game) {
+  return FriendWindow(key: UniqueKey(), game: game);
 }

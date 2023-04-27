@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/crop/controller.dart';
+import 'package:age_of_gold/views/user_interface/ui_util/crop/controller.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image/image.dart' as image;

@@ -1,15 +1,15 @@
 import 'dart:convert';
 import 'dart:typed_data';
+import 'package:age_of_gold/views/user_interface/ui_util/crop/controller.dart';
+import 'package:age_of_gold/views/user_interface/ui_util/crop/crop.dart';
 import 'package:image/image.dart' as image;
 import 'package:age_of_gold/age_of_gold.dart';
 import 'package:age_of_gold/services/auth_service_setting.dart';
 import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/util/render_objects.dart';
 import 'package:age_of_gold/util/util.dart';
-import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/change_avatar_change_notifier.dart';
-import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/crop/controller.dart';
-import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/crop/crop.dart';
-import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/loading_box_change_notifier.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/change_avatar_box/change_avatar_change_notifier.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/loading_box/loading_box_change_notifier.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 

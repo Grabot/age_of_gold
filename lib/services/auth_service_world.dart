@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:age_of_gold/views/user_interface/ui_util/selected_tile_info.dart';
 import 'package:flame/components.dart';
 import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/services/socket_services.dart';
-import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/selected_tile_info.dart';
 import 'package:dio/dio.dart';
 import 'package:tuple/tuple.dart';
 import '../component/tile.dart';

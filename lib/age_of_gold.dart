@@ -16,7 +16,7 @@ import 'package:flame/components.dart';
 import 'package:flutter/services.dart';
 import 'package:universal_html/html.dart' as html;
 import 'package:age_of_gold/world/world.dart';
-import 'views/user_interface/ui_function/user_interface_util/profile_change_notifier.dart';
+import 'views/user_interface/ui_views/profile_box/profile_change_notifier.dart';
 
 
 // flutter run -d chrome --release --web-hostname localhost --web-port 7357
@@ -153,6 +153,13 @@ class AgeOfGold extends FlameGame
 
   userBoxFocus(bool userFocus) {
     playFieldFocus = !userFocus;
+    if (playFieldFocus) {
+      gameFocus.requestFocus();
+    }
+  }
+
+  friendWindowFocus(bool friendFocus) {
+    playFieldFocus = !friendFocus;
     if (playFieldFocus) {
       gameFocus.requestFocus();
     }

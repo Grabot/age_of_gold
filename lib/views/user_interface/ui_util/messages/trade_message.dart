@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../message.dart';
+import 'message.dart';
 
 
 class TradeMessage extends Message {

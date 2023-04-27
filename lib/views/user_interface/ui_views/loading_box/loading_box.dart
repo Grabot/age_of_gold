@@ -1,6 +1,5 @@
 import 'package:age_of_gold/age_of_gold.dart';
-import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/loading_box_change_notifier.dart';
-import 'package:age_of_gold/views/user_interface/ui_function/user_interface_util/user_box_change_notifier.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/loading_box/loading_box_change_notifier.dart';
 import 'package:flutter/material.dart';
 
 
@@ -17,7 +16,7 @@ class LoadingBox extends StatefulWidget {
   LoadingBoxState createState() => LoadingBoxState();
 }
 
-class LoadingBoxState extends State<LoadingBox> with TickerProviderStateMixin {
+class LoadingBoxState extends State<LoadingBox> {
 
   final FocusNode _focusLoadingBox = FocusNode();
   bool showLoading = false;
