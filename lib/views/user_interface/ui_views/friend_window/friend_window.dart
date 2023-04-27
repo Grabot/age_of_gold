@@ -19,7 +19,7 @@ class FriendWindow extends StatefulWidget {
 class FriendWindowState extends State<FriendWindow> {
 
   final FocusNode _focusFriendWindow = FocusNode();
-  bool showFriendWindow = true;
+  bool showFriendWindow = false;
 
   late FriendWindowChangeNotifier friendWindowChangeNotifier;
 

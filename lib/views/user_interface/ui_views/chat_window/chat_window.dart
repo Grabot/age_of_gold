@@ -3,6 +3,7 @@ import 'package:age_of_gold/services/auth_service_world.dart';
 import 'package:age_of_gold/services/socket_services.dart';
 import 'package:age_of_gold/util/util.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/chat_messages.dart';
+import 'package:age_of_gold/views/user_interface/ui_util/clear_ui.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/message_util.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/chat_box/chat_box_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/chat_window/chat_window_change_notifier.dart';
@@ -599,6 +600,7 @@ class ChatWindowState extends State<ChatWindow> {
       // open the user overview panel.
       AuthServiceWorld().getUser(userName).then((value) {
         if (value != null) {
+          ClearUI().clearUserInterfaces();
           UserBoxChangeNotifier().setUser(value);
           UserBoxChangeNotifier().setUserBoxVisible(true);
         } else {

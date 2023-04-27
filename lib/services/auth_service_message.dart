@@ -4,6 +4,8 @@ import 'package:age_of_gold/services/models/login_response.dart';
 import 'package:age_of_gold/services/models/register_request.dart';
 import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/services/socket_services.dart';
+import 'package:age_of_gold/views/user_interface/ui_util/messages/global_message.dart';
+import 'package:age_of_gold/views/user_interface/ui_util/messages/message.dart';
 import 'package:dio/dio.dart';
 import 'package:tuple/tuple.dart';
 import '../component/hexagon.dart';
@@ -169,6 +171,42 @@ class AuthServiceMessage {
         return "success";
       } else {
         return json["message"];
+      }
+    }
+  }
+
+  Future<List<Message>?> getMessagesGlobal() async {
+    String endPoint = "get/message/global";
+    var response = await AuthApi().dio.get(endPoint,
+      options: Options(headers: {
+        HttpHeaders.contentTypeHeader: "application/json",
+      }),
+    );
+
+    Map<String, dynamic> json = response.data;
+    if (!json.containsKey("result")) {
+      return null;
+    } else {
+      if (json["result"]) {
+        print("get messages success $json");
+        List messages = json["messages"];
+        List<Message> messageList = [];
+        String nameMe = Settings().getUser()!.getUserName();
+        for (var message in messages) {
+          String senderName = message["sender_name"];
+          String body = message["body"];
+          bool me = senderName == nameMe;
+          String time = message["timestamp"];
+          if (!time.endsWith("Z")) {
+            // The server has utc timestamp, but it's not formatted with the 'Z'.
+            time += "Z";
+          }
+          DateTime timestamp = DateTime.parse(time).toLocal();
+          messageList.add(GlobalMessage(0, senderName, body, me, timestamp, true));
+        }
+        return messageList;
+      } else {
+        return null;
       }
     }
   }

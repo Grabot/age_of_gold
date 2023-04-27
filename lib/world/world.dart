@@ -1,6 +1,7 @@
 import 'package:age_of_gold/component/tile.dart';
 import 'package:age_of_gold/util/render_hexagons.dart';
 import 'package:age_of_gold/util/tapped_map.dart';
+import 'package:age_of_gold/views/user_interface/ui_util/clear_ui.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/selected_tile_info.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/change_avatar_box/change_avatar_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/chat_window/chat_window_change_notifier.dart';
@@ -37,12 +38,6 @@ class World extends Component {
 
   World(this.startHexQ, this.startHexR);
 
-  late ProfileChangeNotifier profileChangeNotifier;
-  late UserBoxChangeNotifier userBoxChangeNotifier;
-  late ChangeAvatarChangeNotifier changeAvatarChangeNotifier;
-  late LoadingBoxChangeNotifier loadingBoxChangeNotifier;
-  late ChatWindowChangeNotifier chatWindowChangeNotifier;
-
   @override
   Future<void> onLoad() async {
     super.onLoad();
@@ -54,12 +49,6 @@ class World extends Component {
     hexagonList = HexagonList();
     hexagonList.setSocketService(socketServices);
     hexagonList.retrieveHexagons(startHexQ, startHexR);
-
-    profileChangeNotifier = ProfileChangeNotifier();
-    userBoxChangeNotifier = UserBoxChangeNotifier();
-    changeAvatarChangeNotifier = ChangeAvatarChangeNotifier();
-    loadingBoxChangeNotifier = LoadingBoxChangeNotifier();
-    chatWindowChangeNotifier = ChatWindowChangeNotifier();
   }
 
   @override
@@ -93,21 +82,7 @@ class World extends Component {
   }
 
   focusWorld() {
-    if (profileChangeNotifier.getProfileVisible()) {
-      profileChangeNotifier.setProfileVisible(false);
-    }
-    if (userBoxChangeNotifier.getUserBoxVisible()) {
-      userBoxChangeNotifier.setUserBoxVisible(false);
-    }
-    if (changeAvatarChangeNotifier.getChangeAvatarVisible()) {
-      changeAvatarChangeNotifier.setChangeAvatarVisible(false);
-    }
-    if (loadingBoxChangeNotifier.getLoadingBoxVisible()) {
-      loadingBoxChangeNotifier.setLoadingBoxVisible(false);
-    }
-    if (chatWindowChangeNotifier.getChatWindowVisible()) {
-      chatWindowChangeNotifier.setChatWindowVisible(false);
-    }
+    ClearUI().clearUserInterfaces();
   }
 
   getAdditionalTileInfo(Tile tile, Vector2 screenPos) {

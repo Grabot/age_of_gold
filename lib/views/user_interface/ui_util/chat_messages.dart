@@ -1,3 +1,4 @@
+import 'package:age_of_gold/services/auth_service_message.dart';
 import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/messages/event_message.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/messages/global_message.dart';
@@ -30,6 +31,11 @@ class ChatMessages extends ChangeNotifier {
 
   ChatMessages._internal() {
     initializeChatMessages();
+    AuthServiceMessage().getMessagesGlobal().then((value) {
+      if (value != null) {
+        chatMessages.addAll(value.reversed);
+      }
+    });
     // populate chatData with guilds or friends?
     ChatData chatData = ChatData(0, "No Chats Found!", false);
     regions.add(chatData);
@@ -213,11 +219,9 @@ class ChatMessages extends ChangeNotifier {
     return unreadWorldMessages;
   }
 
-  clearMessages() {
-    chatMessages = [];
-    eventMessages = [];
+  clearPersonalMessages() {
     personalMessages = {};
-    initializeChatMessages();
+    chatMessages.removeWhere((element) => element is PersonalMessage);
   }
 
   removePlaceholder() {
@@ -315,7 +319,6 @@ class ChatMessages extends ChangeNotifier {
       ),
     );
   }
-
 }
 
 class ChatData {
