@@ -4,6 +4,7 @@ import 'package:age_of_gold/services/socket_services.dart';
 import 'package:age_of_gold/util/countdown.dart';
 import 'package:age_of_gold/util/render_objects.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/selected_tile_info.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/friend_window/friend_window_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/profile_box/profile_change_notifier.dart';
 import 'package:flutter/material.dart';
 
@@ -111,6 +112,10 @@ class ProfileOverviewState extends State<ProfileOverview> with TickerProviderSta
     }
   }
 
+  openFriendWindow() {
+    FriendWindowChangeNotifier().setFriendWindowVisible(true);
+  }
+
   Widget tileTimeInformation() {
     if (canChangeTiles) {
       return Container();
@@ -183,7 +188,7 @@ class ProfileOverviewState extends State<ProfileOverview> with TickerProviderSta
                 child: InkWell(
                   splashColor: Colors.orangeAccent,
                   onTap: () {
-                    print("pressed the friends button");
+                    openFriendWindow();
                   },
                   child: Icon(Icons.people),
                 ),
@@ -206,10 +211,10 @@ class ProfileOverviewState extends State<ProfileOverview> with TickerProviderSta
 
   Widget profileOverviewMobile(double profileOverviewWidth, double profileOverviewHeight, double fontSize) {
     return Row(
-        children: [
-          profileWidget(profileOverviewWidth/2, profileOverviewHeight),
-          profileSettingButtons(30)
-        ]
+      children: [
+        profileWidget(profileOverviewWidth/2, profileOverviewHeight),
+        profileSettingButtons(30)
+      ]
     );
   }
 

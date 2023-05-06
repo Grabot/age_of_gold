@@ -25,6 +25,31 @@ class AuthServiceMessage {
 
   AuthServiceMessage._internal();
 
+  Future<String> addFriend(String username) async {
+    String endPoint = "add/friend";
+    var response = await AuthApi().dio.post(endPoint,
+        options: Options(headers: {
+          HttpHeaders.contentTypeHeader: "application/json",
+        }),
+        data: jsonEncode(<String, String>{
+          "username": username,
+        }
+      )
+    );
+
+    Map<String, dynamic> json = response.data;
+    if (!json.containsKey("result")) {
+      return "an error occurred";
+    } else {
+      if (json["result"]) {
+        print("successfully added friend $json");
+        return "success";
+      } else {
+        return "an error occurred";
+      }
+    }
+  }
+
   sendMessageChatGlobal(String message) {
     sendMessageGlobal(message).then((value) {
       if (value != "success") {
@@ -188,7 +213,6 @@ class AuthServiceMessage {
       return null;
     } else {
       if (json["result"]) {
-        print("get messages success $json");
         List messages = json["messages"];
         List<Message> messageList = [];
         String nameMe = Settings().getUser()!.getUserName();

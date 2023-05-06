@@ -1,4 +1,5 @@
 import 'package:age_of_gold/age_of_gold.dart';
+import 'package:age_of_gold/services/auth_service_message.dart';
 import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/util/render_objects.dart';
 import 'package:age_of_gold/util/util.dart';
@@ -26,6 +27,7 @@ class UserBoxState extends State<UserBox> with TickerProviderStateMixin {
   bool showUser = false;
 
   late UserBoxChangeNotifier userBoxChangeNotifier;
+  String? userViewing;
 
   bool isMe = false;
 
@@ -46,6 +48,7 @@ class UserBoxState extends State<UserBox> with TickerProviderStateMixin {
   userBoxChangeListener() {
     if (mounted) {
       if (!showUser && userBoxChangeNotifier.getUserBoxVisible()) {
+        userViewing = userBoxChangeNotifier.getUser()!.getUserName();
         if (Settings().getUser()!.getUserName() == userBoxChangeNotifier.getUser()!.getUserName()) {
           isMe = true;
         } else {
@@ -73,13 +76,11 @@ class UserBoxState extends State<UserBox> with TickerProviderStateMixin {
     widget.game.userBoxFocus(_focusUserBox.hasFocus);
   }
 
-  // sendMessage() {
-  //   print("send message");
-  //   setState(() {
-  //     SendMessageBoxChangeNotifier().setToUser(userBoxChangeNotifier.getUser());
-  //     SendMessageBoxChangeNotifier().setSendMessageBoxVisible(true);
-  //   });
-  // }
+  addFriend() {
+    AuthServiceMessage().addFriend(userViewing!).then((value) {
+      print("Value: $value");
+    });
+  }
 
   sendMessage() {
     setState(() {
@@ -159,7 +160,7 @@ class UserBoxState extends State<UserBox> with TickerProviderStateMixin {
       height: buttonHeight,
       child: ElevatedButton(
         onPressed: () {
-          print("add friend! :)");
+          addFriend();
         },
         style: buttonStyle(false, Colors.blue),
         child: Container(

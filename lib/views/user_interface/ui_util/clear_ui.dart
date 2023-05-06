@@ -1,4 +1,3 @@
-import 'package:age_of_gold/views/user_interface/ui_util/selected_tile_info.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/change_avatar_box/change_avatar_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/chat_window/chat_window_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/friend_window/friend_window_change_notifier.dart';
