@@ -186,6 +186,13 @@ class AgeOfGold extends FlameGame
     }
   }
 
+  addFriendFocus(bool addFriendFocus) {
+    playFieldFocus = !addFriendFocus;
+    if (playFieldFocus) {
+      gameFocus.requestFocus();
+    }
+  }
+
   @override
   void render(Canvas canvas) {
     super.render(canvas);

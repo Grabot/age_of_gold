@@ -175,6 +175,7 @@ class ProfileOverviewState extends State<ProfileOverview> with TickerProviderSta
   }
 
   Widget profileSettingButtons(double profileButtonSize) {
+    // TODO: add notification for when there are un-accepted reqeusts.
     return Container(
       margin: EdgeInsets.all(profileButtonSize/3),
       child: Row(

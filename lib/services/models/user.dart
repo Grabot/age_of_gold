@@ -52,6 +52,14 @@ class User {
     this.tileLock = DateTime.parse(tileLock).toLocal();
   }
 
+  List<Friend> getFriends() {
+    return friends;
+  }
+
+  addFriend(Friend friend) {
+    friends.add(friend);
+  }
+
   User.fromJson(Map<String, dynamic> json) {
 
     id = json['id'];
@@ -61,15 +69,11 @@ class User {
       verified = json["verified"];
     }
     if (json.containsKey("friends")) {
-      print("contained friends!");
-      print(json["friends"]);
-      // friends = json["friends"]; // TODO: won't work? Create a list of Users from just usernames or ids?
       friends = [];
       for (var friend in json["friends"]) {
         friends.add(Friend.fromJson(friend));
       }
     } else {
-      print("just create empty stuff");
       friends = [];
     }
 

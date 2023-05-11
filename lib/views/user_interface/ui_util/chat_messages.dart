@@ -1,4 +1,4 @@
-import 'package:age_of_gold/services/auth_service_message.dart';
+import 'package:age_of_gold/services/auth_service_social.dart';
 import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/messages/event_message.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/messages/global_message.dart';
@@ -31,7 +31,7 @@ class ChatMessages extends ChangeNotifier {
 
   ChatMessages._internal() {
     initializeChatMessages();
-    AuthServiceMessage().getMessagesGlobal().then((value) {
+    AuthServiceSocial().getMessagesGlobal().then((value) {
       if (value != null) {
         chatMessages.addAll(value.reversed);
       }

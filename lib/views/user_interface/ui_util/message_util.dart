@@ -1,4 +1,4 @@
-import 'package:age_of_gold/services/auth_service_message.dart';
+import 'package:age_of_gold/services/auth_service_social.dart';
 import 'package:age_of_gold/services/models/user.dart';
 import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/chat_messages.dart';
@@ -289,11 +289,11 @@ sendMessage(String message, String activeTab, GlobalKey<FormState> chatFormKey, 
   if (chatFormKey.currentState!.validate()) {
     String? toUser;
     if (activeTab == "World") {
-      AuthServiceMessage().sendMessageChatGlobal(message);
+      AuthServiceSocial().sendMessageChatGlobal(message);
     } else if (activeTab == "Personal") {
       if (selectedChatData != null) {
         toUser = selectedChatData.name;
-        AuthServiceMessage().sendMessageChatPersonal(message, toUser);
+        AuthServiceSocial().sendMessageChatPersonal(message, toUser);
       }
     }
   }

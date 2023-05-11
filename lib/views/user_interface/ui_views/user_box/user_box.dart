@@ -1,5 +1,5 @@
 import 'package:age_of_gold/age_of_gold.dart';
-import 'package:age_of_gold/services/auth_service_message.dart';
+import 'package:age_of_gold/services/auth_service_social.dart';
 import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/util/render_objects.dart';
 import 'package:age_of_gold/util/util.dart';
@@ -77,8 +77,14 @@ class UserBoxState extends State<UserBox> with TickerProviderStateMixin {
   }
 
   addFriend() {
-    AuthServiceMessage().addFriend(userViewing!).then((value) {
-      print("Value: $value");
+    AuthServiceSocial().addFriend(userViewing!).then((value) {
+      if (value.getResult()) {
+        showToastMessage("Friend request Sent!");
+      } else {
+        showToastMessage("something went wrong");
+      }
+    }).onError((error, stackTrace) {
+      showToastMessage(error.toString());
     });
   }
 

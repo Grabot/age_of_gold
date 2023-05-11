@@ -1,53 +1,37 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:age_of_gold/services/models/login_response.dart';
-import 'package:age_of_gold/services/models/register_request.dart';
+
+import 'package:age_of_gold/services/models/base_response.dart';
 import 'package:age_of_gold/services/settings.dart';
-import 'package:age_of_gold/services/socket_services.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/messages/global_message.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/messages/message.dart';
 import 'package:dio/dio.dart';
-import 'package:tuple/tuple.dart';
-import '../component/hexagon.dart';
-import '../component/tile.dart';
-import '../util/hexagon_list.dart';
-import '../util/util.dart';
+
 import 'auth_api.dart';
-import 'models/login_request.dart';
-import 'models/refresh_request.dart';
 import 'models/user.dart';
 
 
-class AuthServiceMessage {
-  static AuthServiceMessage? _instance;
+class AuthServiceSocial {
+  static AuthServiceSocial? _instance;
 
-  factory AuthServiceMessage() => _instance ??= AuthServiceMessage._internal();
+  factory AuthServiceSocial() => _instance ??= AuthServiceSocial._internal();
 
-  AuthServiceMessage._internal();
+  AuthServiceSocial._internal();
 
-  Future<String> addFriend(String username) async {
+  Future<BaseResponse> addFriend(String username) async {
     String endPoint = "add/friend";
     var response = await AuthApi().dio.post(endPoint,
         options: Options(headers: {
           HttpHeaders.contentTypeHeader: "application/json",
         }),
         data: jsonEncode(<String, String>{
-          "username": username,
+          "user_name": username,
         }
       )
     );
 
-    Map<String, dynamic> json = response.data;
-    if (!json.containsKey("result")) {
-      return "an error occurred";
-    } else {
-      if (json["result"]) {
-        print("successfully added friend $json");
-        return "success";
-      } else {
-        return "an error occurred";
-      }
-    }
+    BaseResponse baseResponse = BaseResponse.fromJson(response.data);
+    return baseResponse;
   }
 
   sendMessageChatGlobal(String message) {
@@ -234,4 +218,65 @@ class AuthServiceMessage {
       }
     }
   }
+
+  Future<User?> searchPossibleFriend(String possibleFriend) async {
+    String endPoint = "search/friend";
+    var response = await AuthApi().dio.post(endPoint,
+        options: Options(headers: {
+          HttpHeaders.contentTypeHeader: "application/json",
+        }),
+        data: jsonEncode(<String, String>{
+          "username": possibleFriend,
+        }
+      )
+    );
+
+    Map<String, dynamic> json = response.data;
+    if (!json.containsKey("result")) {
+      return null;
+    } else {
+      if (json["result"]) {
+        if (json.containsKey("friend")) {
+          return User.fromJson(json["friend"]);
+        } else {
+          return null;
+        }
+      } else {
+        return null;
+      }
+    }
+  }
+
+  Future<BaseResponse> denyRequest(String username) async {
+    String endPoint = "deny/request";
+    var response = await AuthApi().dio.post(endPoint,
+        options: Options(headers: {
+          HttpHeaders.contentTypeHeader: "application/json",
+        }),
+        data: jsonEncode(<String, String>{
+          "user_name": username,
+        }
+      )
+    );
+
+    BaseResponse baseResponse = BaseResponse.fromJson(response.data);
+    return baseResponse;
+  }
+
+  Future<BaseResponse> acceptRequest(String username) async {
+    String endPoint = "accept/request";
+    var response = await AuthApi().dio.post(endPoint,
+        options: Options(headers: {
+          HttpHeaders.contentTypeHeader: "application/json",
+        }),
+        data: jsonEncode(<String, String>{
+          "user_name": username,
+        }
+      )
+    );
+
+    BaseResponse baseResponse = BaseResponse.fromJson(response.data);
+    return baseResponse;
+  }
+
 }
