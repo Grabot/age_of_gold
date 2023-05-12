@@ -82,14 +82,28 @@ class UserBoxState extends State<UserBox> with TickerProviderStateMixin {
     AuthServiceSocial().addFriend(userViewing!).then((value) {
       if (value.getResult()) {
         User? currentUser = Settings().getUser();
-        if (currentUser != null) {
-          if (userBoxChangeNotifier.getUser() != null) {
-            User newFriend = userBoxChangeNotifier.getUser()!;
-            Friend friend = Friend(false, true, newFriend);
+        User newFriend = userBoxChangeNotifier.getUser()!;
+        Friend friend = Friend(false, true, newFriend);
+        if (value.getMessage() == "success") {
+          if (currentUser != null) {
+            friend.setRequested(true);
             currentUser.addFriend(friend);
+            setState(() {
+            });
           }
+          showToastMessage("Friend request sent to ${friend.getUser()!.getUserName()}");
+        } else if (value.getMessage() == "request already sent") {
+          showToastMessage("Friend request has already been sent to ${friend.getUser()!.getUserName()}");
+        } else if (value.getMessage() == "They are now friends") {
+          setState(() {
+            friend.setAccepted(true);
+            friend.setRequested(false);
+            currentUser!.addFriend(friend);
+            showToastMessage("You are now friends with ${friend.getUser()!.getUserName()}");
+          });
+        } else {
+          showToastMessage(value.getMessage());
         }
-        showToastMessage("Friend request Sent!");
       } else {
         showToastMessage("something went wrong");
       }

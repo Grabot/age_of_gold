@@ -266,6 +266,25 @@ class ChatMessages extends ChangeNotifier {
     }
   }
 
+  addChatRegion(String username) {
+    // select personal region if it exists, otherwise just create it first.
+    bool exists = false;
+    for (int i = 0; i < regions.length; i++) {
+      if (regions[i].name == username) {
+        // _selectedChatData = chatMessages.regions[i];
+        setMessageUser(regions[i].name);
+        exists = true;
+      }
+    }
+    if (!exists) {
+      ChatData newChatData = ChatData(3, username, false);
+      addNewRegion(newChatData);
+      setMessageUser(newChatData.name);
+      // Check if the placeholder "No Chats Found!" is in the list and remove it.
+      removePlaceholder();
+    }
+  }
+
   getMessageUser() {
     return messageUser;
   }

@@ -26,6 +26,10 @@ class Friend {
     return friend;
   }
 
+  setUser(User? user) {
+    friend = user;
+  }
+
   bool isAccepted() {
     return accepted;
   }
@@ -34,12 +38,12 @@ class Friend {
     this.accepted = accepted;
   }
 
-  setRequested(bool requested) {
+  setRequested(bool? requested) {
     this.requested = requested;
   }
 
-  bool isRequested() {
-    return requested!;
+  bool? isRequested() {
+    return requested;
   }
 
   @override

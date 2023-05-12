@@ -6,6 +6,9 @@ import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/services/socket_services.dart';
 import 'package:age_of_gold/util/render_objects.dart';
 import 'package:age_of_gold/util/util.dart';
+import 'package:age_of_gold/views/user_interface/ui_util/chat_messages.dart';
+import 'package:age_of_gold/views/user_interface/ui_util/clear_ui.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/chat_window/chat_window_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/friend_window/friend_window_change_notifier.dart';
 import 'package:flutter/material.dart';
 
@@ -92,6 +95,8 @@ class FriendWindowState extends State<FriendWindow> {
           detailRequestColour = 0;
           detailFriendColour = 0;
           detailAddFriendColour = 0;
+          possibleNewFriend = null;
+          addController.text = "";
         });
       }
     }
@@ -151,18 +156,38 @@ class FriendWindowState extends State<FriendWindow> {
     AuthServiceSocial().addFriend(friend.getUser()!.getUserName()).then((value) {
       if (value.getResult()) {
         User? currentUser = Settings().getUser();
-        if (currentUser != null) {
-          friend.setRequested(true);
-          currentUser.addFriend(friend);
+        if (value.getMessage() == "success") {
+          if (currentUser != null) {
+            friend.setRequested(true);
+            currentUser.addFriend(friend);
+            setState(() {
+              socialView = false;
+              addFriendView = false;
+              detailRequestColour = 0;
+              detailFriendColour = 0;
+              detailAddFriendColour = 0;
+              possibleNewFriend = null;
+              addController.text = "";
+            });
+          }
+          showToastMessage("Friend request sent to ${friend.getUser()!.getUserName()}");
+        } else if (value.getMessage() == "request already sent") {
+          showToastMessage("Friend request has already been sent to ${friend.getUser()!.getUserName()}");
+        } else if (value.getMessage() == "They are now friends") {
           setState(() {
-            socialView = false;
+            friend.setAccepted(true);
+            friend.setRequested(false);
+            currentUser!.addFriend(friend);
+            socialView = true;
             addFriendView = false;
             detailRequestColour = 0;
             detailFriendColour = 0;
             detailAddFriendColour = 0;
+            showToastMessage("You are now friends with ${friend.getUser()!.getUserName()}");
           });
+        } else {
+          showToastMessage(value.getMessage());
         }
-        showToastMessage("Friend request sent to ${friend.getUser()!.getUserName()}");
       } else {
         showToastMessage("something went wrong");
       }
@@ -189,6 +214,14 @@ class FriendWindowState extends State<FriendWindow> {
     }).onError((error, stackTrace) {
       showToastMessage(error.toString());
     });
+  }
+
+  messageFriend(Friend friend) {
+    ClearUI().clearUserInterfaces();
+    ChatMessages chatMessages = ChatMessages();
+    chatMessages.addChatRegion(friend.getUser()!.getUserName());
+    chatMessages.setActivateChatWindowTab("Personal");
+    ChatWindowChangeNotifier().setChatWindowVisible(true);
   }
 
   Widget friendWindowHeader(double headerWidth, double headerHeight, double fontSize) {
@@ -553,7 +586,7 @@ class FriendWindowState extends State<FriendWindow> {
               InkWell(
                 onTap: () {
                   setState(() {
-                    // TODO: message user (open chat window)
+                    messageFriend(friend);
                   });
                 },
                 child: Tooltip(
@@ -576,7 +609,7 @@ class FriendWindowState extends State<FriendWindow> {
             ]
         ),
       );
-    } else if (friend.requested == null) {
+    } else if (friend.isRequested() == null) {
       return Container(
           width: newFriendOptionWidth,
           height: 40,
@@ -594,7 +627,7 @@ class FriendWindowState extends State<FriendWindow> {
             ),
           )
       );
-    } else if (friend.isRequested()) {
+    } else if (friend.isRequested()!) {
       // friend has requested you
       return Container(
         width: newFriendOptionWidth,
@@ -613,7 +646,7 @@ class FriendWindowState extends State<FriendWindow> {
           ),
         )
       );
-    } else if (!friend.isRequested()) {
+    } else if (!friend.isRequested()!) {
       // you have requested friend
       return Container(
         width: newFriendOptionWidth,

@@ -61,6 +61,16 @@ class User {
   }
 
   addFriend(Friend friend) {
+    // update friend if the username is already in the list
+    for (Friend f in friends) {
+      if (f.getUser()!.getUserName().toLowerCase() == friend.getUser()!.getUserName().toLowerCase()) {
+        f.setAccepted(friend.isAccepted());
+        f.setRequested(friend.isRequested());
+        f.setUser(friend.getUser());
+        return;
+      }
+    }
+    // If the friend was not updated we add it to the list.
     friends.add(friend);
   }
 
