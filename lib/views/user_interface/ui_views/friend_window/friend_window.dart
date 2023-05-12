@@ -3,6 +3,7 @@ import 'package:age_of_gold/services/auth_service_social.dart';
 import 'package:age_of_gold/services/models/friend.dart';
 import 'package:age_of_gold/services/models/user.dart';
 import 'package:age_of_gold/services/settings.dart';
+import 'package:age_of_gold/services/socket_services.dart';
 import 'package:age_of_gold/util/render_objects.dart';
 import 'package:age_of_gold/util/util.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/friend_window/friend_window_change_notifier.dart';
@@ -44,6 +45,8 @@ class FriendWindowState extends State<FriendWindow> {
   int detailRequestColour = 0;
   int detailFriendColour = 0;
 
+  SocketServices socket = SocketServices();
+
   @override
   void initState() {
     friendWindowChangeNotifier = FriendWindowChangeNotifier();
@@ -51,7 +54,17 @@ class FriendWindowState extends State<FriendWindow> {
 
     _focusFriendWindow.addListener(_onFocusChange);
     _focusAdd.addListener(_onFocusAddFriendChange);
+
+    socket.checkFriends();
+    socket.addListener(socketListener);
     super.initState();
+  }
+
+  socketListener() {
+    if (mounted) {
+      print("socket listener friend window!");
+      setState(() {});
+    }
   }
 
   @override
@@ -122,9 +135,11 @@ class FriendWindowState extends State<FriendWindow> {
     print("cancel request!");
     AuthServiceSocial().denyRequest(friend.getUser()!.getUserName()).then((value) {
       if (value.getResult()) {
-        showToastMessage("Something went right");
         setState(() {
-
+          User? currentUser = Settings().getUser();
+          if (currentUser != null) {
+            currentUser.removeFriend(friend.getUser()!.getUserName());
+          }
         });
       } else {
         showToastMessage("something went wrong");
@@ -135,8 +150,19 @@ class FriendWindowState extends State<FriendWindow> {
   addFriend(Friend friend) {
     AuthServiceSocial().addFriend(friend.getUser()!.getUserName()).then((value) {
       if (value.getResult()) {
-        // TODO: what to do when friend is added?
-        showToastMessage("You are now friends with ${friend.getUser()!.getUserName()}");
+        User? currentUser = Settings().getUser();
+        if (currentUser != null) {
+          friend.setRequested(true);
+          currentUser.addFriend(friend);
+          setState(() {
+            socialView = false;
+            addFriendView = false;
+            detailRequestColour = 0;
+            detailFriendColour = 0;
+            detailAddFriendColour = 0;
+          });
+        }
+        showToastMessage("Friend request sent to ${friend.getUser()!.getUserName()}");
       } else {
         showToastMessage("something went wrong");
       }
@@ -148,7 +174,14 @@ class FriendWindowState extends State<FriendWindow> {
   acceptRequest(Friend friend) {
     AuthServiceSocial().acceptRequest(friend.getUser()!.getUserName()).then((value) {
       if (value.getResult()) {
-        // TODO: what to do when friend is added?
+        setState(() {
+          friend.setAccepted(true);
+          socialView = true;
+          addFriendView = false;
+          detailRequestColour = 0;
+          detailFriendColour = 0;
+          detailAddFriendColour = 0;
+        });
         showToastMessage("You are now friends with ${friend.getUser()!.getUserName()}");
       } else {
         showToastMessage("something went wrong");
@@ -264,7 +297,7 @@ class FriendWindowState extends State<FriendWindow> {
           ]
         );
       }
-      return Container();
+      return Container(height: requestBoxHeight);
     }
     return Container(height: requestBoxHeight);
   }
@@ -474,7 +507,7 @@ class FriendWindowState extends State<FriendWindow> {
       }
       for (Friend friend in befriended) {
         friends.add(
-            friendBox(friend, 100, friendWindowWidth, fontSize)
+            friendBox(friend, 70, friendWindowWidth, fontSize)
         );
       }
     }
@@ -514,8 +547,34 @@ class FriendWindowState extends State<FriendWindow> {
       // friend is a true friend
       return Container(
         width: newFriendOptionWidth,
-        height: avatarBoxSize,
-        color: Colors.red  // TODO:
+        height: 40,
+        child: Row(
+            children: [
+              InkWell(
+                onTap: () {
+                  setState(() {
+                    // TODO: message user (open chat window)
+                  });
+                },
+                child: Tooltip(
+                  message: 'Message user',
+                  child: addIcon(40, Icons.message, Colors.green)
+                )
+              ),
+              SizedBox(width: 10),
+              InkWell(
+                onTap: () {
+                  setState(() {
+                    cancelFriendRequest(friend);
+                  });
+                },
+                child: Tooltip(
+                  message: 'Remove friend',
+                  child: addIcon(40, Icons.snowshoeing, Colors.red),
+                ),
+              ),
+            ]
+        ),
       );
     } else if (friend.requested == null) {
       return Container(
@@ -567,7 +626,8 @@ class FriendWindowState extends State<FriendWindow> {
                   acceptRequest(friend);
                 });
               },
-              child: Container(
+              child: Tooltip(
+                message: 'Accept request',
                 child: addIcon(40, Icons.check, Colors.green)
               ),
             ),
@@ -578,7 +638,8 @@ class FriendWindowState extends State<FriendWindow> {
                   cancelFriendRequest(friend);
                 });
               },
-              child: Container(
+              child: Tooltip(
+                message: 'Deny request',
                 child: addIcon(40, Icons.close, Colors.red),
               ),
             ),
@@ -591,24 +652,29 @@ class FriendWindowState extends State<FriendWindow> {
 
   Widget friendBox(Friend? newFriendOption, double avatarBoxSize, double addFriendWindowWidth, double fontSize) {
     double newFriendOptionWidth = 100;
+    if (!normalMode) {
+      avatarBoxSize = avatarBoxSize / 2;
+      fontSize = fontSize / 2;
+    }
     if (newFriendOption != null) {
       return Row(
         children: [
+          SizedBox(width: 20),
           avatarBox(avatarBoxSize, avatarBoxSize, newFriendOption.getUser()!.getAvatar()!),
           Container(
-            width: addFriendWindowWidth - avatarBoxSize - newFriendOptionWidth,
+            width: addFriendWindowWidth - avatarBoxSize - newFriendOptionWidth - 20 - 20,
             child: Text(
                 newFriendOption.getUser()!.getUserName(),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 30,
-                fontWeight: FontWeight.bold
+                fontSize: fontSize * 2
               )
             )
           ),
           friendInteraction(newFriendOption, avatarBoxSize, newFriendOptionWidth, fontSize),
+          SizedBox(width: 20),
         ]
       );
     } else {
@@ -681,7 +747,7 @@ class FriendWindowState extends State<FriendWindow> {
                     ]
                   ),
                   SizedBox(height: 40),
-                  friendBox(possibleNewFriend, 150, addFriendWindowWidth, fontSize),
+                  friendBox(possibleNewFriend, 120, addFriendWindowWidth, fontSize),
                 ]
             ),
           ),

@@ -30,6 +30,14 @@ class Friend {
     return accepted;
   }
 
+  setAccepted(bool accepted) {
+    this.accepted = accepted;
+  }
+
+  setRequested(bool requested) {
+    this.requested = requested;
+  }
+
   bool isRequested() {
     return requested!;
   }

@@ -12,12 +12,16 @@ class User {
   late List<Friend> friends;
   Uint8List? avatar;
 
-  User(this.id, this.userName, this.verified, this.friends, String timeLock) {
-    if (!timeLock.endsWith("Z")) {
-      // The server has utc timestamp, but it's not formatted with the 'Z'.
-      timeLock += "Z";
+  User(this.id, this.userName, this.verified, this.friends, String? timeLock) {
+    if (timeLock != null) {
+      if (!timeLock.endsWith("Z")) {
+        // The server has utc timestamp, but it's not formatted with the 'Z'.
+        timeLock += "Z";
+      }
+      tileLock = DateTime.parse(timeLock).toLocal();
+    } else {
+      tileLock = DateTime.now();
     }
-    tileLock = DateTime.parse(timeLock).toLocal();
   }
 
   String getUserName() {
@@ -58,6 +62,20 @@ class User {
 
   addFriend(Friend friend) {
     friends.add(friend);
+  }
+
+  removeFriend(String username) {
+    friends.removeWhere((friend) => friend.getUser()!.getUserName().toLowerCase() == username.toLowerCase());
+  }
+
+  acceptFriend(String username) {
+    // We find the user in the friends list and set the accepted flag to true.
+    for (Friend friend in friends) {
+      if (friend.getUser()!.getUserName().toLowerCase() == username.toLowerCase()) {
+        friend.setAccepted(true);
+        break;
+      }
+    }
   }
 
   User.fromJson(Map<String, dynamic> json) {

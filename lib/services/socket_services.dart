@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:age_of_gold/services/models/user.dart';
+import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/util/util.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/chat_messages.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/selected_tile_info.dart';
@@ -11,6 +13,7 @@ import '../constants/url_base.dart';
 import '../util/hexagon_list.dart';
 import 'package:tuple/tuple.dart';
 import 'auth_service_world.dart';
+import 'models/friend.dart';
 
 
 class SocketServices extends ChangeNotifier {
@@ -181,6 +184,54 @@ class SocketServices extends ChangeNotifier {
   void receivedMessageLocal(String from, String message, int regionType, String tileQ, String tileR) {
     String localMessage = "from tile($tileQ, $tileR): $message";
     chatMessages.addMessage(from, localMessage, regionType);
+  }
+
+  bool joinedFriendRooms = false;
+  checkFriends() {
+    if (joinedFriendRooms) {
+      return;
+    }
+    joinedFriendRooms = true;
+    socket.on('received_friend_request', (data) {
+      Map<String, dynamic> from = data["from"];
+      receivedFriendRequest(from);
+      notifyListeners();
+    });
+    socket.on('denied_friend', (data) {
+      String from = data["from"];
+      deniedFriendRequest(from);
+      notifyListeners();
+    });
+    socket.on('accept_friend_request', (data) {
+      String from = data["from"];
+      acceptFriendRequest(from);
+      notifyListeners();
+    });
+  }
+
+  receivedFriendRequest(Map<String, dynamic> from) {
+    User? currentUser = Settings().getUser();
+    if (currentUser != null) {
+      User newFriend = User.fromJson(from);
+      Friend friend = Friend(false, false, newFriend);
+      currentUser.addFriend(friend);
+      showToastMessage("received a friend request from ${newFriend.getUserName()}");
+    }
+  }
+
+  deniedFriendRequest(String from) {
+    User? currentUser = Settings().getUser();
+    if (currentUser != null) {
+      currentUser.removeFriend(from);
+    }
+  }
+
+  acceptFriendRequest(String from) {
+    User? currentUser = Settings().getUser();
+    if (currentUser != null) {
+      currentUser.acceptFriend(from);
+      showToastMessage("$from accepted your friend request");
+    }
   }
 
   void leaveRoom(int userId) {
