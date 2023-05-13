@@ -1,8 +1,11 @@
 import 'package:age_of_gold/age_of_gold.dart';
+import 'package:age_of_gold/services/models/friend.dart';
+import 'package:age_of_gold/services/models/user.dart';
 import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/services/socket_services.dart';
 import 'package:age_of_gold/util/countdown.dart';
 import 'package:age_of_gold/util/render_objects.dart';
+import 'package:age_of_gold/views/user_interface/ui_util/chat_messages.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/selected_tile_info.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/chat_box/chat_box_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/chat_window/chat_window_change_notifier.dart';
@@ -38,6 +41,9 @@ class ProfileOverviewState extends State<ProfileOverview> with TickerProviderSta
   int friendOverviewState = 0;
   int messageOverviewState = 0;
 
+  bool unansweredFriendRequests = false;
+  bool unreadMessages = false;
+
   @override
   void initState() {
     super.initState();
@@ -58,10 +64,31 @@ class ProfileOverviewState extends State<ProfileOverview> with TickerProviderSta
     );
     _controller.forward();
     updateTimeLock();
+    checkUnansweredFriendRequests();
+    checkUnreadMessages();
+  }
+
+  checkUnansweredFriendRequests() {
+    unansweredFriendRequests = false;
+    if (Settings().getUser() != null) {
+      User currentUser = Settings().getUser()!;
+      for (Friend friend in currentUser.friends) {
+        if (!friend.isAccepted() && friend.requested != null && friend.requested == false) {
+          unansweredFriendRequests = true;
+          break;
+        }
+      }
+    }
+  }
+
+  checkUnreadMessages() {
+    unreadMessages = ChatMessages().unreadPersonalMessages();
   }
 
   socketListener() {
     if (mounted) {
+      checkUnansweredFriendRequests();
+      checkUnreadMessages();
       updateTimeLock();
       setState(() {});
     }
@@ -93,6 +120,8 @@ class ProfileOverviewState extends State<ProfileOverview> with TickerProviderSta
 
   profileChangeListener() {
     if (mounted) {
+      checkUnansweredFriendRequests();
+      checkUnreadMessages();
       setState(() {});
     }
   }
@@ -224,11 +253,11 @@ class ProfileOverviewState extends State<ProfileOverview> with TickerProviderSta
                     width: profileButtonSize,
                     height: profileButtonSize,
                   ),
-                  Image.asset(
+                  unansweredFriendRequests ? Image.asset(
                     "assets/images/ui/icon/update_notification.png",
                     width: profileButtonSize,
                     height: profileButtonSize,
-                  ),
+                  ) : Container(),
                 ],
               ),
             ),
@@ -278,11 +307,11 @@ class ProfileOverviewState extends State<ProfileOverview> with TickerProviderSta
                       width: messageButtonSize,
                       height: messageButtonSize,
                     ),
-                    Image.asset(
+                    unreadMessages ? Image.asset(
                       "assets/images/ui/icon/update_notification.png",
                       width: messageButtonSize,
                       height: messageButtonSize,
-                    ),
+                    ) : Container(),
                   ],
                 ),
               ),

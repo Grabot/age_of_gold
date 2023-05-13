@@ -72,6 +72,15 @@ class ChatMessages extends ChangeNotifier {
     eventMessages.add(newEventMessage);
   }
 
+  bool unreadPersonalMessages() {
+    for (ChatData chatData in regions) {
+      if (chatData.unreadMessages) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   addChatToPersonalMessages(String from, String to, PersonalMessage message) {
     String me = Settings().getUser()!.getUserName();
     String other = "";

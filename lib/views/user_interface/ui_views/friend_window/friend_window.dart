@@ -10,6 +10,7 @@ import 'package:age_of_gold/views/user_interface/ui_util/chat_messages.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/clear_ui.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/chat_window/chat_window_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/friend_window/friend_window_change_notifier.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/profile_box/profile_change_notifier.dart';
 import 'package:flutter/material.dart';
 
 
@@ -184,6 +185,7 @@ class FriendWindowState extends State<FriendWindow> {
             detailFriendColour = 0;
             detailAddFriendColour = 0;
             showToastMessage("You are now friends with ${friend.getUser()!.getUserName()}");
+            ProfileChangeNotifier().notifyListeners();
           });
         } else {
           showToastMessage(value.getMessage());
@@ -208,6 +210,7 @@ class FriendWindowState extends State<FriendWindow> {
           detailAddFriendColour = 0;
         });
         showToastMessage("You are now friends with ${friend.getUser()!.getUserName()}");
+        ProfileChangeNotifier().notifyListeners();
       } else {
         showToastMessage("something went wrong");
       }
