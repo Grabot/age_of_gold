@@ -110,5 +110,8 @@ flutter:
     - assets/images/ui/shield_emblem_2.png
     - assets/images/ui/shield_emblem3.png
     - assets/images/ui/hexagon_frame_small_fill.png
-    - assets/images/ui/globe_icon_no_colour.png
+    - assets/images/ui/icon/globe_icon_no_colour.png
+    - assets/images/ui/icon/friend_icon_clean.png
+    - assets/images/ui/icon/message_icon_clean.png
+    - assets/images/ui/icon/update_notification.png
 

@@ -685,17 +685,19 @@ class FriendWindowState extends State<FriendWindow> {
 
   Widget friendBox(Friend? newFriendOption, double avatarBoxSize, double addFriendWindowWidth, double fontSize) {
     double newFriendOptionWidth = 100;
+    double sidePadding = 40;
     if (!normalMode) {
       avatarBoxSize = avatarBoxSize / 2;
       fontSize = fontSize / 2;
+      sidePadding = 10;
     }
     if (newFriendOption != null) {
       return Row(
         children: [
-          SizedBox(width: 20),
+          SizedBox(width: sidePadding),
           avatarBox(avatarBoxSize, avatarBoxSize, newFriendOption.getUser()!.getAvatar()!),
           Container(
-            width: addFriendWindowWidth - avatarBoxSize - newFriendOptionWidth - 20 - 20,
+            width: addFriendWindowWidth - avatarBoxSize - newFriendOptionWidth - sidePadding - sidePadding,
             child: Text(
                 newFriendOption.getUser()!.getUserName(),
               maxLines: 1,
@@ -707,7 +709,7 @@ class FriendWindowState extends State<FriendWindow> {
             )
           ),
           friendInteraction(newFriendOption, avatarBoxSize, newFriendOptionWidth, fontSize),
-          SizedBox(width: 20),
+          SizedBox(width: sidePadding),
         ]
       );
     } else {

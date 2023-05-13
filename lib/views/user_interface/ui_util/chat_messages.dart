@@ -29,6 +29,8 @@ class ChatMessages extends ChangeNotifier {
 
   static final ChatMessages _instance = ChatMessages._internal();
 
+  ChatData? selectedChatData;
+
   ChatMessages._internal() {
     initializeChatMessages();
     AuthServiceSocial().getMessagesGlobal().then((value) {
@@ -44,6 +46,15 @@ class ChatMessages extends ChangeNotifier {
 
   factory ChatMessages() {
     return _instance;
+  }
+
+  setSelectedChatData(ChatData? chatData) {
+    selectedChatData = chatData;
+    notifyListeners();
+  }
+
+  ChatData? getSelectedChatData() {
+    return selectedChatData;
   }
 
   setChatWindowActive(bool value) {

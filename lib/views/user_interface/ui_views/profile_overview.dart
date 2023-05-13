@@ -4,6 +4,8 @@ import 'package:age_of_gold/services/socket_services.dart';
 import 'package:age_of_gold/util/countdown.dart';
 import 'package:age_of_gold/util/render_objects.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/selected_tile_info.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/chat_box/chat_box_change_notifier.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/chat_window/chat_window_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/friend_window/friend_window_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/profile_box/profile_change_notifier.dart';
 import 'package:flutter/material.dart';
@@ -32,6 +34,9 @@ class ProfileOverviewState extends State<ProfileOverview> with TickerProviderSta
   late AnimationController _controller;
   int levelClock = 0;
   bool canChangeTiles = true;
+
+  int friendOverviewState = 0;
+  int messageOverviewState = 0;
 
   @override
   void initState() {
@@ -116,6 +121,16 @@ class ProfileOverviewState extends State<ProfileOverview> with TickerProviderSta
     FriendWindowChangeNotifier().setFriendWindowVisible(true);
   }
 
+  Color overviewColour(int state) {
+    if (state == 0) {
+      return Colors.orange;
+    } else if (state == 1) {
+      return Colors.orangeAccent;
+    } else {
+      return Colors.orange.shade800;
+    }
+  }
+
   Widget tileTimeInformation() {
     if (canChangeTiles) {
       return Container();
@@ -174,29 +189,105 @@ class ProfileOverviewState extends State<ProfileOverview> with TickerProviderSta
     );
   }
 
-  Widget profileSettingButtons(double profileButtonSize) {
-    // TODO: add notification for when there are un-accepted reqeusts.
+  Widget friendOverviewButton(double profileButtonSize) {
     return Container(
-      margin: EdgeInsets.all(profileButtonSize/3),
       child: Row(
         children: [
-          SizedBox(
-            width: profileButtonSize,
-            height: profileButtonSize,
-            child: ClipOval(
-              child: Material(
-                color: Colors.orange,
-                child: InkWell(
-                  splashColor: Colors.orangeAccent,
-                  onTap: () {
-                    openFriendWindow();
-                  },
-                  child: Icon(Icons.people),
+          SizedBox(width: 5),
+          Tooltip(
+            message: "Socials",
+            child: InkWell(
+              onHover: (value) {
+                setState(() {
+                  friendOverviewState = value ? 1 : 0;
+                });
+              },
+              onTap: () {
+                setState(() {
+                  friendOverviewState = 2;
+                });
+                openFriendWindow();
+              },
+              child: Stack(
+                children: [
+                  Container(
+                    width: profileButtonSize,
+                    height: profileButtonSize,
+                    child: ClipOval(
+                      child: Material(
+                        color: overviewColour(friendOverviewState),
+                      )
+                    ),
+                  ),
+                  Image.asset(
+                    "assets/images/ui/icon/friend_icon_clean.png",
+                    width: profileButtonSize,
+                    height: profileButtonSize,
+                  ),
+                  Image.asset(
+                    "assets/images/ui/icon/update_notification.png",
+                    width: profileButtonSize,
+                    height: profileButtonSize,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ]
+      ),
+    );
+  }
+
+  showChatWindow() {
+    ChatBoxChangeNotifier().setChatBoxVisible(false);
+    ChatWindowChangeNotifier().setChatWindowVisible(true);
+  }
+
+  Widget messageOverviewButton(double messageButtonSize) {
+    return Container(
+      child: Row(
+          children: [
+            SizedBox(width: 5),
+            Tooltip(
+              message: "messages",
+              child: InkWell(
+                onHover: (value) {
+                  setState(() {
+                    messageOverviewState = value ? 1 : 0;
+                  });
+                },
+                onTap: () {
+                  setState(() {
+                    messageOverviewState = 2;
+                  });
+                  showChatWindow();
+                },
+                child: Stack(
+                  children: [
+                    Container(
+                      width: messageButtonSize,
+                      height: messageButtonSize,
+                      child: ClipOval(
+                          child: Material(
+                            color: overviewColour(messageOverviewState),
+                          )
+                      ),
+                    ),
+                    Image.asset(
+                      "assets/images/ui/icon/message_icon_clean.png",
+                      width: messageButtonSize,
+                      height: messageButtonSize,
+                    ),
+                    Image.asset(
+                      "assets/images/ui/icon/update_notification.png",
+                      width: messageButtonSize,
+                      height: messageButtonSize,
+                    ),
+                  ],
                 ),
               ),
             ),
-          )
-        ]
+          ]
       ),
     );
   }
@@ -205,7 +296,10 @@ class ProfileOverviewState extends State<ProfileOverview> with TickerProviderSta
     return Column(
       children: [
         profileWidget(profileOverviewWidth, profileOverviewHeight),
-        profileSettingButtons(40)
+        SizedBox(height: 10),
+        friendOverviewButton(50),
+        SizedBox(height: 10),
+        messageOverviewButton(50)
       ]
     );
   }
@@ -214,7 +308,10 @@ class ProfileOverviewState extends State<ProfileOverview> with TickerProviderSta
     return Row(
       children: [
         profileWidget(profileOverviewWidth/2, profileOverviewHeight),
-        profileSettingButtons(30)
+        SizedBox(width: 5),
+        friendOverviewButton(30),
+        SizedBox(width: 5),
+        messageOverviewButton(30)
       ]
     );
   }

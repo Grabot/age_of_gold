@@ -41,7 +41,6 @@ class ChatWindowState extends State<ChatWindow> {
   bool isEvent = false;
 
   bool hasPersonalChats = false;
-  ChatData? _selectedChatData;
 
   bool hasGroupChats = false;
 
@@ -123,7 +122,7 @@ class ChatWindowState extends State<ChatWindow> {
         if (chatData.name == chatMessages.getMessageUser()) {
           isEvent = false;
           isWorld = false;
-          _selectedChatData = chatData;
+          chatMessages.setSelectedChatData(chatData);
           chatMessages.setActivateChatWindowTab("Personal");
           break;
         }
@@ -191,7 +190,7 @@ class ChatWindowState extends State<ChatWindow> {
     setState(() {
       chatMessages.setActivateChatWindowTab("World");
       ChatBoxChangeNotifier().setActiveTab("World");
-      _selectedChatData = null;
+      chatMessages.setSelectedChatData(null);
       chatMessages.setMessageUser(null);
       isEvent = false;
       isWorld = true;
@@ -203,7 +202,7 @@ class ChatWindowState extends State<ChatWindow> {
     setState(() {
       chatMessages.setActivateChatWindowTab("Events");
       ChatBoxChangeNotifier().setActiveTab("Events");
-      _selectedChatData = null;
+      chatMessages.setSelectedChatData(null);
       chatMessages.setMessageUser(null);
       isEvent = true;
       isWorld = false;
@@ -227,7 +226,7 @@ class ChatWindowState extends State<ChatWindow> {
             width: 40,
             height: 40,
             child: Image.asset(
-              "assets/images/ui/globe_icon_no_colour.png",
+              "assets/images/ui/icon/globe_icon_no_colour.png",
             ),
           ),
           Expanded(
@@ -296,7 +295,7 @@ class ChatWindowState extends State<ChatWindow> {
       print("setting personal stuff");
       isEvent = false;
       isWorld = false;
-      _selectedChatData = chatData;
+      chatMessages.setSelectedChatData(chatData);
       chatMessages.setMessageUser(chatData.name);
       chatMessages.setActivateChatWindowTab("Personal");
       selectionScreen = false;
@@ -305,7 +304,7 @@ class ChatWindowState extends State<ChatWindow> {
 
   Widget personalButton(double chatPickWidth, ChatData chatData, fontSize) {
     MaterialColor buttonColour = Colors.blue;
-    if (!isEvent && !isWorld && _selectedChatData != null && _selectedChatData!.name == chatData.name) {
+    if (!isEvent && !isWorld && chatMessages.getSelectedChatData() != null && chatMessages.getSelectedChatData()!.name == chatData.name) {
       buttonColour = Colors.green;
     }
     return ElevatedButton(
@@ -479,10 +478,10 @@ class ChatWindowState extends State<ChatWindow> {
         Container(
             width: rightColumnWidth,
             height: rightColumnHeight - chatTextFieldHeight,
-            child: messageList(chatMessages, messageScrollController, userInteraction, _selectedChatData, isEvent, true)
+            child: messageList(chatMessages, messageScrollController, userInteraction, chatMessages.getSelectedChatData(), isEvent, true)
         ),
         !isEvent
-            ? chatTextField(rightColumnWidth, chatTextFieldHeight, true, chatMessages.getActivateChatWindowTab(), _chatFormKey, _focusChatWindow, chatFieldController, _selectedChatData)
+            ? chatTextField(rightColumnWidth, chatTextFieldHeight, true, chatMessages.getActivateChatWindowTab(), _chatFormKey, _focusChatWindow, chatFieldController, chatMessages.getSelectedChatData())
             : Container()
       ],
     );
@@ -579,7 +578,7 @@ class ChatWindowState extends State<ChatWindow> {
       bool exists = false;
       for (int i = 0; i < chatMessages.regions.length; i++) {
         if (chatMessages.regions[i].name == userName) {
-          _selectedChatData = chatMessages.regions[i];
+          chatMessages.setSelectedChatData(chatMessages.regions[i]);
           chatMessages.setMessageUser(chatMessages.regions[i].name);
           exists = true;
         }
@@ -588,7 +587,7 @@ class ChatWindowState extends State<ChatWindow> {
         ChatData newChatData = ChatData(3, userName, false);
         chatMessages.addNewRegion(newChatData);
         chatMessages.setMessageUser(newChatData.name);
-        _selectedChatData = newChatData;
+        chatMessages.setSelectedChatData(newChatData);
         // Check if the placeholder "No Chats Found!" is in the list and remove it.
         chatMessages.removePlaceholder();
       }

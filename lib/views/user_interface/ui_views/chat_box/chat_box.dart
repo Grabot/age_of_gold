@@ -41,8 +41,6 @@ class ChatBoxState extends State<ChatBox> {
 
   bool tileBoxVisible = false;
 
-  ChatData? _selectedChatData;
-
   // TODO: Will the "local" chat option remain? This can be removed if not.
   int currentHexQ = 0;
   int currentHexR = 0;
@@ -76,7 +74,7 @@ class ChatBoxState extends State<ChatBox> {
         if (chatBoxChangeNotifier.getActiveTab() != null) {
           if (chatBoxChangeNotifier.getActiveTab() == "World" || chatBoxChangeNotifier.getActiveTab() == "Events") {
             setState(() {
-              _selectedChatData = null;
+              chatMessages.setSelectedChatData(null);
             });
           }
         }
@@ -136,7 +134,7 @@ class ChatBoxState extends State<ChatBox> {
     }
     setState(() {
       chatMessages.setActiveChatBoxTab(tabName);
-      _selectedChatData = null;
+      chatMessages.setSelectedChatData(null);
       chatMessages.setMessageUser(null);
       readMessages();
     });
@@ -196,7 +194,7 @@ class ChatBoxState extends State<ChatBox> {
           tooltip: 'Hide chat',
           onPressed: () {
             setState(() {
-              _selectedChatData = null;
+              chatMessages.setSelectedChatData(null);
               chatMessages.setMessageUser(null);
               chatMessages.setActiveChatBoxTab("");
               tileBoxVisible = false;
@@ -313,13 +311,13 @@ class ChatBoxState extends State<ChatBox> {
               child: Column(
                 children: [
                   Expanded(
-                    child: messageList(chatMessages, messageScrollController, userInteraction, _selectedChatData, isEvent, showMessageField),
+                    child: messageList(chatMessages, messageScrollController, userInteraction, chatMessages.getSelectedChatData(), isEvent, showMessageField),
                   ),
                 ],
               ),
             ),
             !isEvent && userLoggedIn
-                ? chatTextField(chatBoxWidth, chatTextFieldHeight, tileBoxVisible, chatMessages.getActiveChatBoxTab(), _chatFormKey, _focusChatBox, chatFieldController, _selectedChatData)
+                ? chatTextField(chatBoxWidth, chatTextFieldHeight, tileBoxVisible, chatMessages.getActiveChatBoxTab(), _chatFormKey, _focusChatBox, chatFieldController, chatMessages.getSelectedChatData())
                 : Container()
           ]
       ),
@@ -342,7 +340,7 @@ class ChatBoxState extends State<ChatBox> {
             child: Column(
               children: [
                 Expanded(
-                  child: messageList(chatMessages, messageScrollController, userInteraction, _selectedChatData, false, showMessageField),
+                  child: messageList(chatMessages, messageScrollController, userInteraction, chatMessages.getSelectedChatData(), false, showMessageField),
                 ),
               ],
             ),
@@ -376,13 +374,13 @@ class ChatBoxState extends State<ChatBox> {
             child: Column(
               children: [
                 Expanded(
-                  child: messageList(chatMessages, messageScrollController, userInteraction, _selectedChatData, isEvent, showMessageField),
+                  child: messageList(chatMessages, messageScrollController, userInteraction, chatMessages.getSelectedChatData(), isEvent, showMessageField),
                 ),
               ],
             ),
           ),
           !isEvent && userLoggedIn
-              ? chatTextField(chatBoxWidth, chatTextFieldHeight, tileBoxVisible, chatMessages.getActiveChatBoxTab(), _chatFormKey, _focusChatBox, chatFieldController, _selectedChatData)
+              ? chatTextField(chatBoxWidth, chatTextFieldHeight, tileBoxVisible, chatMessages.getActiveChatBoxTab(), _chatFormKey, _focusChatBox, chatFieldController, chatMessages.getSelectedChatData())
               : Container()
         ],
       ),
@@ -432,7 +430,7 @@ class ChatBoxState extends State<ChatBox> {
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton2(
-          value: _selectedChatData,
+          value: chatMessages.getSelectedChatData(),
           disabledHint: null,
           items: chatMessages.getDropdownMenuItems(),
           dropdownWidth: 300,
@@ -466,7 +464,7 @@ class ChatBoxState extends State<ChatBox> {
         // There is a placeholder text when there are no chats active
         // If the user decides to click this anyway it will do nothing
         if (selectedChat.name != "No Chats Found!") {
-          _selectedChatData = selectedChat;
+          chatMessages.setSelectedChatData(selectedChat);
           chatMessages.setMessageUser(selectedChat.name);
           // removeUnreadPersonalMessage(selectedChat);
           chatMessages.setActiveChatBoxTab("Personal");
@@ -489,7 +487,7 @@ class ChatBoxState extends State<ChatBox> {
       bool exists = false;
       for (int i = 0; i < chatMessages.regions.length; i++) {
         if (chatMessages.regions[i].name == userName) {
-          _selectedChatData = chatMessages.regions[i];
+          chatMessages.setSelectedChatData(chatMessages.regions[i]);
           chatMessages.setMessageUser(chatMessages.regions[i].name);
           exists = true;
         }
@@ -498,7 +496,7 @@ class ChatBoxState extends State<ChatBox> {
         ChatData newChatData = ChatData(3, userName, false);
         chatMessages.addNewRegion(newChatData);
         chatMessages.setMessageUser(newChatData.name);
-        _selectedChatData = newChatData;
+        chatMessages.setSelectedChatData(newChatData);
         // Check if the placeholder "No Chats Found!" is in the list and remove it.
         chatMessages.removePlaceholder();
       }
