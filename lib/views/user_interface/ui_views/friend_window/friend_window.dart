@@ -47,9 +47,11 @@ class FriendWindowState extends State<FriendWindow> {
 
   int detailAddFriendColour = 0;
   int detailRequestColour = 0;
-  int detailFriendColour = 0;
+  int detailFriendColour = 2;
 
   SocketServices socket = SocketServices();
+
+  bool unansweredFriendRequests = false;
 
   @override
   void initState() {
@@ -61,13 +63,27 @@ class FriendWindowState extends State<FriendWindow> {
 
     socket.checkFriends();
     socket.addListener(socketListener);
+    checkUnansweredFriendRequests();
     super.initState();
   }
 
   socketListener() {
     if (mounted) {
-      print("socket listener friend window!");
+      checkUnansweredFriendRequests();
       setState(() {});
+    }
+  }
+
+  checkUnansweredFriendRequests() {
+    unansweredFriendRequests = false;
+    if (Settings().getUser() != null) {
+      User currentUser = Settings().getUser()!;
+      for (Friend friend in currentUser.friends) {
+        if (!friend.isAccepted() && friend.requested != null && friend.requested == false) {
+          unansweredFriendRequests = true;
+          break;
+        }
+      }
     }
   }
 
@@ -93,9 +109,9 @@ class FriendWindowState extends State<FriendWindow> {
           socialView = true;
           addFriendView = false;
           showFriendWindow = false;
-          detailRequestColour = 0;
-          detailFriendColour = 0;
           detailAddFriendColour = 0;
+          detailRequestColour = 0;
+          detailFriendColour = 2;
           possibleNewFriend = null;
           addController.text = "";
         });
@@ -119,8 +135,6 @@ class FriendWindowState extends State<FriendWindow> {
 
   searchForFriend(String possibleFriend) {
     print("searching for friend $possibleFriend");
-    // TODO: Add possibility for it's already your friend or if request is already sent.
-    // TODO: Also add function for when the user is blocked? show not found?
     AuthServiceSocial().searchPossibleFriend(possibleFriend).then((value) {
       print("search result $value");
       if (value != null) {
@@ -161,10 +175,11 @@ class FriendWindowState extends State<FriendWindow> {
           if (currentUser != null) {
             friend.setRequested(true);
             currentUser.addFriend(friend);
+            checkUnansweredFriendRequests();
             setState(() {
               socialView = false;
               addFriendView = false;
-              detailRequestColour = 0;
+              detailRequestColour = 2;
               detailFriendColour = 0;
               detailAddFriendColour = 0;
               possibleNewFriend = null;
@@ -179,13 +194,16 @@ class FriendWindowState extends State<FriendWindow> {
             friend.setAccepted(true);
             friend.setRequested(false);
             currentUser!.addFriend(friend);
+            checkUnansweredFriendRequests();
             socialView = true;
             addFriendView = false;
             detailRequestColour = 0;
-            detailFriendColour = 0;
+            detailFriendColour = 2;
             detailAddFriendColour = 0;
             showToastMessage("You are now friends with ${friend.getUser()!.getUserName()}");
-            ProfileChangeNotifier().notifyListeners();
+            ProfileChangeNotifier profileChangeNotifier = ProfileChangeNotifier();
+            profileChangeNotifier.setProfileVisible(false);
+            profileChangeNotifier.notify();
           });
         } else {
           showToastMessage(value.getMessage());
@@ -203,14 +221,17 @@ class FriendWindowState extends State<FriendWindow> {
       if (value.getResult()) {
         setState(() {
           friend.setAccepted(true);
+          checkUnansweredFriendRequests();
           socialView = true;
           addFriendView = false;
           detailRequestColour = 0;
-          detailFriendColour = 0;
+          detailFriendColour = 2;
           detailAddFriendColour = 0;
         });
         showToastMessage("You are now friends with ${friend.getUser()!.getUserName()}");
-        ProfileChangeNotifier().notifyListeners();
+        ProfileChangeNotifier profileChangeNotifier = ProfileChangeNotifier();
+        profileChangeNotifier.setProfileVisible(false);
+        profileChangeNotifier.notify();
       } else {
         showToastMessage("something went wrong");
       }
@@ -222,7 +243,7 @@ class FriendWindowState extends State<FriendWindow> {
   messageFriend(Friend friend) {
     ClearUI().clearUserInterfaces();
     ChatMessages chatMessages = ChatMessages();
-    chatMessages.addChatRegion(friend.getUser()!.getUserName());
+    chatMessages.addChatRegion(friend.getUser()!.getUserName(), friend.unreadMessages!);
     chatMessages.setActivateChatWindowTab("Personal");
     ChatWindowChangeNotifier().setChatWindowVisible(true);
   }
@@ -358,8 +379,9 @@ class FriendWindowState extends State<FriendWindow> {
           child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                addFriendButton(friendWindowWidth / 2, fontSize),
-                friendListButton(friendWindowWidth / 2, fontSize),
+                friendListButton(friendWindowWidth / 3, fontSize),
+                friendRequestButton(friendWindowWidth / 3, fontSize),
+                addFriendButton(friendWindowWidth / 3, fontSize),
               ]
           ),
         )
@@ -405,7 +427,11 @@ class FriendWindowState extends State<FriendWindow> {
           if (hovering) {
             detailAddFriendColour = 1;
           } else {
-            detailAddFriendColour = 0;
+            if (addFriendView) {
+              detailAddFriendColour = 2;
+            } else {
+              detailAddFriendColour = 0;
+            }
           }
         });
       },
@@ -419,7 +445,7 @@ class FriendWindowState extends State<FriendWindow> {
               SizedBox(width: 1),
               Row(
                 children: [
-                  addIcon(40, Icons.add, Colors.orange),
+                  addIcon(50, Icons.add, Colors.orange),
                   SizedBox(width: 5),
                   Text(
                     "Add new friend",
@@ -444,6 +470,7 @@ class FriendWindowState extends State<FriendWindow> {
           socialView = true;
           addFriendView = false;
           detailAddFriendColour = 0;
+          detailRequestColour = 0;
         });
       },
       onHover: (hovering) {
@@ -451,7 +478,11 @@ class FriendWindowState extends State<FriendWindow> {
           if (hovering) {
             detailFriendColour = 1;
           } else {
-            detailFriendColour = 0;
+            if (socialView && !addFriendView) {
+              detailFriendColour = 2;
+            } else {
+              detailFriendColour = 0;
+            }
           }
         });
       },
@@ -465,7 +496,7 @@ class FriendWindowState extends State<FriendWindow> {
               SizedBox(width: 1),
               Row(
                 children: [
-                  addIcon(40, Icons.people, Colors.orange),
+                  addIcon(50, Icons.people, Colors.orange),
                   SizedBox(width: 5),
                   Text(
                     "Friend list",
@@ -490,6 +521,7 @@ class FriendWindowState extends State<FriendWindow> {
           socialView = false;
           addFriendView = false;
           detailAddFriendColour = 0;
+          detailFriendColour = 0;
         });
       },
       onHover: (hovering) {
@@ -497,7 +529,11 @@ class FriendWindowState extends State<FriendWindow> {
           if (hovering) {
             detailRequestColour = 1;
           } else {
-            detailRequestColour = 0;
+            if (!socialView && !addFriendView) {
+              detailRequestColour = 2;
+            } else {
+              detailRequestColour = 0;
+            }
           }
         });
       },
@@ -509,17 +545,26 @@ class FriendWindowState extends State<FriendWindow> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               SizedBox(width: 1),
-              Row(
+              Stack(
                 children: [
-                  addIcon(40, Icons.person_add_alt_1, Colors.orange),
-                  SizedBox(width: 5),
-                  Text(
-                    "Friend Requests",
-                    style: simpleTextStyle(
-                      fontSize,
-                    ),
+                  Row(
+                    children: [
+                      addIcon(50, Icons.person_add_alt_1, Colors.orange),
+                      SizedBox(width: 5),
+                      Text(
+                        "Friend Requests",
+                        style: simpleTextStyle(
+                          fontSize,
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                  unansweredFriendRequests ? Image.asset(
+                    "assets/images/ui/icon/update_notification.png",
+                    width: 50,
+                    height: 50,
+                  ) : Container(),
+                ]
               ),
               SizedBox(width: 1),
             ]
@@ -569,8 +614,9 @@ class FriendWindowState extends State<FriendWindow> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              addFriendButton(friendWindowWidth / 2, fontSize),
-              friendRequestButton(friendWindowWidth / 2, fontSize),
+              friendListButton(friendWindowWidth / 3, fontSize),
+              friendRequestButton(friendWindowWidth / 3, fontSize),
+              addFriendButton(friendWindowWidth / 3, fontSize),
             ]
           ),
         )
@@ -606,7 +652,7 @@ class FriendWindowState extends State<FriendWindow> {
                 },
                 child: Tooltip(
                   message: 'Remove friend',
-                  child: addIcon(40, Icons.snowshoeing, Colors.red),
+                  child: addIcon(40, Icons.person_remove, Colors.red),
                 ),
               ),
             ]
@@ -796,8 +842,9 @@ class FriendWindowState extends State<FriendWindow> {
           child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                friendListButton(addFriendWindowWidth / 2, fontSize),
-                friendRequestButton(addFriendWindowWidth / 2, fontSize),
+                friendListButton(addFriendWindowWidth / 3, fontSize),
+                friendRequestButton(addFriendWindowWidth / 3, fontSize),
+                addFriendButton(addFriendWindowWidth / 3, fontSize),
               ]
           ),
         )

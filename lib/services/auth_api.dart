@@ -63,6 +63,7 @@ class AppInterceptors extends Interceptor {
           DioError dioError = DioError(requestOptions: options, type: DioErrorType.cancel, error: "User not authorized");
           return handler.reject(dioError, true);
         } else {
+          settings.setLoggingIn(true);
           String endPoint = "refresh";
           var response = await Dio(
               BaseOptions(
@@ -86,6 +87,7 @@ class AppInterceptors extends Interceptor {
           LoginResponse loginRefresh = LoginResponse.fromJson(response.data);
           if (loginRefresh.getResult()) {
             accessToken = loginRefresh.getAccessToken();
+            print("successfull login auth api");
             successfulLogin(loginRefresh);
           } else {
             DioError dioError = DioError(requestOptions: options, type: DioErrorType.cancel, error: "User not authorized");

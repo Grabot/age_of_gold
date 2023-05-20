@@ -8,6 +8,7 @@ import 'auth_api.dart';
 import 'models/base_response.dart';
 import 'models/login_request.dart';
 import 'models/refresh_request.dart';
+import 'settings.dart';
 
 
 class AuthServiceLogin {
@@ -18,6 +19,8 @@ class AuthServiceLogin {
   AuthServiceLogin._internal();
 
   Future<LoginResponse> getLogin(LoginRequest loginRequest) async {
+    print("getting logging");
+    Settings().setLoggingIn(true);
     String endPoint = "login";
     var response = await AuthApi().dio.post(endPoint,
         options: Options(headers: {
@@ -28,12 +31,14 @@ class AuthServiceLogin {
 
     LoginResponse loginResponse = LoginResponse.fromJson(response.data);
     if (loginResponse.getResult()) {
+      print("successful login getLogin");
       successfulLogin(loginResponse);
     }
     return loginResponse;
   }
 
   Future<LoginResponse> getRegister(RegisterRequest registerRequest) async {
+    Settings().setLoggingIn(true);
     String endPoint = "register";
     var response = await AuthApi().dio.post(endPoint,
         options: Options(headers: {
@@ -44,12 +49,14 @@ class AuthServiceLogin {
 
     LoginResponse loginResponse = LoginResponse.fromJson(response.data);
     if (loginResponse.getResult()) {
+      print("successful login getRegister");
       successfulLogin(loginResponse);
     }
     return loginResponse;
   }
 
   Future<LoginResponse> getRefresh(RefreshRequest refreshRequest) async {
+    Settings().setLoggingIn(true);
     String endPoint = "refresh";
     var response = await AuthApi().dio.post(endPoint,
         options: Options(headers: {
@@ -60,12 +67,14 @@ class AuthServiceLogin {
 
     LoginResponse loginResponse = LoginResponse.fromJson(response.data);
     if (loginResponse.getResult()) {
+      print("successful login getRefresh");
       successfulLogin(loginResponse);
     }
     return loginResponse;
   }
 
   Future<LoginResponse> getTokenLogin(String accessToken) async {
+    Settings().setLoggingIn(true);
     String endPoint = "login/token";
     var response = await AuthApi().dio.post(endPoint,
         options: Options(headers: {
@@ -79,6 +88,7 @@ class AuthServiceLogin {
 
     LoginResponse loginResponse = LoginResponse.fromJson(response.data);
     if (loginResponse.getResult()) {
+      print("successful login getTokenLogin");
       successfulLogin(loginResponse);
     }
     return loginResponse;

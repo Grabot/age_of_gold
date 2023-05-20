@@ -7,6 +7,7 @@ class Friend {
   late User? friend;
   // determines if the request was send or received, can be null
   bool? requested;
+  int? unreadMessages;
 
   Friend(this.accepted, this.requested, this.friend);
 
@@ -19,6 +20,9 @@ class Friend {
     }
     if (json.containsKey("requested")) {
       requested = json["requested"];
+    }
+    if (json.containsKey("unread_messages")) {
+      unreadMessages = json["unread_messages"];
     }
   }
 

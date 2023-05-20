@@ -6,6 +6,7 @@ import 'package:age_of_gold/util/util.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/chat_messages.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/clear_ui.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/message_util.dart';
+import 'package:age_of_gold/views/user_interface/ui_util/messages/message.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/chat_box/chat_box_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/chat_window/chat_window_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/user_box/user_box_change_notifier.dart';
@@ -282,6 +283,10 @@ class ChatBoxState extends State<ChatBox> {
     );
   }
 
+  setChatMessages() {
+    chatMessages.setChatMessages();
+  }
+
   Widget chatBoxNormal(double chatBoxWidth) {
 
     double topBarHeight = 34; // always visible
@@ -298,6 +303,7 @@ class ChatBoxState extends State<ChatBox> {
 
     bool showMessageField = (tileBoxVisible || !normalMode);
 
+    setChatMessages();
     return Container(
       width: chatBoxWidth,
       height: tileBoxVisible ? totalHeight : alwaysVisibleHeight,
@@ -311,7 +317,7 @@ class ChatBoxState extends State<ChatBox> {
               child: Column(
                 children: [
                   Expanded(
-                    child: messageList(chatMessages, messageScrollController, userInteraction, chatMessages.getSelectedChatData(), isEvent, showMessageField),
+                    child: messageList(chatMessages.shownMessages, messageScrollController, userInteraction, chatMessages.getSelectedChatData(), isEvent, showMessageField),
                   ),
                 ],
               ),
@@ -326,6 +332,7 @@ class ChatBoxState extends State<ChatBox> {
 
   Widget mobileMinimized(double chatBoxWidth, double topBarHeight) {
     bool showMessageField = (tileBoxVisible || !normalMode);
+    setChatMessages();
     return Row(
       children: [
         GestureDetector(
@@ -340,7 +347,7 @@ class ChatBoxState extends State<ChatBox> {
             child: Column(
               children: [
                 Expanded(
-                  child: messageList(chatMessages, messageScrollController, userInteraction, chatMessages.getSelectedChatData(), false, showMessageField),
+                  child: messageList(chatMessages.shownMessages, messageScrollController, userInteraction, chatMessages.getSelectedChatData(), false, showMessageField),
                 ),
               ],
             ),
@@ -362,6 +369,7 @@ class ChatBoxState extends State<ChatBox> {
     }
     bool showMessageField = (tileBoxVisible || !normalMode);
 
+    setChatMessages();
     return Container(
       width: chatBoxWidth,
       child: Column(
@@ -374,7 +382,7 @@ class ChatBoxState extends State<ChatBox> {
             child: Column(
               children: [
                 Expanded(
-                  child: messageList(chatMessages, messageScrollController, userInteraction, chatMessages.getSelectedChatData(), isEvent, showMessageField),
+                  child: messageList(chatMessages.shownMessages, messageScrollController, userInteraction, chatMessages.getSelectedChatData(), isEvent, showMessageField),
                 ),
               ],
             ),
@@ -493,7 +501,7 @@ class ChatBoxState extends State<ChatBox> {
         }
       }
       if (!exists) {
-        ChatData newChatData = ChatData(3, userName, false);
+        ChatData newChatData = ChatData(3, userName, 0);
         chatMessages.addNewRegion(newChatData);
         chatMessages.setMessageUser(newChatData.name);
         chatMessages.setSelectedChatData(newChatData);

@@ -8,23 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 
-Widget messageList(ChatMessages chatMessages, ScrollController messageScrollController, Function(bool, String) userInteraction, ChatData? selectedChatData, bool isEvent, bool show) {
-  List<Message> messages = chatMessages.chatMessages;
-  if (isEvent) {
-    messages = chatMessages.eventMessages;
-  } else {
-    if (selectedChatData != null) {
-      messages = chatMessages.getMessagesFromUser(
-          selectedChatData.name
-      );
-    } else {
-      // In the regular world chat we want to get all the messages except the personal messages that were send by the user
-      if (Settings().getUser() != null) {
-        messages = chatMessages.getAllWorldMessages(
-            Settings().getUser()!.getUserName());
-      }
-    }
-  }
+Widget messageList(List<Message> messages, ScrollController messageScrollController, Function(bool, String) userInteraction, ChatData? selectedChatData, bool isEvent, bool show) {
+
   // In the mobile mode there is always a small section of the chat visible.
   return messages.isNotEmpty && show
       ? ListView.builder(
@@ -110,7 +95,6 @@ class MessageTileState extends State<MessageTile> {
   }
 
   Widget messageBubbleMe() {
-    Color textColour = Colors.white;
     return Container(
       alignment: Alignment.bottomRight,
       child: Container(
@@ -156,8 +140,30 @@ class MessageTileState extends State<MessageTile> {
     );
   }
 
+  Widget timeMessageBubble() {
+    return Container(
+        alignment: Alignment.center,
+        child: Container(
+          padding: const EdgeInsets.only(left: 10.0, right: 10, top: 2, bottom: 2),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20.0),
+            color: Colors.grey.withOpacity(0.8),
+          ),
+          child: RichText(
+            textAlign: TextAlign.left,
+            text: textBody(),
+          ),
+        )
+    );
+  }
+
   Widget getMessageContent() {
-    return isMe ? messageBubbleMe() : messageBubble(widget.message.messageColour);
+    if (widget.message.id == -1) {
+      return timeMessageBubble();
+    } else {
+      return isMe ? messageBubbleMe() : messageBubble(
+          widget.message.messageColour);
+    }
   }
 
   Widget message() {

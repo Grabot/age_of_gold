@@ -19,6 +19,8 @@ class Settings extends ChangeNotifier {
   // String? avatar;
   Uint8List? avatar;
 
+  bool loggingIn = false;
+
   Settings._internal() {
     if (kIsWeb) {
       // This script had lots of compiled code, so it is not included in the git repo.
@@ -68,6 +70,14 @@ class Settings extends ChangeNotifier {
 
   setAvatar(Uint8List avatar) {
     this.avatar = avatar;
+  }
+
+  setLoggingIn(bool loggingIn) {
+    this.loggingIn = loggingIn;
+  }
+
+  bool getLoggingIn() {
+    return loggingIn;
   }
 
   notify() {

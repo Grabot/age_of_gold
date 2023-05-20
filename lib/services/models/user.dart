@@ -24,6 +24,10 @@ class User {
     }
   }
 
+  int getId() {
+    return id;
+  }
+
   String getUserName() {
     return userName;
   }

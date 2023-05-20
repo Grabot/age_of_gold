@@ -18,6 +18,10 @@ class ProfileChangeNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
+  notify() {
+    notifyListeners();
+  }
+
   getProfileVisible() {
     return showProfile;
   }

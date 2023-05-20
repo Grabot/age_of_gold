@@ -89,7 +89,7 @@ class AgeOfGold extends FlameGame
     checkHexagonArraySize();
 
     socket = SocketServices();
-    checkLogIn(_navigationService);
+    // checkLogIn(_navigationService);
 
     socket!.addListener(socketListener);
     html.window.onBeforeUnload.listen((event) async {
@@ -106,24 +106,31 @@ class AgeOfGold extends FlameGame
 
   checkLogIn(NavigationService navigationService) {
     Settings settings = Settings();
-    if (settings.getUser() != null) {
-      socket!.login(settings.getUser()!.id);
-    } else {
+    print("check login at world");
+    if (settings.getUser() == null) {
+      print("user was not found");
       // User was not found, maybe not logged in?! or refreshed?!
       // Find accessToken to quickly fix this.
-      String accessToken = settings.getAccessToken();
-      if (accessToken != "") {
-        logIn(navigationService, settings, accessToken);
+      // But maybe the call is already sent out to the server.
+      // This is indicated with the loggingIn flag in settings.
+      if (settings.getLoggingIn()) {
+        // wait
+        print("currently logging in");
       } else {
-        // Also no accessToken found in settings. Check the storage.
-        SecureStorage secureStorage = SecureStorage();
-        secureStorage.getAccessToken().then((accessToken) {
-          if (accessToken == null || accessToken == "") {
-            print("just checking out the world?");
-          } else {
-            logIn(navigationService, settings, accessToken);
-          }
-        });
+        String accessToken = settings.getAccessToken();
+        if (accessToken != "") {
+          logIn(navigationService, settings, accessToken);
+        } else {
+          // Also no accessToken found in settings. Check the storage.
+          SecureStorage secureStorage = SecureStorage();
+          secureStorage.getAccessToken().then((accessToken) {
+            if (accessToken == null || accessToken == "") {
+              print("just checking out the world?");
+            } else {
+              logIn(navigationService, settings, accessToken);
+            }
+          });
+        }
       }
     }
   }

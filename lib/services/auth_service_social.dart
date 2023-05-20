@@ -5,6 +5,7 @@ import 'package:age_of_gold/services/models/base_response.dart';
 import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/messages/global_message.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/messages/message.dart';
+import 'package:age_of_gold/views/user_interface/ui_util/messages/personal_message.dart';
 import 'package:dio/dio.dart';
 
 import 'auth_api.dart';
@@ -217,6 +218,73 @@ class AuthServiceSocial {
         return null;
       }
     }
+  }
+
+  Future<List<PersonalMessage>?> getMessagePersonal(String fromUser) async {
+    String endPoint = "get/message/personal";
+    var response = await AuthApi().dio.post(endPoint,
+        options: Options(headers: {
+          HttpHeaders.contentTypeHeader: "application/json",
+        }),
+        data: jsonEncode(<String, String>{
+          "from_user": fromUser
+        }
+      )
+    );
+
+    Map<String, dynamic> json = response.data;
+    if (!json.containsKey("result")) {
+      return null;
+    } else {
+      if (json["result"]) {
+        List<PersonalMessage> messageList = [];
+        for (Map<String, dynamic> message in json["messages"]) {
+          if (Settings().getUser() != null) {
+            int id = 1;
+            int userId = message["user_id"];
+            int receiverId = message["receiver_id"];
+            int myId = Settings().getUser()!.getId();
+            bool me = myId == userId;
+
+            String senderName = fromUser;
+            String to = Settings().getUser()!.getUserName();
+            if (me) {
+              senderName = Settings().getUser()!.getUserName();
+              to = fromUser;
+            }
+
+            String body = message["body"];
+            String timeString = message["timestamp"];
+            if (!timeString.endsWith("Z")) {
+              // The server has utc timestamp, but it's not formatted with the 'Z'.
+              timeString += "Z";
+            }
+            DateTime timestamp = DateTime.parse(timeString).toLocal();
+            PersonalMessage personalMessage = PersonalMessage(id, senderName, body, me, timestamp, false, to);
+            messageList.add(personalMessage);
+          }
+        }
+        return messageList;
+      } else {
+        return null;
+      }
+    }
+  }
+
+  Future<BaseResponse> readMessagePersonal(String fromUser) async {
+    String endPoint = "read/message/personal";
+    var response = await AuthApi().dio.post(endPoint,
+        options: Options(headers: {
+          HttpHeaders.contentTypeHeader: "application/json",
+        }),
+        data: jsonEncode(<String, String>{
+          "read_user": fromUser
+        }
+      )
+    );
+
+    BaseResponse baseResponse = BaseResponse.fromJson(response.data);
+    return baseResponse;
   }
 
   Future<User?> searchPossibleFriend(String possibleFriend) async {

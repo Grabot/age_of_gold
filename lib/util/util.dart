@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 import 'package:age_of_gold/age_of_gold.dart';
 import 'package:age_of_gold/component/tile.dart';
@@ -7,6 +8,7 @@ import 'package:age_of_gold/services/socket_services.dart';
 import 'package:age_of_gold/util/hexagon_list.dart';
 import 'package:age_of_gold/util/web_storage.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/chat_messages.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/profile_box/profile_change_notifier.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import 'package:oktoast/oktoast.dart';
@@ -96,7 +98,7 @@ bool emailValid(String possibleEmail) {
       .hasMatch(possibleEmail);
 }
 
-successfulLogin(LoginResponse loginResponse) {
+successfulLogin(LoginResponse loginResponse) async {
   SecureStorage secureStorage = SecureStorage();
   Settings settings = Settings();
 
@@ -105,7 +107,7 @@ successfulLogin(LoginResponse loginResponse) {
     // the access token will be set in memory and local storage.
     settings.setAccessToken(accessToken);
     settings.setAccessTokenExpiration(Jwt.parseJwt(accessToken)['exp']);
-    secureStorage.setAccessToken(accessToken);
+    await secureStorage.setAccessToken(accessToken);
   }
 
   String? refreshToken = loginResponse.getRefreshToken();
@@ -120,7 +122,11 @@ successfulLogin(LoginResponse loginResponse) {
     if (user.getAvatar() != null) {
       settings.setAvatar(user.getAvatar()!);
     }
+    SocketServices().login(user.id);
   }
+  ChatMessages().login();
+  settings.setLoggingIn(false);
+  ProfileChangeNotifier().notify();
 }
 
 showToastMessage(String message) {
@@ -190,6 +196,7 @@ Tile? getTileWrap(HexagonList hexagonList, int qArray, int rArray, int newTileQ,
 logoutUser(Settings settings, NavigationService navigationService) {
   SocketServices().logout(settings.getUser()!.id);
   ChatMessages().clearPersonalMessages();
+  ProfileChangeNotifier().setProfileVisible(false);
   settings.logout();
   SecureStorage().logout().then((value) {
     navigationService.navigateTo(routes.HomeRoute, arguments: {'message': "Logged out"});

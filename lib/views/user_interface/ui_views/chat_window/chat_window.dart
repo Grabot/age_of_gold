@@ -5,6 +5,7 @@ import 'package:age_of_gold/util/util.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/chat_messages.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/clear_ui.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/message_util.dart';
+import 'package:age_of_gold/views/user_interface/ui_util/messages/message.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/chat_box/chat_box_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/chat_window/chat_window_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/user_box/user_box_change_notifier.dart';
@@ -71,6 +72,7 @@ class ChatWindowState extends State<ChatWindow> {
   newMessageListener() {
     if (mounted) {
       setState(() {});
+      setChatMessages();
     }
   }
 
@@ -314,16 +316,31 @@ class ChatWindowState extends State<ChatWindow> {
       style: buttonStyle(false, buttonColour),
       child: Row(
         children: [
-          Container(
-            width: 30,
-            height: 50,
-            child: Icon(
-              Icons.person,
-              color: Colors.grey,
-              size: 40,
-            ),
+          Stack(
+            children: [
+              chatData.unreadMessages != 0 ? Container(
+                padding: const EdgeInsets.only(left: 5, top: 5),
+                child: Text(
+                  chatData.unreadMessages.toString(),
+                  style: const TextStyle(
+                    color: Colors.red,
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ) : Container(),
+              const SizedBox(
+                width: 50,
+                height: 50,
+                child: Icon(
+                  Icons.person,
+                  color: Colors.grey,
+                  size: 40,
+                ),
+              ),
+            ]
           ),
-          SizedBox(width: 10),
+          const SizedBox(width: 10),
           Expanded(
             child: Container(
               alignment: Alignment.center,
@@ -418,17 +435,21 @@ class ChatWindowState extends State<ChatWindow> {
   }
 
   Widget personalChats(double leftColumnWidth, double remainingHeight, double fontSize) {
-    double personalChatHeaderHeight = remainingHeight;
+    double personalChatHeight = remainingHeight;
     if (hasGroupChats) {
-      personalChatHeaderHeight = remainingHeight/2;
+      personalChatHeight = remainingHeight/2;
+    }
+    double personalChatHeaderHeight = 50;
+    if (searchActive) {
+      personalChatHeaderHeight = 100;
     }
     if (hasPersonalChats) {
       return Column(
         children: [
           SizedBox(height: 20),
-          personalChatHeader(leftColumnWidth, 50, fontSize),
+          personalChatHeader(leftColumnWidth, personalChatHeaderHeight, fontSize),
           Container(
-            constraints: BoxConstraints(minHeight: 50, maxHeight: personalChatHeaderHeight - 20 - 50),
+            constraints: BoxConstraints(minHeight: personalChatHeaderHeight, maxHeight: personalChatHeight - 20 - personalChatHeaderHeight),
             child: SingleChildScrollView(
               child: Column(
                 children: buildPersonalButtons(leftColumnWidth, fontSize),
@@ -468,17 +489,22 @@ class ChatWindowState extends State<ChatWindow> {
     );
   }
 
+  setChatMessages() {
+    chatMessages.setChatMessages();
+  }
+
   Widget rightColumn(double rightColumnWidth, double rightColumnHeight, double fontSize) {
     double chatTextFieldHeight = 60;
     if (isEvent) {
       chatTextFieldHeight = 0;
     }
+    setChatMessages();
     return Column(
       children: [
         Container(
             width: rightColumnWidth,
             height: rightColumnHeight - chatTextFieldHeight,
-            child: messageList(chatMessages, messageScrollController, userInteraction, chatMessages.getSelectedChatData(), isEvent, true)
+            child: messageList(chatMessages.shownMessages, messageScrollController, userInteraction, chatMessages.getSelectedChatData(), isEvent, true)
         ),
         !isEvent
             ? chatTextField(rightColumnWidth, chatTextFieldHeight, true, chatMessages.getActivateChatWindowTab(), _chatFormKey, _focusChatWindow, chatFieldController, chatMessages.getSelectedChatData())
@@ -584,7 +610,7 @@ class ChatWindowState extends State<ChatWindow> {
         }
       }
       if (!exists) {
-        ChatData newChatData = ChatData(3, userName, false);
+        ChatData newChatData = ChatData(3, userName, 0);
         chatMessages.addNewRegion(newChatData);
         chatMessages.setMessageUser(newChatData.name);
         chatMessages.setSelectedChatData(newChatData);
