@@ -71,8 +71,8 @@ class ChatWindowState extends State<ChatWindow> {
 
   newMessageListener() {
     if (mounted) {
-      setState(() {});
       setChatMessages();
+      setState(() {});
     }
   }
 
@@ -94,6 +94,13 @@ class ChatWindowState extends State<ChatWindow> {
           hasPersonalChats = false;
           showChatWindow = true;
           setChatWindowActive();
+          if (chatMessages.getActiveChatTab() == "World") {
+            chatMessages.setUnreadWorldMessages(false);
+          }
+          if (chatMessages.getActiveChatTab() == "Events") {
+            chatMessages.setUnreadEventMessages(false);
+          }
+          ChatBoxChangeNotifier().notify();
         });
       }
       if (showChatWindow && !chatWindowChangeNotifier.getChatWindowVisible()) {
@@ -108,24 +115,24 @@ class ChatWindowState extends State<ChatWindow> {
 
   setChatWindowActive() {
     chatMessages.setChatWindowActive(true);
-    if (chatMessages.getActivateChatWindowTab() == "") {
-      chatMessages.setActivateChatWindowTab("World");
+    if (chatMessages.getActiveChatTab() == "") {
+      chatMessages.setActiveChatTab("World");
       isWorld = true;
       isEvent = false;
-    } if (chatMessages.getActivateChatWindowTab() == "World") {
+    } if (chatMessages.getActiveChatTab() == "World") {
       isWorld = true;
       isEvent = false;
-    } else if (chatMessages.getActivateChatWindowTab() == "Events") {
+    } else if (chatMessages.getActiveChatTab() == "Events") {
       isWorld = false;
       isEvent = true;
-    } else if (chatMessages.getActivateChatWindowTab() == "Personal") {
+    } else if (chatMessages.getActiveChatTab() == "Personal") {
       // Find the user that was currently active in the chatbox.
       for (ChatData chatData in chatMessages.regions) {
         if (chatData.name == chatMessages.getMessageUser()) {
           isEvent = false;
           isWorld = false;
           chatMessages.setSelectedChatData(chatData);
-          chatMessages.setActivateChatWindowTab("Personal");
+          chatMessages.setActiveChatTab("Personal");
           break;
         }
       }
@@ -190,7 +197,7 @@ class ChatWindowState extends State<ChatWindow> {
 
   pressedWorldChat() {
     setState(() {
-      chatMessages.setActivateChatWindowTab("World");
+      chatMessages.setActiveChatTab("World");
       ChatBoxChangeNotifier().setActiveTab("World");
       chatMessages.setSelectedChatData(null);
       chatMessages.setMessageUser(null);
@@ -202,7 +209,7 @@ class ChatWindowState extends State<ChatWindow> {
 
   pressedEventsChats() {
     setState(() {
-      chatMessages.setActivateChatWindowTab("Events");
+      chatMessages.setActiveChatTab("Events");
       ChatBoxChangeNotifier().setActiveTab("Events");
       chatMessages.setSelectedChatData(null);
       chatMessages.setMessageUser(null);
@@ -299,7 +306,7 @@ class ChatWindowState extends State<ChatWindow> {
       isWorld = false;
       chatMessages.setSelectedChatData(chatData);
       chatMessages.setMessageUser(chatData.name);
-      chatMessages.setActivateChatWindowTab("Personal");
+      chatMessages.setActiveChatTab("Personal");
       selectionScreen = false;
     });
   }
@@ -507,7 +514,7 @@ class ChatWindowState extends State<ChatWindow> {
             child: messageList(chatMessages.shownMessages, messageScrollController, userInteraction, chatMessages.getSelectedChatData(), isEvent, true)
         ),
         !isEvent
-            ? chatTextField(rightColumnWidth, chatTextFieldHeight, true, chatMessages.getActivateChatWindowTab(), _chatFormKey, _focusChatWindow, chatFieldController, chatMessages.getSelectedChatData())
+            ? chatTextField(rightColumnWidth, chatTextFieldHeight, true, chatMessages.getActiveChatTab(), _chatFormKey, _focusChatWindow, chatFieldController, chatMessages.getSelectedChatData())
             : Container()
       ],
     );
@@ -617,8 +624,10 @@ class ChatWindowState extends State<ChatWindow> {
         // Check if the placeholder "No Chats Found!" is in the list and remove it.
         chatMessages.removePlaceholder();
       }
-      chatMessages.setActivateChatWindowTab("Personal");
+      chatMessages.setActiveChatTab("Personal");
       hasPersonalChats = true;
+      isWorld = false;
+      isEvent = false;
       resetSearch();
       setState(() {});
     } else {

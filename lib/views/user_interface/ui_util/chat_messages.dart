@@ -9,6 +9,9 @@ import 'package:age_of_gold/views/user_interface/ui_util/messages/guild_message.
 import 'package:age_of_gold/views/user_interface/ui_util/messages/local_message.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/messages/message.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/messages/personal_message.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/chat_box/chat_box.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/chat_box/chat_box_change_notifier.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/profile_box/profile_change_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -16,6 +19,7 @@ class ChatMessages extends ChangeNotifier {
   List<Message> chatMessages = [];
   List<EventMessage> eventMessages = [];
   Map<String, List<PersonalMessage>> personalMessages = {};
+  Map<String, bool> personalMessageRetrieved = {};
   String? messageUser;
 
   List<ChatData> regions = [];
@@ -24,8 +28,7 @@ class ChatMessages extends ChangeNotifier {
   List<DropdownMenuItem<ChatData>>? dropdownMenuItems;
 
   // We make a distinction between "World", "Events" and "Personal" for friends and guilds
-  String activateChatBoxTab = "World";
-  String activateChatWindowTab = "World";
+  String activateChatTab = "World";
 
   bool chatWindowActive = false;
   bool unreadWorldMessages = false;
@@ -55,20 +58,33 @@ class ChatMessages extends ChangeNotifier {
   setSelectedChatData(ChatData? chatData) {
     selectedChatData = chatData;
     if (chatData != null) {
-      AuthServiceSocial().getMessagePersonal(chatData.name).then((value) {
-        if (value != null) {
-          combinePersonalMessages(chatData, value);
-          setDateTiles(personalMessages[chatData.name]!, true);
-          chatData.unreadMessages = 0;
-          // send a trigger that the messages are read.
-          AuthServiceSocial().readMessagePersonal(chatData.name).then((value) {});
-        } else {
-          showToastMessage("Could not get messages, sorry for the inconvenience");
-        }
-        notifyListeners();
-      }).onError((error, stackTrace) {
-        showToastMessage("an error occured");
-      });
+      // Check if messages have already been retrieved.
+      // If true any new message will have been retrieved with sockets.
+      bool personRetrieved = false;
+      if (personalMessageRetrieved.containsKey(chatData.name)) {
+        personRetrieved = personalMessageRetrieved[chatData.name]!;
+      }
+      print("messages of ${chatData.name}   retrieved: ${personRetrieved.toString()}");
+      if (!personRetrieved) {
+        AuthServiceSocial().getMessagePersonal(chatData.name).then((value) {
+          if (value != null) {
+            combinePersonalMessages(chatData, value);
+            setDateTiles(personalMessages[chatData.name]!, true);
+            chatData.unreadMessages = 0;
+            // send a trigger that the messages are read.
+            AuthServiceSocial().readMessagePersonal(chatData.name).then((value) {});
+            ProfileChangeNotifier().notify();
+            dropdownMenuItems = buildDropdownMenuItems();
+            personalMessageRetrieved[chatData.name] = true;
+          } else {
+            showToastMessage(
+                "Could not get messages, sorry for the inconvenience");
+          }
+          notifyListeners();
+        }).onError((error, stackTrace) {
+          showToastMessage("an error occured");
+        });
+      }
     }
     notifyListeners();
   }
@@ -79,7 +95,6 @@ class ChatMessages extends ChangeNotifier {
 
   setChatWindowActive(bool value) {
     chatWindowActive = value;
-    activateChatWindowTab = activateChatBoxTab;
   }
 
   initializeChatMessages() {
@@ -137,6 +152,15 @@ class ChatMessages extends ChangeNotifier {
     }
   }
 
+  addPersonalMessageDict(String regionName) {
+    personalMessages[regionName] = [];
+    DateTime firstTime = DateTime(2023);
+    String message = "Start your conversation with $regionName here!";
+    PersonalMessage newMessage = PersonalMessage(1, "Server", message, false, firstTime, true, regionName);
+    personalMessages[regionName]!.add(newMessage);
+    personalMessageRetrieved[regionName] = false;
+  }
+
   addChatToPersonalMessages(String from, String to, PersonalMessage message) {
     String me = Settings().getUser()!.getUserName();
     String other = "";
@@ -146,11 +170,7 @@ class ChatMessages extends ChangeNotifier {
       other = from;
     }
     if (!personalMessages.containsKey(other)) {
-      personalMessages[other] = [];
-      DateTime firstTime = DateTime(2023);
-      String message = "Start your conversation with $other here!";
-      PersonalMessage newMessage = PersonalMessage(1, "Server", message, false, firstTime, true, other);
-      personalMessages[other]!.add(newMessage);
+      addPersonalMessageDict(other);
     }
     personalMessages[other]!.add(message);
     bool found = false;
@@ -250,11 +270,6 @@ class ChatMessages extends ChangeNotifier {
       unreadEventMessages = true;
     }
 
-    if (activateChatBoxTab == "Events" || (chatWindowActive && activateChatWindowTab == "Events")) {
-      unreadEventMessages = false;
-      lastMessage.read = true;
-    }
-
     if (eventMessages.length > 100) {
       eventMessages.removeAt(0);
     }
@@ -267,33 +282,18 @@ class ChatMessages extends ChangeNotifier {
       unreadWorldMessages = true;
     }
 
-    if (activateChatBoxTab == "World" || (chatWindowActive && activateChatWindowTab == "World")) {
-      unreadWorldMessages = false;
-      lastMessage.read = true;
-    }
-
     if (chatMessages.length > 1000) {
       chatMessages.removeAt(0);
     }
     notifyListeners();
   }
 
-  setActiveChatBoxTab(String tab) {
-    activateChatBoxTab = tab;
+  setActiveChatTab(String tab) {
+    activateChatTab = tab;
   }
 
-  String getActiveChatBoxTab() {
-    return activateChatBoxTab;
-  }
-
-  setActivateChatWindowTab(String tab) {
-    activateChatWindowTab = tab;
-    // We also set the chatbox tab.
-    activateChatBoxTab = tab;
-  }
-
-  String getActivateChatWindowTab() {
-    return activateChatWindowTab;
+  String getActiveChatTab() {
+    return activateChatTab;
   }
 
   setUnreadEventMessages(bool unread) {
@@ -319,8 +319,7 @@ class ChatMessages extends ChangeNotifier {
     eventMessages = [];
     messageUser = null;
     regions = [];
-    activateChatBoxTab = "World";
-    activateChatWindowTab = "World";
+    activateChatTab = "World";
   }
 
   initializeChatRegions() {
@@ -353,7 +352,7 @@ class ChatMessages extends ChangeNotifier {
   List<Message> shownMessages = [];
   setChatMessages() {
     List<Message> messages = chatMessages;
-    if (activateChatWindowTab == "Events") {
+    if (activateChatTab == "Events") {
       messages = eventMessages;
     } else {
       if (selectedChatData != null) {
@@ -376,11 +375,7 @@ class ChatMessages extends ChangeNotifier {
     regions.add(newRegion);
 
     if (!personalMessages.containsKey(newRegion.name)) {
-      personalMessages[newRegion.name] = [];
-      DateTime firstTime = new DateTime(2023);
-      String message = "Start your conversation with ${newRegion.name} here!";
-      PersonalMessage newMessage = PersonalMessage(0, "Server", message, false, firstTime, true, newRegion.name);
-      personalMessages[newRegion.name]!.add(newMessage);
+      addPersonalMessageDict(newRegion.name);
     }
 
     dropdownMenuItems = buildDropdownMenuItems();
@@ -441,8 +436,7 @@ class ChatMessages extends ChangeNotifier {
     personalMessages = {};
     selectedChatData = null;
     messageUser = null;
-    activateChatBoxTab = "World";
-    activateChatWindowTab = "World";
+    activateChatTab = "World";
     initializeChatMessages();
     AuthServiceSocial().getMessagesGlobal().then((value) {
       if (value != null) {

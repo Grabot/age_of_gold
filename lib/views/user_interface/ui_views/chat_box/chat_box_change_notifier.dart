@@ -41,4 +41,8 @@ class ChatBoxChangeNotifier extends ChangeNotifier {
   String? getActiveTab() {
     return activeTab;
   }
+
+  notify() {
+    notifyListeners();
+  }
 }

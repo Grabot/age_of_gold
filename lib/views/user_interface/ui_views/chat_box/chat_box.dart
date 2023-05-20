@@ -58,13 +58,21 @@ class ChatBoxState extends State<ChatBox> {
     socket.checkMessages(chatMessages);
     socket.addListener(socketListener);
     _focusChatBox.addListener(_onFocusChange);
-    chatMessages.setActiveChatBoxTab("");
+    chatMessages.setActiveChatTab("");
 
     super.initState();
   }
 
   newMessageListener() {
     if (mounted) {
+      if (tileBoxVisible || ChatWindowChangeNotifier().getChatWindowVisible()) {
+        if (chatMessages.getActiveChatTab() == "World") {
+          chatMessages.setUnreadWorldMessages(false);
+        }
+        if (chatMessages.getActiveChatTab() == "Events") {
+          chatMessages.setUnreadEventMessages(false);
+        }
+      }
       setState(() {});
     }
   }
@@ -74,32 +82,28 @@ class ChatBoxState extends State<ChatBox> {
       if (!normalMode) {
         if (chatBoxChangeNotifier.getActiveTab() != null) {
           if (chatBoxChangeNotifier.getActiveTab() == "World" || chatBoxChangeNotifier.getActiveTab() == "Events") {
-            setState(() {
-              chatMessages.setSelectedChatData(null);
-            });
+            chatMessages.setSelectedChatData(null);
           }
         }
       }
       if (!tileBoxVisible && chatBoxChangeNotifier.getChatBoxVisible()) {
-        setState(() {
-          if (chatBoxChangeNotifier.getChatUser() != null) {
-            userInteraction(true, chatBoxChangeNotifier.getChatUser()!);
-            chatMessages.setActiveChatBoxTab("Personal");
-          }
-          tileBoxVisible = true;
-        });
+        if (chatBoxChangeNotifier.getChatUser() != null) {
+          userInteraction(true, chatBoxChangeNotifier.getChatUser()!);
+          chatMessages.setActiveChatTab("Personal");
+        }
+        tileBoxVisible = true;
+        ChatBoxChangeNotifier().setChatBoxVisible(true);
       }
       if (tileBoxVisible && !chatBoxChangeNotifier.getChatBoxVisible()) {
-        setState(() {
-          tileBoxVisible = false;
-        });
+        tileBoxVisible = false;
       }
       if (tileBoxVisible && chatBoxChangeNotifier.getChatUser() != null) {
         // The user has selected a user to message. Change to that chat.
         userInteraction(true, chatBoxChangeNotifier.getChatUser()!);
-        chatMessages.setActiveChatBoxTab("Personal");
+        chatMessages.setActiveChatTab("Personal");
         _focusChatBox.requestFocus();
       }
+      setState(() {});
     }
   }
 
@@ -132,9 +136,10 @@ class ChatBoxState extends State<ChatBox> {
     print("pressed chat tab");
     if (!tileBoxVisible) {
       tileBoxVisible = true;
+      ChatBoxChangeNotifier().setChatBoxVisible(true);
     }
     setState(() {
-      chatMessages.setActiveChatBoxTab(tabName);
+      chatMessages.setActiveChatTab(tabName);
       chatMessages.setSelectedChatData(null);
       chatMessages.setMessageUser(null);
       readMessages();
@@ -142,7 +147,7 @@ class ChatBoxState extends State<ChatBox> {
   }
 
   Widget chatTab(String tabName, bool hasUnreadMessages) {
-    bool buttonActive = chatMessages.getActiveChatBoxTab() == tabName;
+    bool buttonActive = chatMessages.getActiveChatTab() == tabName;
     if (!tileBoxVisible) {
       buttonActive = false;
     }
@@ -164,16 +169,16 @@ class ChatBoxState extends State<ChatBox> {
   }
 
   readMessages() {
-    if (chatMessages.getActiveChatBoxTab() == "") {
+    if (chatMessages.getActiveChatTab() == "") {
       // If there is no tab active we will activate the world tab
-      chatMessages.setActiveChatBoxTab("World");
+      chatMessages.setActiveChatTab("World");
     }
-    if (chatMessages.getActiveChatBoxTab() == "World") {
+    if (chatMessages.getActiveChatTab() == "World") {
       chatMessages.unreadWorldMessages = false;
       // We only set the last one to true,
       // since that's the one we use to determine if there are unread messages
       chatMessages.chatMessages.last.read = true;
-    } else if (chatMessages.getActiveChatBoxTab() == "Events") {
+    } else if (chatMessages.getActiveChatTab() == "Events") {
       chatMessages.setUnreadEventMessages(false);
       chatMessages.eventMessages.last.read = true;
     }
@@ -195,9 +200,6 @@ class ChatBoxState extends State<ChatBox> {
           tooltip: 'Hide chat',
           onPressed: () {
             setState(() {
-              chatMessages.setSelectedChatData(null);
-              chatMessages.setMessageUser(null);
-              chatMessages.setActiveChatBoxTab("");
               tileBoxVisible = false;
             });
           },
@@ -215,6 +217,7 @@ class ChatBoxState extends State<ChatBox> {
           setState(() {
             readMessages();
             tileBoxVisible = true;
+            ChatBoxChangeNotifier().setChatBoxVisible(true);
           });
         },
     ),
@@ -295,7 +298,7 @@ class ChatBoxState extends State<ChatBox> {
     double alwaysVisibleHeight = topBarHeight;
     double totalHeight = messageBoxHeight + chatTextFieldHeight + topBarHeight;
 
-    bool isEvent = chatMessages.getActiveChatBoxTab() == "Events";
+    bool isEvent = chatMessages.getActiveChatTab() == "Events";
     bool userLoggedIn = Settings().getUser() != null;
     if (isEvent || !userLoggedIn) {
       messageBoxHeight += chatTextFieldHeight;
@@ -323,7 +326,7 @@ class ChatBoxState extends State<ChatBox> {
               ),
             ),
             !isEvent && userLoggedIn
-                ? chatTextField(chatBoxWidth, chatTextFieldHeight, tileBoxVisible, chatMessages.getActiveChatBoxTab(), _chatFormKey, _focusChatBox, chatFieldController, chatMessages.getSelectedChatData())
+                ? chatTextField(chatBoxWidth, chatTextFieldHeight, tileBoxVisible, chatMessages.getActiveChatTab(), _chatFormKey, _focusChatBox, chatFieldController, chatMessages.getSelectedChatData())
                 : Container()
           ]
       ),
@@ -362,7 +365,7 @@ class ChatBoxState extends State<ChatBox> {
     double chatTextFieldHeight = 60;
     double messageBoxHeight = totalHeight - chatTextFieldHeight - topBarHeight;
 
-    bool isEvent = chatMessages.getActiveChatBoxTab() == "Events";
+    bool isEvent = chatMessages.getActiveChatTab() == "Events";
     bool userLoggedIn = Settings().getUser() != null;
     if (isEvent || !userLoggedIn) {
       messageBoxHeight += chatTextFieldHeight;
@@ -388,7 +391,7 @@ class ChatBoxState extends State<ChatBox> {
             ),
           ),
           !isEvent && userLoggedIn
-              ? chatTextField(chatBoxWidth, chatTextFieldHeight, tileBoxVisible, chatMessages.getActiveChatBoxTab(), _chatFormKey, _focusChatBox, chatFieldController, chatMessages.getSelectedChatData())
+              ? chatTextField(chatBoxWidth, chatTextFieldHeight, tileBoxVisible, chatMessages.getActiveChatTab(), _chatFormKey, _focusChatBox, chatFieldController, chatMessages.getSelectedChatData())
               : Container()
         ],
       ),
@@ -468,16 +471,16 @@ class ChatBoxState extends State<ChatBox> {
       if (selectedChat != null) {
         if (!tileBoxVisible) {
           tileBoxVisible = true;
+          ChatBoxChangeNotifier().setChatBoxVisible(true);
         }
         // There is a placeholder text when there are no chats active
         // If the user decides to click this anyway it will do nothing
         if (selectedChat.name != "No Chats Found!") {
           chatMessages.setSelectedChatData(selectedChat);
           chatMessages.setMessageUser(selectedChat.name);
-          // removeUnreadPersonalMessage(selectedChat);
-          chatMessages.setActiveChatBoxTab("Personal");
+          chatMessages.setActiveChatTab("Personal");
         } else {
-          chatMessages.setActiveChatBoxTab("World");
+          chatMessages.setActiveChatTab("World");
         }
       }
     });
@@ -508,9 +511,10 @@ class ChatBoxState extends State<ChatBox> {
         // Check if the placeholder "No Chats Found!" is in the list and remove it.
         chatMessages.removePlaceholder();
       }
-      chatMessages.setActiveChatBoxTab("Personal");
+      chatMessages.setActiveChatTab("Personal");
       if (normalMode && !tileBoxVisible) {
         tileBoxVisible = true;
+        ChatBoxChangeNotifier().setChatBoxVisible(true);
       } else if (!normalMode) {
         showChatWindow();
       }
