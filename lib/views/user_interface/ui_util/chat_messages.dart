@@ -20,6 +20,7 @@ class ChatMessages extends ChangeNotifier {
   List<EventMessage> eventMessages = [];
   Map<String, List<PersonalMessage>> personalMessages = {};
   Map<String, bool> personalMessageRetrieved = {};
+  Map<String, int> personalMessagePage = {};
   String? messageUser;
 
   List<ChatData> regions = [];
@@ -38,7 +39,7 @@ class ChatMessages extends ChangeNotifier {
 
   ChatData? selectedChatData;
 
-  int currentPage = 0;
+  int currentPage = 1;
 
   ChatMessages._internal();
 
@@ -51,30 +52,8 @@ class ChatMessages extends ChangeNotifier {
     if (chatData != null) {
       // Check if messages have already been retrieved.
       // If true any new message will have been retrieved with sockets.
-      bool personRetrieved = false;
-      if (personalMessageRetrieved.containsKey(chatData.name)) {
-        personRetrieved = personalMessageRetrieved[chatData.name]!;
-      }
-      print("messages of ${chatData.name}   retrieved: ${personRetrieved.toString()}");
-      if (!personRetrieved) {
-        AuthServiceSocial().getMessagePersonal(chatData.name).then((value) {
-          if (value != null) {
-            combinePersonalMessages(chatData, value);
-            setDateTiles(personalMessages[chatData.name]!, true);
-            chatData.unreadMessages = 0;
-            // send a trigger that the messages are read.
-            AuthServiceSocial().readMessagePersonal(chatData.name).then((value) {});
-            ProfileChangeNotifier().notify();
-            dropdownMenuItems = buildDropdownMenuItems();
-            personalMessageRetrieved[chatData.name] = true;
-          } else {
-            showToastMessage(
-                "Could not get messages, sorry for the inconvenience");
-          }
-          notifyListeners();
-        }).onError((error, stackTrace) {
-          showToastMessage("an error occured");
-        });
+      if (!personalMessageRetrieved[chatData.name]!) {
+        retrievePersonalMessages(chatData);
       }
     }
     notifyListeners();
@@ -150,6 +129,7 @@ class ChatMessages extends ChangeNotifier {
     PersonalMessage newMessage = PersonalMessage(1, "Server", message, false, firstTime, true, regionName);
     personalMessages[regionName]!.add(newMessage);
     personalMessageRetrieved[regionName] = false;
+    personalMessagePage[regionName] = 1;
   }
 
   addChatToPersonalMessages(String from, String to, PersonalMessage message) {
@@ -231,6 +211,7 @@ class ChatMessages extends ChangeNotifier {
   retrieveGlobalMessages() {
     AuthServiceSocial().getMessagesGlobal(currentPage).then((value) {
       if (value != null) {
+        currentPage += 1;
         combineGlobalMessages(value);
         setDateTiles(chatMessages, false);
         notifyListeners();
@@ -238,9 +219,36 @@ class ChatMessages extends ChangeNotifier {
     });
   }
 
+  retrievePersonalMessages(ChatData chatData) {
+    AuthServiceSocial().getMessagePersonal(chatData.name, personalMessagePage[chatData.name]!).then((value) {
+      if (value != null) {
+        combinePersonalMessages(chatData, value);
+        setDateTiles(personalMessages[chatData.name]!, true);
+        chatData.unreadMessages = 0;
+        // send a trigger that the messages are read.
+        AuthServiceSocial().readMessagePersonal(chatData.name).then((value) {});
+        ProfileChangeNotifier().notify();
+        dropdownMenuItems = buildDropdownMenuItems();
+        personalMessageRetrieved[chatData.name] = true;
+        personalMessagePage[chatData.name] = personalMessagePage[chatData.name]! + 1;
+      } else {
+        showToastMessage(
+            "Could not get messages, sorry for the inconvenience");
+      }
+      notifyListeners();
+    }).onError((error, stackTrace) {
+      showToastMessage("an error occured");
+    });
+  }
+
   retrieveMoreMessages() {
-    currentPage += 1;
-    retrieveGlobalMessages();
+    if (activateChatTab == "World") {
+      retrieveGlobalMessages();
+    } else if (activateChatTab == "Personal") {
+      if (selectedChatData != null) {
+        retrievePersonalMessages(selectedChatData!);
+      }
+    }
     print("retrieving more messages");
   }
 

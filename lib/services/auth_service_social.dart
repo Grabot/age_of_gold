@@ -187,7 +187,6 @@ class AuthServiceSocial {
 
   Future<List<Message>?> getMessagesGlobal(int page) async {
     String endPoint = "get/message/global/$page";
-    print("url: $endPoint");
     var response = await AuthApi().dio.get(endPoint,
       options: Options(headers: {
         HttpHeaders.contentTypeHeader: "application/json",
@@ -221,8 +220,9 @@ class AuthServiceSocial {
     }
   }
 
-  Future<List<PersonalMessage>?> getMessagePersonal(String fromUser) async {
-    String endPoint = "get/message/personal";
+  Future<List<PersonalMessage>?> getMessagePersonal(String fromUser, int page) async {
+    String endPoint = "get/message/personal/$page";
+    print("personal url: $endPoint");
     var response = await AuthApi().dio.post(endPoint,
         options: Options(headers: {
           HttpHeaders.contentTypeHeader: "application/json",
