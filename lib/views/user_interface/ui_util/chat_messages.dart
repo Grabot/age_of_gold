@@ -38,21 +38,12 @@ class ChatMessages extends ChangeNotifier {
 
   ChatData? selectedChatData;
 
+  int currentPage = 0;
+
   ChatMessages._internal();
 
   factory ChatMessages() {
     return _instance;
-  }
-
-  combinePersonalMessages(ChatData chatData, List<PersonalMessage> messages) {
-    // In case of double retrieved messages remove the duplicates
-    personalMessages[chatData.name]!.addAll(messages);
-    personalMessages[chatData.name]!.sort((a, b) => a.timestamp.compareTo(b.timestamp));
-    for (int i = personalMessages[chatData.name]!.length - 1; i >= 1; i--) {
-      if (personalMessages[chatData.name]![i].equals(personalMessages[chatData.name]![i - 1])) {
-        personalMessages[chatData.name]!.removeAt(i);
-      }
-    }
   }
 
   setSelectedChatData(ChatData? chatData) {
@@ -186,7 +177,7 @@ class ChatMessages extends ChangeNotifier {
     }
     if (!found) {
       print("create region");
-      ChatData newChatData = ChatData(3, other, 1);
+      ChatData newChatData = ChatData(3, other, 1, false);
       regions.add(newChatData);
     }
     dropdownMenuItems = buildDropdownMenuItems();
@@ -198,37 +189,90 @@ class ChatMessages extends ChangeNotifier {
       // The server has utc timestamp, but it's not formatted with the 'Z'.
       timestamp += "Z";
     }
-    DateTime tileMessage = DateTime.parse(timestamp).toLocal();
+    DateTime messageTime = DateTime.parse(timestamp).toLocal();
     bool me = false;
     if (Settings().getUser() != null) {
       if (Settings().getUser()!.getUserName() == from) {
         me = true;
       }
     }
-    PersonalMessage newMessage = PersonalMessage(1, from, message, me, tileMessage, false, to);
+    PersonalMessage newMessage = PersonalMessage(1, from, message, me, messageTime, false, to);
     // Add it to both the chatMessages and the personalMessages
     chatMessages.add(newMessage);
     addChatToPersonalMessages(from, to, newMessage);
     newGlobalMessageEvent(newMessage);
-    // TODO: add check if the window is open on the chatbox and the right person. Send the read message if it is.
-    // if (!me) {
-    //   AuthServiceSocial().readMessagePersonal(from).then((value) {});
-    // }
+
+    if (!me) {
+      checkReadPersonalMessage(from);
+    }
   }
 
-  addMessage(String userName, String message, int regionType) {
-    print("add regular message");
-    DateTime currentTime = DateTime.now();
+  combinePersonalMessages(ChatData chatData, List<PersonalMessage> messages) {
+    // In case of double retrieved messages remove the duplicates
+    personalMessages[chatData.name]!.addAll(messages);
+    personalMessages[chatData.name]!.sort((a, b) => a.timestamp.compareTo(b.timestamp));
+    for (int i = personalMessages[chatData.name]!.length - 1; i >= 1; i--) {
+      if (personalMessages[chatData.name]![i].equals(personalMessages[chatData.name]![i - 1])) {
+        personalMessages[chatData.name]!.removeAt(i);
+      }
+    }
+  }
+
+  combineGlobalMessages(List<Message> messages) {
+    chatMessages.addAll(messages);
+    chatMessages.sort((a, b) => a.timestamp.compareTo(b.timestamp));
+    for (int i = chatMessages.length - 1; i >= 1; i--) {
+      if (chatMessages[i].equals(chatMessages[i-1])) {
+        chatMessages.removeAt(i);
+      }
+    }
+  }
+
+  retrieveGlobalMessages() {
+    AuthServiceSocial().getMessagesGlobal(currentPage).then((value) {
+      if (value != null) {
+        combineGlobalMessages(value);
+        setDateTiles(chatMessages, false);
+        notifyListeners();
+      }
+    });
+  }
+
+  retrieveMoreMessages() {
+    currentPage += 1;
+    retrieveGlobalMessages();
+    print("retrieving more messages");
+  }
+
+  checkReadPersonalMessage(String from) {
+    if (activateChatTab == "Personal") {
+      if (selectedChatData != null && selectedChatData!.name == from) {
+        // new message while window open. Immediately read message
+        AuthServiceSocial().readMessagePersonal(from).then((value) {});
+      }
+    }
+  }
+
+  addMessage(String userName, String message, int regionType, String timestamp) {
+    if (!timestamp.endsWith("Z")) {
+      // The server has utc timestamp, but it's not formatted with the 'Z'.
+      timestamp += "Z";
+    }
+    DateTime messageTime = DateTime.parse(timestamp).toLocal();
     Message? newMessage;
+    bool me = false;
+    if (Settings().getUser() != null) {
+      me = userName == Settings().getUser()!.getUserName();
+    }
     // These will not all work this way and they will probably
     // functionally work different, but for now see them as placeholders
     // TODO: what to do with id's? Use them or remove them?
     if (regionType == 1) {
-      newMessage = LocalMessage(1, userName, message, false, currentTime, false);
+      newMessage = LocalMessage(1, userName, message, me, messageTime, false);
     } else if (regionType == 2) {
-      newMessage = GuildMessage(1, userName, message, false, currentTime, false);
+      newMessage = GuildMessage(1, userName, message, me, messageTime, false);
     } else {
-      newMessage = GlobalMessage(1, userName, message, false, currentTime, false);
+      newMessage = GlobalMessage(1, userName, message, me, messageTime, false);
     }
     chatMessages.add(newMessage);
     newGlobalMessageEvent(newMessage);
@@ -328,12 +372,12 @@ class ChatMessages extends ChangeNotifier {
       List<Friend> friends = currentUser.getFriends();
       for (Friend friend in friends) {
         if (friend.isAccepted() || friend.unreadMessages != 0) {
-          addChatRegion(friend.getUser()!.getUserName(), friend.unreadMessages!);
+          addChatRegion(friend.getUser()!.getUserName(), friend.unreadMessages!, friend.isAccepted());
         }
       }
     }
     if (regions.isEmpty) {
-      ChatData chatData = ChatData(0, "No Chats Found!", 0);
+      ChatData chatData = ChatData(0, "No Chats Found!", 0, false);
       regions.add(chatData);
     }
     dropdownMenuItems = buildDropdownMenuItems();
@@ -397,7 +441,7 @@ class ChatMessages extends ChangeNotifier {
     }
   }
 
-  addChatRegion(String username, int unreadMessages) {
+  addChatRegion(String username, int unreadMessages, bool isFriend) {
     // select personal region if it exists, otherwise just create it first.
     bool exists = false;
     for (int i = 0; i < regions.length; i++) {
@@ -408,7 +452,7 @@ class ChatMessages extends ChangeNotifier {
       }
     }
     if (!exists) {
-      ChatData newChatData = ChatData(3, username, unreadMessages);
+      ChatData newChatData = ChatData(3, username, unreadMessages, isFriend);
       addNewRegion(newChatData);
       setMessageUser(newChatData.name);
       // Check if the placeholder "No Chats Found!" is in the list and remove it.
@@ -438,13 +482,7 @@ class ChatMessages extends ChangeNotifier {
     messageUser = null;
     activateChatTab = "World";
     initializeChatMessages();
-    AuthServiceSocial().getMessagesGlobal().then((value) {
-      if (value != null) {
-        chatMessages.addAll(value.reversed);
-        setDateTiles(chatMessages, false);
-        notifyListeners();
-      }
-    });
+    retrieveGlobalMessages();
     // populate chatData with guilds or friends?
     initializeChatRegions();
   }
@@ -492,8 +530,9 @@ class ChatData {
   int type;
   String name;
   int unreadMessages;
+  bool friend;
 
-  ChatData(this.type, this.name, this.unreadMessages);
+  ChatData(this.type, this.name, this.unreadMessages, this.friend);
 }
 
 class ChatDetailPopup extends PopupMenuEntry<int> {

@@ -58,6 +58,7 @@ class ChatWindowState extends State<ChatWindow> {
   void initState() {
     chatWindowChangeNotifier = ChatWindowChangeNotifier();
     chatWindowChangeNotifier.addListener(chatWindowChangeListener);
+    messageScrollController.addListener(scrollListener);
 
     chatMessages = ChatMessages();
     chatMessages.addListener(newMessageListener);
@@ -311,6 +312,22 @@ class ChatWindowState extends State<ChatWindow> {
     });
   }
 
+  scrollListener() {
+    if (messageScrollController.offset >= messageScrollController.position.maxScrollExtent &&
+        !messageScrollController.position.outOfRange) {
+      setState(() {
+        // retrieve more messages
+        chatMessages.retrieveMoreMessages();
+      });
+    }
+    if (messageScrollController.offset <= messageScrollController.position.minScrollExtent &&
+        !messageScrollController.position.outOfRange) {
+      setState(() {
+        print("reach the top");
+      });
+    }
+  }
+
   Widget personalButton(double chatPickWidth, ChatData chatData, fontSize) {
     MaterialColor buttonColour = Colors.blue;
     if (!isEvent && !isWorld && chatMessages.getSelectedChatData() != null && chatMessages.getSelectedChatData()!.name == chatData.name) {
@@ -336,12 +353,12 @@ class ChatWindowState extends State<ChatWindow> {
                   ),
                 ),
               ) : Container(),
-              const SizedBox(
+              SizedBox(
                 width: 50,
                 height: 50,
                 child: Icon(
                   Icons.person,
-                  color: Colors.grey,
+                  color: chatData.friend ? Colors.orangeAccent : Colors.grey,
                   size: 40,
                 ),
               ),
@@ -617,7 +634,7 @@ class ChatWindowState extends State<ChatWindow> {
         }
       }
       if (!exists) {
-        ChatData newChatData = ChatData(3, userName, 0);
+        ChatData newChatData = ChatData(3, userName, 0, false);
         chatMessages.addNewRegion(newChatData);
         chatMessages.setMessageUser(newChatData.name);
         chatMessages.setSelectedChatData(newChatData);

@@ -504,7 +504,7 @@ class ChatBoxState extends State<ChatBox> {
         }
       }
       if (!exists) {
-        ChatData newChatData = ChatData(3, userName, 0);
+        ChatData newChatData = ChatData(3, userName, 0, false);
         chatMessages.addNewRegion(newChatData);
         chatMessages.setMessageUser(newChatData.name);
         chatMessages.setSelectedChatData(newChatData);

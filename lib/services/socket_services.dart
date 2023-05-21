@@ -146,7 +146,8 @@ class SocketServices extends ChangeNotifier {
     socket.on('send_message_global', (data) {
       String from = data["user_name"];
       String message = data["message"];
-      receivedMessage(from, message, 0);
+      String timestamp = data["timestamp"];
+      receivedMessage(from, message, timestamp, 0);
       notifyListeners();
     });
     socket.on('send_message_local', (data) {
@@ -154,13 +155,15 @@ class SocketServices extends ChangeNotifier {
       String message = data["message"];
       String tileQ = data["tile_q"];
       String tileR = data["tile_r"];
-      receivedMessageLocal(from, message, 1, tileQ, tileR);
+      String timestamp = data["timestamp"];
+      receivedMessageLocal(from, message, timestamp, 1, tileQ, tileR);
       notifyListeners();
     });
     socket.on('send_message_guild', (data) {
       String from = data["user_name"];
       String message = data["message"];
-      receivedMessage(from, message, 2);
+      String timestamp = data["timestamp"];
+      receivedMessage(from, message, timestamp, 2);
       notifyListeners();
     });
     socket.on('send_message_personal', (data) {
@@ -173,18 +176,18 @@ class SocketServices extends ChangeNotifier {
     });
   }
 
-  void receivedMessage(String from, String message, int regionType) {
+  void receivedMessage(String from, String message, String timestamp, int regionType) {
     print("received message");
-    chatMessages.addMessage(from, message, regionType);
+    chatMessages.addMessage(from, message, regionType, timestamp);
   }
 
   void receivedMessagePersonal(String from, String to, String message, String timestamp) {
     chatMessages.addPersonalMessage(from, to, message, timestamp);
   }
 
-  void receivedMessageLocal(String from, String message, int regionType, String tileQ, String tileR) {
+  void receivedMessageLocal(String from, String message, String timestamp, int regionType, String tileQ, String tileR) {
     String localMessage = "from tile($tileQ, $tileR): $message";
-    chatMessages.addMessage(from, localMessage, regionType);
+    chatMessages.addMessage(from, localMessage, regionType, timestamp);
   }
 
   bool joinedFriendRooms = false;

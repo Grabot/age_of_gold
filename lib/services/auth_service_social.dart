@@ -185,8 +185,9 @@ class AuthServiceSocial {
     }
   }
 
-  Future<List<Message>?> getMessagesGlobal() async {
-    String endPoint = "get/message/global";
+  Future<List<Message>?> getMessagesGlobal(int page) async {
+    String endPoint = "get/message/global/$page";
+    print("url: $endPoint");
     var response = await AuthApi().dio.get(endPoint,
       options: Options(headers: {
         HttpHeaders.contentTypeHeader: "application/json",
@@ -211,7 +212,7 @@ class AuthServiceSocial {
             time += "Z";
           }
           DateTime timestamp = DateTime.parse(time).toLocal();
-          messageList.add(GlobalMessage(0, senderName, body, me, timestamp, true));
+          messageList.add(GlobalMessage(1, senderName, body, me, timestamp, true));
         }
         return messageList;
       } else {

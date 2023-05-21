@@ -9,11 +9,4 @@ class PersonalMessage extends Message {
   @override
   Color messageColour = Colors.purpleAccent;
 
-  bool equals(PersonalMessage other) {
-    return this.senderName == other.senderName
-        && this.body == other.body
-        && this.me == other.me
-        && this.timestamp == other.timestamp
-        && this.to == other.to;
-  }
 }

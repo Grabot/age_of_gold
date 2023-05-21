@@ -243,7 +243,7 @@ class FriendWindowState extends State<FriendWindow> {
   messageFriend(Friend friend) {
     ClearUI().clearUserInterfaces();
     ChatMessages chatMessages = ChatMessages();
-    chatMessages.addChatRegion(friend.getUser()!.getUserName(), friend.unreadMessages!);
+    chatMessages.addChatRegion(friend.getUser()!.getUserName(), friend.unreadMessages!, friend.isAccepted());
     chatMessages.setActiveChatTab("Personal");
     ChatWindowChangeNotifier().setChatWindowVisible(true);
   }

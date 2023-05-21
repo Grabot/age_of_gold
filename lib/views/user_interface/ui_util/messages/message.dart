@@ -12,4 +12,10 @@ class Message {
 
   Message(this.id, this.senderName, this.body, this.me, this.timestamp, this.read);
 
+  bool equals(Message other) {
+    return this.senderName == other.senderName
+        && this.body == other.body
+        && this.me == other.me
+        && this.timestamp == other.timestamp;
+  }
 }
