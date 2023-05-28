@@ -222,7 +222,6 @@ class AuthServiceSocial {
 
   Future<List<PersonalMessage>?> getMessagePersonal(String fromUser, int page) async {
     String endPoint = "get/message/personal/$page";
-    print("personal url: $endPoint");
     var response = await AuthApi().dio.post(endPoint,
         options: Options(headers: {
           HttpHeaders.contentTypeHeader: "application/json",

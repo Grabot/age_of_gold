@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 
-Widget messageList(List<Message> messages, ScrollController messageScrollController, Function(bool, String) userInteraction, ChatData? selectedChatData, bool isEvent, bool show) {
+Widget messageList(List<Message> messages, ScrollController messageScrollController, Function(bool, String) userInteraction, ChatData? selectedChatData, bool isEvent, bool show, double fontSize) {
 
   // In the mobile mode there is always a small section of the chat visible.
   return messages.isNotEmpty && show
@@ -22,6 +22,7 @@ Widget messageList(List<Message> messages, ScrollController messageScrollControl
           key: UniqueKey(),
           message: messages[reversedIndex],
           userInteraction: userInteraction,
+          fontSize: fontSize,
         );
       })
       : Container();
@@ -31,12 +32,14 @@ Widget messageList(List<Message> messages, ScrollController messageScrollControl
 class MessageTile extends StatefulWidget {
   final Message message;
   final Function(bool, String) userInteraction;
+  final double fontSize;
 
   const MessageTile(
       {
         required Key key,
         required this.message,
-        required this.userInteraction
+        required this.userInteraction,
+        required this.fontSize
       })
       : super(key: key);
 
@@ -63,7 +66,7 @@ class MessageTileState extends State<MessageTile> {
       text: widget.message.body,
       style: TextStyle(
           color: textColour.withOpacity(0.80),
-          fontSize: 18
+          fontSize: widget.fontSize
       ),
     );
   }
@@ -77,7 +80,7 @@ class MessageTileState extends State<MessageTile> {
       style: TextStyle(
           color: textColour,
           fontWeight: FontWeight.bold,
-          fontSize: 18
+          fontSize: widget.fontSize
       ),
     );
   }
@@ -89,7 +92,7 @@ class MessageTileState extends State<MessageTile> {
           .format(widget.message.timestamp)}] ",
       style: TextStyle(
           color: textColour.withOpacity(0.54),
-          fontSize: 12
+          fontSize: widget.fontSize - 6
       ),
     );
   }
@@ -98,7 +101,7 @@ class MessageTileState extends State<MessageTile> {
     return Container(
       alignment: Alignment.bottomRight,
       child: Container(
-        padding: new EdgeInsets.only(left: 10.0, right: 10, top: 2, bottom: 2),
+        padding: new EdgeInsets.only(left: 10.0, right: 10),
         decoration: BoxDecoration(
           borderRadius: new BorderRadius.circular(20.0),
           color: Color(0xFF009E00).withOpacity(0.6),
@@ -121,7 +124,7 @@ class MessageTileState extends State<MessageTile> {
     return Container(
         alignment: Alignment.bottomLeft,
         child: Container(
-          padding: new EdgeInsets.only(left: 10.0, right: 10, top: 2, bottom: 2),
+          padding: new EdgeInsets.only(left: 10.0, right: 10),
           decoration: BoxDecoration(
             borderRadius: new BorderRadius.circular(20.0),
             color: textColour.withOpacity(0.6),
@@ -144,7 +147,7 @@ class MessageTileState extends State<MessageTile> {
     return Container(
         alignment: Alignment.center,
         child: Container(
-          padding: const EdgeInsets.only(left: 10.0, right: 10, top: 2, bottom: 2),
+          padding: const EdgeInsets.only(left: 10.0, right: 10),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20.0),
             color: Colors.grey.withOpacity(0.8),

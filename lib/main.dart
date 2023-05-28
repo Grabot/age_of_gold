@@ -22,8 +22,8 @@ import 'views/user_interface/ui_views/chat_window/chat_window.dart';
 import 'views/user_interface/ui_views/friend_window/friend_window.dart';
 import 'views/user_interface/ui_views/loading_box/loading_box.dart';
 import 'views/user_interface/ui_views/profile_box/profile_box.dart';
-import 'views/user_interface/ui_views/profile_overview.dart';
-import 'views/user_interface/ui_views/tile_box.dart';
+import 'views/user_interface/ui_views/profile_overview/profile_overview.dart';
+import 'views/user_interface/ui_views/tile_box/tile_box.dart';
 import 'views/user_interface/ui_views/user_box/user_box.dart';
 
 

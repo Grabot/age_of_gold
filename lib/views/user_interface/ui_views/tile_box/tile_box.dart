@@ -75,7 +75,7 @@ class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
               children: [
                 Image.asset(
                   tileData.imagePath,
-                  width: 120,
+                  width: 110,
                   height: 60,
                   scale: 0.5
                 ),

@@ -290,7 +290,7 @@ class ChatBoxState extends State<ChatBox> {
     chatMessages.setChatMessages();
   }
 
-  Widget chatBoxNormal(double chatBoxWidth) {
+  Widget chatBoxNormal(double chatBoxWidth, double fontSize) {
 
     double topBarHeight = 34; // always visible
     double messageBoxHeight = 300;
@@ -307,33 +307,35 @@ class ChatBoxState extends State<ChatBox> {
     bool showMessageField = (tileBoxVisible || !normalMode);
 
     setChatMessages();
-    return Container(
-      width: chatBoxWidth,
-      height: tileBoxVisible ? totalHeight : alwaysVisibleHeight,
-      child: Column(
-          children: [
-            topBar(chatBoxWidth, topBarHeight),
-            Container(
-              width: chatBoxWidth,
-              height: tileBoxVisible ? messageBoxHeight : 0,
-              color: Colors.black.withOpacity(0.4),
-              child: Column(
-                children: [
-                  Expanded(
-                    child: messageList(chatMessages.shownMessages, messageScrollController, userInteraction, chatMessages.getSelectedChatData(), isEvent, showMessageField),
-                  ),
-                ],
+    return SingleChildScrollView(
+      child: SizedBox(
+        width: chatBoxWidth,
+        height: tileBoxVisible ? totalHeight : alwaysVisibleHeight,
+        child: Column(
+            children: [
+              topBar(chatBoxWidth, topBarHeight),
+              Container(
+                width: chatBoxWidth,
+                height: tileBoxVisible ? messageBoxHeight : 0,
+                color: Colors.black.withOpacity(0.4),
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: messageList(chatMessages.shownMessages, messageScrollController, userInteraction, chatMessages.getSelectedChatData(), isEvent, showMessageField, fontSize),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            !isEvent && userLoggedIn
-                ? chatTextField(chatBoxWidth, chatTextFieldHeight, tileBoxVisible, chatMessages.getActiveChatTab(), _chatFormKey, _focusChatBox, chatFieldController, chatMessages.getSelectedChatData())
-                : Container()
-          ]
+              !isEvent && userLoggedIn
+                  ? chatTextField(chatBoxWidth, chatTextFieldHeight, tileBoxVisible, chatMessages.getActiveChatTab(), _chatFormKey, _focusChatBox, chatFieldController, chatMessages.getSelectedChatData())
+                  : Container()
+            ]
+        ),
       ),
     );
   }
 
-  Widget mobileMinimized(double chatBoxWidth, double topBarHeight) {
+  Widget mobileMinimized(double chatBoxWidth, double topBarHeight, double fontSize) {
     bool showMessageField = (tileBoxVisible || !normalMode);
     setChatMessages();
     return Row(
@@ -350,7 +352,7 @@ class ChatBoxState extends State<ChatBox> {
             child: Column(
               children: [
                 Expanded(
-                  child: messageList(chatMessages.shownMessages, messageScrollController, userInteraction, chatMessages.getSelectedChatData(), false, showMessageField),
+                  child: messageList(chatMessages.shownMessages, messageScrollController, userInteraction, chatMessages.getSelectedChatData(), false, showMessageField, fontSize),
                 ),
               ],
             ),
@@ -361,7 +363,7 @@ class ChatBoxState extends State<ChatBox> {
     );
   }
 
-  Widget mobileMaximized(double chatBoxWidth, double totalHeight, double topBarHeight) {
+  Widget mobileMaximized(double chatBoxWidth, double totalHeight, double topBarHeight, double fontSize) {
     double chatTextFieldHeight = 60;
     double messageBoxHeight = totalHeight - chatTextFieldHeight - topBarHeight;
 
@@ -385,7 +387,7 @@ class ChatBoxState extends State<ChatBox> {
             child: Column(
               children: [
                 Expanded(
-                  child: messageList(chatMessages.shownMessages, messageScrollController, userInteraction, chatMessages.getSelectedChatData(), isEvent, showMessageField),
+                  child: messageList(chatMessages.shownMessages, messageScrollController, userInteraction, chatMessages.getSelectedChatData(), isEvent, showMessageField, fontSize),
                 ),
               ],
             ),
@@ -398,8 +400,8 @@ class ChatBoxState extends State<ChatBox> {
     );
   }
 
-  Widget chatBoxMobile(double chatBoxWidth) {
-    double topBarHeight = tileBoxVisible ? 34 : 60;
+  Widget chatBoxMobile(double chatBoxWidth, double fontSize) {
+    double topBarHeight = tileBoxVisible ? 34 : 45;
     double totalHeight = MediaQuery.of(context).size.height - 200;
     double alwaysVisibleHeight = topBarHeight;
 
@@ -407,7 +409,9 @@ class ChatBoxState extends State<ChatBox> {
       width: chatBoxWidth,
       height: tileBoxVisible ? totalHeight : alwaysVisibleHeight,
       color: Colors.black.withOpacity(0.4),
-      child: tileBoxVisible ? mobileMaximized(chatBoxWidth, totalHeight, topBarHeight) : mobileMinimized(chatBoxWidth, topBarHeight),
+      child: tileBoxVisible
+          ? mobileMaximized(chatBoxWidth, totalHeight, topBarHeight, fontSize)
+          : mobileMinimized(chatBoxWidth, topBarHeight, fontSize),
     );
   }
 
@@ -415,15 +419,19 @@ class ChatBoxState extends State<ChatBox> {
   Widget chatBoxWidget() {
     normalMode = true;
     double chatBoxWidth = 500;
+    double fontSize = 18;
     if (MediaQuery.of(context).size.width <= 800) {
       // Here we assume that it is a phone and we set the width to the total
       chatBoxWidth = MediaQuery.of(context).size.width;
       normalMode = false;
+      fontSize = 12;
     }
 
     return Align(
       alignment: FractionalOffset.bottomLeft,
-      child: normalMode ? chatBoxNormal(chatBoxWidth) : chatBoxMobile(chatBoxWidth)
+      child: normalMode
+          ? chatBoxNormal(chatBoxWidth, fontSize)
+          : chatBoxMobile(chatBoxWidth, fontSize)
     );
   }
 

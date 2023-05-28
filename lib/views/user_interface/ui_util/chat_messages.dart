@@ -485,7 +485,15 @@ class ChatMessages extends ChangeNotifier {
   }
 
   login() {
+    regions = [];
+    chatWindowActive = false;
+    unreadWorldMessages = false;
+    unreadEventMessages = false;
+    eventMessages = [];
     personalMessages = {};
+    personalMessageRetrieved = {};
+    personalMessagePage = {};
+    currentPage = 1;
     selectedChatData = null;
     messageUser = null;
     activateChatTab = "World";

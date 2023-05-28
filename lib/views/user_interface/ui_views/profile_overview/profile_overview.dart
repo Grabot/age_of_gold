@@ -90,6 +90,8 @@ class ProfileOverviewState extends State<ProfileOverview> with TickerProviderSta
       checkUnansweredFriendRequests();
       checkUnreadMessages();
       updateTimeLock();
+      friendOverviewState = 0;
+      messageOverviewState = 0;
       setState(() {});
     }
   }
@@ -334,13 +336,23 @@ class ProfileOverviewState extends State<ProfileOverview> with TickerProviderSta
   }
 
   Widget profileOverviewMobile(double profileOverviewWidth, double profileOverviewHeight, double fontSize) {
-    return Row(
+    double statusBarPadding = MediaQuery.of(context).viewPadding.top;
+    return Column(
       children: [
-        profileWidget(profileOverviewWidth/2, profileOverviewHeight),
-        SizedBox(width: 5),
-        friendOverviewButton(30),
-        SizedBox(width: 5),
-        messageOverviewButton(30)
+        SizedBox(height: statusBarPadding),
+        Row(
+          children: [
+            Column(
+              children: [
+                profileWidget(profileOverviewWidth/2, profileOverviewHeight),
+              ],
+            ),
+            SizedBox(width: 5),
+            friendOverviewButton(30),
+            SizedBox(width: 5),
+            messageOverviewButton(30)
+          ]
+        ),
       ]
     );
   }
@@ -358,11 +370,13 @@ class ProfileOverviewState extends State<ProfileOverview> with TickerProviderSta
       normalMode = false;
     }
 
-    return Align(
-      alignment: FractionalOffset.topLeft,
-      child: normalMode
-          ? profileOverviewNormal(profileOverviewWidth, profileOverviewHeight, fontSize)
-          : profileOverviewMobile(profileOverviewWidth, profileOverviewHeight, fontSize)
+    return SingleChildScrollView(
+      child: Align(
+        alignment: FractionalOffset.topLeft,
+        child: normalMode
+            ? profileOverviewNormal(profileOverviewWidth, profileOverviewHeight, fontSize)
+            : profileOverviewMobile(profileOverviewWidth, profileOverviewHeight, fontSize)
+      ),
     );
   }
 

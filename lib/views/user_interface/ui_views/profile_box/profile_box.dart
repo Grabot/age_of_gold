@@ -48,6 +48,7 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
 
   // used to get the position and place the dropdown in the right spot
   GlobalKey settingsKey = GlobalKey();
+  GlobalKey cancelKey = GlobalKey();
 
   bool changeUserName = false;
   final GlobalKey<FormState> userNameKey = GlobalKey<FormState>();
@@ -161,22 +162,33 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
       fontSize = 10;
       normalMode = false;
     }
+    double headerHeight = 40;
 
-    return Container(
-      width: width,
-      height: height,
-      color: Colors.grey,
-      child: SingleChildScrollView(
-          child: Column(
-              children:
-              [
-                SizedBox(height: 20),
-                profileHeader(width, fontSize),
-                SizedBox(height: 20),
-                userInformationBox(width, fontSize, normalMode),
-              ]
-          )
-      ),
+    return SingleChildScrollView(
+      child: Container(
+        width: width,
+        height: height,
+        color: Colors.grey,
+        child: Column(
+            children:
+            [
+              IconButton(
+                  icon: const Icon(Icons.close),
+                  color: Colors.orangeAccent.shade200,
+                  tooltip: 'cancel',
+                  onPressed: () {
+                    setState(() {
+                      print("test");
+                    });
+                  }
+              ),
+              // SizedBox(height: 20),
+              // profileHeader(width, headerHeight, fontSize),
+              // SizedBox(height: 20),
+              // userInformationBox(width, fontSize, normalMode),
+            ]
+        ),
+      )
     );
   }
 
@@ -289,7 +301,7 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
     );
   }
 
-  Widget profileHeader(double width, double fontSize) {
+  Widget profileHeader(double headerWidth, double headerHeight, double fontSize) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -300,7 +312,7 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
             "No user logged in",
             style: simpleTextStyle(fontSize),
           )
-              : Text(
+            : Text(
             "Profile Page",
             style: simpleTextStyle(fontSize)
           ),
@@ -310,7 +322,9 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
           color: Colors.orangeAccent.shade200,
           tooltip: 'cancel',
           onPressed: () {
-            goBack();
+            setState(() {
+              print("test");
+            });
           }
         ),
       ]
@@ -379,14 +393,14 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
                   Align(
                     alignment: Alignment.topRight,
                     child: IconButton(
-                        icon: const Icon(Icons.close),
-                        color: Colors.orangeAccent.shade200,
-                        tooltip: 'cancel',
-                        onPressed: () {
-                          setState(() {
-                            changeUserName = false;
-                          });
-                        }
+                      icon: const Icon(Icons.close),
+                      color: Colors.orangeAccent.shade200,
+                      tooltip: 'cancel',
+                      onPressed: () {
+                        setState(() {
+                          changeUserName = false;
+                        });
+                      }
                     ),
                   ),
                 ],
@@ -402,6 +416,7 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
                       ? "Please enter a username if you want to change it"
                       : null;
                 },
+                scrollPadding: EdgeInsets.only(bottom: 120),
                 decoration: const InputDecoration(
                   hintText: "New username",
                   hintStyle: TextStyle(color: Colors.white54),
@@ -473,6 +488,7 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
                       ? "fill in new password"
                       : null;
                 },
+                scrollPadding: EdgeInsets.only(bottom: 120),
                 decoration: const InputDecoration(
                   hintText: "New password",
                   hintStyle: TextStyle(color: Colors.white54),

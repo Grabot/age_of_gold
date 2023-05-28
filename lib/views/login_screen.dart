@@ -322,6 +322,7 @@ class LoginScreenState extends State<LoginScreen> {
                       ? "Please provide an Email address"
                       : null;
                 },
+                scrollPadding: const EdgeInsets.only(bottom: 130),
                 controller: forgotPasswordEmailController,
                 autofillHints: [AutofillHints.email],
                 textAlign: TextAlign.center,
@@ -427,6 +428,7 @@ class LoginScreenState extends State<LoginScreen> {
                         : null;
                   },
                   focusNode: _focusEmail,
+                  scrollPadding: const EdgeInsets.only(bottom: 160),
                   keyboardType: TextInputType.emailAddress,
                   autofillHints: [
                     AutofillHints.email,
@@ -451,6 +453,7 @@ class LoginScreenState extends State<LoginScreen> {
                         ? "Please provide a password"
                         : null;
                   },
+                  scrollPadding: const EdgeInsets.only(bottom: 110),
                   focusNode: _focusPassword,
                   autofillHints: [AutofillHints.password],
                   onEditingComplete: () => TextInput.finishAutofillContext(),
@@ -504,7 +507,7 @@ class LoginScreenState extends State<LoginScreen> {
                 style: simpleTextStyle(fontSize),
               ),
             ),
-          )
+          ),
         ]
       ),
     );
@@ -561,13 +564,13 @@ class LoginScreenState extends State<LoginScreen> {
                   ? "Please provide an Email"
                   : null;
             },
+            scrollPadding: const EdgeInsets.only(bottom: 200),
             controller: emailController,
             keyboardType: TextInputType.emailAddress,
             autofillHints: [AutofillHints.email],
             textAlign: TextAlign.center,
             style: simpleTextStyle(fontSize),
-            decoration:
-            textFieldInputDecoration("Email"),
+            decoration: textFieldInputDecoration("Email"),
           ),
           TextFormField(
             onTap: () {
@@ -585,13 +588,13 @@ class LoginScreenState extends State<LoginScreen> {
                   ? "Please provide a username"
                   : null;
             },
+            scrollPadding: const EdgeInsets.only(bottom: 150),
             keyboardType: TextInputType.name,
             autofillHints: [AutofillHints.username],
             controller: usernameController,
             textAlign: TextAlign.center,
             style: simpleTextStyle(fontSize),
-            decoration:
-            textFieldInputDecoration("Username"),
+            decoration: textFieldInputDecoration("Username"),
           ),
           TextFormField(
             onTap: () {
@@ -605,12 +608,12 @@ class LoginScreenState extends State<LoginScreen> {
                   ? "Please provide a password"
                   : null;
             },
+            scrollPadding: const EdgeInsets.only(bottom: 100),
             controller: password2Controller,
             autofillHints: [AutofillHints.newPassword],
             textAlign: TextAlign.center,
             style: simpleTextStyle(fontSize),
-            decoration:
-            textFieldInputDecoration("Password"),
+            decoration: textFieldInputDecoration("Password"),
           ),
           const SizedBox(height: 30),
           ElevatedButton(

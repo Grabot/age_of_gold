@@ -360,28 +360,32 @@ class FriendWindowState extends State<FriendWindow> {
   }
 
   Widget friendRequestWindow(double friendWindowWidth, double friendWindowHeight, double fontSize) {
+    double iconSize = 50;
+    if (!normalMode) {
+      iconSize = 30;
+    }
     return Column(
       children: [
         SizedBox(
           width: friendWindowWidth,
-          height: friendWindowHeight - 50,
+          height: friendWindowHeight - iconSize,
           child: SingleChildScrollView(
             child: Column(
               children: [
-                requestBox(friendWindowWidth, friendWindowHeight - 50, fontSize),
+                requestBox(friendWindowWidth, friendWindowHeight - iconSize, fontSize),
               ]
             ),
           ),
         ),
         SizedBox(
           width: friendWindowWidth,
-          height: 50,
+          height: iconSize,
           child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                friendListButton(friendWindowWidth / 3, fontSize),
-                friendRequestButton(friendWindowWidth / 3, fontSize),
-                addFriendButton(friendWindowWidth / 3, fontSize),
+                friendListButton(friendWindowWidth / 3, fontSize, iconSize),
+                friendRequestButton(friendWindowWidth / 3, fontSize, iconSize),
+                addFriendButton(friendWindowWidth / 3, fontSize, iconSize),
               ]
           ),
         )
@@ -412,7 +416,7 @@ class FriendWindowState extends State<FriendWindow> {
     }
   }
 
-  Widget addFriendButton(double addFriendButtonWidth, double fontSize) {
+  Widget addFriendButton(double addFriendButtonWidth, double fontSize, double iconSize) {
     return InkWell(
       onTap: () {
         setState(() {
@@ -437,7 +441,7 @@ class FriendWindowState extends State<FriendWindow> {
       },
       child: Container(
         width: addFriendButtonWidth,
-        height: 50,
+        height: iconSize,
         color: getDetailColour(detailAddFriendColour),
         child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -445,7 +449,7 @@ class FriendWindowState extends State<FriendWindow> {
               SizedBox(width: 1),
               Row(
                 children: [
-                  addIcon(50, Icons.add, Colors.orange),
+                  addIcon(iconSize, Icons.add, Colors.orange),
                   SizedBox(width: 5),
                   Text(
                     "Add new friend",
@@ -462,7 +466,7 @@ class FriendWindowState extends State<FriendWindow> {
     );
   }
 
-  Widget friendListButton(double friendListWidth, double fontSize) {
+  Widget friendListButton(double friendListWidth, double fontSize, double iconSize) {
     return InkWell(
       onTap: () {
         setState(() {
@@ -488,7 +492,7 @@ class FriendWindowState extends State<FriendWindow> {
       },
       child: Container(
         width: friendListWidth,
-        height: 50,
+        height: iconSize,
         color: getDetailColour(detailFriendColour),
         child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -496,7 +500,7 @@ class FriendWindowState extends State<FriendWindow> {
               SizedBox(width: 1),
               Row(
                 children: [
-                  addIcon(50, Icons.people, Colors.orange),
+                  addIcon(iconSize, Icons.people, Colors.orange),
                   SizedBox(width: 5),
                   Text(
                     "Friend list",
@@ -513,7 +517,7 @@ class FriendWindowState extends State<FriendWindow> {
     );
   }
 
-  Widget friendRequestButton(double friendRequestWidth, double fontSize) {
+  Widget friendRequestButton(double friendRequestWidth, double fontSize, double iconSize) {
     return InkWell(
       onTap: () {
         setState(() {
@@ -539,7 +543,7 @@ class FriendWindowState extends State<FriendWindow> {
       },
       child: Container(
         width: friendRequestWidth,
-        height: 50,
+        height: iconSize,
         color: getDetailColour(detailRequestColour),
         child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -549,7 +553,7 @@ class FriendWindowState extends State<FriendWindow> {
                 children: [
                   Row(
                     children: [
-                      addIcon(50, Icons.person_add_alt_1, Colors.orange),
+                      addIcon(iconSize, Icons.person_add_alt_1, Colors.orange),
                       SizedBox(width: 5),
                       Text(
                         "Friend Requests",
@@ -561,8 +565,8 @@ class FriendWindowState extends State<FriendWindow> {
                   ),
                   unansweredFriendRequests ? Image.asset(
                     "assets/images/ui/icon/update_notification.png",
-                    width: 50,
-                    height: 50,
+                    width: iconSize,
+                    height: iconSize,
                   ) : Container(),
                 ]
               ),
@@ -597,11 +601,15 @@ class FriendWindowState extends State<FriendWindow> {
   }
 
   Widget socialWindow(double friendWindowWidth, double friendWindowHeight, double fontSize) {
+    double iconSize = 50;
+    if (!normalMode) {
+      iconSize = 30;
+    }
     return Column(
       children: [
         SizedBox(
           width: friendWindowWidth,
-          height: friendWindowHeight - 50,
+          height: friendWindowHeight - iconSize,
           child: SingleChildScrollView(
             child: Column(
               children: friendList(friendWindowWidth, fontSize, null),
@@ -610,13 +618,13 @@ class FriendWindowState extends State<FriendWindow> {
         ),
         SizedBox(
           width: friendWindowWidth,
-          height: 50,
+          height: iconSize,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              friendListButton(friendWindowWidth / 3, fontSize),
-              friendRequestButton(friendWindowWidth / 3, fontSize),
-              addFriendButton(friendWindowWidth / 3, fontSize),
+              friendListButton(friendWindowWidth / 3, fontSize, iconSize),
+              friendRequestButton(friendWindowWidth / 3, fontSize, iconSize),
+              addFriendButton(friendWindowWidth / 3, fontSize, iconSize),
             ]
           ),
         )
@@ -736,8 +744,8 @@ class FriendWindowState extends State<FriendWindow> {
     double newFriendOptionWidth = 100;
     double sidePadding = 40;
     if (!normalMode) {
-      avatarBoxSize = avatarBoxSize / 2;
-      fontSize = fontSize / 2;
+      avatarBoxSize = avatarBoxSize / 1.2;
+      fontSize = fontSize / 1.8;
       sidePadding = 10;
     }
     if (newFriendOption != null) {
@@ -774,11 +782,15 @@ class FriendWindowState extends State<FriendWindow> {
   }
 
   Widget addFriendWindow(double addFriendWindowWidth, double addFriendWindowHeight, double fontSize) {
+    double iconSize = 50;
+    if (!normalMode) {
+      iconSize = 30;
+    }
     return Column(
       children: [
         SizedBox(
           width: addFriendWindowWidth,
-          height: addFriendWindowHeight - 50,
+          height: addFriendWindowHeight - iconSize,
           child: SingleChildScrollView(
             child: Column(
                 children: [
@@ -838,13 +850,13 @@ class FriendWindowState extends State<FriendWindow> {
         ),
         SizedBox(
           width: addFriendWindowWidth,
-          height: 50,
+          height: iconSize,
           child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                friendListButton(addFriendWindowWidth / 3, fontSize),
-                friendRequestButton(addFriendWindowWidth / 3, fontSize),
-                addFriendButton(addFriendWindowWidth / 3, fontSize),
+                friendListButton(addFriendWindowWidth / 3, fontSize, iconSize),
+                friendRequestButton(addFriendWindowWidth / 3, fontSize, iconSize),
+                addFriendButton(addFriendWindowWidth / 3, fontSize, iconSize),
               ]
           ),
         )
@@ -878,12 +890,15 @@ class FriendWindowState extends State<FriendWindow> {
     if (MediaQuery.of(context).size.width <= 800) {
       friendWindowWidth = MediaQuery.of(context).size.width;
       normalMode = false;
+      fontSize = 12;
     }
-    return Container(
-      width: friendWindowWidth,
-      height: friendWindowHeight,
-      color: Colors.cyan,
-      child: friendWindowNormal(friendWindowWidth, friendWindowHeight, fontSize)
+    return SingleChildScrollView(
+      child: Container(
+        width: friendWindowWidth,
+        height: friendWindowHeight,
+        color: Colors.cyan,
+        child: friendWindowNormal(friendWindowWidth, friendWindowHeight, fontSize)
+      ),
     );
   }
 

@@ -5,11 +5,11 @@ import 'package:age_of_gold/util/util.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/chat_messages.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/clear_ui.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/message_util.dart';
-import 'package:age_of_gold/views/user_interface/ui_util/messages/message.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/chat_box/chat_box_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/chat_window/chat_window_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/user_box/user_box_change_notifier.dart';
 import 'package:flutter/material.dart';
+import 'package:back_button_interceptor/back_button_interceptor.dart';
 
 
 class ChatWindow extends StatefulWidget {
@@ -60,6 +60,7 @@ class ChatWindowState extends State<ChatWindow> {
     chatWindowChangeNotifier.addListener(chatWindowChangeListener);
     messageScrollController.addListener(scrollListener);
 
+    BackButtonInterceptor.add(myInterceptor);
     chatMessages = ChatMessages();
     chatMessages.addListener(newMessageListener);
     socket.checkMessages(chatMessages);
@@ -68,6 +69,17 @@ class ChatWindowState extends State<ChatWindow> {
     _focusChatWindow.addListener(_onFocusChange);
     _focusSearch.addListener(_onFocusChangeSearch);
     super.initState();
+  }
+
+  bool myInterceptor(bool stopDefaultButtonEvent, RouteInfo info) {
+    print("my intercepter");
+    backButtonFunctionality();
+    return true;
+  }
+
+  void backButtonFunctionality() {
+    print("back functionality!");
+    goBack();
   }
 
   newMessageListener() {
@@ -85,6 +97,7 @@ class ChatWindowState extends State<ChatWindow> {
 
   @override
   void dispose() {
+    BackButtonInterceptor.remove(myInterceptor);
     super.dispose();
   }
 
@@ -528,7 +541,7 @@ class ChatWindowState extends State<ChatWindow> {
         Container(
             width: rightColumnWidth,
             height: rightColumnHeight - chatTextFieldHeight,
-            child: messageList(chatMessages.shownMessages, messageScrollController, userInteraction, chatMessages.getSelectedChatData(), isEvent, true)
+            child: messageList(chatMessages.shownMessages, messageScrollController, userInteraction, chatMessages.getSelectedChatData(), isEvent, true, fontSize)
         ),
         !isEvent
             ? chatTextField(rightColumnWidth, chatTextFieldHeight, true, chatMessages.getActiveChatTab(), _chatFormKey, _focusChatWindow, chatFieldController, chatMessages.getSelectedChatData())
@@ -564,6 +577,7 @@ class ChatWindowState extends State<ChatWindow> {
 
   Widget chatWindowMobile(double chatWindowWidth, double chatWindowHeight, double fontSize) {
     double headerHeight = 40;
+    chatWindowHeight -= 8;
     if (selectionScreen) {
       return Column(
         children: [
@@ -599,18 +613,23 @@ class ChatWindowState extends State<ChatWindow> {
       chatWindowWidth = MediaQuery.of(context).size.width;
       chatWindowHeight = MediaQuery.of(context).size.height;
       normalMode = false;
+      fontSize = 12;
     } else if (MediaQuery.of(context).size.width <= 1500) {
       // Here we assume that it is a phone and we set the width to the total
       chatWindowWidth = MediaQuery.of(context).size.width;
     }
+    double statusBarPadding = MediaQuery.of(context).viewPadding.top;
 
-    return Container(
-      width: chatWindowWidth,
-      height: chatWindowHeight,
-      color: Colors.blueGrey,
-      child: normalMode
-          ? chatWindowNormal(chatWindowWidth, chatWindowHeight, fontSize)
-          : chatWindowMobile(chatWindowWidth, chatWindowHeight, fontSize)
+    return SingleChildScrollView(
+      child: Container(
+        padding: EdgeInsets.only(top: statusBarPadding),
+        width: chatWindowWidth,
+        height: chatWindowHeight,
+        color: Colors.blueGrey,
+        child: normalMode
+            ? chatWindowNormal(chatWindowWidth, chatWindowHeight-statusBarPadding, fontSize)
+            : chatWindowMobile(chatWindowWidth, chatWindowHeight-statusBarPadding, fontSize)
+      ),
     );
   }
 
