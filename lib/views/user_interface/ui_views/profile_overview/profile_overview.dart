@@ -181,8 +181,8 @@ class ProfileOverviewState extends State<ProfileOverview> with TickerProviderSta
       child: settings.getAvatar() != null ? avatarBox(avatarSize, avatarSize, settings.getAvatar()!)
           : Image.asset(
         "assets/images/default_avatar.png",
-        width: 100,
-        height: 100,
+        width: avatarSize,
+        height: avatarSize,
       )
     );
   }
@@ -324,36 +324,41 @@ class ProfileOverviewState extends State<ProfileOverview> with TickerProviderSta
   }
 
   Widget profileOverviewNormal(double profileOverviewWidth, double profileOverviewHeight, double fontSize) {
-    return Column(
-      children: [
-        profileWidget(profileOverviewWidth, profileOverviewHeight),
-        SizedBox(height: 10),
-        friendOverviewButton(50),
-        SizedBox(height: 10),
-        messageOverviewButton(50)
-      ]
+    double profileAvatarHeight = 100;
+    return Container(
+      child: Column(
+        children: [
+          profileWidget(profileOverviewWidth, profileAvatarHeight),
+          SizedBox(height: 10),
+          friendOverviewButton(50),
+          SizedBox(height: 10),
+          messageOverviewButton(50)
+        ]
+      ),
     );
   }
 
   Widget profileOverviewMobile(double profileOverviewWidth, double profileOverviewHeight, double fontSize) {
     double statusBarPadding = MediaQuery.of(context).viewPadding.top;
-    return Column(
-      children: [
-        SizedBox(height: statusBarPadding),
-        Row(
-          children: [
-            Column(
-              children: [
-                profileWidget(profileOverviewWidth/2, profileOverviewHeight),
-              ],
-            ),
-            SizedBox(width: 5),
-            friendOverviewButton(30),
-            SizedBox(width: 5),
-            messageOverviewButton(30)
-          ]
-        ),
-      ]
+    return Container(
+      child: Column(
+        children: [
+          SizedBox(height: statusBarPadding),
+          Row(
+            children: [
+              Column(
+                children: [
+                  profileWidget(profileOverviewWidth/2, profileOverviewHeight),
+                ],
+              ),
+              SizedBox(width: 5),
+              friendOverviewButton(30),
+              SizedBox(width: 5),
+              messageOverviewButton(30)
+            ]
+          ),
+        ]
+      ),
     );
   }
 
@@ -362,7 +367,10 @@ class ProfileOverviewState extends State<ProfileOverview> with TickerProviderSta
     double profileOverviewWidth = 350;
     double fontSize = 16;
     // We use the total height to hide the chatbox below
+    // In NormalMode the height has the 2 buttons and some padding added.
     double profileOverviewHeight = 100;
+    profileOverviewHeight += 50 * 2;
+    profileOverviewHeight += 10 * 2;
     normalMode = true;
     if (MediaQuery.of(context).size.width <= 800) {
       profileOverviewWidth = MediaQuery.of(context).size.width;
@@ -371,11 +379,15 @@ class ProfileOverviewState extends State<ProfileOverview> with TickerProviderSta
     }
 
     return SingleChildScrollView(
-      child: Align(
-        alignment: FractionalOffset.topLeft,
-        child: normalMode
-            ? profileOverviewNormal(profileOverviewWidth, profileOverviewHeight, fontSize)
-            : profileOverviewMobile(profileOverviewWidth, profileOverviewHeight, fontSize)
+      child: Container(
+        width: profileOverviewWidth,
+        height: profileOverviewHeight,
+        child: Align(
+          alignment: FractionalOffset.topLeft,
+          child: normalMode
+              ? profileOverviewNormal(profileOverviewWidth, profileOverviewHeight, fontSize)
+              : profileOverviewMobile(profileOverviewWidth, profileOverviewHeight, fontSize)
+        ),
       ),
     );
   }

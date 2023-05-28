@@ -135,7 +135,7 @@ class UserBoxState extends State<UserBox> with TickerProviderStateMixin {
     );
   }
 
-  Widget avatarOverview() {
+  Widget avatarOverviewNormal() {
     return Container(
       padding: EdgeInsets.all(10),
       child: Row(
@@ -158,6 +158,39 @@ class UserBoxState extends State<UserBox> with TickerProviderStateMixin {
                 ]
               )
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget avatarOverviewMobile() {
+    return Container(
+      padding: EdgeInsets.all(10),
+      child: Column(
+        children: [
+          avatarBox(200, 200, userBoxChangeNotifier.getUser()!.getAvatar()!),
+          Row(
+            children: [
+              Expanded(
+                child: RichText(
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text: userBoxChangeNotifier.getUser()!.getUserName(),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 30,
+                          fontWeight: FontWeight.bold
+                        )
+                      )
+                    ]
+                  )
+                ),
+              ),
+            ]
           ),
         ],
       ),
@@ -245,7 +278,7 @@ class UserBoxState extends State<UserBox> with TickerProviderStateMixin {
     return Column(
       children: [
         userHeader(),
-        avatarOverview(),
+        avatarOverviewNormal(),
         Row(
           children: [
             !isMe ? userSocialBox(200) : userSocialBoxMe(200),
@@ -260,7 +293,7 @@ class UserBoxState extends State<UserBox> with TickerProviderStateMixin {
     return Column(
       children: [
         userHeader(),
-        avatarOverview(),
+        avatarOverviewMobile(),
         !isMe ? userSocialBox(userBoxWidth) : userSocialBoxMe(userBoxWidth),
         scoreBox(),
       ],

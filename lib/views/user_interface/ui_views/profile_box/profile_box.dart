@@ -172,20 +172,9 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
         child: Column(
             children:
             [
-              IconButton(
-                  icon: const Icon(Icons.close),
-                  color: Colors.orangeAccent.shade200,
-                  tooltip: 'cancel',
-                  onPressed: () {
-                    setState(() {
-                      print("test");
-                    });
-                  }
-              ),
-              // SizedBox(height: 20),
-              // profileHeader(width, headerHeight, fontSize),
-              // SizedBox(height: 20),
-              // userInformationBox(width, fontSize, normalMode),
+              profileHeader(width, headerHeight, fontSize),
+              SizedBox(height: 20),
+              userInformationBox(width, fontSize, normalMode),
             ]
         ),
       )
@@ -323,7 +312,7 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
           tooltip: 'cancel',
           onPressed: () {
             setState(() {
-              print("test");
+              goBack();
             });
           }
         ),
