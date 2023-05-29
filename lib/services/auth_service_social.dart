@@ -203,6 +203,7 @@ class AuthServiceSocial {
         String nameMe = Settings().getUser()!.getUserName();
         for (var message in messages) {
           String senderName = message["sender_name"];
+          int senderId = message["sender_id"];
           String body = message["body"];
           bool me = senderName == nameMe;
           String time = message["timestamp"];
@@ -211,7 +212,7 @@ class AuthServiceSocial {
             time += "Z";
           }
           DateTime timestamp = DateTime.parse(time).toLocal();
-          messageList.add(GlobalMessage(1, senderName, body, me, timestamp, true));
+          messageList.add(GlobalMessage(senderId, senderName, body, me, timestamp, true));
         }
         return messageList;
       } else {
@@ -240,16 +241,16 @@ class AuthServiceSocial {
         List<PersonalMessage> messageList = [];
         for (Map<String, dynamic> message in json["messages"]) {
           if (Settings().getUser() != null) {
-            int id = 1;
             int userId = message["user_id"];
-            int receiverId = message["receiver_id"];
+            // int receiverId = message["receiver_id"];
             int myId = Settings().getUser()!.getId();
             bool me = myId == userId;
 
             String senderName = fromUser;
-            String to = Settings().getUser()!.getUserName();
+            String usersName = Settings().getUser()!.getUserName();
+            String to = usersName;
             if (me) {
-              senderName = Settings().getUser()!.getUserName();
+              senderName = usersName;
               to = fromUser;
             }
 
@@ -260,7 +261,7 @@ class AuthServiceSocial {
               timeString += "Z";
             }
             DateTime timestamp = DateTime.parse(timeString).toLocal();
-            PersonalMessage personalMessage = PersonalMessage(id, senderName, body, me, timestamp, false, to);
+            PersonalMessage personalMessage = PersonalMessage(userId, senderName, body, me, timestamp, false, to);
             messageList.add(personalMessage);
           }
         }

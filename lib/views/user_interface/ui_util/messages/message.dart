@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 
 class Message {
-  late int id;
+  late int senderId;
   late String senderName;
   late String body;
   late DateTime timestamp;
@@ -10,7 +10,7 @@ class Message {
   late bool read;
   Color messageColour = Colors.black12;
 
-  Message(this.id, this.senderName, this.body, this.me, this.timestamp, this.read);
+  Message(this.senderId, this.senderName, this.body, this.me, this.timestamp, this.read);
 
   bool equals(Message other) {
     return this.senderName == other.senderName

@@ -145,9 +145,10 @@ class SocketServices extends ChangeNotifier {
     this.chatMessages = chatMessages;
     socket.on('send_message_global', (data) {
       String from = data["user_name"];
+      int senderId = data["sender_id"];
       String message = data["message"];
       String timestamp = data["timestamp"];
-      receivedMessage(from, message, timestamp, 0);
+      receivedMessage(from, senderId, message, timestamp, 0);
       notifyListeners();
     });
     socket.on('send_message_local', (data) {
@@ -161,9 +162,10 @@ class SocketServices extends ChangeNotifier {
     });
     socket.on('send_message_guild', (data) {
       String from = data["user_name"];
+      int senderId = data["sender_id"];
       String message = data["message"];
       String timestamp = data["timestamp"];
-      receivedMessage(from, message, timestamp, 2);
+      receivedMessage(from, senderId, message, timestamp, 2);
       notifyListeners();
     });
     socket.on('send_message_personal', (data) {
@@ -176,9 +178,9 @@ class SocketServices extends ChangeNotifier {
     });
   }
 
-  void receivedMessage(String from, String message, String timestamp, int regionType) {
-    print("received message");
-    chatMessages.addMessage(from, message, regionType, timestamp);
+  void receivedMessage(String from, int senderId, String message, String timestamp, int regionType) {
+    print("received message $senderId");
+    chatMessages.addMessage(from, senderId, message, regionType, timestamp);
   }
 
   void receivedMessagePersonal(String from, String to, String message, String timestamp) {
@@ -187,7 +189,7 @@ class SocketServices extends ChangeNotifier {
 
   void receivedMessageLocal(String from, String message, String timestamp, int regionType, String tileQ, String tileR) {
     String localMessage = "from tile($tileQ, $tileR): $message";
-    chatMessages.addMessage(from, localMessage, regionType, timestamp);
+    chatMessages.addMessage(from, -1, localMessage, regionType, timestamp);
   }
 
   bool joinedFriendRooms = false;

@@ -71,10 +71,10 @@ class ChatMessages extends ChangeNotifier {
     chatMessages = [];
     DateTime firstTime = DateTime(2023);
     String message = "Welcome to the Age of Gold chat!";
-    Message newMessage = Message(1, "Server", message, false, firstTime, true);
+    Message newMessage = Message(-1, "Server", message, false, firstTime, true);
     chatMessages.add(newMessage);
     String messageEvent = "Here you can see any event that happened in your view!";
-    EventMessage newEventMessage = EventMessage(1, "Server", messageEvent, false, firstTime, true);
+    EventMessage newEventMessage = EventMessage(-1, "Server", messageEvent, false, firstTime, true);
     eventMessages.add(newEventMessage);
   }
 
@@ -89,7 +89,7 @@ class ChatMessages extends ChangeNotifier {
 
   setDateTiles(List<Message> messages, bool personal) {
     // clear the date tiles if they exists already
-    messages.removeWhere((element) => element.id == -1);
+    messages.removeWhere((element) => element.senderId == -2);
 
     DateTime now = DateTime.now();
     DateTime today = DateTime(now.year, now.month, now.day);
@@ -111,10 +111,10 @@ class ChatMessages extends ChangeNotifier {
           timeMessageTile = "Yesterday";
         }
         if (personal) {
-          PersonalMessage timeMessage = PersonalMessage(-1, "Server", timeMessageTile, false, dayMessage, true, "Server");
+          PersonalMessage timeMessage = PersonalMessage(-2, "Server", timeMessageTile, false, dayMessage, true, "Server");
           messages.insert(i, timeMessage);
         } else {
-          Message timeMessage = Message(-1, "Server", timeMessageTile, false, dayMessage, true);
+          Message timeMessage = Message(-2, "Server", timeMessageTile, false, dayMessage, true);
           messages.insert(i, timeMessage);
         }
         i += 1;
@@ -261,7 +261,7 @@ class ChatMessages extends ChangeNotifier {
     }
   }
 
-  addMessage(String userName, String message, int regionType, String timestamp) {
+  addMessage(String userName, int senderId, String message, int regionType, String timestamp) {
     if (!timestamp.endsWith("Z")) {
       // The server has utc timestamp, but it's not formatted with the 'Z'.
       timestamp += "Z";
@@ -276,11 +276,11 @@ class ChatMessages extends ChangeNotifier {
     // functionally work different, but for now see them as placeholders
     // TODO: what to do with id's? Use them or remove them?
     if (regionType == 1) {
-      newMessage = LocalMessage(1, userName, message, me, messageTime, false);
+      newMessage = LocalMessage(senderId, userName, message, me, messageTime, false);
     } else if (regionType == 2) {
-      newMessage = GuildMessage(1, userName, message, me, messageTime, false);
+      newMessage = GuildMessage(senderId, userName, message, me, messageTime, false);
     } else {
-      newMessage = GlobalMessage(1, userName, message, me, messageTime, false);
+      newMessage = GlobalMessage(senderId, userName, message, me, messageTime, false);
     }
     chatMessages.add(newMessage);
     newGlobalMessageEvent(newMessage);

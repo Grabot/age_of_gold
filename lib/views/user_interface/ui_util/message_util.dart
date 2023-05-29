@@ -161,7 +161,7 @@ class MessageTileState extends State<MessageTile> {
   }
 
   Widget getMessageContent() {
-    if (widget.message.id == -1) {
+    if (widget.message.senderId == -2) {
       return timeMessageBubble();
     } else {
       return isMe ? messageBubbleMe() : messageBubble(
