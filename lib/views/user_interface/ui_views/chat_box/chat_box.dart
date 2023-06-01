@@ -88,7 +88,7 @@ class ChatBoxState extends State<ChatBox> {
       }
       if (!tileBoxVisible && chatBoxChangeNotifier.getChatBoxVisible()) {
         if (chatBoxChangeNotifier.getChatUser() != null) {
-          userInteraction(true, chatBoxChangeNotifier.getChatUser()!);
+          userInteraction(true, chatBoxChangeNotifier.getChatUser()!.getId(), chatBoxChangeNotifier.getChatUser()!.getUserName());
           chatMessages.setActiveChatTab("Personal");
         }
         tileBoxVisible = true;
@@ -99,7 +99,7 @@ class ChatBoxState extends State<ChatBox> {
       }
       if (tileBoxVisible && chatBoxChangeNotifier.getChatUser() != null) {
         // The user has selected a user to message. Change to that chat.
-        userInteraction(true, chatBoxChangeNotifier.getChatUser()!);
+        userInteraction(true, chatBoxChangeNotifier.getChatUser()!.getId(), chatBoxChangeNotifier.getChatUser()!.getUserName());
         chatMessages.setActiveChatTab("Personal");
         _focusChatBox.requestFocus();
       }
@@ -499,7 +499,7 @@ class ChatBoxState extends State<ChatBox> {
     return chatBoxWidget();
   }
 
-  userInteraction(bool message, String userName) {
+  userInteraction(bool message, int senderId, String userName) {
     if (message) {
       // message the user
       // select personal region if it exists, otherwise just create it first.
@@ -512,7 +512,7 @@ class ChatBoxState extends State<ChatBox> {
         }
       }
       if (!exists) {
-        ChatData newChatData = ChatData(3, userName, 0, false);
+        ChatData newChatData = ChatData(3, senderId, userName, 0, false);
         chatMessages.addNewRegion(newChatData);
         chatMessages.setMessageUser(newChatData.name);
         chatMessages.setSelectedChatData(newChatData);

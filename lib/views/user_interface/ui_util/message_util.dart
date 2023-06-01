@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 
-Widget messageList(List<Message> messages, ScrollController messageScrollController, Function(bool, String) userInteraction, ChatData? selectedChatData, bool isEvent, bool show, double fontSize) {
+Widget messageList(List<Message> messages, ScrollController messageScrollController, Function(bool, int, String) userInteraction, ChatData? selectedChatData, bool isEvent, bool show, double fontSize) {
 
   // In the mobile mode there is always a small section of the chat visible.
   return messages.isNotEmpty && show
@@ -31,7 +31,7 @@ Widget messageList(List<Message> messages, ScrollController messageScrollControl
 
 class MessageTile extends StatefulWidget {
   final Message message;
-  final Function(bool, String) userInteraction;
+  final Function(bool, int, String) userInteraction;
   final double fontSize;
 
   const MessageTile(
@@ -217,9 +217,9 @@ class MessageTileState extends State<MessageTile> {
             _tapPosition! & const Size(40, 40), Offset.zero & overlay.size))
         .then((int? delta) {
       if (delta == 0) {
-        widget.userInteraction(true, widget.message.senderName);
+        widget.userInteraction(true, widget.message.senderId, widget.message.senderName);
       } else if (delta == 1) {
-        widget.userInteraction(false, widget.message.senderName);
+        widget.userInteraction(false, widget.message.senderId, widget.message.senderName);
       }
       return;
     });

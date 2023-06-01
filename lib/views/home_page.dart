@@ -6,7 +6,6 @@ import 'package:age_of_gold/util/web_storage.dart';
 import 'package:flutter/material.dart';
 import '../age_of_gold.dart';
 import 'login_screen.dart';
-import 'package:age_of_gold/constants/route_paths.dart' as routes;
 
 
 class HomePage extends StatefulWidget {

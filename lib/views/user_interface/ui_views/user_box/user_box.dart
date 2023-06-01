@@ -114,9 +114,9 @@ class UserBoxState extends State<UserBox> with TickerProviderStateMixin {
 
   sendMessage() {
     setState(() {
-      goBack(); // close user box
+      goBack();
       ChatBoxChangeNotifier chatBoxChangeNotifier = ChatBoxChangeNotifier();
-      chatBoxChangeNotifier.setChatUser(userBoxChangeNotifier.getUser()!.getUserName());
+      chatBoxChangeNotifier.setChatUser(userBoxChangeNotifier.getUser()!);
       chatBoxChangeNotifier.setChatBoxVisible(true);
     });
   }

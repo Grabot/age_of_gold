@@ -4,14 +4,19 @@ import 'package:age_of_gold/services/models/user.dart';
 import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/services/socket_services.dart';
 import 'package:age_of_gold/util/countdown.dart';
+import 'package:age_of_gold/util/navigation_service.dart';
 import 'package:age_of_gold/util/render_objects.dart';
+import 'package:age_of_gold/util/util.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/chat_messages.dart';
+import 'package:age_of_gold/views/user_interface/ui_util/clear_ui.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/selected_tile_info.dart';
+import 'package:age_of_gold/locator.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/chat_box/chat_box_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/chat_window/chat_window_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/friend_window/friend_window_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/profile_box/profile_change_notifier.dart';
 import 'package:flutter/material.dart';
+import 'package:back_button_interceptor/back_button_interceptor.dart';
 
 
 class ProfileOverview extends StatefulWidget {
@@ -44,8 +49,11 @@ class ProfileOverviewState extends State<ProfileOverview> with TickerProviderSta
   bool unansweredFriendRequests = false;
   bool unreadMessages = false;
 
+  final NavigationService _navigationService = locator<NavigationService>();
+
   @override
   void initState() {
+    BackButtonInterceptor.add(myInterceptor);
     super.initState();
     selectedTileInfo = SelectedTileInfo();
     selectedTileInfo.addListener(selectedTileListener);
@@ -66,6 +74,56 @@ class ProfileOverviewState extends State<ProfileOverview> with TickerProviderSta
     updateTimeLock();
     checkUnansweredFriendRequests();
     checkUnreadMessages();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    BackButtonInterceptor.remove(myInterceptor);
+    super.dispose();
+  }
+
+  bool myInterceptor(bool stopDefaultButtonEvent, RouteInfo info) {
+    ClearUI clearUI = ClearUI();
+    if (clearUI.isUiElementVisible()) {
+      clearUI.clearUserInterfaces();
+      return true;
+    } else {
+      // Ask to logout?
+      showAlertDialog(context);
+      return false;
+    }
+  }
+
+  // Only show logout dialog when user presses back button
+  showAlertDialog(BuildContext context) {  // set up the buttons
+    Widget cancelButton = ElevatedButton(
+      child: Text("Cancel"),
+      onPressed:  () {
+        Navigator.pop(context);
+      },
+    );
+    Widget continueButton = ElevatedButton(
+      child: Text("Logout"),
+      onPressed:  () {
+        Navigator.pop(context);
+        logoutUser(Settings(), _navigationService);
+      },
+    );  // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: Text("Leave?"),
+      content: Text("Do you want to logout of Age of Gold?"),
+      actions: [
+        cancelButton,
+        continueButton,
+      ],
+    );
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
   }
 
   checkUnansweredFriendRequests() {
@@ -132,12 +190,6 @@ class ProfileOverviewState extends State<ProfileOverview> with TickerProviderSta
     if (mounted) {
       setState(() {});
     }
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
   }
 
   goToProfile() {

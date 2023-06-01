@@ -170,10 +170,11 @@ class SocketServices extends ChangeNotifier {
     });
     socket.on('send_message_personal', (data) {
       String from = data["from_user"];
+      int senderId = data["sender_id"];
       String to = data["to_user"];
       String message = data["message"];
       String timestamp = data["timestamp"];
-      receivedMessagePersonal(from, to, message, timestamp);
+      receivedMessagePersonal(from, senderId, to, message, timestamp);
       notifyListeners();
     });
   }
@@ -183,8 +184,8 @@ class SocketServices extends ChangeNotifier {
     chatMessages.addMessage(from, senderId, message, regionType, timestamp);
   }
 
-  void receivedMessagePersonal(String from, String to, String message, String timestamp) {
-    chatMessages.addPersonalMessage(from, to, message, timestamp);
+  void receivedMessagePersonal(String from, int senderId, String to, String message, String timestamp) {
+    chatMessages.addPersonalMessage(from, senderId, to, message, timestamp);
   }
 
   void receivedMessageLocal(String from, String message, String timestamp, int regionType, String tileQ, String tileR) {

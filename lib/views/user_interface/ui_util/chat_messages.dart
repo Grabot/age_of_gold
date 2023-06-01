@@ -132,7 +132,7 @@ class ChatMessages extends ChangeNotifier {
     personalMessagePage[regionName] = 1;
   }
 
-  addChatToPersonalMessages(String from, String to, PersonalMessage message) {
+  addChatToPersonalMessages(String from, int senderId, String to, PersonalMessage message) {
     String me = Settings().getUser()!.getUserName();
     String other = "";
     if (from == me) {
@@ -157,14 +157,14 @@ class ChatMessages extends ChangeNotifier {
     }
     if (!found) {
       print("create region");
-      ChatData newChatData = ChatData(3, other, 1, false);
+      ChatData newChatData = ChatData(3, senderId, other, 1, false);
       regions.add(newChatData);
     }
     dropdownMenuItems = buildDropdownMenuItems();
     removePlaceholder();
   }
 
-  addPersonalMessage(String from, String to, String message, String timestamp) {
+  addPersonalMessage(String from, int senderId, String to, String message, String timestamp) {
     if (!timestamp.endsWith("Z")) {
       // The server has utc timestamp, but it's not formatted with the 'Z'.
       timestamp += "Z";
@@ -179,7 +179,7 @@ class ChatMessages extends ChangeNotifier {
     PersonalMessage newMessage = PersonalMessage(1, from, message, me, messageTime, false, to);
     // Add it to both the chatMessages and the personalMessages
     chatMessages.add(newMessage);
-    addChatToPersonalMessages(from, to, newMessage);
+    addChatToPersonalMessages(from, senderId, to, newMessage);
     newGlobalMessageEvent(newMessage);
 
     if (!me) {
@@ -380,12 +380,17 @@ class ChatMessages extends ChangeNotifier {
       List<Friend> friends = currentUser.getFriends();
       for (Friend friend in friends) {
         if (friend.isAccepted() || friend.unreadMessages != 0) {
-          addChatRegion(friend.getUser()!.getUserName(), friend.unreadMessages!, friend.isAccepted());
+          addChatRegion(
+              friend.getUser()!.getUserName(),
+              friend.getUser()!.getId(),
+              friend.unreadMessages!,
+              friend.isAccepted()
+          );
         }
       }
     }
     if (regions.isEmpty) {
-      ChatData chatData = ChatData(0, "No Chats Found!", 0, false);
+      ChatData chatData = ChatData(0, -1, "No Chats Found!", 0, false);
       regions.add(chatData);
     }
     dropdownMenuItems = buildDropdownMenuItems();
@@ -449,7 +454,7 @@ class ChatMessages extends ChangeNotifier {
     }
   }
 
-  addChatRegion(String username, int unreadMessages, bool isFriend) {
+  addChatRegion(String username, int senderId, int unreadMessages, bool isFriend) {
     // select personal region if it exists, otherwise just create it first.
     bool exists = false;
     for (int i = 0; i < regions.length; i++) {
@@ -460,7 +465,7 @@ class ChatMessages extends ChangeNotifier {
       }
     }
     if (!exists) {
-      ChatData newChatData = ChatData(3, username, unreadMessages, isFriend);
+      ChatData newChatData = ChatData(3, senderId, username, unreadMessages, isFriend);
       addNewRegion(newChatData);
       setMessageUser(newChatData.name);
       // Check if the placeholder "No Chats Found!" is in the list and remove it.
@@ -544,11 +549,12 @@ class ChatMessages extends ChangeNotifier {
 
 class ChatData {
   int type;
+  int senderId;
   String name;
   int unreadMessages;
   bool friend;
 
-  ChatData(this.type, this.name, this.unreadMessages, this.friend);
+  ChatData(this.type, this.senderId, this.name, this.unreadMessages, this.friend);
 }
 
 class ChatDetailPopup extends PopupMenuEntry<int> {

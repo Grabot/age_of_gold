@@ -9,7 +9,6 @@ import 'package:age_of_gold/views/user_interface/ui_views/chat_box/chat_box_chan
 import 'package:age_of_gold/views/user_interface/ui_views/chat_window/chat_window_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/user_box/user_box_change_notifier.dart';
 import 'package:flutter/material.dart';
-import 'package:back_button_interceptor/back_button_interceptor.dart';
 
 
 class ChatWindow extends StatefulWidget {
@@ -60,7 +59,6 @@ class ChatWindowState extends State<ChatWindow> {
     chatWindowChangeNotifier.addListener(chatWindowChangeListener);
     messageScrollController.addListener(scrollListener);
 
-    BackButtonInterceptor.add(myInterceptor);
     chatMessages = ChatMessages();
     chatMessages.addListener(newMessageListener);
     socket.checkMessages(chatMessages);
@@ -69,17 +67,6 @@ class ChatWindowState extends State<ChatWindow> {
     _focusChatWindow.addListener(_onFocusChange);
     _focusSearch.addListener(_onFocusChangeSearch);
     super.initState();
-  }
-
-  bool myInterceptor(bool stopDefaultButtonEvent, RouteInfo info) {
-    print("my intercepter");
-    backButtonFunctionality();
-    return true;
-  }
-
-  void backButtonFunctionality() {
-    print("back functionality!");
-    goBack();
   }
 
   newMessageListener() {
@@ -97,7 +84,6 @@ class ChatWindowState extends State<ChatWindow> {
 
   @override
   void dispose() {
-    BackButtonInterceptor.remove(myInterceptor);
     super.dispose();
   }
 
@@ -640,7 +626,7 @@ class ChatWindowState extends State<ChatWindow> {
     );
   }
 
-  userInteraction(bool message, String userName) {
+  userInteraction(bool message, int senderId, String userName) {
     if (message) {
       // message the user
       // select personal region if it exists, otherwise just create it first.
@@ -653,7 +639,8 @@ class ChatWindowState extends State<ChatWindow> {
         }
       }
       if (!exists) {
-        ChatData newChatData = ChatData(3, userName, 0, false);
+        // TODO: add senderId
+        ChatData newChatData = ChatData(3, -1, userName, 0, false);
         chatMessages.addNewRegion(newChatData);
         chatMessages.setMessageUser(newChatData.name);
         chatMessages.setSelectedChatData(newChatData);
