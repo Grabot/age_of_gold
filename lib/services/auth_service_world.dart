@@ -55,7 +55,7 @@ class AuthServiceWorld {
   Future<String> retrieveHexagons(HexagonList hexagonList, SocketServices socketServices, List<Tuple2> hexRetrievals) async {
     String endPoint = "hexagon/get";
 
-    List hexToRetrieve = hexRetrievals.map((e) => {
+    List<Map<String, dynamic>> hexToRetrieve = hexRetrievals.map((e) => {
       'q': e.item1,
       'r': e.item2,
     }).toList();
@@ -64,10 +64,9 @@ class AuthServiceWorld {
         options: Options(headers: {
           HttpHeaders.contentTypeHeader: "application/json",
         }),
-        data: jsonEncode(<String, String> {
-          "hexagons": jsonEncode(hexToRetrieve)
-        }
-      )
+        data: jsonEncode({
+          "hexagons": hexToRetrieve
+        })
     );
 
     Map<String, dynamic> json = response.data;
@@ -187,5 +186,18 @@ class AuthServiceWorld {
         return null;
       }
     }
+  }
+}
+
+class HexRequest {
+  int q;
+  int r;
+  HexRequest(this.q, this.r);
+
+  Map<String, dynamic> toJson(){
+    return {
+      "q": q,
+      "r": r,
+    };
   }
 }

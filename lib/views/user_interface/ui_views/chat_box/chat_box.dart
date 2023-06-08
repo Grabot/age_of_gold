@@ -321,7 +321,7 @@ class ChatBoxState extends State<ChatBox> {
                 child: Column(
                   children: [
                     Expanded(
-                      child: messageList(chatMessages.shownMessages, messageScrollController, userInteraction, chatMessages.getSelectedChatData(), isEvent, showMessageField, fontSize),
+                      child: messageList(chatMessages.shownMessages, messageScrollController, userInteraction, chatMessages.getSelectedChatData(), isEvent, showMessageField, fontSize, false),
                     ),
                   ],
                 ),
@@ -352,7 +352,7 @@ class ChatBoxState extends State<ChatBox> {
             child: Column(
               children: [
                 Expanded(
-                  child: messageList(chatMessages.shownMessages, messageScrollController, userInteraction, chatMessages.getSelectedChatData(), false, showMessageField, fontSize),
+                  child: messageList(chatMessages.shownMessages, messageScrollController, userInteraction, chatMessages.getSelectedChatData(), false, showMessageField, fontSize, true),
                 ),
               ],
             ),
@@ -387,7 +387,7 @@ class ChatBoxState extends State<ChatBox> {
             child: Column(
               children: [
                 Expanded(
-                  child: messageList(chatMessages.shownMessages, messageScrollController, userInteraction, chatMessages.getSelectedChatData(), isEvent, showMessageField, fontSize),
+                  child: messageList(chatMessages.shownMessages, messageScrollController, userInteraction, chatMessages.getSelectedChatData(), isEvent, showMessageField, fontSize, false),
                 ),
               ],
             ),

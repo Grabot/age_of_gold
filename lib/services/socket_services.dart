@@ -47,23 +47,25 @@ class SocketServices extends ChangeNotifier {
   }
 
   startSockConnection() {
-    String namespace = "sock";
-    String socketUrl = baseUrlV1_0 + namespace;
+    String socketUrl = baseUrlV1_0;
     socket = io.io(socketUrl, <String, dynamic>{
       'autoConnect': false,
+      'path': "/socket.io",
       'transports': ['websocket'],
     });
 
     socket.onConnect((_) {
+      print("on connect");
       socket.emit('message_event', 'Connected!');
     });
 
     socket.onDisconnect((_) {
+      print("on disconnect");
       socket.emit('message_event', 'Disconnected!');
     });
 
     socket.on('message_event', (data) {
-      // print("message_event: $data");
+      print("message_event: $data");
     });
 
     socket.open();

@@ -53,6 +53,8 @@ class FriendWindowState extends State<FriendWindow> {
 
   bool unansweredFriendRequests = false;
 
+  String headerText = "Social";
+
   @override
   void initState() {
     friendWindowChangeNotifier = FriendWindowChangeNotifier();
@@ -99,16 +101,31 @@ class FriendWindowState extends State<FriendWindow> {
   friendWindowChangeListener() {
     if (mounted) {
       if (!showFriendWindow && friendWindowChangeNotifier.getFriendWindowVisible()) {
+        socialView = true;
+        addFriendView = false;
+        headerText = "Friend List";
+        // If the user has no friends to show yet, we show the request view
+        User? me = Settings().getUser();
+        if (me != null && me.friends.isNotEmpty) {
+          if (me.friends.every((friend) => !friend.isAccepted())) {
+            headerText = "Friend Requests";
+            socialView = false;
+            addFriendView = false;
+            detailAddFriendColour = 0;
+            detailRequestColour = 2;
+            detailFriendColour = 0;
+          }
+        }
         setState(() {
           showFriendWindow = true;
         });
       }
       if (showFriendWindow && !friendWindowChangeNotifier.getFriendWindowVisible()) {
         setState(() {
+          headerText = "Social";
           showFriendWindow = false;
           socialView = true;
           addFriendView = false;
-          showFriendWindow = false;
           detailAddFriendColour = 0;
           detailRequestColour = 0;
           detailFriendColour = 2;
@@ -177,6 +194,7 @@ class FriendWindowState extends State<FriendWindow> {
             currentUser.addFriend(friend);
             checkUnansweredFriendRequests();
             setState(() {
+              headerText = "Friend Requests";
               socialView = false;
               addFriendView = false;
               detailRequestColour = 2;
@@ -197,6 +215,7 @@ class FriendWindowState extends State<FriendWindow> {
             checkUnansweredFriendRequests();
             socialView = true;
             addFriendView = false;
+            headerText = "Friend List";
             detailRequestColour = 0;
             detailFriendColour = 2;
             detailAddFriendColour = 0;
@@ -224,6 +243,7 @@ class FriendWindowState extends State<FriendWindow> {
           checkUnansweredFriendRequests();
           socialView = true;
           addFriendView = false;
+          headerText = "Friend List";
           detailRequestColour = 0;
           detailFriendColour = 2;
           detailAddFriendColour = 0;
@@ -254,7 +274,6 @@ class FriendWindowState extends State<FriendWindow> {
   }
 
   Widget friendWindowHeader(double headerWidth, double headerHeight, double fontSize) {
-    String headerText = "Social";
     if (addFriendView) {
       headerText = "Add Friend";
     }
@@ -426,6 +445,7 @@ class FriendWindowState extends State<FriendWindow> {
       onTap: () {
         setState(() {
           addFriendView = true;
+          headerText = "Add Friend";
           detailAddFriendColour = 2;
           detailFriendColour = 0;
           detailRequestColour = 0;
@@ -475,6 +495,7 @@ class FriendWindowState extends State<FriendWindow> {
     return InkWell(
       onTap: () {
         setState(() {
+          headerText = "Friend List";
           detailFriendColour = 2;
           socialView = true;
           addFriendView = false;
@@ -526,6 +547,7 @@ class FriendWindowState extends State<FriendWindow> {
     return InkWell(
       onTap: () {
         setState(() {
+          headerText = "Friend Requests";
           detailRequestColour = 2;
           socialView = false;
           addFriendView = false;

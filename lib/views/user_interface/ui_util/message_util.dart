@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 
-Widget messageList(List<Message> messages, ScrollController messageScrollController, Function(bool, int, String) userInteraction, ChatData? selectedChatData, bool isEvent, bool show, double fontSize) {
+Widget messageList(List<Message> messages, ScrollController messageScrollController, Function(bool, int, String) userInteraction, ChatData? selectedChatData, bool isEvent, bool show, double fontSize, bool minimized) {
 
   // In the mobile mode there is always a small section of the chat visible.
   return messages.isNotEmpty && show
@@ -23,6 +23,7 @@ Widget messageList(List<Message> messages, ScrollController messageScrollControl
           message: messages[reversedIndex],
           userInteraction: userInteraction,
           fontSize: fontSize,
+          minimized: minimized,
         );
       })
       : Container();
@@ -33,13 +34,15 @@ class MessageTile extends StatefulWidget {
   final Message message;
   final Function(bool, int, String) userInteraction;
   final double fontSize;
+  final bool minimized;
 
   const MessageTile(
       {
         required Key key,
         required this.message,
         required this.userInteraction,
-        required this.fontSize
+        required this.fontSize,
+        required this.minimized
       })
       : super(key: key);
 
@@ -108,6 +111,8 @@ class MessageTileState extends State<MessageTile> {
         ),
         child: RichText(
           textAlign: TextAlign.right,
+          maxLines: widget.minimized ? 1 : null,
+          overflow: widget.minimized ? TextOverflow.ellipsis : TextOverflow.clip,
           text: TextSpan(
             children: [
               textDate(),
@@ -131,6 +136,8 @@ class MessageTileState extends State<MessageTile> {
           ),
           child: RichText(
               textAlign: TextAlign.left,
+              maxLines: widget.minimized ? 1 : null,
+              overflow: widget.minimized ? TextOverflow.ellipsis : TextOverflow.clip,
               text: TextSpan(
                   children: [
                     textDate(),
@@ -153,6 +160,8 @@ class MessageTileState extends State<MessageTile> {
             color: Colors.grey.withOpacity(0.8),
           ),
           child: RichText(
+            maxLines: widget.minimized ? 1 : null,
+            overflow: widget.minimized ? TextOverflow.ellipsis : TextOverflow.clip,
             textAlign: TextAlign.left,
             text: textBody(),
           ),

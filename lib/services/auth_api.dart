@@ -19,10 +19,10 @@ class AuthApi {
   static Dio createDio() {
     var dio = Dio(
         BaseOptions(
-          baseUrl: baseUrlV1_0,
-          receiveTimeout: 15000,
-          connectTimeout: 15000,
-          sendTimeout: 15000,
+          baseUrl: apiUrlV1_0,
+          receiveTimeout: const Duration(milliseconds: 15000),
+          connectTimeout: const Duration(milliseconds: 15000),
+          sendTimeout: const Duration(milliseconds: 15000),
         )
     );
 
@@ -42,61 +42,69 @@ class AppInterceptors extends Interceptor {
   @override
   void onRequest(
       RequestOptions options, RequestInterceptorHandler handler) async {
+    print("on request! :D");
     Settings settings = Settings();
     int expiration = settings.getAccessTokenExpiration();
     if (expiration == 0) {
       // Just continue the request since it probably was a refresh
       return handler.next(options);
-    }
+    } else {
+      String? accessToken = await SecureStorage().getAccessToken();
 
-    String? accessToken = await SecureStorage().getAccessToken();
+      if (accessToken != null) {
+        int current = (DateTime
+            .now()
+            .millisecondsSinceEpoch / 1000).round();
 
-    if (accessToken != null) {
-      int current = (DateTime.now().millisecondsSinceEpoch/1000).round();
+        if ((expiration - current) < 60) {
+          // We see that the access token is almost expired. We should refresh it.
+          String refreshToken = settings.getRefreshToken();
 
-      if ((expiration - current) < 60) {
-        // We see that the access token is almost expired. We should refresh it.
-        String refreshToken = settings.getRefreshToken();
-
-        if (refreshToken == "") {
-          // We don't have a refresh token. We should log the user out.
-          DioError dioError = DioError(requestOptions: options, type: DioErrorType.cancel, error: "User not authorized");
-          return handler.reject(dioError, true);
-        } else {
-          settings.setLoggingIn(true);
-          String endPoint = "refresh";
-          var response = await Dio(
-              BaseOptions(
-                baseUrl: baseUrlV1_0,
-                receiveTimeout: 15000,
-                connectTimeout: 15000,
-                sendTimeout: 15000,
-              )
-          ).post(endPoint,
-              options: Options(headers: {
-                HttpHeaders.contentTypeHeader: "application/json",
-              }),
-              data: {
-                "access_token": accessToken,
-                "refresh_token": refreshToken
-              }
-          ).catchError((error, stackTrace) {
-            return handler.reject(error, true);
-          });
-
-          LoginResponse loginRefresh = LoginResponse.fromJson(response.data);
-          if (loginRefresh.getResult()) {
-            accessToken = loginRefresh.getAccessToken();
-            print("successfull login auth api");
-            successfulLogin(loginRefresh);
-          } else {
-            DioError dioError = DioError(requestOptions: options, type: DioErrorType.cancel, error: "User not authorized");
+          if (refreshToken == "") {
+            // We don't have a refresh token. We should log the user out.
+            DioError dioError = DioError(requestOptions: options,
+                type: DioErrorType.cancel,
+                error: "User not authorized");
             return handler.reject(dioError, true);
+          } else {
+            print("on request second! >:(");
+            settings.setLoggingIn(true);
+            String endPoint = "refresh";
+            var response = await Dio(
+                BaseOptions(
+                  baseUrl: baseUrlV1_0,
+                  receiveTimeout: const Duration(milliseconds: 15000),
+                  connectTimeout: const Duration(milliseconds: 15000),
+                  sendTimeout: const Duration(milliseconds: 15000),
+                )
+            ).post(endPoint,
+                options: Options(headers: {
+                  HttpHeaders.contentTypeHeader: "application/json",
+                }),
+                data: {
+                  "access_token": accessToken,
+                  "refresh_token": refreshToken
+                }
+            ).catchError((error, stackTrace) {
+              return handler.reject(error, true);
+            });
+
+            LoginResponse loginRefresh = LoginResponse.fromJson(response.data);
+            if (loginRefresh.getResult()) {
+              accessToken = loginRefresh.getAccessToken();
+              print("successfull login auth api");
+              successfulLogin(loginRefresh);
+            } else {
+              DioError dioError = DioError(requestOptions: options,
+                  type: DioErrorType.cancel,
+                  error: "User not authorized");
+              return handler.reject(dioError, true);
+            }
           }
         }
-      }
 
-      options.headers['Authorization'] = 'Bearer: $accessToken';
+        options.headers['Authorization'] = 'Bearer: $accessToken';
+      }
     }
 
     return handler.next(options);
@@ -104,12 +112,13 @@ class AppInterceptors extends Interceptor {
 
   @override
   void onError(DioError err, ErrorInterceptorHandler handler) {
+    print("on error! :(");
     switch (err.type) {
-      case DioErrorType.connectTimeout:
+      case DioErrorType.connectionTimeout:
       case DioErrorType.sendTimeout:
       case DioErrorType.receiveTimeout:
         throw DeadlineExceededException(err.requestOptions);
-      case DioErrorType.response:
+      case DioErrorType.badResponse:
         if (err.response == null) {
           throw BadRequestException(err.requestOptions);
         }
@@ -128,7 +137,11 @@ class AppInterceptors extends Interceptor {
         break;
       case DioErrorType.cancel:
         throw BadRequestException(err.requestOptions);
-      case DioErrorType.other:
+      case DioErrorType.unknown:
+        throw NoInternetConnectionException(err.requestOptions);
+      case DioErrorType.badCertificate:
+        throw BadRequestException(err.requestOptions);
+      case DioErrorType.connectionError:
         throw NoInternetConnectionException(err.requestOptions);
     }
 

@@ -53,6 +53,8 @@ class ChatWindowState extends State<ChatWindow> {
   bool normalMode = false;
   bool selectionScreen = false;
 
+  String chatTitle = "Chat window";
+
   @override
   void initState() {
     chatWindowChangeNotifier = ChatWindowChangeNotifier();
@@ -117,12 +119,15 @@ class ChatWindowState extends State<ChatWindow> {
     chatMessages.setChatWindowActive(true);
     if (chatMessages.getActiveChatTab() == "") {
       chatMessages.setActiveChatTab("World");
+      chatTitle = "World Chat";
       isWorld = true;
       isEvent = false;
     } if (chatMessages.getActiveChatTab() == "World") {
+      chatTitle = "World Chat";
       isWorld = true;
       isEvent = false;
     } else if (chatMessages.getActiveChatTab() == "Events") {
+      chatTitle = "Events";
       isWorld = false;
       isEvent = true;
     } else if (chatMessages.getActiveChatTab() == "Personal") {
@@ -131,6 +136,7 @@ class ChatWindowState extends State<ChatWindow> {
         if (chatData.name == chatMessages.getMessageUser()) {
           isEvent = false;
           isWorld = false;
+          chatTitle = chatData.name;
           chatMessages.setSelectedChatData(chatData);
           chatMessages.setActiveChatTab("Personal");
           break;
@@ -176,7 +182,7 @@ class ChatWindowState extends State<ChatWindow> {
           SizedBox(
             height: headerHeight,
             child: Text(
-              "Chat window",
+              chatTitle,
               style: simpleTextStyle(fontSize),
             )
           ),
@@ -198,6 +204,7 @@ class ChatWindowState extends State<ChatWindow> {
   pressedWorldChat() {
     setState(() {
       chatMessages.setActiveChatTab("World");
+      chatTitle = "World Chat";
       ChatBoxChangeNotifier().setActiveTab("World");
       chatMessages.setSelectedChatData(null);
       chatMessages.setMessageUser(null);
@@ -210,6 +217,7 @@ class ChatWindowState extends State<ChatWindow> {
   pressedEventsChats() {
     setState(() {
       chatMessages.setActiveChatTab("Events");
+      chatTitle = "Events";
       ChatBoxChangeNotifier().setActiveTab("Events");
       chatMessages.setSelectedChatData(null);
       chatMessages.setMessageUser(null);
@@ -302,6 +310,7 @@ class ChatWindowState extends State<ChatWindow> {
   pressedPersonalButton(ChatData chatData) {
     setState(() {
       print("setting personal stuff");
+      chatTitle = chatData.name;
       isEvent = false;
       isWorld = false;
       chatMessages.setSelectedChatData(chatData);
@@ -527,7 +536,7 @@ class ChatWindowState extends State<ChatWindow> {
         Container(
             width: rightColumnWidth,
             height: rightColumnHeight - chatTextFieldHeight,
-            child: messageList(chatMessages.shownMessages, messageScrollController, userInteraction, chatMessages.getSelectedChatData(), isEvent, true, fontSize)
+            child: messageList(chatMessages.shownMessages, messageScrollController, userInteraction, chatMessages.getSelectedChatData(), isEvent, true, fontSize, false)
         ),
         !isEvent
             ? chatTextField(rightColumnWidth, chatTextFieldHeight, true, chatMessages.getActiveChatTab(), _chatFormKey, _focusChatWindow, chatFieldController, chatMessages.getSelectedChatData())
@@ -635,6 +644,7 @@ class ChatWindowState extends State<ChatWindow> {
         if (chatMessages.regions[i].name == userName) {
           chatMessages.setSelectedChatData(chatMessages.regions[i]);
           chatMessages.setMessageUser(chatMessages.regions[i].name);
+          chatTitle = chatMessages.regions[i].name;
           exists = true;
         }
       }
@@ -643,6 +653,7 @@ class ChatWindowState extends State<ChatWindow> {
         ChatData newChatData = ChatData(3, -1, userName, 0, false);
         chatMessages.addNewRegion(newChatData);
         chatMessages.setMessageUser(newChatData.name);
+        chatTitle = newChatData.name;
         chatMessages.setSelectedChatData(newChatData);
         // Check if the placeholder "No Chats Found!" is in the list and remove it.
         chatMessages.removePlaceholder();
