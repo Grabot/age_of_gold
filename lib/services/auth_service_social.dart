@@ -13,6 +13,8 @@ import 'models/user.dart';
 
 
 class AuthServiceSocial {
+  int pageSize = 60;
+
   static AuthServiceSocial? _instance;
 
   factory AuthServiceSocial() => _instance ??= AuthServiceSocial._internal();
@@ -72,6 +74,7 @@ class AuthServiceSocial {
   }
 
   sendMessageChatPersonal(String message, String userTo) {
+    print("sending message personal $message");
     sendMessagePersonal(message, userTo).then((value) {
       if (value != "success") {
         // TODO: What to do when it is not successful
@@ -186,7 +189,7 @@ class AuthServiceSocial {
   }
 
   Future<List<Message>?> getMessagesGlobal(int page) async {
-    String endPoint = "get/message/global/$page";
+    String endPoint = "get/message/global?page=$page&size=$pageSize";
     var response = await AuthApi().dio.get(endPoint,
       options: Options(headers: {
         HttpHeaders.contentTypeHeader: "application/json",
@@ -194,11 +197,19 @@ class AuthServiceSocial {
     );
 
     Map<String, dynamic> json = response.data;
-    if (!json.containsKey("result")) {
+    // For the messages we use a fastapi pagination return function
+    // This will not contain result, but we use the size parameter
+    // If the size is {pageSize} it was successful, if it is 1 it failed.
+    if (!json.containsKey("size")) {
       return null;
     } else {
-      if (json["result"]) {
-        List messages = json["messages"];
+      if (json["size"] != pageSize) {
+        return null;
+      } else {
+        if (!json.containsKey("items")) {
+          return null;
+        }
+        List messages = json["items"];
         List<Message> messageList = [];
         String nameMe = Settings().getUser()!.getUserName();
         for (var message in messages) {
@@ -215,43 +226,46 @@ class AuthServiceSocial {
           messageList.add(GlobalMessage(senderId, senderName, body, me, timestamp, true));
         }
         return messageList;
-      } else {
-        return null;
       }
     }
   }
 
-  Future<List<PersonalMessage>?> getMessagePersonal(String fromUser, int page) async {
-    String endPoint = "get/message/personal/$page";
+  Future<List<PersonalMessage>?> getMessagePersonal(String userGet, int page) async {
+    String endPoint = "get/message/personal?page=$page&size=$pageSize";
     var response = await AuthApi().dio.post(endPoint,
         options: Options(headers: {
           HttpHeaders.contentTypeHeader: "application/json",
         }),
         data: jsonEncode(<String, String>{
-          "from_user": fromUser
+          "user_get": userGet
         }
       )
     );
 
     Map<String, dynamic> json = response.data;
-    if (!json.containsKey("result")) {
+    if (!json.containsKey("size")) {
       return null;
     } else {
-      if (json["result"]) {
+      if (json["size"] != pageSize) {
+        return null;
+      } else {
+        if (!json.containsKey("items")) {
+          return null;
+        }
         List<PersonalMessage> messageList = [];
-        for (Map<String, dynamic> message in json["messages"]) {
+        for (Map<String, dynamic> message in json["items"]) {
           if (Settings().getUser() != null) {
             int userId = message["user_id"];
             // int receiverId = message["receiver_id"];
             int myId = Settings().getUser()!.getId();
             bool me = myId == userId;
 
-            String senderName = fromUser;
+            String senderName = userGet;
             String usersName = Settings().getUser()!.getUserName();
             String to = usersName;
             if (me) {
               senderName = usersName;
-              to = fromUser;
+              to = userGet;
             }
 
             String body = message["body"];
@@ -266,20 +280,18 @@ class AuthServiceSocial {
           }
         }
         return messageList;
-      } else {
-        return null;
       }
     }
   }
 
-  Future<BaseResponse> readMessagePersonal(String fromUser) async {
+  Future<BaseResponse> readMessagePersonal(String userRead) async {
     String endPoint = "read/message/personal";
     var response = await AuthApi().dio.post(endPoint,
         options: Options(headers: {
           HttpHeaders.contentTypeHeader: "application/json",
         }),
         data: jsonEncode(<String, String>{
-          "read_user": fromUser
+          "user_read": userRead
         }
       )
     );

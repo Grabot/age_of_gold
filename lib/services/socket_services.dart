@@ -146,9 +146,9 @@ class SocketServices extends ChangeNotifier {
     joinedChatRooms = true;
     this.chatMessages = chatMessages;
     socket.on('send_message_global', (data) {
-      String from = data["user_name"];
+      String from = data["sender_name"];
       int senderId = data["sender_id"];
-      String message = data["message"];
+      String message = data["body"];
       String timestamp = data["timestamp"];
       receivedMessage(from, senderId, message, timestamp, 0);
       notifyListeners();
@@ -171,9 +171,10 @@ class SocketServices extends ChangeNotifier {
       notifyListeners();
     });
     socket.on('send_message_personal', (data) {
-      String from = data["from_user"];
+      print("received a personal message! :D");
+      String from = data["sender_name"];
       int senderId = data["sender_id"];
-      String to = data["to_user"];
+      String to = data["receiver_name"];
       String message = data["message"];
       String timestamp = data["timestamp"];
       receivedMessagePersonal(from, senderId, to, message, timestamp);
