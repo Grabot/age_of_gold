@@ -208,12 +208,13 @@ class SocketServices extends ChangeNotifier {
       notifyListeners();
     });
     socket.on('denied_friend', (data) {
-      String from = data["from"];
-      deniedFriendRequest(from);
+      int friendId = data["friend_id"];
+      deniedFriendRequest(friendId);
       notifyListeners();
     });
     socket.on('accept_friend_request', (data) {
-      String from = data["from"];
+      print("accept friend request $data");
+      Map<String, dynamic> from = data["from"];
       acceptFriendRequest(from);
       notifyListeners();
     });
@@ -222,25 +223,35 @@ class SocketServices extends ChangeNotifier {
   receivedFriendRequest(Map<String, dynamic> from) {
     User? currentUser = Settings().getUser();
     if (currentUser != null) {
-      User newFriend = User.fromJson(from);
-      Friend friend = Friend(false, false, newFriend);
+      int id = from["id"];
+      String username = from["username"];
+      Friend friend = Friend(false, false, 0, username);
+      friend.setFriendId(id);
+      String avatarFriend = from["avatar"];
+      friend.retrievedAvatar = true;
+      friend.setFriendAvatar(base64Decode(avatarFriend.replaceAll("\n", "")));
       currentUser.addFriend(friend);
-      showToastMessage("received a friend request from ${newFriend.getUserName()}");
+      showToastMessage("received a friend request from $username");
     }
   }
 
-  deniedFriendRequest(String from) {
+  deniedFriendRequest(int friendId) {
     User? currentUser = Settings().getUser();
     if (currentUser != null) {
-      currentUser.removeFriend(from);
+      currentUser.removeFriend(friendId);
     }
   }
 
-  acceptFriendRequest(String from) {
+  acceptFriendRequest(Map<String, dynamic> from) {
     User? currentUser = Settings().getUser();
     if (currentUser != null) {
-      currentUser.acceptFriend(from);
-      showToastMessage("$from accepted your friend request");
+      User newFriend = User.fromJson(from);
+      Friend friend = Friend(false, false, newFriend.id, newFriend.getUserName());
+      String avatarFriend = from["avatar"];
+      friend.retrievedAvatar = true;
+      friend.setFriendAvatar(base64Decode(avatarFriend.replaceAll("\n", "")));
+      currentUser.addFriend(friend);
+      showToastMessage("${newFriend.userName} accepted your friend request");
     }
   }
 

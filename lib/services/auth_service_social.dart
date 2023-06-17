@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:age_of_gold/services/models/base_response.dart';
 import 'package:age_of_gold/services/settings.dart';
+import 'package:age_of_gold/views/user_interface/ui_util/chat_messages.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/messages/global_message.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/messages/message.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/messages/personal_message.dart';
@@ -21,14 +22,14 @@ class AuthServiceSocial {
 
   AuthServiceSocial._internal();
 
-  Future<BaseResponse> addFriend(String username) async {
+  Future<BaseResponse> addFriend(int friendId) async {
     String endPoint = "add/friend";
     var response = await AuthApi().dio.post(endPoint,
         options: Options(headers: {
           HttpHeaders.contentTypeHeader: "application/json",
         }),
-        data: jsonEncode(<String, String>{
-          "user_name": username,
+        data: jsonEncode(<String, dynamic>{
+          "user_id": friendId,
         }
       )
     );
@@ -49,33 +50,32 @@ class AuthServiceSocial {
     });
   }
 
-  sendMessageChatLocal(String message, int hexQ, int hexR, int tileQ, int tileR) {
-    sendMessageLocal(message, hexQ, hexR, tileQ, tileR).then((value) {
-      if (value != "success") {
-        // TODO: What to do when it is not successful
-      } else {
-        // The socket should handle the receiving and placing of the message
-      }
-    }).onError((error, stackTrace) {
-      // TODO: What to do on an error?
-    });
-  }
+  // sendMessageChatLocal(String message, int hexQ, int hexR, int tileQ, int tileR) {
+  //   sendMessageLocal(message, hexQ, hexR, tileQ, tileR).then((value) {
+  //     if (value != "success") {
+  //       // TODO: What to do when it is not successful
+  //     } else {
+  //       // The socket should handle the receiving and placing of the message
+  //     }
+  //   }).onError((error, stackTrace) {
+  //     // TODO: What to do on an error?
+  //   });
+  // }
+  //
+  // sendMessageChatGuild(String message, String guildName) {
+  //   sendMessageGuild(message, guildName).then((value) {
+  //     if (value != "success") {
+  //       // TODO: What to do when it is not successful
+  //     } else {
+  //       // The socket should handle the receiving and placing of the message
+  //     }
+  //   }).onError((error, stackTrace) {
+  //     // TODO: What to do on an error?
+  //   });
+  // }
 
-  sendMessageChatGuild(String message, String guildName) {
-    sendMessageGuild(message, guildName).then((value) {
-      if (value != "success") {
-        // TODO: What to do when it is not successful
-      } else {
-        // The socket should handle the receiving and placing of the message
-      }
-    }).onError((error, stackTrace) {
-      // TODO: What to do on an error?
-    });
-  }
-
-  sendMessageChatPersonal(String message, String userTo) {
-    print("sending message personal $message");
-    sendMessagePersonal(message, userTo).then((value) {
+  sendMessageChatPersonal(String message, int userId) {
+    sendMessagePersonal(message, userId).then((value) {
       if (value != "success") {
         // TODO: What to do when it is not successful
       } else {
@@ -110,68 +110,68 @@ class AuthServiceSocial {
     }
   }
 
-  Future<String> sendMessageLocal(String message, int hexQ, int hexR, int tileQ, int tileR) async {
-    String endPoint = "send/message/local";
-    var response = await AuthApi().dio.post(endPoint,
-        options: Options(headers: {
-          HttpHeaders.contentTypeHeader: "application/json",
-        }),
-        data: jsonEncode(<String, String>{
-          "message": message,
-          "hex_q": hexQ.toString(),
-          "hex_r": hexR.toString(),
-          "tile_q": tileQ.toString(),
-          "tile_r": tileR.toString()
-        }
-      )
-    );
+  // Future<String> sendMessageLocal(String message, int hexQ, int hexR, int tileQ, int tileR) async {
+  //   String endPoint = "send/message/local";
+  //   var response = await AuthApi().dio.post(endPoint,
+  //       options: Options(headers: {
+  //         HttpHeaders.contentTypeHeader: "application/json",
+  //       }),
+  //       data: jsonEncode(<String, String>{
+  //         "message": message,
+  //         "hex_q": hexQ.toString(),
+  //         "hex_r": hexR.toString(),
+  //         "tile_q": tileQ.toString(),
+  //         "tile_r": tileR.toString()
+  //       }
+  //     )
+  //   );
+  //
+  //   Map<String, dynamic> json = response.data;
+  //   if (!json.containsKey("result")) {
+  //     return "an error occurred";
+  //   } else {
+  //     if (json["result"]) {
+  //       return "success";
+  //     } else {
+  //       return json["message"];
+  //     }
+  //   }
+  // }
+  //
+  // Future<String> sendMessageGuild(String message, String guildName) async {
+  //   String endPoint = "send/message/guild";
+  //   var response = await AuthApi().dio.post(endPoint,
+  //       options: Options(headers: {
+  //         HttpHeaders.contentTypeHeader: "application/json",
+  //       }),
+  //       data: jsonEncode(<String, String>{
+  //         "message": message,
+  //         "guild_name": guildName
+  //       }
+  //     )
+  //   );
+  //
+  //   Map<String, dynamic> json = response.data;
+  //   if (!json.containsKey("result")) {
+  //     return "an error occurred";
+  //   } else {
+  //     if (json["result"]) {
+  //       return "success";
+  //     } else {
+  //       return json["message"];
+  //     }
+  //   }
+  // }
 
-    Map<String, dynamic> json = response.data;
-    if (!json.containsKey("result")) {
-      return "an error occurred";
-    } else {
-      if (json["result"]) {
-        return "success";
-      } else {
-        return json["message"];
-      }
-    }
-  }
-
-  Future<String> sendMessageGuild(String message, String guildName) async {
-    String endPoint = "send/message/guild";
-    var response = await AuthApi().dio.post(endPoint,
-        options: Options(headers: {
-          HttpHeaders.contentTypeHeader: "application/json",
-        }),
-        data: jsonEncode(<String, String>{
-          "message": message,
-          "guild_name": guildName
-        }
-      )
-    );
-
-    Map<String, dynamic> json = response.data;
-    if (!json.containsKey("result")) {
-      return "an error occurred";
-    } else {
-      if (json["result"]) {
-        return "success";
-      } else {
-        return json["message"];
-      }
-    }
-  }
-
-  Future<String> sendMessagePersonal(String message, String toUser) async {
+  Future<String> sendMessagePersonal(String message, int userId) async {
     String endPoint = "send/message/personal";
     var response = await AuthApi().dio.post(endPoint,
         options: Options(headers: {
           HttpHeaders.contentTypeHeader: "application/json",
         }),
-        data: jsonEncode(<String, String>{
+        data: jsonEncode(<String, dynamic>{
           "message": message,
-          "to_user": toUser
+          "user_id": userId
         }
       )
     );
@@ -230,14 +230,14 @@ class AuthServiceSocial {
     }
   }
 
-  Future<List<PersonalMessage>?> getMessagePersonal(String userGet, int page) async {
+  Future<List<PersonalMessage>?> getMessagePersonal(ChatData userGet, int page) async {
     String endPoint = "get/message/personal?page=$page&size=$pageSize";
     var response = await AuthApi().dio.post(endPoint,
         options: Options(headers: {
           HttpHeaders.contentTypeHeader: "application/json",
         }),
-        data: jsonEncode(<String, String>{
-          "user_get": userGet
+        data: jsonEncode(<String, dynamic>{
+          "user_get_id": userGet.senderId
         }
       )
     );
@@ -254,18 +254,18 @@ class AuthServiceSocial {
         }
         List<PersonalMessage> messageList = [];
         for (Map<String, dynamic> message in json["items"]) {
-          if (Settings().getUser() != null) {
+          User? userMe = Settings().getUser();
+          if (userMe != null) {
             int userId = message["user_id"];
             // int receiverId = message["receiver_id"];
-            int myId = Settings().getUser()!.getId();
+            int myId = userMe.getId();
             bool me = myId == userId;
 
-            String senderName = userGet;
-            String usersName = Settings().getUser()!.getUserName();
-            String to = usersName;
+            String senderName = userGet.name;
+            String to = userMe.getUserName();
             if (me) {
-              senderName = usersName;
-              to = userGet;
+              senderName = userMe.getUserName();
+              to = userGet.name;
             }
 
             String body = message["body"];
@@ -284,14 +284,14 @@ class AuthServiceSocial {
     }
   }
 
-  Future<BaseResponse> readMessagePersonal(String userRead) async {
+  Future<BaseResponse> readMessagePersonal(int userReadId) async {
     String endPoint = "read/message/personal";
     var response = await AuthApi().dio.post(endPoint,
         options: Options(headers: {
           HttpHeaders.contentTypeHeader: "application/json",
         }),
-        data: jsonEncode(<String, String>{
-          "user_read": userRead
+        data: jsonEncode(<String, dynamic>{
+          "user_read_id": userReadId
         }
       )
     );
@@ -328,14 +328,14 @@ class AuthServiceSocial {
     }
   }
 
-  Future<BaseResponse> denyRequest(String username) async {
+  Future<BaseResponse> denyRequest(int userId) async {
     String endPoint = "deny/request";
     var response = await AuthApi().dio.post(endPoint,
         options: Options(headers: {
           HttpHeaders.contentTypeHeader: "application/json",
         }),
-        data: jsonEncode(<String, String>{
-          "user_name": username,
+        data: jsonEncode(<String, dynamic>{
+          "user_id": userId,
         }
       )
     );
@@ -344,14 +344,14 @@ class AuthServiceSocial {
     return baseResponse;
   }
 
-  Future<BaseResponse> acceptRequest(String username) async {
+  Future<BaseResponse> acceptRequest(int userId) async {
     String endPoint = "accept/request";
     var response = await AuthApi().dio.post(endPoint,
         options: Options(headers: {
           HttpHeaders.contentTypeHeader: "application/json",
         }),
-        data: jsonEncode(<String, String>{
-          "user_name": username,
+        data: jsonEncode(<String, dynamic>{
+          "user_id": userId,
         }
       )
     );
@@ -359,5 +359,34 @@ class AuthServiceSocial {
     BaseResponse baseResponse = BaseResponse.fromJson(response.data);
     return baseResponse;
   }
+
+  Future<List?> getFriendAvatars(List<int> friendIds) async {
+    String endPoint = "get/avatars";
+    var response = await AuthApi().dio.post(endPoint,
+        options: Options(headers: {
+          HttpHeaders.contentTypeHeader: "application/json",
+        }),
+        data: jsonEncode(<String, dynamic>{
+          "avatars": friendIds
+        }
+      )
+    );
+
+    Map<String, dynamic> json = response.data;
+    if (!json.containsKey("result")) {
+      return null;
+    } else {
+      if (json["result"]) {
+        if (json.containsKey("avatars")) {
+          return json["avatars"];
+        } else {
+          return null;
+        }
+      } else {
+        return null;
+      }
+    }
+  }
+
 
 }

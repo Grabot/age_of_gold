@@ -138,7 +138,7 @@ class AuthServiceWorld {
           HttpHeaders.contentTypeHeader: "application/json",
         }),
         data: jsonEncode(<String, String>{
-          "user_name": userName,
+          "username": userName,
         }
       )
     );

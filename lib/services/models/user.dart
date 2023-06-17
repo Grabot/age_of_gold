@@ -67,10 +67,14 @@ class User {
   addFriend(Friend friend) {
     // update friend if the username is already in the list
     for (Friend f in friends) {
-      if (f.getUser()!.getUserName().toLowerCase() == friend.getUser()!.getUserName().toLowerCase()) {
+      if (f.getFriendName()!.toLowerCase() == friend.getFriendName()!.toLowerCase()) {
         f.setAccepted(friend.isAccepted());
         f.setRequested(friend.isRequested());
-        f.setUser(friend.getUser());
+        f.setFriendName(friend.getFriendName());
+        f.setUnreadMessages(friend.getUnreadMessages());
+        f.setFriendAvatar(friend.getFriendAvatar());
+        f.setFriendId(friend.getFriendId());
+        f.retrievedAvatar = friend.retrievedAvatar;
         return;
       }
     }
@@ -78,18 +82,8 @@ class User {
     friends.add(friend);
   }
 
-  removeFriend(String username) {
-    friends.removeWhere((friend) => friend.getUser()!.getUserName().toLowerCase() == username.toLowerCase());
-  }
-
-  acceptFriend(String username) {
-    // We find the user in the friends list and set the accepted flag to true.
-    for (Friend friend in friends) {
-      if (friend.getUser()!.getUserName().toLowerCase() == username.toLowerCase()) {
-        friend.setAccepted(true);
-        break;
-      }
-    }
+  removeFriend(int friendId) {
+    friends.removeWhere((friend) => friend.getFriendId() == friendId);
   }
 
   User.fromJson(Map<String, dynamic> json) {

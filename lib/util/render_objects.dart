@@ -4,26 +4,40 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 
 
-Widget avatarBox(double avatarBoxWidth, double avatarBoxHeight, Uint8List avatar) {
+Widget getAvatar(double avatarBoxWidth, double avatarBoxHeight, Uint8List? avatar) {
+  if (avatar != null) {
+    return Image.memory(
+      avatar,
+      width: avatarBoxWidth * 0.785,  // some scale that I determined by trial and error
+      height: avatarBoxHeight * 0.785,  // some scale that I determined by trial and error
+      gaplessPlayback: true,
+      fit: BoxFit.cover,
+    );
+  } else {
+    return Image.asset(
+      "assets/images/default_avatar.png",
+      width: avatarBoxWidth,
+      height: avatarBoxHeight,
+      gaplessPlayback: true,
+      fit: BoxFit.cover,
+    );
+  }
+}
+
+Widget avatarBox(double avatarBoxWidth, double avatarBoxHeight, Uint8List? avatar) {
   return Stack(
     children: [
-      Container(
+      SizedBox(
         width: avatarBoxWidth,
         height: avatarBoxHeight,
         child: Center(
           child: ClipPath(
               clipper: HexagonClipper(),
-              child: Image.memory(
-                avatar,
-                width: avatarBoxWidth * 0.785,  // some scale that I determined by trial and error
-                height: avatarBoxHeight * 0.785,  // some scale that I determined by trial and error
-                gaplessPlayback: true,
-                fit: BoxFit.cover,
-              )
+              child: getAvatar(avatarBoxWidth, avatarBoxHeight, avatar)
           )
         ),
       ),
-      Container(
+      SizedBox(
           width: avatarBoxWidth,
           height: avatarBoxHeight,
           child: Center(

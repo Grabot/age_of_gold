@@ -151,6 +151,7 @@ class ChatMessages extends ChangeNotifier {
         // If the chatbox is open on this user we don't set the unreadMessage
         if (messageUser != other) {
           chatData.unreadMessages += 1;
+          setDateTiles(personalMessages[chatData.name]!, true);
         }
         found = true;
       }
@@ -179,11 +180,12 @@ class ChatMessages extends ChangeNotifier {
     PersonalMessage newMessage = PersonalMessage(1, from, message, me, messageTime, false, to);
     // Add it to both the chatMessages and the personalMessages
     chatMessages.add(newMessage);
+    setDateTiles(chatMessages, false);
     addChatToPersonalMessages(from, senderId, to, newMessage);
     newGlobalMessageEvent(newMessage);
 
     if (!me) {
-      checkReadPersonalMessage(from);
+      checkReadPersonalMessage(senderId);
     }
   }
 
@@ -220,13 +222,13 @@ class ChatMessages extends ChangeNotifier {
   }
 
   retrievePersonalMessages(ChatData chatData) {
-    AuthServiceSocial().getMessagePersonal(chatData.name, personalMessagePage[chatData.name]!).then((value) {
+    AuthServiceSocial().getMessagePersonal(chatData, personalMessagePage[chatData.name]!).then((value) {
       if (value != null) {
         combinePersonalMessages(chatData, value);
         setDateTiles(personalMessages[chatData.name]!, true);
         chatData.unreadMessages = 0;
         // send a trigger that the messages are read.
-        AuthServiceSocial().readMessagePersonal(chatData.name).then((value) {});
+        AuthServiceSocial().readMessagePersonal(chatData.senderId).then((value) {});
         ProfileChangeNotifier().notify();
         dropdownMenuItems = buildDropdownMenuItems();
         personalMessageRetrieved[chatData.name] = true;
@@ -252,11 +254,11 @@ class ChatMessages extends ChangeNotifier {
     print("retrieving more messages");
   }
 
-  checkReadPersonalMessage(String from) {
+  checkReadPersonalMessage(int fromId) {
     if (activateChatTab == "Personal") {
-      if (selectedChatData != null && selectedChatData!.name == from) {
+      if (selectedChatData != null && selectedChatData!.senderId == fromId) {
         // new message while window open. Immediately read message
-        AuthServiceSocial().readMessagePersonal(from).then((value) {});
+        AuthServiceSocial().readMessagePersonal(fromId).then((value) {});
       }
     }
   }
@@ -381,8 +383,8 @@ class ChatMessages extends ChangeNotifier {
       for (Friend friend in friends) {
         if (friend.isAccepted() || friend.unreadMessages != 0) {
           addChatRegion(
-              friend.getUser()!.getUserName(),
-              friend.getUser()!.getId(),
+              friend.getFriendName()!,
+              friend.getFriendId()!,
               friend.unreadMessages!,
               friend.isAccepted()
           );

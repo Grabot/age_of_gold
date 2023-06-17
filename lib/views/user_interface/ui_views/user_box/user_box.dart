@@ -83,7 +83,7 @@ class UserBoxState extends State<UserBox> with TickerProviderStateMixin {
       if (value.getResult()) {
         User? currentUser = Settings().getUser();
         User newFriend = userBoxChangeNotifier.getUser()!;
-        Friend friend = Friend(false, true, newFriend);
+        Friend friend = Friend(false, true, 0, newFriend.getUserName());
         if (value.getMessage() == "success") {
           if (currentUser != null) {
             friend.setRequested(true);
@@ -91,15 +91,15 @@ class UserBoxState extends State<UserBox> with TickerProviderStateMixin {
             setState(() {
             });
           }
-          showToastMessage("Friend request sent to ${friend.getUser()!.getUserName()}");
+          showToastMessage("Friend request sent to ${friend.getFriendName()}");
         } else if (value.getMessage() == "request already sent") {
-          showToastMessage("Friend request has already been sent to ${friend.getUser()!.getUserName()}");
+          showToastMessage("Friend request has already been sent to ${friend.getFriendName()}");
         } else if (value.getMessage() == "They are now friends") {
           setState(() {
             friend.setAccepted(true);
             friend.setRequested(false);
             currentUser!.addFriend(friend);
-            showToastMessage("You are now friends with ${friend.getUser()!.getUserName()}");
+            showToastMessage("You are now friends with ${friend.getFriendName()}");
           });
         } else {
           showToastMessage(value.getMessage());

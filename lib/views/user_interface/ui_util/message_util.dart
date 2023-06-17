@@ -305,13 +305,12 @@ Widget chatTextField(double chatBoxWidth, double chatTextFieldHeight, bool visib
 
 sendMessage(String message, String activeTab, GlobalKey<FormState> chatFormKey, ChatData? selectedChatData) {
   if (chatFormKey.currentState!.validate()) {
-    String? toUser;
     if (activeTab == "World") {
       AuthServiceSocial().sendMessageChatGlobal(message);
     } else if (activeTab == "Personal") {
       if (selectedChatData != null) {
-        toUser = selectedChatData.name;
-        AuthServiceSocial().sendMessageChatPersonal(message, toUser);
+        int toUserid = selectedChatData.senderId;
+        AuthServiceSocial().sendMessageChatPersonal(message, toUserid);
       }
     }
   }
