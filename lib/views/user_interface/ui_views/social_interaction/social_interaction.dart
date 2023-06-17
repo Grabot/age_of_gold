@@ -227,15 +227,16 @@ class SocialInteractionState extends State<SocialInteraction> with TickerProvide
     );
   }
 
-  Widget profileOverviewMobile(double profileOverviewWidth, double profileOverviewHeight, double fontSize) {
+  Widget profileOverviewMobile(double fontSize) {
     double statusBarPadding = MediaQuery.of(context).viewPadding.top;
+    double totalWidth = MediaQuery.of(context).size.width;
     return Container(
       child: Column(
         children: [
-          SizedBox(height: statusBarPadding),
+          SizedBox(height: statusBarPadding+5),
           Row(
             children: [
-              SizedBox(width: profileOverviewWidth/2),
+              SizedBox(width: totalWidth/2),
               SizedBox(width: 5),
               friendOverviewButton(30),
               SizedBox(width: 5),
@@ -259,8 +260,16 @@ class SocialInteractionState extends State<SocialInteraction> with TickerProvide
     profileOverviewHeight += 10 * 2;
     normalMode = true;
     if (MediaQuery.of(context).size.width <= 800) {
-      profileOverviewWidth = MediaQuery.of(context).size.width;
-      profileOverviewHeight = 50;
+      profileOverviewWidth = MediaQuery.of(context).size.width/2;
+      profileOverviewWidth += 30;
+      profileOverviewWidth += 30;
+      profileOverviewWidth += 10;
+      profileOverviewWidth += 10;
+
+      double statusBarPadding = MediaQuery.of(context).viewPadding.top;
+      profileOverviewHeight = statusBarPadding + 30;
+      profileOverviewHeight += 5;
+
       normalMode = false;
     }
 
@@ -272,7 +281,7 @@ class SocialInteractionState extends State<SocialInteraction> with TickerProvide
           alignment: FractionalOffset.topLeft,
           child: normalMode
               ? profileOverviewNormal(profileOverviewWidth, profileOverviewHeight, fontSize)
-              : profileOverviewMobile(profileOverviewWidth, profileOverviewHeight, fontSize)
+              : profileOverviewMobile(fontSize)
         ),
       ),
     );

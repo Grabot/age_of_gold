@@ -275,7 +275,7 @@ class ProfileOverviewState extends State<ProfileOverview> with TickerProviderSta
             children: [
               Column(
                 children: [
-                  profileWidget(profileOverviewWidth/2, profileOverviewHeight),
+                  profileWidget(profileOverviewWidth, profileOverviewHeight),
                 ],
               ),
               SizedBox(width: 5),
@@ -296,19 +296,20 @@ class ProfileOverviewState extends State<ProfileOverview> with TickerProviderSta
     normalMode = true;
     if (MediaQuery.of(context).size.width <= 800) {
       profileOverviewWidth = MediaQuery.of(context).size.width/2;
+      profileOverviewWidth += 5;
       profileOverviewHeight = 50;
       normalMode = false;
     }
 
     return SingleChildScrollView(
-      child: Container(
+      child: SizedBox(
         width: profileOverviewWidth,
         height: profileOverviewHeight,
         child: Align(
           alignment: FractionalOffset.topLeft,
           child: normalMode
               ? profileOverviewNormal(profileOverviewWidth, profileOverviewHeight, fontSize)
-              : profileOverviewMobile(profileOverviewWidth, profileOverviewHeight, fontSize)
+              : profileOverviewMobile(profileOverviewWidth-5, profileOverviewHeight, fontSize)
         ),
       ),
     );
