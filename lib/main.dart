@@ -9,6 +9,7 @@ import 'package:age_of_gold/views/home_page.dart';
 import 'package:age_of_gold/views/login_screen.dart';
 import 'package:age_of_gold/views/password_reset_page.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/change_avatar_box/change_avatar_box.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/social_interaction/social_interaction.dart';
 import 'package:age_of_gold/views/world_access_page.dart';
 import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
@@ -50,6 +51,7 @@ Future<void> main() async {
           'tileBox': _tileBoxBuilder,
           'profileBox': _profileBoxBuilder,
           'profileOverview': _profileOverviewBuilder,
+          'socialInteraction': _socialInteractionBuilder,
           'changeAvatar': _changeAvatarBoxBuilder,
           'chatWindow': _chatWindowBuilder,
           'friendWindow': _friendWindowBuilder,
@@ -61,6 +63,7 @@ Future<void> main() async {
           'tileBox',
           'profileBox',
           'profileOverview',
+          'socialInteraction',
           'changeAvatar',
           'chatWindow',
           'friendWindow',
@@ -148,6 +151,10 @@ Widget _profileBoxBuilder(BuildContext buildContext, AgeOfGold game) {
 
 Widget _profileOverviewBuilder(BuildContext buildContext, AgeOfGold game) {
   return ProfileOverview(key: UniqueKey(), game: game);
+}
+
+Widget _socialInteractionBuilder(BuildContext buildContext, AgeOfGold game) {
+  return SocialInteraction(key: UniqueKey(), game: game);
 }
 
 Widget _userBoxBuilder(BuildContext buildContext, AgeOfGold game) {

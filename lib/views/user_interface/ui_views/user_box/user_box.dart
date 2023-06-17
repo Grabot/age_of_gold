@@ -29,7 +29,7 @@ class UserBoxState extends State<UserBox> with TickerProviderStateMixin {
   bool showUser = false;
 
   late UserBoxChangeNotifier userBoxChangeNotifier;
-  String? userViewing;
+  int? userViewingId;
 
   bool isMe = false;
 
@@ -50,7 +50,7 @@ class UserBoxState extends State<UserBox> with TickerProviderStateMixin {
   userBoxChangeListener() {
     if (mounted) {
       if (!showUser && userBoxChangeNotifier.getUserBoxVisible()) {
-        userViewing = userBoxChangeNotifier.getUser()!.getUserName();
+        userViewingId = userBoxChangeNotifier.getUser()!.getId();
         if (Settings().getUser()!.getUserName() == userBoxChangeNotifier.getUser()!.getUserName()) {
           isMe = true;
         } else {
@@ -79,7 +79,7 @@ class UserBoxState extends State<UserBox> with TickerProviderStateMixin {
   }
 
   addFriend() {
-    AuthServiceSocial().addFriend(userViewing!).then((value) {
+    AuthServiceSocial().addFriend(userViewingId!).then((value) {
       if (value.getResult()) {
         User? currentUser = Settings().getUser();
         User newFriend = userBoxChangeNotifier.getUser()!;

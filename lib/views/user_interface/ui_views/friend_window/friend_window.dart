@@ -149,6 +149,7 @@ class FriendWindowState extends State<FriendWindow> {
           }
           retrieveFriendAvatars(me);
         }
+        checkUnansweredFriendRequests();
         setState(() {
           showFriendWindow = true;
         });

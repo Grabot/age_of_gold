@@ -72,8 +72,6 @@ class ProfileOverviewState extends State<ProfileOverview> with TickerProviderSta
     );
     _controller.forward();
     updateTimeLock();
-    checkUnansweredFriendRequests();
-    checkUnreadMessages();
   }
 
   @override
@@ -126,27 +124,8 @@ class ProfileOverviewState extends State<ProfileOverview> with TickerProviderSta
     );
   }
 
-  checkUnansweredFriendRequests() {
-    unansweredFriendRequests = false;
-    if (Settings().getUser() != null) {
-      User currentUser = Settings().getUser()!;
-      for (Friend friend in currentUser.friends) {
-        if (!friend.isAccepted() && friend.requested != null && friend.requested == false) {
-          unansweredFriendRequests = true;
-          break;
-        }
-      }
-    }
-  }
-
-  checkUnreadMessages() {
-    unreadMessages = ChatMessages().unreadPersonalMessages();
-  }
-
   socketListener() {
     if (mounted) {
-      checkUnansweredFriendRequests();
-      checkUnreadMessages();
       updateTimeLock();
       friendOverviewState = 0;
       messageOverviewState = 0;
@@ -180,8 +159,6 @@ class ProfileOverviewState extends State<ProfileOverview> with TickerProviderSta
 
   profileChangeListener() {
     if (mounted) {
-      checkUnansweredFriendRequests();
-      checkUnreadMessages();
       setState(() {});
     }
   }
@@ -272,107 +249,9 @@ class ProfileOverviewState extends State<ProfileOverview> with TickerProviderSta
     );
   }
 
-  Widget friendOverviewButton(double profileButtonSize) {
-    return Container(
-      child: Row(
-        children: [
-          SizedBox(width: 5),
-          Tooltip(
-            message: "Socials",
-            child: InkWell(
-              onHover: (value) {
-                setState(() {
-                  friendOverviewState = value ? 1 : 0;
-                });
-              },
-              onTap: () {
-                setState(() {
-                  friendOverviewState = 2;
-                });
-                openFriendWindow();
-              },
-              child: Stack(
-                children: [
-                  Container(
-                    width: profileButtonSize,
-                    height: profileButtonSize,
-                    child: ClipOval(
-                      child: Material(
-                        color: overviewColour(friendOverviewState),
-                      )
-                    ),
-                  ),
-                  Image.asset(
-                    "assets/images/ui/icon/friend_icon_clean.png",
-                    width: profileButtonSize,
-                    height: profileButtonSize,
-                  ),
-                  unansweredFriendRequests ? Image.asset(
-                    "assets/images/ui/icon/update_notification.png",
-                    width: profileButtonSize,
-                    height: profileButtonSize,
-                  ) : Container(),
-                ],
-              ),
-            ),
-          ),
-        ]
-      ),
-    );
-  }
-
   showChatWindow() {
     ChatBoxChangeNotifier().setChatBoxVisible(false);
     ChatWindowChangeNotifier().setChatWindowVisible(true);
-  }
-
-  Widget messageOverviewButton(double messageButtonSize) {
-    return Container(
-      child: Row(
-          children: [
-            SizedBox(width: 5),
-            Tooltip(
-              message: "messages",
-              child: InkWell(
-                onHover: (value) {
-                  setState(() {
-                    messageOverviewState = value ? 1 : 0;
-                  });
-                },
-                onTap: () {
-                  setState(() {
-                    messageOverviewState = 2;
-                  });
-                  showChatWindow();
-                },
-                child: Stack(
-                  children: [
-                    Container(
-                      width: messageButtonSize,
-                      height: messageButtonSize,
-                      child: ClipOval(
-                          child: Material(
-                            color: overviewColour(messageOverviewState),
-                          )
-                      ),
-                    ),
-                    Image.asset(
-                      "assets/images/ui/icon/message_icon_clean.png",
-                      width: messageButtonSize,
-                      height: messageButtonSize,
-                    ),
-                    unreadMessages ? Image.asset(
-                      "assets/images/ui/icon/update_notification.png",
-                      width: messageButtonSize,
-                      height: messageButtonSize,
-                    ) : Container(),
-                  ],
-                ),
-              ),
-            ),
-          ]
-      ),
-    );
   }
 
   Widget profileOverviewNormal(double profileOverviewWidth, double profileOverviewHeight, double fontSize) {
@@ -381,10 +260,6 @@ class ProfileOverviewState extends State<ProfileOverview> with TickerProviderSta
       child: Column(
         children: [
           profileWidget(profileOverviewWidth, profileAvatarHeight),
-          SizedBox(height: 10),
-          friendOverviewButton(50),
-          SizedBox(height: 10),
-          messageOverviewButton(50)
         ]
       ),
     );
@@ -404,9 +279,6 @@ class ProfileOverviewState extends State<ProfileOverview> with TickerProviderSta
                 ],
               ),
               SizedBox(width: 5),
-              friendOverviewButton(30),
-              SizedBox(width: 5),
-              messageOverviewButton(30)
             ]
           ),
         ]
@@ -421,11 +293,9 @@ class ProfileOverviewState extends State<ProfileOverview> with TickerProviderSta
     // We use the total height to hide the chatbox below
     // In NormalMode the height has the 2 buttons and some padding added.
     double profileOverviewHeight = 100;
-    profileOverviewHeight += 50 * 2;
-    profileOverviewHeight += 10 * 2;
     normalMode = true;
     if (MediaQuery.of(context).size.width <= 800) {
-      profileOverviewWidth = MediaQuery.of(context).size.width;
+      profileOverviewWidth = MediaQuery.of(context).size.width/2;
       profileOverviewHeight = 50;
       normalMode = false;
     }
