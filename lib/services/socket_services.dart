@@ -1,10 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:typed_data';
+import 'package:age_of_gold/services/auth_service_social.dart';
 import 'package:age_of_gold/services/models/user.dart';
 import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/util/util.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/chat_messages.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/selected_tile_info.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/profile_box/profile_change_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 import '../component/hexagon.dart';
@@ -65,10 +68,34 @@ class SocketServices extends ChangeNotifier {
     });
 
     socket.on('message_event', (data) {
-      print("message_event: $data");
+      checkMessageEvent(data);
     });
 
     socket.open();
+  }
+
+  retrieveAvatar() {
+    AuthServiceWorld().getAvatarUser().then((value) {
+      if (value != null) {
+        Uint8List avatar = base64Decode(value.replaceAll("\n", ""));
+        Settings().setAvatar(avatar);
+        if (Settings().getUser() != null) {
+          Settings().getUser()!.setAvatar(avatar);
+        }
+        ProfileChangeNotifier().notify();
+      }
+    }).onError((error, stackTrace) {
+      // TODO: What to do on an error? Reset?
+      print("error: $error");
+    });
+  }
+
+  void checkMessageEvent(data) {
+    if (data == "Avatar creation done!") {
+      retrieveAvatar();
+    } else {
+      // print("message_event: $data");
+    }
   }
 
   void joinHexRoom(Hexagon hex) {

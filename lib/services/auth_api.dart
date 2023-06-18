@@ -42,7 +42,6 @@ class AppInterceptors extends Interceptor {
   @override
   void onRequest(
       RequestOptions options, RequestInterceptorHandler handler) async {
-    print("on request! :D");
     Settings settings = Settings();
     int expiration = settings.getAccessTokenExpiration();
     if (expiration == 0) {
@@ -67,12 +66,11 @@ class AppInterceptors extends Interceptor {
                 error: "User not authorized");
             return handler.reject(dioError, true);
           } else {
-            print("on request second! >:(");
             settings.setLoggingIn(true);
             String endPoint = "refresh";
             var response = await Dio(
                 BaseOptions(
-                  baseUrl: baseUrlV1_0,
+                  baseUrl: apiUrlV1_0,
                   receiveTimeout: const Duration(milliseconds: 15000),
                   connectTimeout: const Duration(milliseconds: 15000),
                   sendTimeout: const Duration(milliseconds: 15000),
@@ -92,7 +90,6 @@ class AppInterceptors extends Interceptor {
             LoginResponse loginRefresh = LoginResponse.fromJson(response.data);
             if (loginRefresh.getResult()) {
               accessToken = loginRefresh.getAccessToken();
-              print("successfull login auth api");
               successfulLogin(loginRefresh);
             } else {
               DioError dioError = DioError(requestOptions: options,

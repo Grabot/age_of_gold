@@ -115,7 +115,7 @@ class User {
       tileLock = DateTime.now();
     }
 
-    if (json.containsKey("avatar")) {
+    if (json.containsKey("avatar") && json["avatar"] != null) {
       avatar = base64Decode(json["avatar"].replaceAll("\n", ""));
     }
   }

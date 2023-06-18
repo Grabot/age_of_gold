@@ -1,8 +1,9 @@
 import 'dart:convert';
-import 'dart:io';
 import 'dart:math';
+
 import 'package:age_of_gold/age_of_gold.dart';
 import 'package:age_of_gold/component/tile.dart';
+import 'package:age_of_gold/constants/route_paths.dart' as routes;
 import 'package:age_of_gold/services/models/login_response.dart';
 import 'package:age_of_gold/services/socket_services.dart';
 import 'package:age_of_gold/util/hexagon_list.dart';
@@ -11,14 +12,14 @@ import 'package:age_of_gold/views/user_interface/ui_util/chat_messages.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/profile_box/profile_change_notifier.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
-import 'package:oktoast/oktoast.dart';
 import 'package:jwt_decode/jwt_decode.dart';
+import 'package:oktoast/oktoast.dart';
 import 'package:tuple/tuple.dart';
+
 import '../component/hexagon.dart';
+import '../constants/global.dart';
 import '../services/models/user.dart';
 import '../services/settings.dart';
-import '../constants/global.dart';
-import 'package:age_of_gold/constants/route_paths.dart' as routes;
 import 'navigation_service.dart';
 
 
