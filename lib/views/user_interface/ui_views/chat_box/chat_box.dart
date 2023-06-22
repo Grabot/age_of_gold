@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:age_of_gold/age_of_gold.dart';
 import 'package:age_of_gold/services/auth_service_world.dart';
 import 'package:age_of_gold/services/settings.dart';
@@ -48,6 +50,8 @@ class ChatBoxState extends State<ChatBox> {
   int currentTileQ = 0;
   int currentTileR = 0;
 
+  late Timer chatBoxTimer;
+
   @override
   void initState() {
     chatBoxChangeNotifier = ChatBoxChangeNotifier();
@@ -60,6 +64,7 @@ class ChatBoxState extends State<ChatBox> {
     _focusChatBox.addListener(_onFocusChange);
     chatMessages.setActiveChatTab("");
 
+    chatBoxTimer = Timer(Duration(seconds: 0), () {});
     super.initState();
   }
 
@@ -77,6 +82,26 @@ class ChatBoxState extends State<ChatBox> {
     }
   }
 
+  int chatBoxOpenTime = 30;
+  tileBoxOpen() {
+    tileBoxVisible = true;
+    ChatBoxChangeNotifier().setChatBoxVisible(true);
+    chatBoxTimer = Timer(Duration(seconds: chatBoxOpenTime), () {
+      setState(() {
+        tileBoxVisible = false;
+      });
+    });
+  }
+
+  resetTimer() {
+    chatBoxTimer.cancel();
+    chatBoxTimer = Timer(Duration(seconds: chatBoxOpenTime), () {
+      setState(() {
+        tileBoxVisible = false;
+      });
+    });
+  }
+
   chatBoxChangeListener() {
     if (mounted) {
       if (!normalMode) {
@@ -91,8 +116,6 @@ class ChatBoxState extends State<ChatBox> {
           userInteraction(true, chatBoxChangeNotifier.getChatUser()!.getId(), chatBoxChangeNotifier.getChatUser()!.getUserName());
           chatMessages.setActiveChatTab("Personal");
         }
-        tileBoxVisible = true;
-        ChatBoxChangeNotifier().setChatBoxVisible(true);
       }
       if (tileBoxVisible && !chatBoxChangeNotifier.getChatBoxVisible()) {
         tileBoxVisible = false;
@@ -134,9 +157,9 @@ class ChatBoxState extends State<ChatBox> {
 
   pressedChatTab(String tabName) {
     print("pressed chat tab");
+    resetTimer();
     if (!tileBoxVisible) {
-      tileBoxVisible = true;
-      ChatBoxChangeNotifier().setChatBoxVisible(true);
+      tileBoxOpen();
     }
     setState(() {
       chatMessages.setActiveChatTab(tabName);
@@ -216,8 +239,7 @@ class ChatBoxState extends State<ChatBox> {
         onPressed: () {
           setState(() {
             readMessages();
-            tileBoxVisible = true;
-            ChatBoxChangeNotifier().setChatBoxVisible(true);
+            tileBoxOpen();
           });
         },
     ),
@@ -327,12 +349,16 @@ class ChatBoxState extends State<ChatBox> {
                 ),
               ),
               !isEvent && userLoggedIn
-                  ? chatTextField(chatBoxWidth, chatTextFieldHeight, tileBoxVisible, chatMessages.getActiveChatTab(), _chatFormKey, _focusChatBox, chatFieldController, chatMessages.getSelectedChatData())
+                  ? chatTextField(chatBoxWidth, chatTextFieldHeight, tileBoxVisible, chatMessages.getActiveChatTab(), _chatFormKey, _focusChatBox, chatFieldController, chatMessages.getSelectedChatData(), onChangedField)
                   : Container()
             ]
         ),
       ),
     );
+  }
+
+  onChangedField(String text) {
+    resetTimer();
   }
 
   Widget mobileMinimized(double chatBoxWidth, double topBarHeight, double fontSize) {
@@ -393,7 +419,7 @@ class ChatBoxState extends State<ChatBox> {
             ),
           ),
           !isEvent && userLoggedIn
-              ? chatTextField(chatBoxWidth, chatTextFieldHeight, tileBoxVisible, chatMessages.getActiveChatTab(), _chatFormKey, _focusChatBox, chatFieldController, chatMessages.getSelectedChatData())
+              ? chatTextField(chatBoxWidth, chatTextFieldHeight, tileBoxVisible, chatMessages.getActiveChatTab(), _chatFormKey, _focusChatBox, chatFieldController, chatMessages.getSelectedChatData(), onChangedField)
               : Container()
         ],
       ),
@@ -478,8 +504,7 @@ class ChatBoxState extends State<ChatBox> {
     setState(() {
       if (selectedChat != null) {
         if (!tileBoxVisible) {
-          tileBoxVisible = true;
-          ChatBoxChangeNotifier().setChatBoxVisible(true);
+          tileBoxOpen();
         }
         // There is a placeholder text when there are no chats active
         // If the user decides to click this anyway it will do nothing
@@ -521,8 +546,7 @@ class ChatBoxState extends State<ChatBox> {
       }
       chatMessages.setActiveChatTab("Personal");
       if (normalMode && !tileBoxVisible) {
-        tileBoxVisible = true;
-        ChatBoxChangeNotifier().setChatBoxVisible(true);
+        tileBoxOpen();
       } else if (!normalMode) {
         showChatWindow();
       }

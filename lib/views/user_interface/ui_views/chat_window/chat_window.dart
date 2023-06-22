@@ -539,10 +539,14 @@ class ChatWindowState extends State<ChatWindow> {
             child: messageList(chatMessages.shownMessages, messageScrollController, userInteraction, chatMessages.getSelectedChatData(), isEvent, true, fontSize, false)
         ),
         !isEvent
-            ? chatTextField(rightColumnWidth, chatTextFieldHeight, true, chatMessages.getActiveChatTab(), _chatFormKey, _focusChatWindow, chatFieldController, chatMessages.getSelectedChatData())
+            ? chatTextField(rightColumnWidth, chatTextFieldHeight, true, chatMessages.getActiveChatTab(), _chatFormKey, _focusChatWindow, chatFieldController, chatMessages.getSelectedChatData(), onChangedField)
             : Container()
       ],
     );
+  }
+
+  onChangedField(String text) {
+    // do nothing
   }
 
   Widget chatWindowNormal(double chatWindowWidth, double chatWindowHeight, double fontSize) {

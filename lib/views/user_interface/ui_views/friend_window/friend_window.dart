@@ -191,8 +191,11 @@ class FriendWindowState extends State<FriendWindow> {
       if (value != null) {
         print("found friend");
         nothingFound = false;
+        User newFriend = value;
         setState(() {
           possibleNewFriend = Friend(false, null, 0, value.getUserName());
+          possibleNewFriend!.setFriendId(newFriend.getId());
+          possibleNewFriend!.setFriendAvatar(newFriend.getAvatar());
         });
       } else {
         setState(() {

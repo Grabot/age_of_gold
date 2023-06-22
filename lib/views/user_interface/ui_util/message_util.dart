@@ -239,7 +239,7 @@ class MessageTileState extends State<MessageTile> {
   }
 }
 
-Widget chatTextField(double chatBoxWidth, double chatTextFieldHeight, bool visible, String activeTab, GlobalKey<FormState> chatFormKey, FocusNode focusChatBox, TextEditingController chatFieldController, ChatData? selectedChatData) {
+Widget chatTextField(double chatBoxWidth, double chatTextFieldHeight, bool visible, String activeTab, GlobalKey<FormState> chatFormKey, FocusNode focusChatBox, TextEditingController chatFieldController, ChatData? selectedChatData, Function(String) onChangedField) {
   double sendButtonWidth = 35;
   double regionSpacing = 10;
   if (visible) {
@@ -262,6 +262,9 @@ Widget chatTextField(double chatBoxWidth, double chatTextFieldHeight, bool visib
                       return "Can't send an empty message";
                     }
                     return null;
+                  },
+                  onChanged: (value) {
+                    onChangedField(value);
                   },
                   enabled: Settings().getUser() != null,
                   onFieldSubmitted: (value) {

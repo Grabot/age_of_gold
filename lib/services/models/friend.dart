@@ -84,6 +84,9 @@ class Friend {
 
   setFriendAvatar(Uint8List? friendAvatar) {
     this.friendAvatar = friendAvatar;
+    if (friendAvatar != null) {
+      retrievedAvatar = true;
+    }
   }
 
   Uint8List? getFriendAvatar() {
