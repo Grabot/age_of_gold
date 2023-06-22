@@ -159,6 +159,8 @@ class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
             selectedTileInfo.setLastChangedTime(DateTime.now());
             setState(() {
               selectedTileInfo.setLastChangedBy(settings.getUser()!.getUserName());
+              // Set the tile back to zero so the tilebox will disappear.
+              selectedTileInfo.setCurrentTile(null);
             });
           } else if(value == "not allowed") {
             showToastMessage("Failed to change tile to $tileName");

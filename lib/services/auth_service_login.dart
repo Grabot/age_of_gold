@@ -7,7 +7,6 @@ import '../util/util.dart';
 import 'auth_api.dart';
 import 'models/base_response.dart';
 import 'models/login_request.dart';
-import 'models/refresh_request.dart';
 import 'settings.dart';
 
 
@@ -55,14 +54,18 @@ class AuthServiceLogin {
     return loginResponse;
   }
 
-  Future<LoginResponse> getRefresh(RefreshRequest refreshRequest) async {
+  Future<LoginResponse> getRefresh(String accessToken, String refreshToken) async {
     Settings().setLoggingIn(true);
     String endPoint = "refresh";
     var response = await AuthApi().dio.post(endPoint,
         options: Options(headers: {
           HttpHeaders.contentTypeHeader: "application/json",
         }),
-        data: refreshRequest.toJson()
+        data: jsonEncode(<String, dynamic> {
+          "access_token": accessToken,
+          "refresh_token": refreshToken
+        }
+      )
     );
 
     LoginResponse loginResponse = LoginResponse.fromJson(response.data);

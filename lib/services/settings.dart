@@ -13,6 +13,7 @@ class Settings extends ChangeNotifier {
   String accessToken = "";
   String refreshToken = "";
   int accessTokenExpiration = 0;
+  int refreshTokenExpiration = 0;
 
   User? user;
 
@@ -37,7 +38,6 @@ class Settings extends ChangeNotifier {
   }
 
   logout() {
-    // TODO: clear messages?
     accessToken = "";
     refreshToken = "";
     accessTokenExpiration = 0;
@@ -94,5 +94,13 @@ class Settings extends ChangeNotifier {
 
   int getAccessTokenExpiration() {
     return accessTokenExpiration;
+  }
+
+  setRefreshTokenExpiration(int refreshTokenExpiration) {
+    this.refreshTokenExpiration = refreshTokenExpiration;
+  }
+
+  int getRefreshTokenExpiration() {
+    return refreshTokenExpiration;
   }
 }

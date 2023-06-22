@@ -115,6 +115,8 @@ successfulLogin(LoginResponse loginResponse) async {
   if (refreshToken != null) {
     // the refresh token will only be set in memory.
     settings.setRefreshToken(refreshToken);
+    settings.setRefreshTokenExpiration(Jwt.parseJwt(refreshToken)['exp']);
+    await secureStorage.setRefreshToken(refreshToken);
   }
 
   User? user = loginResponse.getUser();

@@ -1,6 +1,5 @@
 import 'package:age_of_gold/locator.dart';
 import 'package:age_of_gold/services/auth_service_login.dart';
-import 'package:age_of_gold/services/models/refresh_request.dart';
 import 'package:age_of_gold/util/navigation_service.dart';
 import 'package:flutter/material.dart';
 import '../age_of_gold.dart';

@@ -1,21 +1,19 @@
 import 'package:age_of_gold/component/hexagon.dart';
-import 'package:age_of_gold/constants/route_paths.dart' as routes;
-import 'package:age_of_gold/locator.dart';
-import 'package:age_of_gold/services/auth_service_login.dart';
-import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/constants/global.dart';
+import 'package:age_of_gold/locator.dart';
+import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/services/socket_services.dart';
 import 'package:age_of_gold/util/navigation_service.dart';
 import 'package:age_of_gold/util/tapped_map.dart';
 import 'package:age_of_gold/util/util.dart';
-import 'package:age_of_gold/util/web_storage.dart';
-import 'package:flutter/material.dart';
+import 'package:age_of_gold/world/world.dart';
+import 'package:flame/components.dart';
 import 'package:flame/game.dart';
 import 'package:flame/input.dart';
-import 'package:flame/components.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:universal_html/html.dart' as html;
-import 'package:age_of_gold/world/world.dart';
+
 import 'views/user_interface/ui_views/profile_box/profile_change_notifier.dart';
 
 
@@ -36,6 +34,7 @@ class AgeOfGold extends FlameGame
   // The camera position will always be in the center of the screen
   Vector2 cameraPosition = Vector2.zero();
   Vector2 cameraVelocity = Vector2.zero();
+  Vector2 cameraAcceleration = Vector2.zero();
 
   Vector2 dragAccelerateKey = Vector2.zero();
   Vector2 dragTo = Vector2.zero();
@@ -89,7 +88,6 @@ class AgeOfGold extends FlameGame
     checkHexagonArraySize();
 
     socket = SocketServices();
-    // checkLogIn(_navigationService);
 
     socket!.addListener(socketListener);
     html.window.onBeforeUnload.listen((event) async {
@@ -102,50 +100,6 @@ class AgeOfGold extends FlameGame
 
   endGame() {
     remove(_world!);
-  }
-
-  checkLogIn(NavigationService navigationService) {
-    Settings settings = Settings();
-    print("check login at world");
-    if (settings.getUser() == null) {
-      print("user was not found");
-      // User was not found, maybe not logged in?! or refreshed?!
-      // Find accessToken to quickly fix this.
-      // But maybe the call is already sent out to the server.
-      // This is indicated with the loggingIn flag in settings.
-      if (settings.getLoggingIn()) {
-        // wait
-        print("currently logging in");
-      } else {
-        String accessToken = settings.getAccessToken();
-        if (accessToken != "") {
-          logIn(navigationService, settings, accessToken);
-        } else {
-          // Also no accessToken found in settings. Check the storage.
-          SecureStorage secureStorage = SecureStorage();
-          secureStorage.getAccessToken().then((accessToken) {
-            if (accessToken == null || accessToken == "") {
-              print("just checking out the world?");
-            } else {
-              logIn(navigationService, settings, accessToken);
-            }
-          });
-        }
-      }
-    }
-  }
-
-  logIn(NavigationService navigationService, Settings settings, String accessToken) {
-    AuthServiceLogin authService = AuthServiceLogin();
-    authService.getTokenLogin(accessToken).then((loginResponse) {
-      if (loginResponse.getResult()) {
-        // successfully logged in user has been set in settings.
-        Settings settings = Settings();
-        if (settings.getUser() != null) {
-          socket!.joinRoom(settings.getUser()!.id);
-        }
-      }
-    });
   }
 
   socketListener() {
@@ -327,7 +281,7 @@ class AgeOfGold extends FlameGame
     distanceBetweenFingers = null;
     pointerId1 = -1;
     pointerId2 = -1;
-    dragTo = cameraPosition;
+    // dragTo = cameraPosition;
     _world!.focusWorld();
   }
 
@@ -356,16 +310,6 @@ class AgeOfGold extends FlameGame
       frames = 0;
       worldCheck();
     }
-
-    // This will determine 12 variants in a 60fps game loop
-    // int newVariant = (frameTimes / 0.084).floor();
-    // // It should never exceed 11 (only 12 variants (including 0) for now)
-    // if (variant <= 11) {
-    //   if (variant != newVariant) {
-    //     variant = newVariant;
-    //     _world!.updateVariant(variant);
-    //   }
-    // }
   }
 
   calculateStartPosition(int startHexQ, int startHexR) {
@@ -380,37 +324,38 @@ class AgeOfGold extends FlameGame
   }
 
   void updateMapScroll() {
+    // First limit the dragTo position
+    // This is to ensure that scroll speed won't be too high.
+    double newVelX = dragTo.x - cameraPosition.x;
+    double newVelY = dragTo.y - cameraPosition.y;
+    if (newVelX.abs() > maxSpeed) {
+      double scalarSize = maxSpeed / newVelX.abs();
+      newVelX *= scalarSize;
+      newVelY += scalarSize;
+    }
+    if (newVelY.abs() > maxSpeed) {
+      double scalarSize = maxSpeed / newVelY.abs();
+      newVelY *= scalarSize;
+      newVelY += scalarSize;
+    }
+    dragTo.x += newVelX - (dragTo.x - cameraPosition.x);
+    dragTo.y += newVelY - (dragTo.y - cameraPosition.y);
+
+    // Update the camera speed.
     if ((dragTo.x - cameraPosition.x).abs() < 0.2) {
       cameraPosition.x = dragTo.x;
       cameraVelocity.x = 0;
     } else {
-      cameraVelocity.x = (dragTo.x - cameraPosition.x);
+      double newX = dragTo.x - cameraPosition.x;
+      cameraVelocity.x = newX;
     }
 
     if ((dragTo.y - cameraPosition.y).abs() < 0.2) {
       cameraPosition.y = dragTo.y;
       cameraVelocity.y = 0;
     } else {
-      cameraVelocity.y = (dragTo.y - cameraPosition.y);
-    }
-    clampSpeed();
-  }
-
-  clampSpeed() {
-    if (cameraVelocity.x > cameraVelocity.y) {
-      if (cameraVelocity.x.abs() > maxSpeed) {
-        // If the speed is too large we want to slow it down.
-        double scalarSize = maxSpeed / cameraVelocity.x.abs();
-        cameraVelocity.x = cameraVelocity.x * scalarSize;
-        cameraVelocity.y = cameraVelocity.y * scalarSize;
-      }
-    } else {
-      if (cameraVelocity.y.abs() > maxSpeed) {
-        // If the speed is too large we want to slow it down.
-        double scalarSize = maxSpeed / cameraVelocity.y.abs();
-        cameraVelocity.x = cameraVelocity.x * scalarSize;
-        cameraVelocity.y = cameraVelocity.y * scalarSize;
-      }
+      double newY = dragTo.y - cameraPosition.y;
+      cameraVelocity.y = newY;
     }
   }
 
@@ -435,20 +380,6 @@ class AgeOfGold extends FlameGame
         dragAccelerateKey.y = isKeyDown ? -mouseSpeed : 0;
       } else if (event.logicalKey == LogicalKeyboardKey.keyS) {
         dragAccelerateKey.y = isKeyDown ? mouseSpeed : 0;
-      }
-
-      if (event.logicalKey == LogicalKeyboardKey.keyI && isKeyDown) {
-        AuthServiceLogin authService = AuthServiceLogin();
-        authService.getTest().then((loginResponse) {
-          if (loginResponse.getResult()) {
-            print("it worked");
-          } else if (!loginResponse.getResult()) {
-            print("it failed");
-          }
-        }).onError((error, stackTrace) {
-          print("BIG ERROR! Going straight back to the login screen");
-          _navigationService.navigateTo(routes.HomeRoute);
-        });
       }
 
       if (event.logicalKey == LogicalKeyboardKey.keyP && isKeyDown) {
