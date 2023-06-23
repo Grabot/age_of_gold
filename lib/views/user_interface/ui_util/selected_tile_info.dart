@@ -108,4 +108,8 @@ class SelectedTileInfo extends ChangeNotifier {
       return "no tile selected";
     }
   }
+
+  notify() {
+    notifyListeners();
+  }
 }

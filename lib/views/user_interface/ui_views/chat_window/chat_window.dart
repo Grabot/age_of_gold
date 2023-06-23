@@ -632,6 +632,7 @@ class ChatWindowState extends State<ChatWindow> {
     );
   }
 
+  @override
   Widget build(BuildContext context) {
     return Align(
         alignment: FractionalOffset.center,

@@ -980,6 +980,7 @@ class FriendWindowState extends State<FriendWindow> {
     );
   }
 
+  @override
   Widget build(BuildContext context) {
     return Align(
       alignment: FractionalOffset.center,

@@ -69,6 +69,7 @@ class LoadingBoxState extends State<LoadingBox> {
     );
   }
 
+  @override
   Widget build(BuildContext context) {
     return Align(
       alignment: FractionalOffset.center,

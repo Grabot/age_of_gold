@@ -6,6 +6,7 @@ import 'package:age_of_gold/views/user_interface/ui_util/selected_tile_info.dart
 import 'package:age_of_gold/views/user_interface/ui_views/change_avatar_box/change_avatar_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/chat_window/chat_window_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/loading_box/loading_box_change_notifier.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/map_coordinates/map_coordinates_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/profile_box/profile_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/user_box/user_box_change_notifier.dart';
 import 'package:flame/components.dart';
@@ -36,6 +37,8 @@ class World extends Component {
   int startHexQ;
   int startHexR;
 
+  late MapCoordinatesChangeNotifier mapCoordinatesChangeNotifier = MapCoordinatesChangeNotifier();
+
   World(this.startHexQ, this.startHexR);
 
   @override
@@ -65,7 +68,7 @@ class World extends Component {
   resetClick() {
     mouseTile = null;
     selectedTileInfo.setCurrentTile(null);
-    selectedTileInfo.notifyListeners();
+    selectedTileInfo.notify();
   }
 
   void onTappedUp(Vector2 mouseTapped, Vector2 screenPos) {
@@ -101,8 +104,23 @@ class World extends Component {
     currentVariant = variant;
   }
 
+  int currentCameraQ = 0;
+  int currentCameraR = 0;
+
+  void checkCameraPos(Vector2 cameraPos) {
+    List<int> tileProperties = getTileFromPos(cameraPos.x, cameraPos.y);
+    int q = tileProperties[0];
+    int r = tileProperties[1];
+    if (q != currentCameraQ || r != currentCameraR) {
+      currentCameraQ = q;
+      currentCameraR = r;
+      mapCoordinatesChangeNotifier.setCoordinates([q, r]);
+    }
+  }
+
   updateWorld(Vector2 cameraPos, double zoomLevel, Vector2 worldSize) {
     cameraPosition = cameraPos;
+    checkCameraPos(cameraPos);
 
     zoom = zoomLevel;
 

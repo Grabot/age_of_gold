@@ -415,6 +415,7 @@ class ChangeAvatarBoxState extends State<ChangeAvatarBox> with TickerProviderSta
     );
   }
 
+  @override
   Widget build(BuildContext context) {
     return Align(
       alignment: FractionalOffset.center,

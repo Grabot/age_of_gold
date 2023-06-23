@@ -42,6 +42,8 @@ class Settings extends ChangeNotifier {
     refreshToken = "";
     accessTokenExpiration = 0;
     user = null;
+    avatar = null;
+    loggingIn = false;
   }
 
   setAccessToken(String accessToken) {

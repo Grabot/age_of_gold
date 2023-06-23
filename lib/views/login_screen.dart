@@ -5,15 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
+
 import '../age_of_gold.dart';
 import '../constants/url_base.dart';
 import '../services/auth_service_login.dart';
 import '../services/models/register_request.dart';
-import '../services/settings.dart';
 import '../util/util.dart';
-import 'package:age_of_gold/constants/route_paths.dart' as routes;
-
-import 'user_interface/ui_views/loading_box/loading_box_change_notifier.dart';
 
 
 class LoginScreen extends StatefulWidget {
@@ -88,6 +85,7 @@ class LoginScreenState extends State<LoginScreen> {
       authService.getLogin(LoginRequest(emailOrUserName, password)).then((loginResponse) {
         if (loginResponse.getResult()) {
           print("signing in");
+          messagesShown = [];
           goToGame(_navigationService, widget.game);
         } else if (!loginResponse.getResult()) {
           showToastMessage(loginResponse.getMessage());
@@ -110,6 +108,7 @@ class LoginScreenState extends State<LoginScreen> {
       authService.getRegister(RegisterRequest(email, userName, password)).then((loginResponse) {
         if (loginResponse.getResult()) {
           print("signing up");
+          messagesShown = [];
           goToGame(_navigationService, widget.game);
         } else if (!loginResponse.getResult()) {
           showToastMessage(loginResponse.getMessage());
@@ -664,6 +663,7 @@ class LoginScreenState extends State<LoginScreen> {
         ),
         ElevatedButton(
           onPressed: () {
+            messagesShown = [];
             goToGame(_navigationService, widget.game);
           },
           style: buttonStyle(false, Colors.blue),
@@ -728,15 +728,19 @@ class LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  List<String> messagesShown = [];
   @override
   Widget build(BuildContext context) {
     if (mounted) {
-      final arguments = (ModalRoute
-          .of(context)
-          ?.settings
-          .arguments ?? <String, dynamic>{}) as Map;
+      final arguments = (ModalRoute.of(context)?.settings.arguments ?? <String, dynamic>{}) as Map;
       if (arguments.containsKey('message')) {
-        showToastMessage(arguments['message']);
+        // ugly fix to not show messages constantly at every build
+        String message = arguments["message"];
+        if (!messagesShown.contains(message)) {
+          showToastMessage(arguments['message']);
+          messagesShown.add(arguments["message"]);
+        }
+
       }
     }
 

@@ -9,6 +9,7 @@ import 'package:age_of_gold/views/home_page.dart';
 import 'package:age_of_gold/views/login_screen.dart';
 import 'package:age_of_gold/views/password_reset_page.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/change_avatar_box/change_avatar_box.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/map_coordinates/map_coordinates.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/social_interaction/social_interaction.dart';
 import 'package:age_of_gold/views/world_access_page.dart';
 import 'package:flame/flame.dart';
@@ -42,7 +43,6 @@ Future<void> main() async {
   final game = AgeOfGold(gameFocus);
 
   Widget gameWidget = Scaffold(
-      // appBar: appBarAgeOfGold(),
       body: GameWidget(
         focusNode: gameFocus,
         game: game,
@@ -57,6 +57,7 @@ Future<void> main() async {
           'friendWindow': _friendWindowBuilder,
           'userBox': _userBoxBuilder,
           'loadingBox': _loadingBoxBuilder,
+          'mapCoordinates': _mapCoordinatesBoxBuilder,
         },
         initialActiveOverlays: const [
           'chatBox',
@@ -69,6 +70,7 @@ Future<void> main() async {
           'friendWindow',
           'userBox',
           'loadingBox',
+          'mapCoordinates',
         ],
       )
   );
@@ -167,6 +169,10 @@ Widget _changeAvatarBoxBuilder(BuildContext buildContext, AgeOfGold game) {
 
 Widget _loadingBoxBuilder(BuildContext buildContext, AgeOfGold game) {
   return LoadingBox(key: UniqueKey(), game: game);
+}
+
+Widget _mapCoordinatesBoxBuilder(BuildContext buildContext, AgeOfGold game) {
+  return MapCoordinates(key: UniqueKey(), game: game);
 }
 
 Widget _chatWindowBuilder(BuildContext buildContext, AgeOfGold game) {

@@ -14,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:universal_html/html.dart' as html;
 
+import 'views/user_interface/ui_views/map_coordinates/map_coordinates_change_notifier.dart';
 import 'views/user_interface/ui_views/profile_box/profile_change_notifier.dart';
 
 
@@ -318,6 +319,10 @@ class AgeOfGold extends FlameGame
     int tileR = convertHexToTileR(startHexQ, startHexR);
 
     Vector2 startPos = getTilePosition(tileQ, tileR);
+    // This will be the topRight of the tile, so we add an offset to get the center
+    // The tile is 2*xSize, so we add xSize to get the center
+    startPos.x += xSize;
+    startPos.y += ySize;
 
     cameraPosition.add(startPos);
     dragTo.add(startPos);

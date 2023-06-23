@@ -326,6 +326,7 @@ class UserBoxState extends State<UserBox> with TickerProviderStateMixin {
     );
   }
 
+  @override
   Widget build(BuildContext context) {
     return Align(
       alignment: FractionalOffset.center,
