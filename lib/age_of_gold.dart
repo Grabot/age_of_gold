@@ -1,12 +1,10 @@
 import 'package:age_of_gold/component/hexagon.dart';
 import 'package:age_of_gold/constants/global.dart';
-import 'package:age_of_gold/locator.dart';
 import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/services/socket_services.dart';
-import 'package:age_of_gold/util/navigation_service.dart';
 import 'package:age_of_gold/util/tapped_map.dart';
 import 'package:age_of_gold/util/util.dart';
-import 'package:age_of_gold/world/world.dart';
+import 'package:age_of_gold/world/hex_world.dart';
 import 'package:flame/components.dart';
 import 'package:flame/game.dart';
 import 'package:flame/input.dart';
@@ -14,7 +12,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:universal_html/html.dart' as html;
 
-import 'views/user_interface/ui_views/map_coordinates/map_coordinates_change_notifier.dart';
 import 'views/user_interface/ui_views/profile_box/profile_change_notifier.dart';
 
 
@@ -26,8 +23,6 @@ class AgeOfGold extends FlameGame
         ScrollDetector,
         MouseMovementDetector,
         KeyboardEvents {
-
-  final NavigationService _navigationService = locator<NavigationService>();
 
   FocusNode gameFocus;
   AgeOfGold(this.gameFocus);
@@ -48,7 +43,7 @@ class AgeOfGold extends FlameGame
 
   int currentHexSize = 0;
 
-  World? _world;
+  HexWorld? _world;
 
   double maxZoom = 4;
   double minZoom = 1;
@@ -78,12 +73,12 @@ class AgeOfGold extends FlameGame
 
   startGame() {
     camera.followVector2(cameraPosition, relativeOffset: Anchor.center);
-    camera.zoom = 4;
+    camera.zoom = 1;
 
     int startHexQ = 0;
     int startHexR = 0;
     calculateStartPosition(startHexQ, startHexR);
-    _world = World(startHexQ, startHexR);
+    _world = HexWorld(startHexQ, startHexR);
     add(_world!);
 
     checkHexagonArraySize();
@@ -376,7 +371,13 @@ class AgeOfGold extends FlameGame
       return KeyEventResult.ignored;
     } else {
       _world!.resetClick();
-      double mouseSpeed = 40;
+      print("zoom ${camera.zoom}");
+      // mousespeed between 10 and 140 for camera.zoom between 0.1 and 4
+      double mouseSpeed = (40 / camera.zoom);
+      if (camera.zoom < 1) {
+        mouseSpeed = 40 + 10 / camera.zoom;
+      }
+
       if (event.logicalKey == LogicalKeyboardKey.keyA) {
         dragAccelerateKey.x = isKeyDown ? -mouseSpeed : 0;
       } else if (event.logicalKey == LogicalKeyboardKey.keyD) {

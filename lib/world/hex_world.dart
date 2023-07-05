@@ -19,7 +19,7 @@ import '../util/selected_tile.dart';
 import '../services/socket_services.dart';
 
 
-class World extends Component {
+class HexWorld extends Component {
 
   late HexagonList hexagonList;
 
@@ -39,7 +39,7 @@ class World extends Component {
 
   late MapCoordinatesChangeNotifier mapCoordinatesChangeNotifier = MapCoordinatesChangeNotifier();
 
-  World(this.startHexQ, this.startHexR);
+  HexWorld(this.startHexQ, this.startHexR);
 
   @override
   Future<void> onLoad() async {

@@ -15,7 +15,6 @@ class MapCoordinatesChangeNotifier extends ChangeNotifier {
   }
 
   setCoordinates(List<int> coordinates) {
-    print("set coordinates: $coordinates");
     qCoordinate = coordinates[0];
     rCoordinate = coordinates[1];
     notifyListeners();

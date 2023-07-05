@@ -14,6 +14,7 @@ import 'package:age_of_gold/locator.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/chat_box/chat_box_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/chat_window/chat_window_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/friend_window/friend_window_change_notifier.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/profile_box/profile_change_notifier.dart';
 import 'package:flutter/material.dart';
 
@@ -43,9 +44,11 @@ class SocialInteractionState extends State<SocialInteraction> with TickerProvide
 
   int friendOverviewState = 0;
   int messageOverviewState = 0;
+  int guildOverviewState = 0;
 
   bool unansweredFriendRequests = false;
   bool unreadMessages = false;
+  bool guildNotification = false;
 
   @override
   void initState() {
@@ -104,6 +107,11 @@ class SocialInteractionState extends State<SocialInteraction> with TickerProvide
     ChatWindowChangeNotifier().setChatWindowVisible(true);
   }
 
+  showGuildWindow() {
+    print("pressed the guild button");
+    GuildWindowChangeNotifier().setGuildWindowVisible(true);
+  }
+
   Color overviewColour(int state) {
     if (state == 0) {
       return Colors.orange;
@@ -115,7 +123,7 @@ class SocialInteractionState extends State<SocialInteraction> with TickerProvide
   }
 
   Widget friendOverviewButton(double profileButtonSize) {
-    return Container(
+    return SizedBox(
       child: Row(
         children: [
           SizedBox(width: 5),
@@ -135,7 +143,7 @@ class SocialInteractionState extends State<SocialInteraction> with TickerProvide
               },
               child: Stack(
                 children: [
-                  Container(
+                  SizedBox(
                     width: profileButtonSize,
                     height: profileButtonSize,
                     child: ClipOval(
@@ -164,7 +172,7 @@ class SocialInteractionState extends State<SocialInteraction> with TickerProvide
   }
 
   Widget messageOverviewButton(double messageButtonSize) {
-    return Container(
+    return SizedBox(
       child: Row(
           children: [
             SizedBox(width: 5),
@@ -184,7 +192,7 @@ class SocialInteractionState extends State<SocialInteraction> with TickerProvide
                 },
                 child: Stack(
                   children: [
-                    Container(
+                    SizedBox(
                       width: messageButtonSize,
                       height: messageButtonSize,
                       child: ClipOval(
@@ -212,6 +220,55 @@ class SocialInteractionState extends State<SocialInteraction> with TickerProvide
     );
   }
 
+  Widget guildOverviewButton(double guildButtonSize) {
+    return SizedBox(
+      child: Row(
+          children: [
+            SizedBox(width: 5),
+            Tooltip(
+              message: "guild",
+              child: InkWell(
+                onHover: (value) {
+                  setState(() {
+                    guildOverviewState = value ? 1 : 0;
+                  });
+                },
+                onTap: () {
+                  setState(() {
+                    guildOverviewState = 2;
+                  });
+                  showGuildWindow();
+                },
+                child: Stack(
+                  children: [
+                    SizedBox(
+                      width: guildButtonSize,
+                      height: guildButtonSize,
+                      child: ClipOval(
+                          child: Material(
+                            color: overviewColour(guildOverviewState),
+                          )
+                      ),
+                    ),
+                    Image.asset(
+                      "assets/images/ui/icon/guild_icon_clean.png",
+                      width: guildButtonSize,
+                      height: guildButtonSize,
+                    ),
+                    guildNotification ? Image.asset(
+                      "assets/images/ui/icon/update_notification.png",
+                      width: guildButtonSize,
+                      height: guildButtonSize,
+                    ) : Container(),
+                  ],
+                ),
+              ),
+            ),
+          ]
+      ),
+    );
+  }
+
   Widget profileOverviewNormal(double profileOverviewWidth, double profileOverviewHeight, double fontSize) {
     double profileAvatarHeight = 100;
     return Container(
@@ -221,7 +278,9 @@ class SocialInteractionState extends State<SocialInteraction> with TickerProvide
           SizedBox(height: 10),
           friendOverviewButton(50),
           SizedBox(height: 10),
-          messageOverviewButton(50)
+          messageOverviewButton(50),
+          SizedBox(height: 10),
+          guildOverviewButton(50)
         ]
       ),
     );
@@ -240,7 +299,9 @@ class SocialInteractionState extends State<SocialInteraction> with TickerProvide
               SizedBox(width: 5),
               friendOverviewButton(30),
               SizedBox(width: 5),
-              messageOverviewButton(30)
+              messageOverviewButton(30),
+              SizedBox(width: 5),
+              guildOverviewButton(30)
             ]
           ),
         ]
@@ -254,16 +315,22 @@ class SocialInteractionState extends State<SocialInteraction> with TickerProvide
     double profileOverviewWidth = 50 + 5;
     double fontSize = 16;
     // We use the total height to hide the chatbox below
-    // In NormalMode the height has the 2 buttons and some padding added.
+    // In NormalMode the height has the 3 buttons and some padding added.
     double profileOverviewHeight = 100;
-    profileOverviewHeight += 50 * 2;
-    profileOverviewHeight += 10 * 2;
+    profileOverviewHeight += 50;
+    profileOverviewHeight += 10;
+    profileOverviewHeight += 50;
+    profileOverviewHeight += 10;
+    profileOverviewHeight += 50;
+    profileOverviewHeight += 10;
     normalMode = true;
     if (MediaQuery.of(context).size.width <= 800) {
       profileOverviewWidth = MediaQuery.of(context).size.width/2;
       profileOverviewWidth += 30;
+      profileOverviewWidth += 10;
       profileOverviewWidth += 30;
       profileOverviewWidth += 10;
+      profileOverviewWidth += 30;
       profileOverviewWidth += 10;
 
       double statusBarPadding = MediaQuery.of(context).viewPadding.top;

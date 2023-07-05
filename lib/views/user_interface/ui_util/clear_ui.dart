@@ -1,6 +1,7 @@
 import 'package:age_of_gold/views/user_interface/ui_views/change_avatar_box/change_avatar_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/chat_window/chat_window_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/friend_window/friend_window_change_notifier.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/loading_box/loading_box_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/profile_box/profile_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/user_box/user_box_change_notifier.dart';
@@ -24,6 +25,7 @@ class ClearUI extends ChangeNotifier {
         || UserBoxChangeNotifier().getUserBoxVisible()
         || ChangeAvatarChangeNotifier().getChangeAvatarVisible()
         || LoadingBoxChangeNotifier().getLoadingBoxVisible()
+        || GuildWindowChangeNotifier().getGuildWindowVisible()
     ) {
       return true;
     }
@@ -45,6 +47,9 @@ class ClearUI extends ChangeNotifier {
     }
     if (ProfileChangeNotifier().getProfileVisible()) {
       ProfileChangeNotifier().setProfileVisible(false);
+    }
+    if (GuildWindowChangeNotifier().getGuildWindowVisible()) {
+      GuildWindowChangeNotifier().setGuildWindowVisible(false);
     }
   }
 }
