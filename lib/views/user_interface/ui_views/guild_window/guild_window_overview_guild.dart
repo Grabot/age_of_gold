@@ -9,6 +9,8 @@ import 'package:age_of_gold/util/render_objects.dart';
 import 'package:age_of_gold/util/util.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/change_guild_crest_box/change_guild_crest_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window_change_notifier.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window_overview_guild_new_members.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window_overview_guild_overview.dart';
 import 'package:flutter/material.dart';
 
 
@@ -49,268 +51,166 @@ class GuildWindowOverviewGuildState extends State<GuildWindowOverviewGuild> {
     super.dispose();
   }
 
+  switchToOverview() {
+    showGuildOverview = true;
+    newMembersView = false;
+    guildOverviewColour = 2;
+    newMembersColour = 0;
+  }
 
-  Widget guildMemberInteraction(GuildMember? guildMember, double avatarBoxSize, double guildMemberOptionWidth, double fontSize) {
-    return SizedBox(
-      width: guildMemberOptionWidth,
-      height: 40,
-      child: Row(
-          children: [
-            InkWell(
-                onTap: () {
-                  setState(() {
-                    // messageFriend(friend);
-                    print("pressed the message button");
-                  });
-                },
-                child: Tooltip(
-                    message: 'Message guild member',
-                    child: addIcon(40, Icons.message, Colors.green)
-                )
-            ),
-            SizedBox(width: 10),
-            InkWell(
-              onTap: () {
-                setState(() {
-                  print("remove guild member button");
-                  // cancelFriendRequest(friend);
-                });
-              },
-              child: Tooltip(
-                message: 'Remove guild member',
-                child: addIcon(40, Icons.person_remove, Colors.red),
+  switchToNewMembers() {
+    showGuildOverview = false;
+    newMembersView = true;
+    guildOverviewColour = 0;
+    newMembersColour = 2;
+  }
+
+  double iconSize = 40;
+  int guildOverviewColour = 2;
+  bool showGuildOverview = true;
+  Widget guildOverviewButton() {
+    return InkWell(
+      onTap: () {
+        setState(() {
+          switchToOverview();
+        });
+      },
+      onHover: (hovering) {
+        setState(() {
+          if (hovering) {
+            guildOverviewColour = 1;
+          } else {
+            if (showGuildOverview) {
+              guildOverviewColour = 2;
+            } else {
+              guildOverviewColour = 0;
+            }
+          }
+        });
+      },
+      child: Container(
+        width: widget.overviewWidth/2,
+        height: iconSize,
+        color: getDetailColour(guildOverviewColour),
+        child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              SizedBox(width: 1),
+              Row(
+                children: [
+                  Text(
+                    "Guild overview",
+                    style: simpleTextStyle(
+                      widget.fontSize,
+                    ),
+                  ),
+                ],
               ),
-            ),
+              SizedBox(width: 1),
+            ]
+        ),
+      ),
+    );
+  }
+
+  int newMembersColour = 0;
+  bool newMembersView = false;
+  Widget newMembersButton() {
+    return InkWell(
+      onTap: () {
+        setState(() {
+          switchToNewMembers();
+        });
+      },
+      onHover: (hovering) {
+        setState(() {
+          if (hovering) {
+            newMembersColour = 1;
+          } else {
+            if (newMembersView) {
+              newMembersColour = 2;
+            } else {
+              newMembersColour = 0;
+            }
+          }
+        });
+      },
+      child: Container(
+        width: widget.overviewWidth/2,
+        height: iconSize,
+        color: getDetailColour(newMembersColour),
+        child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              SizedBox(width: 1),
+              Row(
+                children: [
+                  Text(
+                    "New members",
+                    style: simpleTextStyle(
+                      widget.fontSize,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(width: 1),
+            ]
+        ),
+      ),
+    );
+  }
+
+  Widget bottomButtons() {
+    return SizedBox(
+      width: widget.overviewWidth,
+      height: iconSize,
+      child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            guildOverviewButton(),
+            newMembersButton(),
           ]
       ),
     );
   }
 
-  Widget guildMemberBox(GuildMember? guildMember, double boxSize, double fontSize) {
-    double newFriendOptionWidth = 100;
-    double sidePadding = 40;
-    if (!widget.normalMode) {
-      boxSize = boxSize / 1.2;
-      fontSize = fontSize / 1.8;
-      sidePadding = 10;
-    }
-
-    String guildMemberName = "";
-    Uint8List? guildMemberAvatar;
-    if (guildMember != null) {
-      if (guildMember.getGuildMemberName() != null) {
-        guildMemberName = guildMember.getGuildMemberName()!;
-      }
-      if (guildMember.getGuildMemberAvatar() != null) {
-        guildMemberAvatar = guildMember.getGuildMemberAvatar();
-      }
-    }
-    double crestTextSize = widget.overviewWidth - boxSize - newFriendOptionWidth - sidePadding - sidePadding;
-    return Row(
-        children: [
-          SizedBox(width: sidePadding),
-          avatarBox(boxSize, boxSize, guildMemberAvatar),
-          SizedBox(
-              width: crestTextSize,
-              child: Text(
-                  guildMemberName,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: fontSize * 2
-                  )
-              )
-          ),
-          guildMemberInteraction(guildMember, boxSize, newFriendOptionWidth, fontSize),
-          SizedBox(width: sidePadding),
-        ]
-    );
-  }
-
-
-  List<Widget> memberList(Guild guild) {
-    List<Widget> members = [];
-    for (GuildMember member in guild.getMembers()) {
-      members.add(
-          guildMemberBox(member, 70, widget.fontSize)
+  UniqueKey guildWindowOverviewGuildOverviewKey = UniqueKey();
+  UniqueKey guildWindowOverviewGuildNewMembersKey = UniqueKey();
+  Widget guildOverviewContent() {
+    if (showGuildOverview) {
+      return GuildWindowOverviewGuildOverview(
+        key: guildWindowOverviewGuildOverviewKey,
+        game: widget.game,
+        normalMode: widget.normalMode,
+        overviewHeight: widget.overviewHeight-40,
+        overviewWidth: widget.overviewWidth,
+        fontSize: widget.fontSize,
+        guild: widget.guild,
+      );
+    } else {
+      return GuildWindowOverviewGuildNewMembers(
+        key: guildWindowOverviewGuildNewMembersKey,
+        game: widget.game,
+        normalMode: widget.normalMode,
+        overviewHeight: widget.overviewHeight-40,
+        overviewWidth: widget.overviewWidth,
+        fontSize: widget.fontSize,
+        guild: widget.guild,
       );
     }
-
-    return members;
   }
-
-  Widget guildOverviewContent(Guild guild) {
-    String guildName = guild.getGuildName();
-
-    double crestWidth = 200;
-    double crestHeight = 225;
-    double membersTextHeight = 30;
-    double totalPadding = 25;
-    double invitePlayerHeight = 40;
-    double remainingHeight = widget.overviewHeight - crestHeight - membersTextHeight - invitePlayerHeight - totalPadding;
-    return Column(
-        children: [
-          Row(
-            children: [
-              guildAvatarBox(
-                  crestWidth,
-                  crestHeight,
-                  guild.getGuildCrest()
-              ),
-              Expanded(
-                child: RichText(
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    text: TextSpan(
-                        children: [
-                          TextSpan(
-                              text: guildName,
-                              style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 30,
-                                  fontWeight: FontWeight.bold
-                              )
-                          )
-                        ]
-                    )
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 5),
-          SizedBox(
-            height: membersTextHeight,
-            child: Row(
-              children: [
-                Text(
-                  "Members:",
-                  style: simpleTextStyle(20),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(height: 20),
-          Container(
-            width: widget.overviewWidth,
-            height: remainingHeight,
-            child: SingleChildScrollView(
-              child: Column(
-                children: memberList(guild),
-              ),
-            ),
-          ),
-          // bottomButtons(40),
-        ]
-    );
-  }
-
-  // Widget invitePlayer(Guild guild) {
-  //
-  //   double crestHeight = 225;
-  //   double backToOverviewHeight = 40;
-  //   double remainingHeight = widget.overviewHeight - crestHeight - backToOverviewHeight;
-  //
-  //   return Column(
-  //     children: [
-  //       Row(
-  //         children: [
-  //           guildAvatarBox(
-  //               200,
-  //               225,
-  //               guild.getGuildCrest()
-  //           ),
-  //           Expanded(
-  //             child: RichText(
-  //                 maxLines: 1,
-  //                 overflow: TextOverflow.ellipsis,
-  //                 text: TextSpan(
-  //                     children: [
-  //                       TextSpan(
-  //                           text: guild.getGuildName(),
-  //                           style: const TextStyle(
-  //                               color: Colors.white,
-  //                               fontSize: 30,
-  //                               fontWeight: FontWeight.bold
-  //                           )
-  //                       )
-  //                     ]
-  //                 )
-  //             ),
-  //           ),
-  //         ],
-  //       ),
-  //       SizedBox(
-  //         width: widget.overviewWidth,
-  //         height: remainingHeight,
-  //         child: SingleChildScrollView(
-  //           child: Column(
-  //               children: [
-  //                 Row(
-  //                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //                     children: [
-  //                       SizedBox(width: 10),
-  //                       SizedBox(
-  //                         width: widget.overviewWidth - 150,
-  //                         height: 50,
-  //                         child: Form(
-  //                           // key: addFriendKey,
-  //                           child: TextFormField(
-  //                             onTap: () {
-  //                               // if (!_focusGuildWindow.hasFocus) {
-  //                               //   _focusGuildWindow.requestFocus();
-  //                               // }
-  //                             },
-  //                             validator: (val) {
-  //                               return val == null || val.isEmpty
-  //                                   ? "Please enter the name of a friend to add"
-  //                                   : null;
-  //                             },
-  //                             onFieldSubmitted: (value) {
-  //                               print("pressed search for guild member");
-  //                             },
-  //                             // focusNode: _focusAdd,
-  //                             // controller: addController,
-  //                             textAlign: TextAlign.center,
-  //                             style: simpleTextStyle(widget.fontSize),
-  //                             decoration: textFieldInputDecoration("Search for new members for your guild"),
-  //                           ),
-  //                         ),
-  //                       ),
-  //                       GestureDetector(
-  //                         onTap: () {
-  //                           print("pressed search for guild member");
-  //                         },
-  //                         child: Container(
-  //                             height: 50,
-  //                             width: 50,
-  //                             padding: const EdgeInsets.symmetric(horizontal: 6),
-  //                             child: const Icon(
-  //                               Icons.search,
-  //                               color: Colors.white,
-  //                             )
-  //                         ),
-  //                       ),
-  //                       SizedBox(width: 10),
-  //                     ]
-  //                 ),
-  //                 SizedBox(height: 40),
-  //                 // friendBox(possibleNewFriend, 120, addFriendWindowWidth, fontSize),
-  //               ]
-  //           ),
-  //         ),
-  //       ),
-  //       // bottomButtons(40),
-  //     ],
-  //   );
-  // }
 
   Widget guildOverview() {
     return SizedBox(
-        height: widget.overviewHeight,
-        child: SingleChildScrollView(
-          child: guildOverviewContent(widget.guild),
-        )
+      height: widget.overviewHeight,
+      child: SingleChildScrollView(
+        child: Column(
+            children: [
+              guildOverviewContent(),
+              bottomButtons()
+            ]
+        ),
+      )
     );
   }
 

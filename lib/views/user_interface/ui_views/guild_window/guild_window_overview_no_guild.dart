@@ -57,7 +57,7 @@ class GuildWindowOverviewNoGuildState extends State<GuildWindowOverviewNoGuild> 
 
   switchToOverview() {
     // We'll also change the guild crest to the default one. This is because nothing is created.
-    rootBundle.load('assets/images/ui/icon/shield_default_temp.png').then((data) {
+    rootBundle.load('assets/images/ui/icon/shield_default.png').then((data) {
       changeGuildCrestChangeNotifier.setGuildCrest(data.buffer.asUint8List());
       changeGuildCrestChangeNotifier.setDefault(true);
     });
@@ -80,7 +80,7 @@ class GuildWindowOverviewNoGuildState extends State<GuildWindowOverviewNoGuild> 
 
   switchToFind() {
     // We'll also change the guild crest to the default one. This is because nothing is created.
-    rootBundle.load('assets/images/ui/icon/shield_default_temp.png').then((data) {
+    rootBundle.load('assets/images/ui/icon/shield_default.png').then((data) {
       changeGuildCrestChangeNotifier.setGuildCrest(data.buffer.asUint8List());
       changeGuildCrestChangeNotifier.setDefault(true);
     });

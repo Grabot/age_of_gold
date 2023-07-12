@@ -127,7 +127,7 @@ class ChangeGuildCrestBoxState extends State<ChangeGuildCrestBox> with TickerPro
 
   resetDefaultImage() {
     print("resetting default image");
-    rootBundle.load('assets/images/ui/icon/shield_default_temp.png').then((data) {
+    rootBundle.load('assets/images/ui/icon/shield_default.png').then((data) {
       Uint8List testImage = data.buffer.asUint8List();
       changeGuildCrestChangeNotifier.setDefault(true);
       setState(() {

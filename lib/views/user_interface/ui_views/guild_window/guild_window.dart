@@ -54,7 +54,7 @@ class GuildWindowState extends State<GuildWindow> {
 
     changeGuildCrestChangeNotifier = ChangeGuildCrestChangeNotifier();
     if (changeGuildCrestChangeNotifier.getGuildCrest() == null) {
-      rootBundle.load('assets/images/ui/icon/shield_default_temp.png').then((data) {
+      rootBundle.load('assets/images/ui/icon/shield_default.png').then((data) {
         defaultImage = data.buffer.asUint8List();
         changeGuildCrestChangeNotifier.setGuildCrest(defaultImage!);
         changeGuildCrestChangeNotifier.setDefault(true);
@@ -93,7 +93,7 @@ class GuildWindowState extends State<GuildWindow> {
       else if (showGuildWindow && !guildWindowChangeNotifier.getGuildWindowVisible()) {
         // If the window is closed we go back to the default.
         // If a guild is created we still set it to default because it is for the creation tab
-        rootBundle.load('assets/images/ui/icon/shield_default_temp.png').then((data) {
+        rootBundle.load('assets/images/ui/icon/shield_default.png').then((data) {
           defaultImage = data.buffer.asUint8List();
           changeGuildCrestChangeNotifier.setGuildCrest(defaultImage!);
           changeGuildCrestChangeNotifier.setDefault(true);

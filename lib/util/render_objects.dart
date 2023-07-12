@@ -64,9 +64,9 @@ Widget getGuildAvatar(double avatarBoxWidth, double avatarBoxHeight, Uint8List? 
     );
   } else {
     return Image.asset(
-      "assets/images/ui/icon/shield_default_temp.png",
-      width: avatarBoxWidth,
-      height: avatarBoxHeight,
+      "assets/images/ui/icon/shield_default.png",
+      width: avatarBoxWidth * 0.835,
+      height: avatarBoxHeight * 0.835,
       gaplessPlayback: true,
       fit: BoxFit.cover,
     );
