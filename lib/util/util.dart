@@ -435,3 +435,26 @@ goToGame(NavigationService navigationService, AgeOfGold game) {
   }
   navigationService.navigateTo(routes.GameRoute);
 }
+
+Color getDetailColour(int detailColour) {
+  if (detailColour == 0) {
+    return Colors.cyan.shade600;
+  } else if (detailColour == 1) {
+    return Colors.cyan.shade700;
+  } else {
+    return Colors.cyan.shade300;
+  }
+}
+
+Widget addIcon(double profileButtonSize, IconData icon, Color iconColour) {
+  return SizedBox(
+    width: profileButtonSize,
+    height: profileButtonSize,
+    child: ClipOval(
+      child: Material(
+          color: iconColour,
+          child: Icon(icon)
+      ),
+    ),
+  );
+}

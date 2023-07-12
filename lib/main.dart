@@ -9,6 +9,7 @@ import 'package:age_of_gold/views/home_page.dart';
 import 'package:age_of_gold/views/login_screen.dart';
 import 'package:age_of_gold/views/password_reset_page.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/change_avatar_box/change_avatar_box.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/change_guild_crest_box/change_guild_crest_box.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/map_coordinates/map_coordinates.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/social_interaction/social_interaction.dart';
@@ -60,6 +61,7 @@ Future<void> main() async {
           'loadingBox': _loadingBoxBuilder,
           'mapCoordinates': _mapCoordinatesBoxBuilder,
           'guildWindow': _guildWindowBoxBuilder,
+          'changeGuildCrest': _changeGuildCrestBoxBuilder,
         },
         initialActiveOverlays: const [
           'chatBox',
@@ -74,6 +76,7 @@ Future<void> main() async {
           'loadingBox',
           'mapCoordinates',
           'guildWindow',
+          'changeGuildCrest',
         ],
       )
   );
@@ -188,4 +191,8 @@ Widget _friendWindowBuilder(BuildContext buildContext, AgeOfGold game) {
 
 Widget _guildWindowBoxBuilder(BuildContext buildContext, AgeOfGold game) {
   return GuildWindow(key: UniqueKey(), game: game);
+}
+
+Widget _changeGuildCrestBoxBuilder(BuildContext buildContext, AgeOfGold game) {
+  return ChangeGuildCrestBox(key: UniqueKey(), game: game);
 }

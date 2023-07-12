@@ -108,6 +108,13 @@ class AgeOfGold extends FlameGame
     }
   }
 
+  guildWindowFocus(bool guildFocus) {
+    playFieldFocus = !guildFocus;
+    if (playFieldFocus) {
+      gameFocus.requestFocus();
+    }
+  }
+
   userBoxFocus(bool userFocus) {
     playFieldFocus = !userFocus;
     if (playFieldFocus) {

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:age_of_gold/services/models/friend.dart';
+import 'package:age_of_gold/services/models/guild.dart';
 
 class User {
 
@@ -11,6 +12,7 @@ class User {
   late bool verified;
   late List<Friend> friends;
   Uint8List? avatar;
+  Guild? guild;
 
   User(this.id, this.userName, this.verified, this.friends, String? timeLock) {
     if (timeLock != null) {
@@ -86,6 +88,14 @@ class User {
     friends.removeWhere((friend) => friend.getFriendId() == friendId);
   }
 
+  Guild? getGuild() {
+    return guild;
+  }
+
+  setGuild(Guild? guild) {
+    this.guild = guild;
+  }
+
   User.fromJson(Map<String, dynamic> json) {
 
     id = json['id'];
@@ -117,6 +127,10 @@ class User {
 
     if (json.containsKey("avatar") && json["avatar"] != null) {
       avatar = base64Decode(json["avatar"].replaceAll("\n", ""));
+    }
+
+    if (json.containsKey("guild") && json["guild"] != null) {
+      guild = Guild.fromJson(json["guild"]);
     }
   }
 

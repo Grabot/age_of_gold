@@ -1,21 +1,23 @@
 import 'dart:convert';
+import 'dart:html';
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:age_of_gold/age_of_gold.dart';
+import 'package:age_of_gold/services/auth_service_guild.dart';
 import 'package:age_of_gold/services/auth_service_social.dart';
 import 'package:age_of_gold/services/models/friend.dart';
+import 'package:age_of_gold/services/models/guild.dart';
+import 'package:age_of_gold/services/models/guild_member.dart';
 import 'package:age_of_gold/services/models/user.dart';
 import 'package:age_of_gold/services/settings.dart';
-import 'package:age_of_gold/services/socket_services.dart';
 import 'package:age_of_gold/util/render_objects.dart';
 import 'package:age_of_gold/util/util.dart';
-import 'package:age_of_gold/views/user_interface/ui_util/chat_messages.dart';
-import 'package:age_of_gold/views/user_interface/ui_util/clear_ui.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/chat_window/chat_window_change_notifier.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/friend_window/friend_window_change_notifier.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/change_guild_crest_box/change_guild_crest_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window_change_notifier.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/profile_box/profile_change_notifier.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window_overview.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 
 class GuildWindow extends StatefulWidget {
@@ -33,15 +35,31 @@ class GuildWindow extends StatefulWidget {
 
 class GuildWindowState extends State<GuildWindow> {
 
+  final FocusNode _focusGuildWindow = FocusNode();
   bool normalMode = true;
 
   late GuildWindowChangeNotifier guildWindowChangeNotifier;
+  late ChangeGuildCrestChangeNotifier changeGuildCrestChangeNotifier;
   bool showGuildWindow = false;
 
+  Uint8List? defaultImage;
+
+  double guildWindowHeight = 0;
+  double guildWindowWidth = 100;
   @override
   void initState() {
     guildWindowChangeNotifier = GuildWindowChangeNotifier();
     guildWindowChangeNotifier.addListener(guildWindowChangeListener);
+    _focusGuildWindow.addListener(_onFocusChange);
+
+    changeGuildCrestChangeNotifier = ChangeGuildCrestChangeNotifier();
+    if (changeGuildCrestChangeNotifier.getGuildCrest() == null) {
+      rootBundle.load('assets/images/ui/icon/shield_default_temp.png').then((data) {
+        defaultImage = data.buffer.asUint8List();
+        changeGuildCrestChangeNotifier.setGuildCrest(defaultImage!);
+        changeGuildCrestChangeNotifier.setDefault(true);
+      });
+    }
     super.initState();
   }
 
@@ -56,20 +74,90 @@ class GuildWindowState extends State<GuildWindow> {
     });
   }
 
+  void _onFocusChange() {
+    widget.game.guildWindowFocus(_focusGuildWindow.hasFocus);
+  }
+
   guildWindowChangeListener() {
     if (mounted) {
       if (!showGuildWindow && guildWindowChangeNotifier.getGuildWindowVisible()) {
+        User? me = Settings().getUser();
+        if (me != null) {
+          retrieveGuildMembers(me);
+          setGuildCrest(me);
+        }
         setState(() {
           showGuildWindow = true;
         });
       }
-      if (showGuildWindow && !guildWindowChangeNotifier.getGuildWindowVisible()) {
+      else if (showGuildWindow && !guildWindowChangeNotifier.getGuildWindowVisible()) {
+        // If the window is closed we go back to the default.
+        // If a guild is created we still set it to default because it is for the creation tab
+        rootBundle.load('assets/images/ui/icon/shield_default_temp.png').then((data) {
+          defaultImage = data.buffer.asUint8List();
+          changeGuildCrestChangeNotifier.setGuildCrest(defaultImage!);
+          changeGuildCrestChangeNotifier.setDefault(true);
+        });
         setState(() {
           showGuildWindow = false;
+        });
+      } else if (showGuildWindow && guildWindowChangeNotifier.getGuildWindowVisible()) {
+        // window already visible, just update if needed
+        setState(() {});
+      }
+    }
+  }
+
+  setGuildCrest(User me) {
+    if (me.getGuild() != null ) {
+      if (me.getGuild()!.getGuildCrest() != null) {
+        changeGuildCrestChangeNotifier.setGuildCrest(me.getGuild()!.getGuildCrest()!);
+        changeGuildCrestChangeNotifier.setDefault(false);
+      } else {
+
+      }
+    }
+  }
+
+  retrieveGuildMembers(User me) {
+    if (me.getGuild() != null) {
+      // Some members have been added or removed, we need to update the list
+      // or we have not yet retrieved the users from the ids
+      List<int> membersToRetrieve = [];
+      for (GuildMember member in me.getGuild()!.getMembers()) {
+        if (member.getGuildMemberId() != null && !member.isMemberRetrieved()) {
+          membersToRetrieve.add(member.getGuildMemberId()!);
+          // if (member.getGuildMemberId() == me.getId()) {
+          //   member.setGuildMemberName(me.getUserName());
+          //   member.setGuildMemberAvatar(me.getAvatar());
+          //   member.setIsMe(true);
+          //   member.setRetrieved(true);
+          // } else {
+          //   membersToRetrieve.add(member.getGuildMemberId()!);
+          // }
+        }
+      }
+      if (membersToRetrieve.isNotEmpty) {
+        AuthServiceSocial().getFriendAvatars(membersToRetrieve).then((value) {
+          if (value != null) {
+            for (Map<String, dynamic> guildMember in value) {
+              int guildMemberId = guildMember["id"];
+              String guildMemberName = guildMember["username"];
+              String guildMemberAvatar = guildMember["avatar"];
+              for (GuildMember member in me.getGuild()!.getMembers()) {
+                if (member.getGuildMemberId() == guildMemberId) {
+                  member.setGuildMemberName(guildMemberName);
+                  member.setGuildMemberAvatar(base64Decode(guildMemberAvatar.replaceAll("\n", "")));
+                }
+              }
+            }
+            setState(() {});
+          }
         });
       }
     }
   }
+
 
   Widget guildWindowHeader(double headerWidth, double headerHeight, double fontSize) {
     return Row(
@@ -98,43 +186,263 @@ class GuildWindowState extends State<GuildWindow> {
     );
   }
 
-  Widget friendWindowNormal(double friendWindowWidth, double friendWindowHeight, double fontSize) {
+  Widget noGuildOverview() {
+    String guildName = "Not part of a guild yet.";
+    return Row(
+      children: [
+        guildAvatarBox(
+            200,
+            225,
+            changeGuildCrestChangeNotifier.getGuildCrest()
+        ),
+        Expanded(
+          child: RichText(
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              text: TextSpan(
+                  children: [
+                    TextSpan(
+                        text: guildName,
+                        style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 30,
+                            fontWeight: FontWeight.bold
+                        )
+                    )
+                  ]
+              )
+          ),
+        ),
+      ],
+    );
+  }
+
+
+  Widget guildMemberInteraction(GuildMember? guildMember, double avatarBoxSize, double guildMemberOptionWidth, double fontSize) {
+    return SizedBox(
+      width: guildMemberOptionWidth,
+      height: 40,
+      child: Row(
+          children: [
+            InkWell(
+                onTap: () {
+                  setState(() {
+                    // messageFriend(friend);
+                    print("pressed the message button");
+                  });
+                },
+                child: Tooltip(
+                    message: 'Message guild member',
+                    child: addIcon(40, Icons.message, Colors.green)
+                )
+            ),
+            SizedBox(width: 10),
+            InkWell(
+              onTap: () {
+                setState(() {
+                  print("remove guild member button");
+                  // cancelFriendRequest(friend);
+                });
+              },
+              child: Tooltip(
+                message: 'Remove guild member',
+                child: addIcon(40, Icons.person_remove, Colors.red),
+              ),
+            ),
+          ]
+      ),
+    );
+  }
+
+
+  Widget guildMemberBox(GuildMember? guildMember, double boxSize, double guildMemberBoxWindowWidth, double fontSize) {
+    double newFriendOptionWidth = 100;
+    double sidePadding = 40;
+    if (!normalMode) {
+      boxSize = boxSize / 1.2;
+      fontSize = fontSize / 1.8;
+      sidePadding = 10;
+    }
+
+    String guildMemberName = "";
+    Uint8List? guildMemberAvatar;
+    if (guildMember != null) {
+      if (guildMember.getGuildMemberName() != null) {
+        guildMemberName = guildMember.getGuildMemberName()!;
+      }
+      if (guildMember.getGuildMemberAvatar() != null) {
+        guildMemberAvatar = guildMember.getGuildMemberAvatar();
+      }
+    }
+    return Row(
+      children: [
+        SizedBox(width: sidePadding),
+        avatarBox(boxSize, boxSize, guildMemberAvatar),
+        SizedBox(
+          width: guildMemberBoxWindowWidth - boxSize - newFriendOptionWidth - sidePadding - sidePadding,
+          child: Text(
+            guildMemberName,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+                color: Colors.white,
+                fontSize: fontSize * 2
+            )
+          )
+        ),
+        guildMemberInteraction(guildMember, boxSize, newFriendOptionWidth, fontSize),
+        SizedBox(width: sidePadding),
+      ]
+    );
+  }
+
+  Widget inAGuildOverview(Guild guild, double overViewWidth, double overviewHeight, double fontSize) {
+    String guildName = guild.getGuildName();
+    double crestWidth = 200;
+    double crestHeight = 225;
+    double membersTextHeight = 30;
+    double totalPadding = 25;
+    double invitePlayerHeight = 50;
+    double remainingHeight = overviewHeight - crestHeight - membersTextHeight - invitePlayerHeight - totalPadding;
+    return Column(
+      children: [
+        Row(
+          children: [
+            guildAvatarBox(
+                crestWidth,
+                crestHeight,
+                guild.getGuildCrest()
+            ),
+            Expanded(
+              child: RichText(
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: guildName,
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 30,
+                          fontWeight: FontWeight.bold
+                      )
+                    )
+                  ]
+                )
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 5),
+        SizedBox(
+          height: membersTextHeight,
+          child: Row(
+            children: [
+              Text(
+                "Members:",
+                style: simpleTextStyle(20),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(height: 20),
+        Container(
+          width: overViewWidth,
+          height: remainingHeight,
+          color: Colors.yellow,
+          child: SingleChildScrollView(
+            child: Column(
+              children: memberList(guild, overViewWidth, fontSize),
+            ),
+          ),
+        ),
+      ]
+    );
+  }
+
+  List<Widget> memberList(Guild guild, double guildMemberWindowWidth, double fontSize) {
+    List<Widget> members = [];
+    for (GuildMember member in guild.getMembers()) {
+      members.add(
+          guildMemberBox(member, 70, guildMemberWindowWidth, fontSize)
+      );
+    }
+
+    return members;
+  }
+
+  Widget guildAvatarOverview(double overViewWidth, double overviewHeight, double fontSize) {
+    User? me = Settings().getUser();
+    if (me == null || me.getGuild() == null) {
+      return noGuildOverview();
+    } else {
+      return inAGuildOverview(me.getGuild()!, overViewWidth, overviewHeight, fontSize);
+    }
+  }
+
+  UniqueKey guildWindowOverviewKey = UniqueKey();
+  Widget mainGuildWindow(double guildWindowWidth, double overviewHeight, double fontSize) {
+    return SizedBox(
+      width: guildWindowWidth,
+      height: overviewHeight,
+      child: Column(
+        children: [
+          GuildWindowOverview(
+            key: guildWindowOverviewKey,
+            game: widget.game,
+            normalMode: normalMode,
+            overviewHeight: overviewHeight,
+            overviewWidth: guildWindowWidth,
+            fontSize: fontSize,
+          )
+        ]
+      ),
+    );
+  }
+
+  Widget guildWindow(double guildWindowWidth, double guildWindowHeight, double fontSize) {
     double headerHeight = 40;
+    double remainingHeight = guildWindowHeight - headerHeight;
     return Container(
         child: Column(
         children: [
-          guildWindowHeader(friendWindowWidth, headerHeight, fontSize),
+          guildWindowHeader(guildWindowWidth, headerHeight, fontSize),
+          mainGuildWindow(guildWindowWidth, remainingHeight, fontSize),
+          // bottomButtons(guildWindowWidth, bottomBarHeight, fontSize)
         ]
       )
     );
   }
 
-  Widget guildWindow(BuildContext context) {
-    double friendWindowHeight = MediaQuery.of(context).size.height * 0.8;
+  Widget windowGuild(BuildContext context) {
+    guildWindowHeight = MediaQuery.of(context).size.height * 0.8;
     double fontSize = 16;
-    double friendWindowWidth = 800;
+    guildWindowWidth = 800;
     // We use the total height to hide the chatbox below
     normalMode = true;
     if (MediaQuery.of(context).size.width <= 800) {
-      friendWindowWidth = MediaQuery.of(context).size.width;
+      guildWindowWidth = MediaQuery.of(context).size.width;
+      guildWindowHeight = MediaQuery.of(context).size.height - 250;
       normalMode = false;
       fontSize = 12;
     }
+
     return SingleChildScrollView(
       child: Container(
-          width: friendWindowWidth,
-          height: friendWindowHeight,
+          width: guildWindowWidth,
+          height: guildWindowHeight,
           color: Colors.cyan,
-          child: friendWindowNormal(friendWindowWidth, friendWindowHeight, fontSize)
+          child: guildWindow(guildWindowWidth, guildWindowHeight, fontSize)
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+
     return Align(
       alignment: FractionalOffset.center,
-      child: showGuildWindow ? guildWindow(context) : Container()
+      child: showGuildWindow ? windowGuild(context) : Container()
     );
   }
 }

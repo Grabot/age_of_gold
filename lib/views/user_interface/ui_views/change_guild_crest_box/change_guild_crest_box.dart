@@ -1,73 +1,66 @@
 import 'dart:convert';
 import 'dart:typed_data';
-import 'package:age_of_gold/views/user_interface/ui_util/crop/controller.dart';
-import 'package:age_of_gold/views/user_interface/ui_util/crop/crop.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window_change_notifier.dart';
+import 'package:flutter/services.dart';
 import 'package:image/image.dart' as image;
+
 import 'package:age_of_gold/age_of_gold.dart';
 import 'package:age_of_gold/services/auth_service_setting.dart';
 import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/util/render_objects.dart';
 import 'package:age_of_gold/util/util.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/change_avatar_box/change_avatar_change_notifier.dart';
+import 'package:age_of_gold/views/user_interface/ui_util/crop/controller.dart';
+import 'package:age_of_gold/views/user_interface/ui_util/crop/crop.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/change_guild_crest_box/change_guild_crest_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/loading_box/loading_box_change_notifier.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
 
-class ChangeAvatarBox extends StatefulWidget {
+class ChangeGuildCrestBox extends StatefulWidget {
 
   final AgeOfGold game;
 
-  const ChangeAvatarBox({
+  const ChangeGuildCrestBox({
     required Key key,
     required this.game
   }) : super(key: key);
 
   @override
-  ChangeAvatarBoxState createState() => ChangeAvatarBoxState();
+  ChangeGuildCrestBoxState createState() => ChangeGuildCrestBoxState();
 }
 
-class ChangeAvatarBoxState extends State<ChangeAvatarBox> with TickerProviderStateMixin {
+class ChangeGuildCrestBoxState extends State<ChangeGuildCrestBox> with TickerProviderStateMixin {
 
-  late ChangeAvatarChangeNotifier changeAvatarChangeNotifier;
+  late ChangeGuildCrestChangeNotifier changeGuildCrestChangeNotifier;
 
-  bool showChangeAvatar = false;
-
-  bool isDefault = true;
+  bool showChangeGuildCrest = false;
 
   CropController cropController = CropController();
 
-  Uint8List imageMain = Uint8List.fromList([]);
-  Uint8List imageCrop = Uint8List.fromList([]);
+  Uint8List? imageMain;
+  Uint8List? imageCrop;
 
   @override
   void initState() {
-    changeAvatarChangeNotifier = ChangeAvatarChangeNotifier();
-    changeAvatarChangeNotifier.addListener(changeAvatarChangeListener);
+    changeGuildCrestChangeNotifier = ChangeGuildCrestChangeNotifier();
+    changeGuildCrestChangeNotifier.addListener(changeGuildCrestChangeListener);
     super.initState();
   }
 
-  changeAvatarChangeListener() {
+  changeGuildCrestChangeListener() {
     if (mounted) {
-      if (!showChangeAvatar && changeAvatarChangeNotifier.getChangeAvatarVisible()) {
+      if (!showChangeGuildCrest && changeGuildCrestChangeNotifier.getChangeGuildCrestVisible()) {
         // set the correct image
         setState(() {
-          showChangeAvatar = true;
-          imageMain = Settings().getAvatar()!;
-          imageCrop = Settings().getAvatar()!;
-        });
-        // And check if it's the default avatar
-        AuthServiceSetting().getIsAvatarDefault().then((result) {
-          if (result != isDefault) {
-            setState(() {
-              isDefault = result;
-            });
-          }
+          showChangeGuildCrest = true;
+          imageMain = changeGuildCrestChangeNotifier.getGuildCrest();
+          imageCrop = changeGuildCrestChangeNotifier.getGuildCrest();
         });
       }
-      if (showChangeAvatar && !changeAvatarChangeNotifier.getChangeAvatarVisible()) {
+      if (showChangeGuildCrest && !changeGuildCrestChangeNotifier.getChangeGuildCrestVisible()) {
         setState(() {
-          showChangeAvatar = false;
+          showChangeGuildCrest = false;
         });
       }
     }
@@ -92,7 +85,8 @@ class ChangeAvatarBoxState extends State<ChangeAvatarBox> with TickerProviderSta
         setState(() {
           imageCrop = picked.files.first.bytes!;
           imageMain = picked.files.first.bytes!;
-          cropController.image = imageMain;
+          cropController.image = imageMain!;
+          changeGuildCrestChangeNotifier.setDefault(false);
         });
       }
     } else {
@@ -104,11 +98,11 @@ class ChangeAvatarBoxState extends State<ChangeAvatarBox> with TickerProviderSta
 
   goBack() {
     setState(() {
-      changeAvatarChangeNotifier.setChangeAvatarVisible(false);
+      changeGuildCrestChangeNotifier.setChangeGuildCrestVisible(false);
     });
   }
 
-  saveNewAvatar() {
+  selectNewAvatar() {
     setState(() {
       LoadingBoxChangeNotifier().setLoadingBoxVisible(true);
     });
@@ -117,57 +111,34 @@ class ChangeAvatarBoxState extends State<ChangeAvatarBox> with TickerProviderSta
       // first downsize to 512 x 512
       // and create another even more downsized small variant.
       // This cropped version should be a perfect square
-      image.Image regular = image.decodePng(imageCrop)!;
+      image.Image regular = image.decodePng(imageCrop!)!;
       int width = regular.width;
       if (width > 512) {
         regular = image.copyResize(regular, width: 512);
       }
-      image.Image small = image.copyResize(regular, width: 64);
       Uint8List regularImage = image.encodePng(regular);
-      Uint8List smallImage = image.encodePng(small);
-      String newAvatarRegular = base64Encode(regularImage);
-      String newAvatarSmall = base64Encode(smallImage);
-      AuthServiceSetting().changeAvatar(newAvatarRegular, newAvatarSmall).then((response) {
-        Uint8List changedAvatar = base64Decode(newAvatarRegular);
-        LoadingBoxChangeNotifier().setLoadingBoxVisible(false);
-        if (response.getResult()) {
-          Settings settings = Settings();
-          if (settings.getUser() != null) {
-            settings.setAvatar(changedAvatar);
-            settings.notify();
-            goBack();
-          }
-        } else {
-          showToastMessage(response.getMessage());
-        }
-      });
+      changeGuildCrestChangeNotifier.setGuildCrest(regularImage);
+      changeGuildCrestChangeNotifier.setDefault(false);
+      LoadingBoxChangeNotifier().setLoadingBoxVisible(false);
+      GuildWindowChangeNotifier().notify();
+      goBack();
     });
   }
 
   resetDefaultImage() {
-    setState(() {
-      LoadingBoxChangeNotifier().setLoadingBoxVisible(true);
-    });
-    // Again a very slight delay, too get the loading screen visible.
-    Future.delayed(const Duration(milliseconds: 50), () {
-      // String newAvatar = base64Encode(imageCrop);
-      AuthServiceSetting().resetAvatar().then((response) {
-        LoadingBoxChangeNotifier().setLoadingBoxVisible(false);
-        if (response.getResult()) {
-          setState(() {
-            Settings settings = Settings();
-            settings.setAvatar(base64Decode(response.getMessage().replaceAll("\n", "")));
-            settings.notify();
-            goBack();
-          });
-        } else {
-          showToastMessage(response.getMessage());
-        }
+    print("resetting default image");
+    rootBundle.load('assets/images/ui/icon/shield_default_temp.png').then((data) {
+      Uint8List testImage = data.buffer.asUint8List();
+      changeGuildCrestChangeNotifier.setDefault(true);
+      setState(() {
+        imageMain = testImage;
+        imageCrop = testImage;
+        cropController.reset();
       });
     });
   }
 
-  Widget changeAvatarNormal(double width, double fontSize) {
+  Widget changeGuildCrestNormal(double width, double fontSize) {
     double sidePadding = 20;
     double headerWidth = width - 2 * sidePadding;
     double cropWidth = (width - 2 * sidePadding) / 2;
@@ -178,7 +149,7 @@ class ChangeAvatarBoxState extends State<ChangeAvatarBox> with TickerProviderSta
         width: width,
         child: Column(
           children: [
-            changeAvatarHeader(headerWidth, 50, fontSize),
+            changeGuildCrestHeader(headerWidth, 50, fontSize),
             Row(
               children: [
                 Column(
@@ -202,13 +173,13 @@ class ChangeAvatarBoxState extends State<ChangeAvatarBox> with TickerProviderSta
                         ),
                       )
                     ),
-                    avatarBox(
+                    guildAvatarBox(
                         cropWidth,
-                        cropWidth,
+                        cropWidth * 1.125,
                         imageCrop
                     ),
                     SizedBox(height: 20),
-                    saveImageButton(buttonWidth, 50, fontSize),
+                    selectImageButton(buttonWidth, 50, fontSize),
                     SizedBox(height: 20),
                     resetDefaultImageButton(buttonWidth, 50, fontSize),
                   ],
@@ -225,10 +196,10 @@ class ChangeAvatarBoxState extends State<ChangeAvatarBox> with TickerProviderSta
     return SizedBox(
       width: cropHeight,
       height: cropHeight,
-      child: Crop(
-        image: imageMain,
+      child: imageMain != null ? Crop(
+        image: imageMain!,
         controller: cropController,
-        hexCrop: true,
+        hexCrop: false,
         onStatusChanged: (status) {
           print("status changed $status");
           if (status == CropStatus.cropping || status == CropStatus.loading) {
@@ -243,14 +214,16 @@ class ChangeAvatarBoxState extends State<ChangeAvatarBox> with TickerProviderSta
             imageCrop = imageData;
             imageMain = imageData;
             cropController.image = imageData;
+            changeGuildCrestChangeNotifier.setDefault(false);
           });
         },
         onCropped: (image) {
           setState(() {
             imageCrop = image;
+            changeGuildCrestChangeNotifier.setDefault(false);
           });
         },
-      ),
+      ) : Container(),
     );
   }
 
@@ -261,11 +234,11 @@ class ChangeAvatarBoxState extends State<ChangeAvatarBox> with TickerProviderSta
       child: ElevatedButton(
         style: buttonStyle(false, Colors.blue),
         child: Container(
-            alignment: Alignment.center,
-            child: Text(
-                'Upload a new image',
-                style: simpleTextStyle(fontSize)
-            )
+          alignment: Alignment.center,
+          child: Text(
+            'Upload a new image',
+            style: simpleTextStyle(fontSize)
+          )
         ),
         onPressed: () async {
           imageLoaded();
@@ -275,7 +248,7 @@ class ChangeAvatarBoxState extends State<ChangeAvatarBox> with TickerProviderSta
   }
 
   Widget resetDefaultImageButton(double buttonWidth, double buttonHeight, double fontSize) {
-    return isDefault == false ? Container(
+    return changeGuildCrestChangeNotifier.getDefault() == false ? Container(
       width: buttonWidth,
       height: buttonHeight,
       child: ElevatedButton(
@@ -286,7 +259,7 @@ class ChangeAvatarBoxState extends State<ChangeAvatarBox> with TickerProviderSta
         child: Container(
           alignment: Alignment.center,
           child: Text(
-            'reset default image',
+            'Reset to default',
             style: simpleTextStyle(fontSize),
           ),
         ),
@@ -294,19 +267,19 @@ class ChangeAvatarBoxState extends State<ChangeAvatarBox> with TickerProviderSta
     ) : Container();
   }
 
-  Widget saveImageButton(double buttonWidth, double buttonHeight, double fontSize) {
+  Widget selectImageButton(double buttonWidth, double buttonHeight, double fontSize) {
     return Container(
       width: buttonWidth,
       height: buttonHeight,
       child: ElevatedButton(
         onPressed: () {
-          saveNewAvatar();
+          selectNewAvatar();
         },
         style: buttonStyle(false, Colors.blue),
         child: Container(
           alignment: Alignment.center,
           child: Text(
-            'Save new avatar',
+            'Select new guild crest',
             style: simpleTextStyle(fontSize),
           ),
         ),
@@ -314,7 +287,7 @@ class ChangeAvatarBoxState extends State<ChangeAvatarBox> with TickerProviderSta
     );
   }
 
-  Widget changeAvatarMobile(double width, double height, double fontSize) {
+  Widget changeGuildCrestMobile(double width, double height, double fontSize) {
     double sidePadding = 20;
     double headerHeight = height / 9;
     double cropHeight = (height / 9) * 4;
@@ -329,7 +302,7 @@ class ChangeAvatarBoxState extends State<ChangeAvatarBox> with TickerProviderSta
       width: width,
       child: Column(
           children: [
-            changeAvatarHeader(width, headerHeight, fontSize),
+            changeGuildCrestHeader(width, headerHeight, fontSize),
             cropWidget(cropHeight),
             Container(
               height: avatarHeight,
@@ -339,9 +312,9 @@ class ChangeAvatarBoxState extends State<ChangeAvatarBox> with TickerProviderSta
                   Column(
                     children: [
                       Text("Result:"),
-                      avatarBox(
-                          avatarSize,
-                          avatarSize,
+                      guildAvatarBox(
+                          width,
+                          width * 1.125,
                           imageCrop
                       ),
                     ],
@@ -351,7 +324,7 @@ class ChangeAvatarBoxState extends State<ChangeAvatarBox> with TickerProviderSta
                       SizedBox(height: buttonHeight/3),
                       uploadNewImageButton(buttonWidth, buttonHeight, 16),
                       SizedBox(height: buttonHeight/3),
-                      saveImageButton(buttonWidth, buttonHeight, 16),
+                      selectImageButton(buttonWidth, buttonHeight, 16),
                       SizedBox(height: buttonHeight/3),
                       resetDefaultImageButton(buttonWidth, buttonHeight, 16),
                     ],
@@ -364,7 +337,7 @@ class ChangeAvatarBoxState extends State<ChangeAvatarBox> with TickerProviderSta
     );
   }
 
-  Widget changeAvatarHeader(double headerWidth, double headerHeight, double fontSize) {
+  Widget changeGuildCrestHeader(double headerWidth, double headerHeight, double fontSize) {
     return Container(
       width: headerWidth,
       height: headerHeight,
@@ -373,7 +346,7 @@ class ChangeAvatarBoxState extends State<ChangeAvatarBox> with TickerProviderSta
           children: [
             Container(
               child: Text(
-                "Change avatar",
+                "Change guild crest",
                 style: simpleTextStyle(fontSize),
               ),
             ),
@@ -390,7 +363,7 @@ class ChangeAvatarBoxState extends State<ChangeAvatarBox> with TickerProviderSta
     );
   }
 
-  Widget changeAvatarBox() {
+  Widget changeGuildCrestBox() {
     // normal mode is for desktop, mobile mode is for mobile.
     bool normalMode = true;
     double fontSize = 16;
@@ -409,8 +382,8 @@ class ChangeAvatarBoxState extends State<ChangeAvatarBox> with TickerProviderSta
         color: Colors.cyan,
         child: Container(
         child: normalMode
-            ? changeAvatarNormal(width, fontSize)
-            : changeAvatarMobile(width, height, fontSize),
+            ? changeGuildCrestNormal(width, fontSize)
+            : changeGuildCrestMobile(width, height, fontSize),
       )
     );
   }
@@ -419,7 +392,7 @@ class ChangeAvatarBoxState extends State<ChangeAvatarBox> with TickerProviderSta
   Widget build(BuildContext context) {
     return Align(
       alignment: FractionalOffset.center,
-      child: showChangeAvatar ? changeAvatarBox() : Container()
+      child: showChangeGuildCrest ? changeGuildCrestBox() : Container()
     );
   }
 }

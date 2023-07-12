@@ -21,4 +21,8 @@ class GuildWindowChangeNotifier extends ChangeNotifier {
   getGuildWindowVisible() {
     return showGuildWindow;
   }
+
+  notify() {
+    notifyListeners();
+  }
 }

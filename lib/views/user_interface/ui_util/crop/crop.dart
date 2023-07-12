@@ -25,6 +25,7 @@ class Crop extends StatelessWidget {
 
   final Uint8List image;
   final ValueChanged<Uint8List> onCropped;
+  final bool hexCrop;
 
   final CropController? controller;
 
@@ -35,6 +36,7 @@ class Crop extends StatelessWidget {
     Key? key,
     required this.image,
     required this.onCropped,
+    required this.hexCrop,
     this.controller,
     this.onStatusChanged,
     this.onResize,
@@ -52,6 +54,7 @@ class Crop extends StatelessWidget {
           child: _CropEditor(
             image: image,
             onCropped: onCropped,
+            hexCrop: hexCrop,
             controller: controller,
             onStatusChanged: onStatusChanged,
             onResize: onResize,
@@ -66,6 +69,7 @@ class _CropEditor extends StatefulWidget {
   final Uint8List image;
   final ValueChanged<Uint8List> onCropped;
   final CropController? controller;
+  final bool hexCrop;
   final ValueChanged<CropStatus>? onStatusChanged;
   final ValueChanged<Uint8List>? onResize;
 
@@ -73,6 +77,7 @@ class _CropEditor extends StatefulWidget {
     Key? key,
     required this.image,
     required this.onCropped,
+    required this.hexCrop,
     this.controller,
     this.onStatusChanged,
     this.onResize,
@@ -114,6 +119,7 @@ class _CropEditorState extends State<_CropEditor> {
     _cropController = widget.controller ?? CropController();
     _cropController.delegate = CropControllerDelegate()
       ..onCrop = _crop
+      ..onReset = resetClipArea
       ..onImageChanged = _resetImage;
 
     super.initState();
@@ -246,6 +252,10 @@ class _CropEditorState extends State<_CropEditor> {
     );
   }
 
+  resetClipArea() {
+    _resetCroppingArea(1.0);
+  }
+
   /// crop given image with given area.
   Future<void> _crop() async {
     cropping = true;
@@ -344,7 +354,7 @@ class _CropEditorState extends State<_CropEditor> {
         ),
         IgnorePointer(
           child: ClipPath(
-            clipper: _CropAreaClipper(_rect),
+            clipper: widget.hexCrop ? _CropAreaHexClipper(_rect) : _CropAreaCrestClipper(_rect),
             child: Container(
               width: double.infinity,
               height: double.infinity,
@@ -455,8 +465,60 @@ class _CropEditorState extends State<_CropEditor> {
   }
 }
 
-class _CropAreaClipper extends CustomClipper<Path> {
-  _CropAreaClipper(this.rect);
+class _CropAreaCrestClipper extends CustomClipper<Path> {
+  _CropAreaCrestClipper(this.rect);
+
+  final Rect rect;
+
+  @override
+  Path getClip(Size size) {
+
+    final path = Path();
+    double width = rect.width;
+    double height = rect.height;
+
+    // Determined these points with some trial and error.
+    List point1 = [width/2 + rect.left, height/93.875 + rect.top];
+    List point2 = [width/4.90441 + rect.left, height/8.94047 + rect.top];
+    List point3 = [width/27.79166 + rect.left, height/11.734375 + rect.top];
+    List point4 = [width/83.375 + rect.left, height/1.61853 + rect.top];
+    List point5 = [width/5.05303 + rect.left, height/1.19586 + rect.top];
+    List point6 = [width/2.41666 + rect.left, height/1.03159 + rect.top];
+    List point7 = [(width/2)-2 + rect.left, height + rect.top];
+    List point8 = [(width/2)+2 + rect.left, height + rect.top];
+    List point9 = [width/1.70153 + rect.left, height/1.03159 + rect.top];
+    List point10 = [width/1.24440 + rect.left, height/1.19586 + rect.top];
+    List point11 = [width/1.010606 + rect.left, height/1.61853 + rect.top];
+    List point12 = [width/1.035714 + rect.left, height/11.734375 + rect.top];
+    List point13 = [width/1.253759 + rect.left, height/8.94047 + rect.top];
+
+    path.moveTo(point1[0], point1[1]);
+    path.lineTo(point2[0], point2[1]);
+    path.lineTo(point3[0], point3[1]);
+    path.lineTo(point4[0], point4[1]);
+    path.lineTo(point5[0], point5[1]);
+    path.lineTo(point6[0], point6[1]);
+    path.lineTo(point7[0], point7[1]);
+    path.lineTo(point8[0], point8[1]);
+    path.lineTo(point9[0], point9[1]);
+    path.lineTo(point10[0], point10[1]);
+    path.lineTo(point11[0], point11[1]);
+    path.lineTo(point12[0], point12[1]);
+    path.lineTo(point13[0], point13[1]);
+    path.close();
+
+    return Path()
+      ..addPath(path, Offset.zero)
+      ..addRect(Rect.fromLTWH(0.0, 0.0, size.width, size.height))
+      ..fillType = PathFillType.evenOdd;
+  }
+
+  @override
+  bool shouldReclip(CustomClipper<Path> oldClipper) => true;
+}
+
+class _CropAreaHexClipper extends CustomClipper<Path> {
+  _CropAreaHexClipper(this.rect);
 
   final Rect rect;
 

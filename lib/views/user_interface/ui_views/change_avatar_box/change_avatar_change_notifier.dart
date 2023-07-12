@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 class ChangeAvatarChangeNotifier extends ChangeNotifier {
 
-  Uint8List _imageData = Uint8List.fromList([]);
+  Uint8List imageData = Uint8List.fromList([]);
   bool showChangeAvatar = false;
 
   static final ChangeAvatarChangeNotifier _instance = ChangeAvatarChangeNotifier._internal();
@@ -25,10 +25,10 @@ class ChangeAvatarChangeNotifier extends ChangeNotifier {
   }
 
   setAvatar(Uint8List imageData) {
-    this._imageData = imageData;
+    this.imageData = imageData;
   }
 
   Uint8List getAvatar() {
-    return _imageData;
+    return imageData;
   }
 }

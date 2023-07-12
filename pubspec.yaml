@@ -107,12 +107,12 @@ flutter:
     - assets/images/gogle_button.png
     - assets/images/github_button.png
     - assets/images/default_avatar.png
-    - assets/images/ui/shield_emblem.png
-    - assets/images/ui/shield_emblem_2.png
-    - assets/images/ui/shield_emblem3.png
+    - assets/images/ui/gold_shield_frame.png
     - assets/images/ui/hexagon_frame_small_fill.png
     - assets/images/ui/icon/globe_icon_no_colour.png
     - assets/images/ui/icon/friend_icon_clean.png
     - assets/images/ui/icon/message_icon_clean.png
     - assets/images/ui/icon/update_notification.png
     - assets/images/ui/icon/guild_icon_clean.png
+    - assets/images/ui/icon/shield_default.png
+    - assets/images/ui/icon/shield_default_temp.png
