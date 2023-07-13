@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:age_of_gold/services/models/friend.dart';
 import 'package:age_of_gold/services/models/guild.dart';
+import 'package:age_of_gold/services/models/guild_member.dart';
 
 class User {
 
@@ -96,6 +97,25 @@ class User {
     this.guild = guild;
   }
 
+  setGuildRank() {
+    if (guild != null) {
+      for (GuildMember member in guild!.getMembers()) {
+        if (member.getGuildMemberId() == id) {
+          if (member.getGuildMemberRank() == 0) {
+            guild!.setGuildRank("Guildmaster");
+          } else if (member.getGuildMemberRank() == 1) {
+            guild!.setGuildRank("Officer");
+          } else if (member.getGuildMemberRank() == 2) {
+            guild!.setGuildRank("Merchant");
+          } else {
+            guild!.setGuildRank("Trader");
+          }
+          return;
+        }
+      }
+    }
+  }
+
   User.fromJson(Map<String, dynamic> json) {
 
     id = json['id'];
@@ -131,6 +151,7 @@ class User {
 
     if (json.containsKey("guild") && json["guild"] != null) {
       guild = Guild.fromJson(json["guild"]);
+      setGuildRank();
     }
   }
 

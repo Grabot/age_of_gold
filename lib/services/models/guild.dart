@@ -2,15 +2,13 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:age_of_gold/services/models/guild_member.dart';
-import 'package:age_of_gold/services/settings.dart';
-
-import 'user.dart';
 
 class Guild {
 
   late int guildId;
   late String guildName;
   Uint8List? guildCrest;
+  String guildRank = "";
 
   // The member ids of the guild, along with their ranks.
   // List<List<int>> members = [[]];
@@ -61,6 +59,14 @@ class Guild {
 
   addMember(GuildMember member) {
     guildMembers.add(member);
+  }
+
+  setGuildRank(String guildRank) {
+    this.guildRank = guildRank;
+  }
+
+  String getGuildRank() {
+    return guildRank;
   }
 
   @override

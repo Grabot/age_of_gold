@@ -58,10 +58,10 @@ Future<void> main() async {
           'chatWindow': _chatWindowBuilder,
           'friendWindow': _friendWindowBuilder,
           'userBox': _userBoxBuilder,
-          'loadingBox': _loadingBoxBuilder,
           'mapCoordinates': _mapCoordinatesBoxBuilder,
           'guildWindow': _guildWindowBoxBuilder,
           'changeGuildCrest': _changeGuildCrestBoxBuilder,
+          'loadingBox': _loadingBoxBuilder,
         },
         initialActiveOverlays: const [
           'chatBox',
@@ -73,10 +73,10 @@ Future<void> main() async {
           'chatWindow',
           'friendWindow',
           'userBox',
-          'loadingBox',
           'mapCoordinates',
           'guildWindow',
           'changeGuildCrest',
+          'loadingBox',
         ],
       )
   );

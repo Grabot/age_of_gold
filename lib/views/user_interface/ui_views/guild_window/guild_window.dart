@@ -42,8 +42,6 @@ class GuildWindowState extends State<GuildWindow> {
   late ChangeGuildCrestChangeNotifier changeGuildCrestChangeNotifier;
   bool showGuildWindow = false;
 
-  Uint8List? defaultImage;
-
   double guildWindowHeight = 0;
   double guildWindowWidth = 100;
   @override
@@ -53,13 +51,8 @@ class GuildWindowState extends State<GuildWindow> {
     _focusGuildWindow.addListener(_onFocusChange);
 
     changeGuildCrestChangeNotifier = ChangeGuildCrestChangeNotifier();
-    if (changeGuildCrestChangeNotifier.getGuildCrest() == null) {
-      rootBundle.load('assets/images/ui/icon/shield_default.png').then((data) {
-        defaultImage = data.buffer.asUint8List();
-        changeGuildCrestChangeNotifier.setGuildCrest(defaultImage!);
-        changeGuildCrestChangeNotifier.setDefault(true);
-      });
-    }
+    changeGuildCrestChangeNotifier.setDefault(true);
+    changeGuildCrestChangeNotifier.setGuildCrest(null);
     super.initState();
   }
 
@@ -93,11 +86,8 @@ class GuildWindowState extends State<GuildWindow> {
       else if (showGuildWindow && !guildWindowChangeNotifier.getGuildWindowVisible()) {
         // If the window is closed we go back to the default.
         // If a guild is created we still set it to default because it is for the creation tab
-        rootBundle.load('assets/images/ui/icon/shield_default.png').then((data) {
-          defaultImage = data.buffer.asUint8List();
-          changeGuildCrestChangeNotifier.setGuildCrest(defaultImage!);
-          changeGuildCrestChangeNotifier.setDefault(true);
-        });
+        changeGuildCrestChangeNotifier.setGuildCrest(null);
+        changeGuildCrestChangeNotifier.setDefault(true);
         setState(() {
           showGuildWindow = false;
         });

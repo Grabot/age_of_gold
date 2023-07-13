@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:age_of_gold/age_of_gold.dart';
+import 'package:age_of_gold/services/auth_service_guild.dart';
 import 'package:age_of_gold/services/models/guild.dart';
 import 'package:age_of_gold/services/models/guild_member.dart';
 import 'package:age_of_gold/services/models/user.dart';
@@ -20,6 +21,7 @@ class GuildWindowOverviewGuildOverview extends StatefulWidget {
   final double overviewWidth;
   final double fontSize;
   final Guild guild;
+  final Function leaveGuild;
 
   const GuildWindowOverviewGuildOverview({
     required Key key,
@@ -28,7 +30,8 @@ class GuildWindowOverviewGuildOverview extends StatefulWidget {
     required this.overviewHeight,
     required this.overviewWidth,
     required this.fontSize,
-    required this.guild
+    required this.guild,
+    required this.leaveGuild,
   }) : super(key: key);
 
   @override
@@ -142,6 +145,23 @@ class GuildWindowOverviewGuildOverviewState extends State<GuildWindowOverviewGui
     return members;
   }
 
+  leaveGuild() {
+    AuthServiceGuild().leaveGuild().then((value) {
+      if (value.getResult()) {
+        print("leave guild success");
+        User? me = Settings().getUser();
+        if (me != null && me.guild != null) {
+          me.guild = null;
+          widget.leaveGuild();
+        } else {
+          showToastMessage("an error occured");
+        }
+      } else {
+        showToastMessage(value.getMessage());
+      }
+    });
+  }
+
   Widget guildOverviewContent(Guild guild) {
     String guildName = guild.getGuildName();
 
@@ -159,26 +179,76 @@ class GuildWindowOverviewGuildOverviewState extends State<GuildWindowOverviewGui
           Row(
             children: [
               guildAvatarBox(
-                  crestWidth,
-                  crestHeight,
-                  guild.getGuildCrest()
+                crestWidth,
+                crestHeight,
+                guild.getGuildCrest()
               ),
-              Expanded(
-                child: RichText(
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    text: TextSpan(
+              SizedBox(width: 20),
+              Container(
+                width: widget.overviewWidth - crestWidth-20,
+                height: crestHeight-100,
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: RichText(
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            text: TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: guildName,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 30,
+                                    fontWeight: FontWeight.bold
+                                  )
+                                )
+                              ]
+                            )
+                          ),
+                        ),
+                      ]
+                    ),
+                    SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                            "Guild rank: ${guild.getGuildRank()}",
+                            style: simpleTextStyle(widget.fontSize)
+                        ),
+                        Container(),
+                      ]
+                    ),
+                    SizedBox(height: 20),
+                    Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          TextSpan(
-                              text: guildName,
-                              style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 30,
-                                  fontWeight: FontWeight.bold
-                              )
-                          )
+                          Text(
+                              "Guild score: 0",
+                              style: simpleTextStyle(widget.fontSize)
+                          ),
+                          ElevatedButton(
+                            onPressed: () {
+                              leaveGuild();
+                            },
+                            style: buttonStyle(true, Colors.red),
+                            child: Container(
+                              alignment: Alignment.center,
+                              width: 60,
+                              height: 30,
+                              child: Text(
+                                'Leave Guild',
+                                style: simpleTextStyle((widget.fontSize/3)*2),
+                              ),
+                            ),
+                          ),
+                          Container(),
                         ]
                     )
+                  ],
                 ),
               ),
             ],

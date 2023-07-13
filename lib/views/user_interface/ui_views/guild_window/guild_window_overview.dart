@@ -63,12 +63,14 @@ class GuildWindowOverviewState extends State<GuildWindowOverview> {
     widget.game.guildWindowFocus(_focusGuildWindow.hasFocus);
   }
 
-  createGuild() {
-    print("pressed the create guild button");
+  leaveGuild() {
+    print("pressed the leave guild button");
     // The information should be set on the "user" object so just refresh the state
-    setState(() {
+    setState(() {});
+  }
 
-    });
+  createGuild() {
+    setState(() {});
   }
 
   UniqueKey guildWindowOverviewNoGuildKey = UniqueKey();
@@ -94,6 +96,7 @@ class GuildWindowOverviewState extends State<GuildWindowOverview> {
           overviewWidth: widget.overviewWidth,
           fontSize: widget.fontSize,
           guild: me.getGuild()!,
+          leaveGuild: leaveGuild,
       );
     }
   }

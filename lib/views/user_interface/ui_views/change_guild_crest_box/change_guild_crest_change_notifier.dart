@@ -25,7 +25,7 @@ class ChangeGuildCrestChangeNotifier extends ChangeNotifier {
     return showChangeGuildCrest;
   }
 
-  setGuildCrest(Uint8List imageData) {
+  setGuildCrest(Uint8List? imageData) {
     this.imageData = imageData;
   }
 

@@ -56,6 +56,7 @@ class GuildWindowOverviewGuildNewMembersState extends State<GuildWindowOverviewG
     double backToOverviewHeight = 40;
     double remainingHeight = widget.overviewHeight - crestHeight - backToOverviewHeight;
 
+    // TODO: Fix functionality
     return Column(
       children: [
         Row(

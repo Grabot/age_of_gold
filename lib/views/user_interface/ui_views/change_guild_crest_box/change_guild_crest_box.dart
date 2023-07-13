@@ -56,6 +56,16 @@ class ChangeGuildCrestBoxState extends State<ChangeGuildCrestBox> with TickerPro
           showChangeGuildCrest = true;
           imageMain = changeGuildCrestChangeNotifier.getGuildCrest();
           imageCrop = changeGuildCrestChangeNotifier.getGuildCrest();
+          if (imageMain == null) {
+            rootBundle.load('assets/images/ui/icon/shield_default.png').then((data) {
+              Uint8List defaultImage = data.buffer.asUint8List();
+              changeGuildCrestChangeNotifier.setDefault(true);
+              setState(() {
+                imageMain = defaultImage;
+                imageCrop = defaultImage;
+              });
+            });
+          }
         });
       }
       if (showChangeGuildCrest && !changeGuildCrestChangeNotifier.getChangeGuildCrestVisible()) {
@@ -128,11 +138,11 @@ class ChangeGuildCrestBoxState extends State<ChangeGuildCrestBox> with TickerPro
   resetDefaultImage() {
     print("resetting default image");
     rootBundle.load('assets/images/ui/icon/shield_default.png').then((data) {
-      Uint8List testImage = data.buffer.asUint8List();
+      Uint8List defaultImage = data.buffer.asUint8List();
       changeGuildCrestChangeNotifier.setDefault(true);
       setState(() {
-        imageMain = testImage;
-        imageCrop = testImage;
+        imageMain = defaultImage;
+        imageCrop = defaultImage;
         cropController.reset();
       });
     });

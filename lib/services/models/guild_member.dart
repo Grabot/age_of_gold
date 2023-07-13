@@ -36,6 +36,10 @@ class GuildMember {
     return guildMemberId;
   }
 
+  int? getGuildMemberRank() {
+    return guildMemberRank;
+  }
+
   setGuildMemberName(String? guildMemberName) {
     this.guildMemberName = guildMemberName;
     if (guildMemberAvatar != null && guildMemberName != null) {

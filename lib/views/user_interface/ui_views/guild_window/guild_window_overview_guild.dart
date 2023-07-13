@@ -22,6 +22,7 @@ class GuildWindowOverviewGuild extends StatefulWidget {
   final double overviewWidth;
   final double fontSize;
   final Guild guild;
+  final Function leaveGuild;
 
   const GuildWindowOverviewGuild({
     required Key key,
@@ -31,6 +32,7 @@ class GuildWindowOverviewGuild extends StatefulWidget {
     required this.overviewWidth,
     required this.fontSize,
     required this.guild,
+    required this.leaveGuild,
   }) : super(key: key);
 
   @override
@@ -182,17 +184,18 @@ class GuildWindowOverviewGuildState extends State<GuildWindowOverviewGuild> {
         key: guildWindowOverviewGuildOverviewKey,
         game: widget.game,
         normalMode: widget.normalMode,
-        overviewHeight: widget.overviewHeight-40,
+        overviewHeight: widget.overviewHeight-iconSize,
         overviewWidth: widget.overviewWidth,
         fontSize: widget.fontSize,
         guild: widget.guild,
+        leaveGuild: widget.leaveGuild,
       );
     } else {
       return GuildWindowOverviewGuildNewMembers(
         key: guildWindowOverviewGuildNewMembersKey,
         game: widget.game,
         normalMode: widget.normalMode,
-        overviewHeight: widget.overviewHeight-40,
+        overviewHeight: widget.overviewHeight-iconSize,
         overviewWidth: widget.overviewWidth,
         fontSize: widget.fontSize,
         guild: widget.guild,

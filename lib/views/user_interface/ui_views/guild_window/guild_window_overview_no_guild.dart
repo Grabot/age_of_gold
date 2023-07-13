@@ -57,10 +57,8 @@ class GuildWindowOverviewNoGuildState extends State<GuildWindowOverviewNoGuild> 
 
   switchToOverview() {
     // We'll also change the guild crest to the default one. This is because nothing is created.
-    rootBundle.load('assets/images/ui/icon/shield_default.png').then((data) {
-      changeGuildCrestChangeNotifier.setGuildCrest(data.buffer.asUint8List());
-      changeGuildCrestChangeNotifier.setDefault(true);
-    });
+    changeGuildCrestChangeNotifier.setGuildCrest(null);
+    changeGuildCrestChangeNotifier.setDefault(true);
     showGuildOverview = true;
     createGuildView = false;
     findGuildView = false;
@@ -80,10 +78,8 @@ class GuildWindowOverviewNoGuildState extends State<GuildWindowOverviewNoGuild> 
 
   switchToFind() {
     // We'll also change the guild crest to the default one. This is because nothing is created.
-    rootBundle.load('assets/images/ui/icon/shield_default.png').then((data) {
-      changeGuildCrestChangeNotifier.setGuildCrest(data.buffer.asUint8List());
-      changeGuildCrestChangeNotifier.setDefault(true);
-    });
+    changeGuildCrestChangeNotifier.setGuildCrest(null);
+    changeGuildCrestChangeNotifier.setDefault(true);
     showGuildOverview = false;
     createGuildView = false;
     findGuildView = true;
@@ -237,7 +233,7 @@ class GuildWindowOverviewNoGuildState extends State<GuildWindowOverviewNoGuild> 
   Widget bottomButtons() {
     return SizedBox(
       width: widget.overviewWidth,
-      height: 40,
+      height: iconSize,
       child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -258,7 +254,7 @@ class GuildWindowOverviewNoGuildState extends State<GuildWindowOverviewNoGuild> 
         key: guildWindowOverviewNoGuildOverviewKey,
         game: widget.game,
         normalMode: widget.normalMode,
-        overviewHeight: widget.overviewHeight-40,
+        overviewHeight: widget.overviewHeight-iconSize,
         overviewWidth: widget.overviewWidth,
         fontSize: widget.fontSize,
       );
@@ -267,7 +263,7 @@ class GuildWindowOverviewNoGuildState extends State<GuildWindowOverviewNoGuild> 
           key: guildWindowOverviewNoGuildCreateKey,
           game: widget.game,
           normalMode: widget.normalMode,
-          overviewHeight: widget.overviewHeight-40,
+          overviewHeight: widget.overviewHeight-iconSize,
           overviewWidth: widget.overviewWidth,
           fontSize: widget.fontSize,
           createGuild: widget.createGuild,
@@ -277,7 +273,7 @@ class GuildWindowOverviewNoGuildState extends State<GuildWindowOverviewNoGuild> 
         key: guildWindowOverviewNoGuildFindKey,
         game: widget.game,
         normalMode: widget.normalMode,
-        overviewHeight: widget.overviewHeight-40,
+        overviewHeight: widget.overviewHeight-iconSize,
         overviewWidth: widget.overviewWidth,
         fontSize: widget.fontSize,
       );
