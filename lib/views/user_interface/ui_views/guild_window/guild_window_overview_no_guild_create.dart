@@ -10,6 +10,7 @@ import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/util/render_objects.dart';
 import 'package:age_of_gold/util/util.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/change_guild_crest_box/change_guild_crest_change_notifier.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/profile_box/profile_change_notifier.dart';
 import 'package:flutter/material.dart';
 
 
@@ -81,6 +82,7 @@ class GuildWindowOverviewNoGuildCreateState extends State<GuildWindowOverviewNoG
             createdGuild.addMember(guildMember);
             me.setGuild(createdGuild);
             widget.createGuild();
+            ProfileChangeNotifier().notify();
           } else {
             showToastMessage(value.getMessage());
           }

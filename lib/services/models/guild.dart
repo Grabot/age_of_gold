@@ -14,11 +14,14 @@ class Guild {
   // List<List<int>> members = [[]];
   List<GuildMember> guildMembers = [];
 
+  bool? accepted;
+  bool? requested;
+
   Guild(this.guildId, this.guildName, this.guildCrest);
 
   Guild.fromJson(Map<String, dynamic> json) {
-    if (json.containsKey("id")) {
-      guildId = json['id'];
+    if (json.containsKey("guild_id")) {
+      guildId = json['guild_id'];
     }
     if (json.containsKey("guild_name")) {
       guildName = json['guild_name'];
@@ -34,6 +37,12 @@ class Guild {
         GuildMember guildMember = GuildMember(memberId, memberRank);
         guildMembers.add(guildMember);
       }
+    }
+    if (json.containsKey("accepted")) {
+      accepted = json['accepted'];
+    }
+    if (json.containsKey("requested")) {
+      requested = json['requested'];
     }
   }
 

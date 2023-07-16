@@ -1,6 +1,8 @@
 import 'dart:typed_data';
 
 import 'package:age_of_gold/age_of_gold.dart';
+import 'package:age_of_gold/services/auth_service_guild.dart';
+import 'package:age_of_gold/services/auth_service_social.dart';
 import 'package:age_of_gold/services/models/guild.dart';
 import 'package:age_of_gold/services/models/guild_member.dart';
 import 'package:age_of_gold/services/models/user.dart';
@@ -39,6 +41,13 @@ class GuildWindowOverviewGuildNewMembersState extends State<GuildWindowOverviewG
 
   late ChangeGuildCrestChangeNotifier changeGuildCrestChangeNotifier;
 
+  final FocusNode _focusNewMembersWindow = FocusNode();
+  TextEditingController newMembersController = TextEditingController();
+  final GlobalKey<FormState> newMembersKey = GlobalKey<FormState>();
+
+  bool nothingFound = false;
+  User? foundNewMember;
+
   @override
   void initState() {
     changeGuildCrestChangeNotifier = ChangeGuildCrestChangeNotifier();
@@ -50,13 +59,113 @@ class GuildWindowOverviewGuildNewMembersState extends State<GuildWindowOverviewG
     super.dispose();
   }
 
+  findNewMemberAction() {
+    print("pressed search for new guilds");
+    if (newMembersKey.currentState!.validate()) {
+      AuthServiceSocial().searchPossibleFriend(newMembersController.text).then((value) {
+        print("search result $value");
+        if (value != null) {
+          setState(() {
+            foundNewMember = value;
+            print("found friend");
+          });
+        } else {
+          setState(() {
+            nothingFound = true;
+          });
+        }
+      });
+    }
+  }
+
+  askNewMemberToJoin(User newMember) {
+    AuthServiceGuild().askNewMember(newMember.id).then((response) {
+      if (response.getResult()) {
+        showToastMessage("Request send to user");
+        setState(() {
+          print("new member is asked to join");
+        });
+      } else {
+        showToastMessage(response.getMessage());
+      }
+    });
+  }
+
+  Widget newMemberInteraction(User newMember, double newFriendOptionWidth, double fontSize) {
+    return SizedBox(
+      width: newFriendOptionWidth,
+      height: 40,
+      child: Row(
+          children: [
+            ElevatedButton(
+              onPressed: () {
+                askNewMemberToJoin(newMember);
+              },
+              style: buttonStyle(false, Colors.blue),
+              child: Container(
+                alignment: Alignment.center,
+                child: Text(
+                  "Ask to join guild",
+                  style: simpleTextStyle(widget.fontSize),
+                ),
+              ),
+            )
+          ]
+      ),
+    );
+  }
+
+  Widget newMemberInABox(User newMember, double avatarBoxSize, double newFriendOptionWidth, double fontSizeBox) {
+    String userName = newMember.getUserName();
+    Uint8List? memberAvatar = newMember.getAvatar();
+    return Row(
+        children: [
+          avatarBox(avatarBoxSize, avatarBoxSize, memberAvatar),
+          SizedBox(
+              width: widget.overviewWidth - avatarBoxSize - newFriendOptionWidth,
+              child: Text(
+                  userName,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: fontSizeBox * 2
+                  )
+              )
+          ),
+          newMemberInteraction(newMember, newFriendOptionWidth, fontSizeBox),
+        ]
+    );
+  }
+
+  Widget newMemberBox(double avatarBoxSize) {
+    double newFriendOptionWidth = 200;
+    double fontSizeBox = widget.fontSize;
+    if (!widget.normalMode) {
+      avatarBoxSize = avatarBoxSize / 1.2;
+      fontSizeBox = fontSizeBox / 1.8;
+    }
+
+    if (foundNewMember != null) {
+      return newMemberInABox(foundNewMember!, avatarBoxSize, newFriendOptionWidth, fontSizeBox);
+    } else {
+      if (nothingFound) {
+        return Text(
+          "No user found with that name",
+          style: simpleTextStyle(fontSizeBox),
+        );
+      } else {
+        return Container();
+      }
+    }
+  }
+
   Widget newMembersGuildContent(Guild guild) {
 
     double crestHeight = 225;
     double backToOverviewHeight = 40;
     double remainingHeight = widget.overviewHeight - crestHeight - backToOverviewHeight;
 
-    // TODO: Fix functionality
     return Column(
       children: [
         Row(
@@ -100,12 +209,12 @@ class GuildWindowOverviewGuildNewMembersState extends State<GuildWindowOverviewG
                           width: widget.overviewWidth - 150,
                           height: 50,
                           child: Form(
-                            // key: addFriendKey,
+                            key: newMembersKey,
                             child: TextFormField(
                               onTap: () {
-                                // if (!_focusGuildWindow.hasFocus) {
-                                //   _focusGuildWindow.requestFocus();
-                                // }
+                                if (!_focusNewMembersWindow.hasFocus) {
+                                  _focusNewMembersWindow.requestFocus();
+                                }
                               },
                               validator: (val) {
                                 return val == null || val.isEmpty
@@ -113,10 +222,10 @@ class GuildWindowOverviewGuildNewMembersState extends State<GuildWindowOverviewG
                                     : null;
                               },
                               onFieldSubmitted: (value) {
-                                print("pressed search for guild member");
+                                findNewMemberAction();
                               },
-                              // focusNode: _focusAdd,
-                              // controller: addController,
+                              focusNode: _focusNewMembersWindow,
+                              controller: newMembersController,
                               textAlign: TextAlign.center,
                               style: simpleTextStyle(widget.fontSize),
                               decoration: textFieldInputDecoration("Search for new members for your guild"),
@@ -125,7 +234,7 @@ class GuildWindowOverviewGuildNewMembersState extends State<GuildWindowOverviewG
                         ),
                         GestureDetector(
                           onTap: () {
-                            print("pressed search for guild member");
+                            findNewMemberAction();
                           },
                           child: Container(
                               height: 50,
@@ -141,7 +250,7 @@ class GuildWindowOverviewGuildNewMembersState extends State<GuildWindowOverviewG
                       ]
                   ),
                   SizedBox(height: 40),
-                  // friendBox(possibleNewFriend, 120, addFriendWindowWidth, fontSize),
+                  newMemberBox(120),
                 ]
             ),
           ),

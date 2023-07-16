@@ -45,10 +45,21 @@ class GuildWindowOverviewNoGuildFindState extends State<GuildWindowOverviewNoGui
   bool nothingFound = false;
   Guild? foundGuild;
 
+  List<Guild> guildsRequested = [];
+
   @override
   void initState() {
     changeGuildCrestChangeNotifier = ChangeGuildCrestChangeNotifier();
     _focusFindGuild.addListener(_onFocusFindGuild);
+    AuthServiceGuild().getRequestedSendGuilds().then((response) {
+      if (response != null) {
+        setState(() {
+          guildsRequested = response;
+        });
+      } else {
+        print("no requests");
+      }
+    });
     super.initState();
   }
 
@@ -79,69 +90,128 @@ class GuildWindowOverviewNoGuildFindState extends State<GuildWindowOverviewNoGui
     }
   }
 
-  requestToJoinGuild() {
-
+  requestToJoinGuild(Guild guildRequested) {
+    AuthServiceGuild().requestToJoin(guildRequested.guildId).then((response) {
+      if (response.getResult()) {
+        print("request to join guild was successful");
+        showToastMessage("Requested to join guild ${guildRequested.guildName}");
+        setState(() {
+          guildsRequested.add(guildRequested);
+        });
+      } else {
+        showToastMessage(response.getMessage());
+      }
+    });
   }
 
-  Widget guildInteraction(double newFriendOptionWidth, double fontSize) {
+  cancelRequest(Guild guildToCancel) {
+    AuthServiceGuild().cancelGuildRequest(guildToCancel.guildId).then((response) {
+      if (response.getResult()) {
+        // remove guildToCancel from the guildsRequested list
+        guildsRequested.removeWhere((element) => element.guildId == guildToCancel.guildId);
+        setState(() {
+          showToastMessage("guild request cancelled");
+        });
+      } else {
+        showToastMessage(response.getMessage());
+      }
+    });
+  }
+
+  Widget guildInteraction(Guild guild, double newFriendOptionWidth, double fontSize, bool request) {
+    if (request) {
+      return SizedBox(
+        width: newFriendOptionWidth,
+        height: 40,
+        child: Row(
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  requestToJoinGuild(guild);
+                },
+                style: buttonStyle(false, Colors.blue),
+                child: Container(
+                  alignment: Alignment.center,
+                  child: Text(
+                    "Request to join guild",
+                    style: simpleTextStyle(widget.fontSize),
+                  ),
+                ),
+              )
+            ]
+        ),
+      );
+    } else {
+      return SizedBox(
+        width: newFriendOptionWidth,
+        height: 40,
+        child: Row(
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  cancelRequest(guild);
+                },
+                style: buttonStyle(false, Colors.blue),
+                child: Container(
+                  alignment: Alignment.center,
+                  child: Text(
+                    "Cancel request",
+                    style: simpleTextStyle(widget.fontSize),
+                  ),
+                ),
+              )
+            ]
+        ),
+      );
+    }
+  }
+
+  Widget requestedGuildsHeader() {
     return Container(
-      width: newFriendOptionWidth,
+      width: widget.overviewWidth,
       height: 40,
       child: Row(
-          children: [
-            ElevatedButton(
-              onPressed: () {
-                requestToJoinGuild();
-              },
-              style: buttonStyle(false, Colors.blue),
-              child: Container(
-                alignment: Alignment.center,
-                child: Text(
-                  "Request to join guild",
-                  style: simpleTextStyle(widget.fontSize),
-                ),
-              ),
-            )
-          ]
+        children: [
+          Text(
+            "Pending requests: ",
+            style: simpleTextStyle(widget.fontSize),
+          )
+        ],
       ),
     );
   }
 
+  List<Widget> requestedGuildBox() {
+    if (guildsRequested.isEmpty) {
+      return [];
+    } else {
+      List<Widget> requestedGuilds = [];
+      requestedGuilds.add(requestedGuildsHeader());
+      for (Guild requestedGuild in guildsRequested) {
+        requestedGuilds.add(
+            guildInABox(
+              requestedGuild,
+              80,
+              200,
+              widget.fontSize,
+              false
+            )
+        );
+      }
+      return requestedGuilds;
+    }
+  }
+
   Widget guildBox(double avatarBoxSize) {
     double newFriendOptionWidth = 200;
-    double sidePadding = 40;
     double fontSizeBox = widget.fontSize;
     if (!widget.normalMode) {
       avatarBoxSize = avatarBoxSize / 1.2;
       fontSizeBox = fontSizeBox / 1.8;
-      sidePadding = 10;
     }
 
     if (foundGuild != null) {
-      String guildName = foundGuild!.getGuildName();
-      Uint8List? guildCrest = foundGuild!.getGuildCrest();
-      return Row(
-          children: [
-            guildAvatarBox(
-                avatarBoxSize,
-                avatarBoxSize * 1.125,
-                guildCrest
-            ),
-            SizedBox(
-                width: widget.overviewWidth - avatarBoxSize - newFriendOptionWidth,
-                child: Text(
-                    guildName,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: fontSizeBox * 2
-                    )
-                )
-            ),
-            guildInteraction(newFriendOptionWidth, fontSizeBox),
-          ]
-      );
+      return guildInABox(foundGuild!, avatarBoxSize, newFriendOptionWidth, fontSizeBox, true);
     } else {
       if (nothingFound) {
         return Text(
@@ -152,6 +222,33 @@ class GuildWindowOverviewNoGuildFindState extends State<GuildWindowOverviewNoGui
         return Container();
       }
     }
+  }
+
+  Widget guildInABox(Guild guild, double avatarBoxSize, double newFriendOptionWidth, double fontSizeBox, bool request) {
+    String guildName = guild.getGuildName();
+    Uint8List? guildCrest = guild.getGuildCrest();
+    return Row(
+        children: [
+          guildAvatarBox(
+              avatarBoxSize,
+              avatarBoxSize * 1.125,
+              guildCrest
+          ),
+          SizedBox(
+              width: widget.overviewWidth - avatarBoxSize - newFriendOptionWidth,
+              child: Text(
+                  guildName,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: fontSizeBox * 2
+                  )
+              )
+          ),
+          guildInteraction(guild, newFriendOptionWidth, fontSizeBox, request),
+        ]
+    );
   }
 
   Widget findGuildContent() {
@@ -244,6 +341,9 @@ class GuildWindowOverviewNoGuildFindState extends State<GuildWindowOverviewNoGui
                   ),
                   SizedBox(height: 40),
                   guildBox(120),
+                  Column(
+                    children: requestedGuildBox(),
+                  ),
                 ]
             ),
           ),

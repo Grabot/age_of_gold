@@ -84,4 +84,109 @@ class AuthServiceGuild {
     }
   }
 
+  Future<BaseResponse> requestToJoin(int guildId) async {
+    String endPoint = "guild/request";
+    var response = await AuthApi().dio.post(endPoint,
+        options: Options(headers: {
+          HttpHeaders.contentTypeHeader: "application/json",
+        }),
+        data: jsonEncode(<String, dynamic> {
+          "guild_id": guildId,
+        }
+      )
+    );
+
+    BaseResponse baseResponse = BaseResponse.fromJson(response.data);
+    return baseResponse;
+  }
+
+  Future<List<Guild>?> getRequestedSendGuilds() async {
+    String endPoint = "guild/requests/get/send";
+    var response = await AuthApi().dio.get(endPoint,
+        options: Options(headers: {
+          HttpHeaders.contentTypeHeader: "application/json",
+        }),
+    );
+
+    Map<String, dynamic> json = response.data;
+    if (!json.containsKey("result")) {
+      return null;
+    } else {
+      if (json["result"]) {
+        if (json.containsKey("guild_requests")) {
+          List requests = json["guild_requests"];
+          List<Guild> guilds = [];
+          for (Map<String, dynamic> request in requests) {
+            guilds.add(Guild.fromJson(request));
+          }
+          return guilds;
+        } else {
+          return null;
+        }
+      } else {
+        return null;
+      }
+    }
+  }
+
+  // Future<List<Guild>?> getRequestedReceivedGuilds() async {
+  //   String endPoint = "guild/requests/get/received";
+  //   var response = await AuthApi().dio.get(endPoint,
+  //     options: Options(headers: {
+  //       HttpHeaders.contentTypeHeader: "application/json",
+  //     }),
+  //   );
+  //
+  //   Map<String, dynamic> json = response.data;
+  //   if (!json.containsKey("result")) {
+  //     return null;
+  //   } else {
+  //     if (json["result"]) {
+  //       if (json.containsKey("guild_requests")) {
+  //         List requests = json["guild_requests"];
+  //         List<Guild> guilds = [];
+  //         for (Map<String, dynamic> request in requests) {
+  //           guilds.add(Guild.fromJson(request));
+  //         }
+  //         return guilds;
+  //       } else {
+  //         return null;
+  //       }
+  //     } else {
+  //       return null;
+  //     }
+  //   }
+  // }
+
+  Future<BaseResponse> cancelGuildRequest(int guildId) async {
+    String endPoint = "guild/request/cancel";
+    var response = await AuthApi().dio.post(endPoint,
+        options: Options(headers: {
+          HttpHeaders.contentTypeHeader: "application/json",
+        }),
+        data: jsonEncode(<String, dynamic> {
+          "guild_id": guildId,
+        }
+      )
+    );
+
+    BaseResponse baseResponse = BaseResponse.fromJson(response.data);
+    return baseResponse;
+  }
+
+  Future<BaseResponse> askNewMember(int newMemberId) async {
+    String endPoint = "guild/member/new";
+    var response = await AuthApi().dio.post(endPoint,
+        options: Options(headers: {
+          HttpHeaders.contentTypeHeader: "application/json",
+        }),
+        data: jsonEncode(<String, dynamic> {
+          "user_id": newMemberId,
+        }
+      )
+    );
+
+    BaseResponse baseResponse = BaseResponse.fromJson(response.data);
+    return baseResponse;
+  }
 }

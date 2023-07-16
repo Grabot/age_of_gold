@@ -122,6 +122,16 @@ class SocialInteractionState extends State<SocialInteraction> with TickerProvide
     }
   }
 
+  Color overviewColourGrey(int state) {
+    if (state == 0) {
+      return Colors.grey;
+    } else if (state == 1) {
+      return Colors.grey.shade400;
+    } else {
+      return Colors.grey.shade800;
+    }
+  }
+
   Widget friendOverviewButton(double profileButtonSize) {
     return SizedBox(
       child: Row(
@@ -221,6 +231,13 @@ class SocialInteractionState extends State<SocialInteraction> with TickerProvide
   }
 
   Widget guildOverviewButton(double guildButtonSize) {
+    bool inAGuild = false;
+    User? me = Settings().getUser();
+    if (me != null) {
+      if (me.guild != null) {
+        inAGuild = true;
+      }
+    }
     return SizedBox(
       child: Row(
           children: [
@@ -246,7 +263,9 @@ class SocialInteractionState extends State<SocialInteraction> with TickerProvide
                       height: guildButtonSize,
                       child: ClipOval(
                           child: Material(
-                            color: overviewColour(guildOverviewState),
+                            color: inAGuild
+                                ? overviewColour(guildOverviewState)
+                                : overviewColourGrey(guildOverviewState),
                           )
                       ),
                     ),
