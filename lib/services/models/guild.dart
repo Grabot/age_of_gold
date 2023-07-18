@@ -46,6 +46,10 @@ class Guild {
     }
   }
 
+  int getGuildId() {
+    return guildId;
+  }
+
   String getGuildName() {
     return guildName;
   }

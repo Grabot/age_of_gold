@@ -48,10 +48,31 @@ class GuildWindowOverviewGuildNewMembersState extends State<GuildWindowOverviewG
   bool nothingFound = false;
   User? foundNewMember;
 
+  List<User> askedMembers = [];
+  List<User> requestedMembers = [];
+
   @override
   void initState() {
     changeGuildCrestChangeNotifier = ChangeGuildCrestChangeNotifier();
     super.initState();
+    // AuthServiceGuild().getRequestedReceivedGuilds(widget.guild.getGuildId()).then((response) {
+    //   if (response != null) {
+    //     setState(() {
+    //       askedMembers = response;
+    //     });
+    //   } else {
+    //     print("no requests");
+    //   }
+    // });
+    // AuthServiceGuild().getRequestedReceivedGuilds(widget.guild.getGuildId()).then((response) {
+    //   if (response != null) {
+    //     setState(() {
+    //       askedMembers = response;
+    //     });
+    //   } else {
+    //     print("no requests");
+    //   }
+    // });
   }
 
   @override
@@ -71,6 +92,7 @@ class GuildWindowOverviewGuildNewMembersState extends State<GuildWindowOverviewG
           });
         } else {
           setState(() {
+            foundNewMember = null;
             nothingFound = true;
           });
         }
@@ -83,12 +105,48 @@ class GuildWindowOverviewGuildNewMembersState extends State<GuildWindowOverviewG
       if (response.getResult()) {
         showToastMessage("Request send to user");
         setState(() {
+          askedMembers.add(newMember);
           print("new member is asked to join");
         });
       } else {
         showToastMessage(response.getMessage());
       }
     });
+  }
+
+  Widget newMembersRequestsHeader() {
+    return Container(
+      width: widget.overviewWidth,
+      height: 40,
+      child: Row(
+        children: [
+          Text(
+            "Pending requests: ",
+            style: simpleTextStyle(widget.fontSize),
+          )
+        ],
+      ),
+    );
+  }
+
+  List<Widget> requestedGuildBox() {
+    if (askedMembers.isEmpty) {
+      return [];
+    } else {
+      List<Widget> requestedMembers = [];
+      requestedMembers.add(newMembersRequestsHeader());
+      for (User requestedMember in askedMembers) {
+        requestedMembers.add(
+            newMemberInABox(
+                requestedMember,
+                80,
+                200,
+                widget.fontSize
+            )
+        );
+      }
+      return requestedMembers;
+    }
   }
 
   Widget newMemberInteraction(User newMember, double newFriendOptionWidth, double fontSize) {
@@ -251,6 +309,9 @@ class GuildWindowOverviewGuildNewMembersState extends State<GuildWindowOverviewG
                   ),
                   SizedBox(height: 40),
                   newMemberBox(120),
+                  Column(
+                    children: requestedGuildBox()
+                  )
                 ]
             ),
           ),

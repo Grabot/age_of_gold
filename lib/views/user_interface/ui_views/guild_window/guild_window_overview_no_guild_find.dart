@@ -45,19 +45,29 @@ class GuildWindowOverviewNoGuildFindState extends State<GuildWindowOverviewNoGui
   bool nothingFound = false;
   Guild? foundGuild;
 
-  List<Guild> guildsRequested = [];
+  List<Guild> guildsSendRequests = [];
+  List<Guild> guildsGotRequests = [];
 
   @override
   void initState() {
     changeGuildCrestChangeNotifier = ChangeGuildCrestChangeNotifier();
     _focusFindGuild.addListener(_onFocusFindGuild);
-    AuthServiceGuild().getRequestedSendGuilds().then((response) {
+    // AuthServiceGuild().getRequestedUserSend().then((response) {
+    //   if (response != null) {
+    //     setState(() {
+    //       guildsSendRequests = response;
+    //     });
+    //   } else {
+    //     print("no requests send");
+    //   }
+    // });
+    AuthServiceGuild().getRequestedUserGot().then((response) {
       if (response != null) {
         setState(() {
-          guildsRequested = response;
+          guildsGotRequests = response;
         });
       } else {
-        print("no requests");
+        print("no requests got");
       }
     });
     super.initState();
@@ -83,6 +93,7 @@ class GuildWindowOverviewNoGuildFindState extends State<GuildWindowOverviewNoGui
           });
         } else {
           setState(() {
+            foundGuild = null;
             nothingFound = true;
           });
         }
@@ -96,7 +107,7 @@ class GuildWindowOverviewNoGuildFindState extends State<GuildWindowOverviewNoGui
         print("request to join guild was successful");
         showToastMessage("Requested to join guild ${guildRequested.guildName}");
         setState(() {
-          guildsRequested.add(guildRequested);
+          guildsSendRequests.add(guildRequested);
         });
       } else {
         showToastMessage(response.getMessage());
@@ -108,7 +119,7 @@ class GuildWindowOverviewNoGuildFindState extends State<GuildWindowOverviewNoGui
     AuthServiceGuild().cancelGuildRequest(guildToCancel.guildId).then((response) {
       if (response.getResult()) {
         // remove guildToCancel from the guildsRequested list
-        guildsRequested.removeWhere((element) => element.guildId == guildToCancel.guildId);
+        guildsSendRequests.removeWhere((element) => element.guildId == guildToCancel.guildId);
         setState(() {
           showToastMessage("guild request cancelled");
         });
@@ -118,7 +129,20 @@ class GuildWindowOverviewNoGuildFindState extends State<GuildWindowOverviewNoGui
     });
   }
 
-  Widget guildInteraction(Guild guild, double newFriendOptionWidth, double fontSize, bool request) {
+  acceptRequest(Guild guildToAccept) {
+    AuthServiceGuild().acceptGuildRequest(guildToAccept.guildId).then((response) {
+      if (response.getResult()) {
+        // remove guildToCancel from the guildsRequested list
+        setState(() {
+          showToastMessage("guild request accepted");
+        });
+      } else {
+        showToastMessage(response.getMessage());
+      }
+    });
+  }
+
+  Widget guildInteraction(Guild guild, double newFriendOptionWidth, double fontSize, bool request, bool send) {
     if (request) {
       return SizedBox(
         width: newFriendOptionWidth,
@@ -142,31 +166,55 @@ class GuildWindowOverviewNoGuildFindState extends State<GuildWindowOverviewNoGui
         ),
       );
     } else {
-      return SizedBox(
-        width: newFriendOptionWidth,
-        height: 40,
-        child: Row(
-            children: [
-              ElevatedButton(
-                onPressed: () {
-                  cancelRequest(guild);
-                },
-                style: buttonStyle(false, Colors.blue),
-                child: Container(
-                  alignment: Alignment.center,
-                  child: Text(
-                    "Cancel request",
-                    style: simpleTextStyle(widget.fontSize),
+      if (send) {
+        return SizedBox(
+          width: newFriendOptionWidth,
+          height: 40,
+          child: Row(
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    cancelRequest(guild);
+                  },
+                  style: buttonStyle(false, Colors.blue),
+                  child: Container(
+                    alignment: Alignment.center,
+                    child: Text(
+                      "Cancel request",
+                      style: simpleTextStyle(widget.fontSize),
+                    ),
                   ),
-                ),
-              )
-            ]
-        ),
-      );
+                )
+              ]
+          ),
+        );
+      } else {
+        return SizedBox(
+          width: newFriendOptionWidth,
+          height: 40,
+          child: Row(
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    acceptRequest(guild);
+                  },
+                  style: buttonStyle(false, Colors.blue),
+                  child: Container(
+                    alignment: Alignment.center,
+                    child: Text(
+                      "Accept request!",
+                      style: simpleTextStyle(widget.fontSize),
+                    ),
+                  ),
+                )
+              ]
+          ),
+        );
+      }
     }
   }
 
-  Widget requestedGuildsHeader() {
+  Widget requestedGuildsSendHeader() {
     return Container(
       width: widget.overviewWidth,
       height: 40,
@@ -181,20 +229,40 @@ class GuildWindowOverviewNoGuildFindState extends State<GuildWindowOverviewNoGui
     );
   }
 
-  List<Widget> requestedGuildBox() {
-    if (guildsRequested.isEmpty) {
+  Widget requestedGuildsGotHeader() {
+    return Container(
+      width: widget.overviewWidth,
+      height: 40,
+      child: Row(
+        children: [
+          Text(
+            "Guild requests: ",
+            style: simpleTextStyle(widget.fontSize),
+          )
+        ],
+      ),
+    );
+  }
+
+  List<Widget> requestedGuildBox(List<Guild> guilds, bool send) {
+    if (guilds.isEmpty) {
       return [];
     } else {
       List<Widget> requestedGuilds = [];
-      requestedGuilds.add(requestedGuildsHeader());
-      for (Guild requestedGuild in guildsRequested) {
+      if (send) {
+        requestedGuilds.add(requestedGuildsSendHeader());
+      } else {
+        requestedGuilds.add(requestedGuildsGotHeader());
+      }
+      for (Guild requestedGuild in guilds) {
         requestedGuilds.add(
             guildInABox(
               requestedGuild,
               80,
               200,
               widget.fontSize,
-              false
+              false,
+              send
             )
         );
       }
@@ -211,7 +279,7 @@ class GuildWindowOverviewNoGuildFindState extends State<GuildWindowOverviewNoGui
     }
 
     if (foundGuild != null) {
-      return guildInABox(foundGuild!, avatarBoxSize, newFriendOptionWidth, fontSizeBox, true);
+      return guildInABox(foundGuild!, avatarBoxSize, newFriendOptionWidth, fontSizeBox, true, true);
     } else {
       if (nothingFound) {
         return Text(
@@ -224,7 +292,7 @@ class GuildWindowOverviewNoGuildFindState extends State<GuildWindowOverviewNoGui
     }
   }
 
-  Widget guildInABox(Guild guild, double avatarBoxSize, double newFriendOptionWidth, double fontSizeBox, bool request) {
+  Widget guildInABox(Guild guild, double avatarBoxSize, double newFriendOptionWidth, double fontSizeBox, bool request, bool send) {
     String guildName = guild.getGuildName();
     Uint8List? guildCrest = guild.getGuildCrest();
     return Row(
@@ -246,7 +314,7 @@ class GuildWindowOverviewNoGuildFindState extends State<GuildWindowOverviewNoGui
                   )
               )
           ),
-          guildInteraction(guild, newFriendOptionWidth, fontSizeBox, request),
+          guildInteraction(guild, newFriendOptionWidth, fontSizeBox, request, send),
         ]
     );
   }
@@ -342,7 +410,10 @@ class GuildWindowOverviewNoGuildFindState extends State<GuildWindowOverviewNoGui
                   SizedBox(height: 40),
                   guildBox(120),
                   Column(
-                    children: requestedGuildBox(),
+                    children: requestedGuildBox(guildsSendRequests, true),
+                  ),
+                  Column(
+                    children: requestedGuildBox(guildsGotRequests, false),
                   ),
                 ]
             ),
