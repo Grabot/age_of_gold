@@ -180,7 +180,6 @@ class AuthServiceGuild {
   }
 
   Future<BaseResponse> acceptGuildRequest(int guildId) async {
-    // TODO: create and Test endpoint
     String endPoint = "guild/request/accept";
     var response = await AuthApi().dio.post(endPoint,
         options: Options(headers: {

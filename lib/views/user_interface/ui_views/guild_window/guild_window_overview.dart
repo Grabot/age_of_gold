@@ -11,6 +11,7 @@ import 'package:age_of_gold/views/user_interface/ui_views/change_guild_crest_box
 import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window_overview_guild.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window_overview_no_guild.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window_util.dart';
 import 'package:flutter/material.dart';
 
 
@@ -21,6 +22,7 @@ class GuildWindowOverview extends StatefulWidget {
   final double overviewHeight;
   final double overviewWidth;
   final double fontSize;
+  final ChangeGuildCrestChangeNotifier changeGuildCrestChangeNotifier;
 
   const GuildWindowOverview({
     required Key key,
@@ -29,6 +31,7 @@ class GuildWindowOverview extends StatefulWidget {
     required this.overviewHeight,
     required this.overviewWidth,
     required this.fontSize,
+    required this.changeGuildCrestChangeNotifier,
   }) : super(key: key);
 
   @override
@@ -69,7 +72,12 @@ class GuildWindowOverviewState extends State<GuildWindowOverview> {
     setState(() {});
   }
 
-  createGuild() {
+  createGuild() async {
+    User? me = Settings().getUser();
+    if (me != null) {
+      setGuildCrest(me, widget.changeGuildCrestChangeNotifier);
+      await retrieveGuildMembers(me);
+    }
     setState(() {});
   }
 

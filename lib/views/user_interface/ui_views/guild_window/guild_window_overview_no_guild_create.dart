@@ -79,6 +79,7 @@ class GuildWindowOverviewNoGuildCreateState extends State<GuildWindowOverviewNoG
             GuildMember guildMember = GuildMember(me.getId(), 0);
             guildMember.setGuildMemberName(me.getUserName());
             guildMember.setGuildMemberAvatar(me.getAvatar());
+            guildMember.setRetrieved(true);
             createdGuild.addMember(guildMember);
             me.setGuild(createdGuild);
             widget.createGuild();

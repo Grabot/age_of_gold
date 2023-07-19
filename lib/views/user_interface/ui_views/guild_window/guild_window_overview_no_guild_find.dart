@@ -20,6 +20,7 @@ class GuildWindowOverviewNoGuildFind extends StatefulWidget {
   final double overviewHeight;
   final double overviewWidth;
   final double fontSize;
+  final Function createGuild;
 
   const GuildWindowOverviewNoGuildFind({
     required Key key,
@@ -28,6 +29,7 @@ class GuildWindowOverviewNoGuildFind extends StatefulWidget {
     required this.overviewHeight,
     required this.overviewWidth,
     required this.fontSize,
+    required this.createGuild,
   }) : super(key: key);
 
   @override
@@ -52,15 +54,15 @@ class GuildWindowOverviewNoGuildFindState extends State<GuildWindowOverviewNoGui
   void initState() {
     changeGuildCrestChangeNotifier = ChangeGuildCrestChangeNotifier();
     _focusFindGuild.addListener(_onFocusFindGuild);
-    // AuthServiceGuild().getRequestedUserSend().then((response) {
-    //   if (response != null) {
-    //     setState(() {
-    //       guildsSendRequests = response;
-    //     });
-    //   } else {
-    //     print("no requests send");
-    //   }
-    // });
+    AuthServiceGuild().getRequestedUserSend().then((response) {
+      if (response != null) {
+        setState(() {
+          guildsSendRequests = response;
+        });
+      } else {
+        print("no requests send");
+      }
+    });
     AuthServiceGuild().getRequestedUserGot().then((response) {
       if (response != null) {
         setState(() {
@@ -132,10 +134,19 @@ class GuildWindowOverviewNoGuildFindState extends State<GuildWindowOverviewNoGui
   acceptRequest(Guild guildToAccept) {
     AuthServiceGuild().acceptGuildRequest(guildToAccept.guildId).then((response) {
       if (response.getResult()) {
-        // remove guildToCancel from the guildsRequested list
-        setState(() {
-          showToastMessage("guild request accepted");
-        });
+        User? me = Settings().getUser();
+        if (me == null) {
+          showToastMessage("something went wrong");
+        } else {
+          // You have just joined the guild. You will be the default rank "4" (trader)
+          GuildMember guildMember = GuildMember(me.getId(), 4);
+          guildMember.setGuildMemberName(me.getUserName());
+          guildMember.setGuildMemberAvatar(me.getAvatar());
+          guildMember.setRetrieved(true);
+          guildToAccept.addMember(guildMember);
+          me.setGuild(guildToAccept);
+          widget.createGuild();
+        }
       } else {
         showToastMessage(response.getMessage());
       }
@@ -215,13 +226,13 @@ class GuildWindowOverviewNoGuildFindState extends State<GuildWindowOverviewNoGui
   }
 
   Widget requestedGuildsSendHeader() {
-    return Container(
+    return SizedBox(
       width: widget.overviewWidth,
       height: 40,
       child: Row(
         children: [
           Text(
-            "Pending requests: ",
+            "Your pending requests: ",
             style: simpleTextStyle(widget.fontSize),
           )
         ],
@@ -230,7 +241,7 @@ class GuildWindowOverviewNoGuildFindState extends State<GuildWindowOverviewNoGui
   }
 
   Widget requestedGuildsGotHeader() {
-    return Container(
+    return SizedBox(
       width: widget.overviewWidth,
       height: 40,
       child: Row(

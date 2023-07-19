@@ -15,9 +15,10 @@ class BaseResponse {
   }
 
   BaseResponse.fromJson(Map<String, dynamic> json) {
-    if (json.containsKey("result") &&
-        json.containsKey("message")) {
+    if (json.containsKey("result")) {
       result = json["result"];
+    }
+    if (json.containsKey("message")) {
       message = json["message"];
     }
   }
