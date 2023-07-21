@@ -6,7 +6,6 @@ import 'package:age_of_gold/services/auth_service_guild.dart';
 import 'package:age_of_gold/services/models/guild.dart';
 import 'package:age_of_gold/services/models/guild_member.dart';
 import 'package:age_of_gold/services/models/user.dart';
-import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/util/render_objects.dart';
 import 'package:age_of_gold/util/util.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/change_guild_crest_box/change_guild_crest_change_notifier.dart';
@@ -21,6 +20,8 @@ class GuildWindowOverviewNoGuildCreate extends StatefulWidget {
   final double overviewHeight;
   final double overviewWidth;
   final double fontSize;
+  final User? me;
+  final ChangeGuildCrestChangeNotifier changeGuildCrestChangeNotifier;
   final Function createGuild;
 
   const GuildWindowOverviewNoGuildCreate({
@@ -30,6 +31,8 @@ class GuildWindowOverviewNoGuildCreate extends StatefulWidget {
     required this.overviewHeight,
     required this.overviewWidth,
     required this.fontSize,
+    required this.me,
+    required this.changeGuildCrestChangeNotifier,
     required this.createGuild,
   }) : super(key: key);
 
@@ -39,15 +42,12 @@ class GuildWindowOverviewNoGuildCreate extends StatefulWidget {
 
 class GuildWindowOverviewNoGuildCreateState extends State<GuildWindowOverviewNoGuildCreate> {
 
-  late ChangeGuildCrestChangeNotifier changeGuildCrestChangeNotifier;
-
   final GlobalKey<FormState> createGuildKey = GlobalKey<FormState>();
   final TextEditingController createGuildController = TextEditingController();
   final FocusNode _focusCreateGuildChange = FocusNode();
 
   @override
   void initState() {
-    changeGuildCrestChangeNotifier = ChangeGuildCrestChangeNotifier();
     super.initState();
   }
 
@@ -57,31 +57,30 @@ class GuildWindowOverviewNoGuildCreateState extends State<GuildWindowOverviewNoG
   }
 
   changeGuildCrestAction() {
-    changeGuildCrestChangeNotifier.setChangeGuildCrestVisible(true);
+    widget.changeGuildCrestChangeNotifier.setChangeGuildCrestVisible(true);
   }
 
   createGuildAction() {
     if (createGuildKey.currentState!.validate()) {
       String? newAvatarRegular;
-      if (!changeGuildCrestChangeNotifier.getDefault()) {
-        newAvatarRegular = base64Encode(changeGuildCrestChangeNotifier.getGuildCrest()!);
+      if (!widget.changeGuildCrestChangeNotifier.getDefault()) {
+        newAvatarRegular = base64Encode(widget.changeGuildCrestChangeNotifier.getGuildCrest()!);
       }
-      User? me = Settings().getUser();
-      if (me != null) {
+      if (widget.me != null) {
         String guildName = createGuildController.text;
-        AuthServiceGuild().createGuild(me.getId(), guildName, newAvatarRegular).then((value) {
+        AuthServiceGuild().createGuild(widget.me!.getId(), guildName, newAvatarRegular).then((value) {
           if (value.getResult()) {
             int guildId = int.parse(value.getMessage());
             String guildName = createGuildController.text;
-            Uint8List? guildCrest = changeGuildCrestChangeNotifier.getGuildCrest();
+            Uint8List? guildCrest = widget.changeGuildCrestChangeNotifier.getGuildCrest();
             Guild createdGuild = Guild(guildId, guildName, guildCrest);
             // You just created a guild, so you're the only member and you're admin.
-            GuildMember guildMember = GuildMember(me.getId(), 0);
-            guildMember.setGuildMemberName(me.getUserName());
-            guildMember.setGuildMemberAvatar(me.getAvatar());
+            GuildMember guildMember = GuildMember(widget.me!.getId(), 0);
+            guildMember.setGuildMemberName(widget.me!.getUserName());
+            guildMember.setGuildMemberAvatar(widget.me!.getAvatar());
             guildMember.setRetrieved(true);
             createdGuild.addMember(guildMember);
-            me.setGuild(createdGuild);
+            widget.me!.setGuild(createdGuild);
             widget.createGuild();
             ProfileChangeNotifier().notify();
           } else {
@@ -152,7 +151,7 @@ class GuildWindowOverviewNoGuildCreateState extends State<GuildWindowOverviewNoG
               guildAvatarBox(
                   200,
                   crestHeight,
-                  changeGuildCrestChangeNotifier.getGuildCrest()
+                  widget.changeGuildCrestChangeNotifier.getGuildCrest()
               ),
               SizedBox(width: 10),
               ElevatedButton(

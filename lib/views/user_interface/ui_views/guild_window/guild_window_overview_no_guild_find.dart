@@ -5,11 +5,8 @@ import 'package:age_of_gold/services/auth_service_guild.dart';
 import 'package:age_of_gold/services/models/guild.dart';
 import 'package:age_of_gold/services/models/guild_member.dart';
 import 'package:age_of_gold/services/models/user.dart';
-import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/util/render_objects.dart';
 import 'package:age_of_gold/util/util.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/change_guild_crest_box/change_guild_crest_change_notifier.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window_change_notifier.dart';
 import 'package:flutter/material.dart';
 
 
@@ -20,6 +17,7 @@ class GuildWindowOverviewNoGuildFind extends StatefulWidget {
   final double overviewHeight;
   final double overviewWidth;
   final double fontSize;
+  final User? me;
   final Function createGuild;
 
   const GuildWindowOverviewNoGuildFind({
@@ -29,6 +27,7 @@ class GuildWindowOverviewNoGuildFind extends StatefulWidget {
     required this.overviewHeight,
     required this.overviewWidth,
     required this.fontSize,
+    required this.me,
     required this.createGuild,
   }) : super(key: key);
 
@@ -37,8 +36,6 @@ class GuildWindowOverviewNoGuildFind extends StatefulWidget {
 }
 
 class GuildWindowOverviewNoGuildFindState extends State<GuildWindowOverviewNoGuildFind> {
-
-  late ChangeGuildCrestChangeNotifier changeGuildCrestChangeNotifier;
 
   final FocusNode _focusFindGuild = FocusNode();
   TextEditingController findGuildController = TextEditingController();
@@ -52,7 +49,6 @@ class GuildWindowOverviewNoGuildFindState extends State<GuildWindowOverviewNoGui
 
   @override
   void initState() {
-    changeGuildCrestChangeNotifier = ChangeGuildCrestChangeNotifier();
     _focusFindGuild.addListener(_onFocusFindGuild);
     AuthServiceGuild().getRequestedUserSend().then((response) {
       if (response != null) {
@@ -118,7 +114,7 @@ class GuildWindowOverviewNoGuildFindState extends State<GuildWindowOverviewNoGui
   }
 
   cancelRequest(Guild guildToCancel) {
-    AuthServiceGuild().cancelGuildRequest(guildToCancel.guildId).then((response) {
+    AuthServiceGuild().cancelRequestUser(guildToCancel.guildId).then((response) {
       if (response.getResult()) {
         // remove guildToCancel from the guildsRequested list
         guildsSendRequests.removeWhere((element) => element.guildId == guildToCancel.guildId);
@@ -132,19 +128,18 @@ class GuildWindowOverviewNoGuildFindState extends State<GuildWindowOverviewNoGui
   }
 
   acceptRequest(Guild guildToAccept) {
-    AuthServiceGuild().acceptGuildRequest(guildToAccept.guildId).then((response) {
+    AuthServiceGuild().acceptGuildRequestGuild(guildToAccept.guildId).then((response) {
       if (response.getResult()) {
-        User? me = Settings().getUser();
-        if (me == null) {
+        if (widget.me == null) {
           showToastMessage("something went wrong");
         } else {
           // You have just joined the guild. You will be the default rank "4" (trader)
-          GuildMember guildMember = GuildMember(me.getId(), 4);
-          guildMember.setGuildMemberName(me.getUserName());
-          guildMember.setGuildMemberAvatar(me.getAvatar());
+          GuildMember guildMember = GuildMember(widget.me!.getId(), 4);
+          guildMember.setGuildMemberName(widget.me!.getUserName());
+          guildMember.setGuildMemberAvatar(widget.me!.getAvatar());
           guildMember.setRetrieved(true);
           guildToAccept.addMember(guildMember);
-          me.setGuild(guildToAccept);
+          widget.me!.setGuild(guildToAccept);
           widget.createGuild();
         }
       } else {
@@ -421,10 +416,10 @@ class GuildWindowOverviewNoGuildFindState extends State<GuildWindowOverviewNoGui
                   SizedBox(height: 40),
                   guildBox(120),
                   Column(
-                    children: requestedGuildBox(guildsSendRequests, true),
+                    children: requestedGuildBox(guildsGotRequests, false),
                   ),
                   Column(
-                    children: requestedGuildBox(guildsGotRequests, false),
+                    children: requestedGuildBox(guildsSendRequests, true),
                   ),
                 ]
             ),

@@ -1,14 +1,7 @@
-import 'dart:typed_data';
-
 import 'package:age_of_gold/age_of_gold.dart';
 import 'package:age_of_gold/services/models/guild.dart';
-import 'package:age_of_gold/services/models/guild_member.dart';
 import 'package:age_of_gold/services/models/user.dart';
-import 'package:age_of_gold/services/settings.dart';
-import 'package:age_of_gold/util/render_objects.dart';
 import 'package:age_of_gold/util/util.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/change_guild_crest_box/change_guild_crest_change_notifier.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window_overview_guild_new_members.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window_overview_guild_overview.dart';
 import 'package:flutter/material.dart';
@@ -21,6 +14,7 @@ class GuildWindowOverviewGuild extends StatefulWidget {
   final double overviewHeight;
   final double overviewWidth;
   final double fontSize;
+  final User? me;
   final Guild guild;
   final Function leaveGuild;
 
@@ -31,6 +25,7 @@ class GuildWindowOverviewGuild extends StatefulWidget {
     required this.overviewHeight,
     required this.overviewWidth,
     required this.fontSize,
+    required this.me,
     required this.guild,
     required this.leaveGuild,
   }) : super(key: key);
@@ -40,11 +35,9 @@ class GuildWindowOverviewGuild extends StatefulWidget {
 }
 
 class GuildWindowOverviewGuildState extends State<GuildWindowOverviewGuild> {
-  late ChangeGuildCrestChangeNotifier changeGuildCrestChangeNotifier;
 
   @override
   void initState() {
-    changeGuildCrestChangeNotifier = ChangeGuildCrestChangeNotifier();
     super.initState();
   }
 
@@ -187,6 +180,7 @@ class GuildWindowOverviewGuildState extends State<GuildWindowOverviewGuild> {
         overviewHeight: widget.overviewHeight-iconSize,
         overviewWidth: widget.overviewWidth,
         fontSize: widget.fontSize,
+        me: widget.me,
         guild: widget.guild,
         leaveGuild: widget.leaveGuild,
       );
@@ -198,6 +192,7 @@ class GuildWindowOverviewGuildState extends State<GuildWindowOverviewGuild> {
         overviewHeight: widget.overviewHeight-iconSize,
         overviewWidth: widget.overviewWidth,
         fontSize: widget.fontSize,
+        me: widget.me,
         guild: widget.guild,
       );
     }

@@ -1,12 +1,5 @@
-import 'dart:typed_data';
-
 import 'package:age_of_gold/age_of_gold.dart';
-import 'package:age_of_gold/services/models/guild.dart';
-import 'package:age_of_gold/services/models/guild_member.dart';
 import 'package:age_of_gold/services/models/user.dart';
-import 'package:age_of_gold/services/settings.dart';
-import 'package:age_of_gold/util/render_objects.dart';
-import 'package:age_of_gold/util/util.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/change_guild_crest_box/change_guild_crest_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window_overview_guild.dart';
@@ -22,6 +15,7 @@ class GuildWindowOverview extends StatefulWidget {
   final double overviewHeight;
   final double overviewWidth;
   final double fontSize;
+  final User? me;
   final ChangeGuildCrestChangeNotifier changeGuildCrestChangeNotifier;
 
   const GuildWindowOverview({
@@ -31,6 +25,7 @@ class GuildWindowOverview extends StatefulWidget {
     required this.overviewHeight,
     required this.overviewWidth,
     required this.fontSize,
+    required this.me,
     required this.changeGuildCrestChangeNotifier,
   }) : super(key: key);
 
@@ -73,10 +68,9 @@ class GuildWindowOverviewState extends State<GuildWindowOverview> {
   }
 
   createGuild() async {
-    User? me = Settings().getUser();
-    if (me != null) {
-      setGuildCrest(me, widget.changeGuildCrestChangeNotifier);
-      await retrieveGuildMembers(me);
+    if (widget.me != null) {
+      setGuildCrest(widget.me!, widget.changeGuildCrestChangeNotifier);
+      await retrieveGuildMembers(widget.me!);
     }
     setState(() {});
   }
@@ -84,8 +78,7 @@ class GuildWindowOverviewState extends State<GuildWindowOverview> {
   UniqueKey guildWindowOverviewNoGuildKey = UniqueKey();
   UniqueKey guildWindowOverviewGuildKey = UniqueKey();
   Widget guildAvatarOverview() {
-    User? me = Settings().getUser();
-    if (me == null || me.getGuild() == null) {
+    if (widget.me == null || widget.me!.getGuild() == null) {
       return GuildWindowOverviewNoGuild(
           key: guildWindowOverviewNoGuildKey,
           game: widget.game,
@@ -93,6 +86,8 @@ class GuildWindowOverviewState extends State<GuildWindowOverview> {
           overviewHeight: widget.overviewHeight,
           overviewWidth: widget.overviewWidth,
           fontSize: widget.fontSize,
+          me: widget.me,
+          changeGuildCrestChangeNotifier: widget.changeGuildCrestChangeNotifier,
           createGuild: createGuild,
       );
     } else {
@@ -103,7 +98,8 @@ class GuildWindowOverviewState extends State<GuildWindowOverview> {
           overviewHeight: widget.overviewHeight,
           overviewWidth: widget.overviewWidth,
           fontSize: widget.fontSize,
-          guild: me.getGuild()!,
+          me: widget.me,
+          guild: widget.me!.getGuild()!,
           leaveGuild: leaveGuild,
       );
     }

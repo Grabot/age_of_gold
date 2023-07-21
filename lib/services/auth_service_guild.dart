@@ -86,7 +86,7 @@ class AuthServiceGuild {
   }
 
   Future<BaseResponse> requestToJoin(int guildId) async {
-    String endPoint = "guild/request";
+    String endPoint = "guild/request/user";
     var response = await AuthApi().dio.post(endPoint,
         options: Options(headers: {
           HttpHeaders.contentTypeHeader: "application/json",
@@ -163,8 +163,74 @@ class AuthServiceGuild {
     }
   }
 
-  Future<BaseResponse> cancelGuildRequest(int guildId) async {
-    String endPoint = "guild/request/cancel";
+  Future<List<User>?> getRequestedGuildSend(int guildId) async {
+    String endPoint = "guild/requests/guild/send";
+    var response = await AuthApi().dio.post(endPoint,
+        options: Options(headers: {
+          HttpHeaders.contentTypeHeader: "application/json",
+        }),
+        data: jsonEncode(<String, dynamic> {
+          "guild_id": guildId
+        }
+      )
+    );
+
+    Map<String, dynamic> json = response.data;
+    if (!json.containsKey("result")) {
+      return null;
+    } else {
+      if (json["result"]) {
+        if (json.containsKey("guild_requests")) {
+          List requests = json["guild_requests"];
+          List<User> userRequests = [];
+          for (Map<String, dynamic> request in requests) {
+            userRequests.add(User.fromJson(request));
+          }
+          return userRequests;
+        } else {
+          return null;
+        }
+      } else {
+        return null;
+      }
+    }
+  }
+
+  Future<List<User>?> getRequestedGuildGot(int guildId) async {
+    String endPoint = "guild/requests/guild/got";
+    var response = await AuthApi().dio.post(endPoint,
+        options: Options(headers: {
+          HttpHeaders.contentTypeHeader: "application/json",
+        }),
+        data: jsonEncode(<String, dynamic> {
+          "guild_id": guildId
+        }
+      )
+    );
+
+    Map<String, dynamic> json = response.data;
+    if (!json.containsKey("result")) {
+      return null;
+    } else {
+      if (json["result"]) {
+        if (json.containsKey("guild_requests")) {
+          List requests = json["guild_requests"];
+          List<User> userRequests = [];
+          for (Map<String, dynamic> request in requests) {
+            userRequests.add(User.fromJson(request));
+          }
+          return userRequests;
+        } else {
+          return null;
+        }
+      } else {
+        return null;
+      }
+    }
+  }
+
+  Future<BaseResponse> cancelRequestUser(int guildId) async {
+    String endPoint = "guild/request/cancel/user";
     var response = await AuthApi().dio.post(endPoint,
         options: Options(headers: {
           HttpHeaders.contentTypeHeader: "application/json",
@@ -179,8 +245,25 @@ class AuthServiceGuild {
     return baseResponse;
   }
 
-  Future<BaseResponse> acceptGuildRequest(int guildId) async {
-    String endPoint = "guild/request/accept";
+  Future<BaseResponse> cancelRequestGuild(int userId, int guildId) async {
+    String endPoint = "guild/request/cancel/guild";
+    var response = await AuthApi().dio.post(endPoint,
+        options: Options(headers: {
+          HttpHeaders.contentTypeHeader: "application/json",
+        }),
+        data: jsonEncode(<String, dynamic> {
+          "guild_id": guildId,
+          "user_id": userId
+        }
+      )
+    );
+
+    BaseResponse baseResponse = BaseResponse.fromJson(response.data);
+    return baseResponse;
+  }
+
+  Future<BaseResponse> acceptGuildRequestGuild(int guildId) async {
+    String endPoint = "guild/request/accept/guild";
     var response = await AuthApi().dio.post(endPoint,
         options: Options(headers: {
           HttpHeaders.contentTypeHeader: "application/json",
@@ -195,14 +278,33 @@ class AuthServiceGuild {
     return baseResponse;
   }
 
-  Future<BaseResponse> askNewMember(int newMemberId) async {
-    String endPoint = "guild/member/new";
+
+  Future<BaseResponse> acceptGuildRequestUser(int userId, int guildId) async {
+    String endPoint = "guild/request/accept/user";
+    var response = await AuthApi().dio.post(endPoint,
+        options: Options(headers: {
+          HttpHeaders.contentTypeHeader: "application/json",
+        }),
+        data: jsonEncode(<String, dynamic> {
+          "user_id": userId,
+          "guild_id": guildId,
+        }
+      )
+    );
+
+    BaseResponse baseResponse = BaseResponse.fromJson(response.data);
+    return baseResponse;
+  }
+
+    Future<BaseResponse> askNewMember(int newMemberId, int guildId) async {
+    String endPoint = "guild/request/guild";
     var response = await AuthApi().dio.post(endPoint,
         options: Options(headers: {
           HttpHeaders.contentTypeHeader: "application/json",
         }),
         data: jsonEncode(<String, dynamic> {
           "user_id": newMemberId,
+          "guild_id": guildId,
         }
       )
     );

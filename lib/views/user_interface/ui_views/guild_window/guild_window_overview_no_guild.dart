@@ -1,19 +1,11 @@
-import 'dart:typed_data';
-
 import 'package:age_of_gold/age_of_gold.dart';
-import 'package:age_of_gold/services/models/guild.dart';
-import 'package:age_of_gold/services/models/guild_member.dart';
 import 'package:age_of_gold/services/models/user.dart';
-import 'package:age_of_gold/services/settings.dart';
-import 'package:age_of_gold/util/render_objects.dart';
 import 'package:age_of_gold/util/util.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/change_guild_crest_box/change_guild_crest_change_notifier.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window_overview_no_guild_create.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window_overview_no_guild_find.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window_overview_no_guild_overview.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 
 class GuildWindowOverviewNoGuild extends StatefulWidget {
@@ -23,6 +15,8 @@ class GuildWindowOverviewNoGuild extends StatefulWidget {
   final double overviewHeight;
   final double overviewWidth;
   final double fontSize;
+  final User? me;
+  final ChangeGuildCrestChangeNotifier changeGuildCrestChangeNotifier;
   final Function createGuild;
 
   const GuildWindowOverviewNoGuild({
@@ -32,6 +26,8 @@ class GuildWindowOverviewNoGuild extends StatefulWidget {
     required this.overviewHeight,
     required this.overviewWidth,
     required this.fontSize,
+    required this.me,
+    required this.changeGuildCrestChangeNotifier,
     required this.createGuild,
   }) : super(key: key);
 
@@ -41,11 +37,8 @@ class GuildWindowOverviewNoGuild extends StatefulWidget {
 
 class GuildWindowOverviewNoGuildState extends State<GuildWindowOverviewNoGuild> {
 
-  late ChangeGuildCrestChangeNotifier changeGuildCrestChangeNotifier;
-
   @override
   void initState() {
-    changeGuildCrestChangeNotifier = ChangeGuildCrestChangeNotifier();
     super.initState();
   }
 
@@ -57,8 +50,8 @@ class GuildWindowOverviewNoGuildState extends State<GuildWindowOverviewNoGuild> 
 
   switchToOverview() {
     // We'll also change the guild crest to the default one. This is because nothing is created.
-    changeGuildCrestChangeNotifier.setGuildCrest(null);
-    changeGuildCrestChangeNotifier.setDefault(true);
+    widget.changeGuildCrestChangeNotifier.setGuildCrest(null);
+    widget.changeGuildCrestChangeNotifier.setDefault(true);
     showGuildOverview = true;
     createGuildView = false;
     findGuildView = false;
@@ -78,8 +71,8 @@ class GuildWindowOverviewNoGuildState extends State<GuildWindowOverviewNoGuild> 
 
   switchToFind() {
     // We'll also change the guild crest to the default one. This is because nothing is created.
-    changeGuildCrestChangeNotifier.setGuildCrest(null);
-    changeGuildCrestChangeNotifier.setDefault(true);
+    widget.changeGuildCrestChangeNotifier.setGuildCrest(null);
+    widget.changeGuildCrestChangeNotifier.setDefault(true);
     showGuildOverview = false;
     createGuildView = false;
     findGuildView = true;
@@ -257,6 +250,7 @@ class GuildWindowOverviewNoGuildState extends State<GuildWindowOverviewNoGuild> 
         overviewHeight: widget.overviewHeight-iconSize,
         overviewWidth: widget.overviewWidth,
         fontSize: widget.fontSize,
+        changeGuildCrestChangeNotifier: widget.changeGuildCrestChangeNotifier,
       );
     } else if (createGuildView) {
       return GuildWindowOverviewNoGuildCreate(
@@ -266,6 +260,8 @@ class GuildWindowOverviewNoGuildState extends State<GuildWindowOverviewNoGuild> 
           overviewHeight: widget.overviewHeight-iconSize,
           overviewWidth: widget.overviewWidth,
           fontSize: widget.fontSize,
+          me: widget.me,
+          changeGuildCrestChangeNotifier: widget.changeGuildCrestChangeNotifier,
           createGuild: widget.createGuild,
       );
     } else {
@@ -276,6 +272,7 @@ class GuildWindowOverviewNoGuildState extends State<GuildWindowOverviewNoGuild> 
         overviewHeight: widget.overviewHeight-iconSize,
         overviewWidth: widget.overviewWidth,
         fontSize: widget.fontSize,
+        me: widget.me,
         createGuild: widget.createGuild,
       );
     }

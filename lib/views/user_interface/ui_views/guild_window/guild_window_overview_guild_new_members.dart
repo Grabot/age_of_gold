@@ -6,11 +6,8 @@ import 'package:age_of_gold/services/auth_service_social.dart';
 import 'package:age_of_gold/services/models/guild.dart';
 import 'package:age_of_gold/services/models/guild_member.dart';
 import 'package:age_of_gold/services/models/user.dart';
-import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/util/render_objects.dart';
 import 'package:age_of_gold/util/util.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/change_guild_crest_box/change_guild_crest_change_notifier.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window_change_notifier.dart';
 import 'package:flutter/material.dart';
 
 
@@ -21,6 +18,7 @@ class GuildWindowOverviewGuildNewMembers extends StatefulWidget {
   final double overviewHeight;
   final double overviewWidth;
   final double fontSize;
+  final User? me;
   final Guild guild;
 
   const GuildWindowOverviewGuildNewMembers({
@@ -30,6 +28,7 @@ class GuildWindowOverviewGuildNewMembers extends StatefulWidget {
     required this.overviewHeight,
     required this.overviewWidth,
     required this.fontSize,
+    required this.me,
     required this.guild
   }) : super(key: key);
 
@@ -38,8 +37,6 @@ class GuildWindowOverviewGuildNewMembers extends StatefulWidget {
 }
 
 class GuildWindowOverviewGuildNewMembersState extends State<GuildWindowOverviewGuildNewMembers> {
-
-  late ChangeGuildCrestChangeNotifier changeGuildCrestChangeNotifier;
 
   final FocusNode _focusNewMembersWindow = FocusNode();
   TextEditingController newMembersController = TextEditingController();
@@ -53,26 +50,25 @@ class GuildWindowOverviewGuildNewMembersState extends State<GuildWindowOverviewG
 
   @override
   void initState() {
-    changeGuildCrestChangeNotifier = ChangeGuildCrestChangeNotifier();
     super.initState();
-    // AuthServiceGuild().getRequestedReceivedGuilds(widget.guild.getGuildId()).then((response) {
-    //   if (response != null) {
-    //     setState(() {
-    //       askedMembers = response;
-    //     });
-    //   } else {
-    //     print("no requests");
-    //   }
-    // });
-    // AuthServiceGuild().getRequestedReceivedGuilds(widget.guild.getGuildId()).then((response) {
-    //   if (response != null) {
-    //     setState(() {
-    //       askedMembers = response;
-    //     });
-    //   } else {
-    //     print("no requests");
-    //   }
-    // });
+    AuthServiceGuild().getRequestedGuildSend(widget.guild.getGuildId()).then((response) {
+      if (response != null) {
+        setState(() {
+          requestedMembers = response;
+        });
+      } else {
+        print("no requests");
+      }
+    });
+    AuthServiceGuild().getRequestedGuildGot(widget.guild.getGuildId()).then((response) {
+      if (response != null) {
+        setState(() {
+          askedMembers = response;
+        });
+      } else {
+        print("no requests");
+      }
+    });
   }
 
   @override
@@ -81,14 +77,11 @@ class GuildWindowOverviewGuildNewMembersState extends State<GuildWindowOverviewG
   }
 
   findNewMemberAction() {
-    print("pressed search for new guilds");
     if (newMembersKey.currentState!.validate()) {
       AuthServiceSocial().searchPossibleFriend(newMembersController.text).then((value) {
-        print("search result $value");
         if (value != null) {
           setState(() {
             foundNewMember = value;
-            print("found friend");
           });
         } else {
           setState(() {
@@ -101,12 +94,20 @@ class GuildWindowOverviewGuildNewMembersState extends State<GuildWindowOverviewG
   }
 
   askNewMemberToJoin(User newMember) {
-    AuthServiceGuild().askNewMember(newMember.id).then((response) {
+    if (widget.me != null && widget.me!.getId() == newMember.getId()) {
+      showToastMessage("You are already a member of your guild!");
+      return;
+    }
+    // First check if the user is already a member of the guild
+    if (widget.guild.getMembers().any((element) => element.getGuildMemberId() == newMember.getId())) {
+      showToastMessage("User ${newMember.getUserName()} is already a member of your guild!");
+      return;
+    }
+    AuthServiceGuild().askNewMember(newMember.id, widget.guild.guildId).then((response) {
       if (response.getResult()) {
-        showToastMessage("Request send to user");
+        showToastMessage("Request send to user ${newMember.getUserName()}");
         setState(() {
           askedMembers.add(newMember);
-          print("new member is asked to join");
         });
       } else {
         showToastMessage(response.getMessage());
@@ -114,14 +115,45 @@ class GuildWindowOverviewGuildNewMembersState extends State<GuildWindowOverviewG
     });
   }
 
-  Widget newMembersRequestsHeader() {
-    return Container(
+  acceptMemberToJoin(User newMember) {
+    AuthServiceGuild().acceptGuildRequestUser(newMember.id, widget.guild.guildId).then((response) {
+      if (response.getResult()) {
+        GuildMember guildMember = GuildMember(newMember.getId(), 4);
+        guildMember.setGuildMemberName(newMember.getUserName());
+        guildMember.setGuildMemberAvatar(newMember.getAvatar());
+        guildMember.setRetrieved(true);
+        widget.guild.addMember(guildMember);
+        setState(() {
+          requestedMembers.removeWhere((element) => element.id == newMember.getId());
+        });
+        showToastMessage("User ${newMember.getUserName()} is now a member of your guild!");
+      } else {
+        showToastMessage(response.getMessage());
+      }
+    });
+  }
+
+  cancelRequest(User cancelUser) {
+    AuthServiceGuild().cancelRequestGuild(cancelUser.getId(), widget.guild.guildId).then((response) {
+      if (response.getResult()) {
+        askedMembers.removeWhere((element) => element.id == cancelUser.getId());
+        setState(() {
+          showToastMessage("Request to user ${cancelUser.getUserName()} cancelled");
+        });
+      } else {
+        showToastMessage(response.getMessage());
+      }
+    });
+  }
+
+  Widget membersRequestSendHeader() {
+    return SizedBox(
       width: widget.overviewWidth,
       height: 40,
       child: Row(
         children: [
           Text(
-            "Pending requests: ",
+            "Pending requests send to users: ",
             style: simpleTextStyle(widget.fontSize),
           )
         ],
@@ -129,51 +161,138 @@ class GuildWindowOverviewGuildNewMembersState extends State<GuildWindowOverviewG
     );
   }
 
-  List<Widget> requestedGuildBox() {
-    if (askedMembers.isEmpty) {
-      return [];
-    } else {
-      List<Widget> requestedMembers = [];
-      requestedMembers.add(newMembersRequestsHeader());
-      for (User requestedMember in askedMembers) {
-        requestedMembers.add(
-            newMemberInABox(
-                requestedMember,
-                80,
-                200,
-                widget.fontSize
-            )
-        );
-      }
-      return requestedMembers;
-    }
-  }
-
-  Widget newMemberInteraction(User newMember, double newFriendOptionWidth, double fontSize) {
+  Widget membersRequestGotHeader() {
     return SizedBox(
-      width: newFriendOptionWidth,
+      width: widget.overviewWidth,
       height: 40,
       child: Row(
-          children: [
-            ElevatedButton(
-              onPressed: () {
-                askNewMemberToJoin(newMember);
-              },
-              style: buttonStyle(false, Colors.blue),
-              child: Container(
-                alignment: Alignment.center,
-                child: Text(
-                  "Ask to join guild",
-                  style: simpleTextStyle(widget.fontSize),
-                ),
-              ),
-            )
-          ]
+        children: [
+          Text(
+            "Pending requests from users: ",
+            style: simpleTextStyle(widget.fontSize),
+          )
+        ],
       ),
     );
   }
 
-  Widget newMemberInABox(User newMember, double avatarBoxSize, double newFriendOptionWidth, double fontSizeBox) {
+  List<Widget> memberRequestsSendBox() {
+    if (askedMembers.isEmpty) {
+      return [];
+    } else {
+      List<Widget> askedMembersGuild = [];
+      askedMembersGuild.add(membersRequestSendHeader());
+      for (User askedMember in askedMembers) {
+        askedMembersGuild.add(
+            newMemberInABox(
+                askedMember,
+                80,
+                200,
+                widget.fontSize,
+                false,
+                true
+            )
+        );
+      }
+      return askedMembersGuild;
+    }
+  }
+
+  List<Widget> memberRequestsGotBox() {
+    if (requestedMembers.isEmpty) {
+      return [];
+    } else {
+      List<Widget> requestedMembersGuild = [];
+      requestedMembersGuild.add(membersRequestGotHeader());
+      for (User requestedMember in requestedMembers) {
+        requestedMembersGuild.add(
+            newMemberInABox(
+                requestedMember,
+                80,
+                200,
+                widget.fontSize,
+                false,
+                false
+            )
+        );
+      }
+      return requestedMembersGuild;
+    }
+  }
+
+  Widget newMemberInteraction(User newMember, double newFriendOptionWidth, double fontSize, bool request, bool send) {
+    if (request) {
+      return SizedBox(
+        width: newFriendOptionWidth,
+        height: 40,
+        child: Row(
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  askNewMemberToJoin(newMember);
+                },
+                style: buttonStyle(false, Colors.blue),
+                child: Container(
+                  alignment: Alignment.center,
+                  child: Text(
+                    "Ask to join guild",
+                    style: simpleTextStyle(widget.fontSize),
+                  ),
+                ),
+              )
+            ]
+        ),
+      );
+    } else {
+      if (!send) {
+        return SizedBox(
+          width: newFriendOptionWidth,
+          height: 40,
+          child: Row(
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    acceptMemberToJoin(newMember);
+                  },
+                  style: buttonStyle(false, Colors.blue),
+                  child: Container(
+                    alignment: Alignment.center,
+                    child: Text(
+                      "Accept request!",
+                      style: simpleTextStyle(widget.fontSize),
+                    ),
+                  ),
+                )
+              ]
+          ),
+        );
+      } else {
+        return SizedBox(
+          width: newFriendOptionWidth,
+          height: 40,
+          child: Row(
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    cancelRequest(newMember);
+                  },
+                  style: buttonStyle(false, Colors.blue),
+                  child: Container(
+                    alignment: Alignment.center,
+                    child: Text(
+                      "Cancel request",
+                      style: simpleTextStyle(widget.fontSize),
+                    ),
+                  ),
+                )
+              ]
+          ),
+        );
+      }
+    }
+  }
+
+  Widget newMemberInABox(User newMember, double avatarBoxSize, double newFriendOptionWidth, double fontSizeBox, bool request, bool send) {
     String userName = newMember.getUserName();
     Uint8List? memberAvatar = newMember.getAvatar();
     return Row(
@@ -191,7 +310,7 @@ class GuildWindowOverviewGuildNewMembersState extends State<GuildWindowOverviewG
                   )
               )
           ),
-          newMemberInteraction(newMember, newFriendOptionWidth, fontSizeBox),
+          newMemberInteraction(newMember, newFriendOptionWidth, fontSizeBox, request, send),
         ]
     );
   }
@@ -205,7 +324,7 @@ class GuildWindowOverviewGuildNewMembersState extends State<GuildWindowOverviewG
     }
 
     if (foundNewMember != null) {
-      return newMemberInABox(foundNewMember!, avatarBoxSize, newFriendOptionWidth, fontSizeBox);
+      return newMemberInABox(foundNewMember!, avatarBoxSize, newFriendOptionWidth, fontSizeBox, true, true);
     } else {
       if (nothingFound) {
         return Text(
@@ -310,8 +429,11 @@ class GuildWindowOverviewGuildNewMembersState extends State<GuildWindowOverviewG
                   SizedBox(height: 40),
                   newMemberBox(120),
                   Column(
-                    children: requestedGuildBox()
-                  )
+                    children: memberRequestsGotBox()
+                  ),
+                  Column(
+                    children: memberRequestsSendBox()
+                  ),
                 ]
             ),
           ),

@@ -5,11 +5,8 @@ import 'package:age_of_gold/services/auth_service_guild.dart';
 import 'package:age_of_gold/services/models/guild.dart';
 import 'package:age_of_gold/services/models/guild_member.dart';
 import 'package:age_of_gold/services/models/user.dart';
-import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/util/render_objects.dart';
 import 'package:age_of_gold/util/util.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/change_guild_crest_box/change_guild_crest_change_notifier.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window_change_notifier.dart';
 import 'package:flutter/material.dart';
 
 
@@ -20,6 +17,7 @@ class GuildWindowOverviewGuildOverview extends StatefulWidget {
   final double overviewHeight;
   final double overviewWidth;
   final double fontSize;
+  final User? me;
   final Guild guild;
   final Function leaveGuild;
 
@@ -30,6 +28,7 @@ class GuildWindowOverviewGuildOverview extends StatefulWidget {
     required this.overviewHeight,
     required this.overviewWidth,
     required this.fontSize,
+    required this.me,
     required this.guild,
     required this.leaveGuild,
   }) : super(key: key);
@@ -40,11 +39,8 @@ class GuildWindowOverviewGuildOverview extends StatefulWidget {
 
 class GuildWindowOverviewGuildOverviewState extends State<GuildWindowOverviewGuildOverview> {
 
-  late ChangeGuildCrestChangeNotifier changeGuildCrestChangeNotifier;
-
   @override
   void initState() {
-    changeGuildCrestChangeNotifier = ChangeGuildCrestChangeNotifier();
     super.initState();
   }
 
@@ -149,9 +145,8 @@ class GuildWindowOverviewGuildOverviewState extends State<GuildWindowOverviewGui
     AuthServiceGuild().leaveGuild().then((value) {
       if (value.getResult()) {
         print("leave guild success");
-        User? me = Settings().getUser();
-        if (me != null && me.guild != null) {
-          me.guild = null;
+        if (widget.me != null && widget.me!.guild != null) {
+          widget.me!.guild = null;
           widget.leaveGuild();
         } else {
           showToastMessage("an error occured");
