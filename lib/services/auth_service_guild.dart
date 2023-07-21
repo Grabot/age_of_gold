@@ -132,14 +132,16 @@ class AuthServiceGuild {
     }
   }
 
-  Future<List<Guild>?> getRequestedUserGot() async {
+  Future<List<Guild>?> getRequestedUserGot(bool minimal) async {
     String endPoint = "guild/requests/user/got";
     var response = await AuthApi().dio.post(endPoint,
         options: Options(headers: {
           HttpHeaders.contentTypeHeader: "application/json",
         }),
-        data: jsonEncode(<String, dynamic> {}
-        )
+        data: jsonEncode(<String, dynamic> {
+          "minimal": minimal
+        }
+      )
     );
 
     Map<String, dynamic> json = response.data;
@@ -163,14 +165,15 @@ class AuthServiceGuild {
     }
   }
 
-  Future<List<User>?> getRequestedGuildSend(int guildId) async {
+  Future<List<User>?> getRequestedGuildSend(int guildId, bool minimal) async {
     String endPoint = "guild/requests/guild/send";
     var response = await AuthApi().dio.post(endPoint,
         options: Options(headers: {
           HttpHeaders.contentTypeHeader: "application/json",
         }),
         data: jsonEncode(<String, dynamic> {
-          "guild_id": guildId
+          "guild_id": guildId,
+          "minimal": minimal
         }
       )
     );

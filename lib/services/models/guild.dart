@@ -14,6 +14,7 @@ class Guild {
   // The member ids of the guild, along with their ranks.
   // List<List<int>> members = [[]];
   List<GuildMember> guildMembers = [];
+  List<User> joinRequests = [];
 
   bool? accepted;
   bool? requested;
@@ -81,6 +82,18 @@ class Guild {
 
   String getGuildRank() {
     return guildRank;
+  }
+
+  setJoinRequests(List<User> joinRequests) {
+    this.joinRequests = joinRequests;
+  }
+
+  List<User> getJoinRequests() {
+    return joinRequests;
+  }
+
+  removeGuildInvite(User newMember) {
+    joinRequests.removeWhere((user) => user.getId() == newMember.getId());
   }
 
   @override

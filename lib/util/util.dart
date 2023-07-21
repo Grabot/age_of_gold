@@ -4,11 +4,13 @@ import 'dart:math';
 import 'package:age_of_gold/age_of_gold.dart';
 import 'package:age_of_gold/component/tile.dart';
 import 'package:age_of_gold/constants/route_paths.dart' as routes;
+import 'package:age_of_gold/services/auth_service_guild.dart';
 import 'package:age_of_gold/services/models/login_response.dart';
 import 'package:age_of_gold/services/socket_services.dart';
 import 'package:age_of_gold/util/hexagon_list.dart';
 import 'package:age_of_gold/util/web_storage.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/chat_messages.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_information.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/profile_box/profile_change_notifier.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
@@ -99,6 +101,32 @@ bool emailValid(String possibleEmail) {
       .hasMatch(possibleEmail);
 }
 
+additionalLoginInformation(User me) {
+  // Retrieve some other user specific data
+  // If the user is part of a guild and he has a high enough rank,
+  // we want to know if there are member join request
+  // If the user is not part of a guild we want to know if he has guild invites.
+  if (me.getGuild() == null) {
+    AuthServiceGuild().getRequestedUserGot(true).then((response) {
+      if (response != null) {
+        me.setGuildInvites(response);
+        ProfileChangeNotifier().notify();
+      } else {
+        print("no requests got");
+      }
+    });
+  } else {
+    AuthServiceGuild().getRequestedGuildSend(me.getGuild()!.getGuildId(), true).then((response) {
+      if (response != null) {
+        me.getGuild()!.setJoinRequests(response);
+        ProfileChangeNotifier().notify();
+      } else {
+        print("no requests");
+      }
+    });
+  }
+}
+
 successfulLogin(LoginResponse loginResponse) async {
   SecureStorage secureStorage = SecureStorage();
   Settings settings = Settings();
@@ -126,6 +154,7 @@ successfulLogin(LoginResponse loginResponse) async {
       settings.setAvatar(user.getAvatar()!);
     }
     SocketServices().login(user.id);
+    additionalLoginInformation(user);
   }
   ChatMessages().login();
   settings.setLoggingIn(false);
@@ -198,6 +227,7 @@ Tile? getTileWrap(HexagonList hexagonList, int qArray, int rArray, int newTileQ,
 
 logoutUser(Settings settings, NavigationService navigationService) {
   SocketServices().logout(settings.getUser()!.id);
+  GuildInformation().clearInformation();
   ChatMessages().clearPersonalMessages();
   ProfileChangeNotifier().setProfileVisible(false);
   settings.logout();

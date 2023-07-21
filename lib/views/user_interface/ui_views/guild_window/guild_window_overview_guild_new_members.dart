@@ -8,6 +8,8 @@ import 'package:age_of_gold/services/models/guild_member.dart';
 import 'package:age_of_gold/services/models/user.dart';
 import 'package:age_of_gold/util/render_objects.dart';
 import 'package:age_of_gold/util/util.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_information.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/profile_box/profile_change_notifier.dart';
 import 'package:flutter/material.dart';
 
 
@@ -20,6 +22,7 @@ class GuildWindowOverviewGuildNewMembers extends StatefulWidget {
   final double fontSize;
   final User? me;
   final Guild guild;
+  final GuildInformation guildInformation;
 
   const GuildWindowOverviewGuildNewMembers({
     required Key key,
@@ -29,7 +32,8 @@ class GuildWindowOverviewGuildNewMembers extends StatefulWidget {
     required this.overviewWidth,
     required this.fontSize,
     required this.me,
-    required this.guild
+    required this.guild,
+    required this.guildInformation,
   }) : super(key: key);
 
   @override
@@ -45,30 +49,18 @@ class GuildWindowOverviewGuildNewMembersState extends State<GuildWindowOverviewG
   bool nothingFound = false;
   User? foundNewMember;
 
-  List<User> askedMembers = [];
-  List<User> requestedMembers = [];
-
   @override
   void initState() {
     super.initState();
-    AuthServiceGuild().getRequestedGuildSend(widget.guild.getGuildId()).then((response) {
-      if (response != null) {
-        setState(() {
-          requestedMembers = response;
-        });
-      } else {
-        print("no requests");
-      }
-    });
-    AuthServiceGuild().getRequestedGuildGot(widget.guild.getGuildId()).then((response) {
-      if (response != null) {
-        setState(() {
-          askedMembers = response;
-        });
-      } else {
-        print("no requests");
-      }
-    });
+    newMembersInitialize();
+  }
+
+  newMembersInitialize() async {
+    bool requests1 = await widget.guildInformation.getRequestedGuildSend(widget.guild.getGuildId(), false);
+    bool requests2 = await widget.guildInformation.getRequestedGuildGot(widget.guild.getGuildId());
+    if (requests1 || requests2) {
+      setState(() {});
+    }
   }
 
   @override
@@ -96,18 +88,32 @@ class GuildWindowOverviewGuildNewMembersState extends State<GuildWindowOverviewG
   askNewMemberToJoin(User newMember) {
     if (widget.me != null && widget.me!.getId() == newMember.getId()) {
       showToastMessage("You are already a member of your guild!");
+      setState(() {
+        foundNewMember = null;
+      });
       return;
     }
     // First check if the user is already a member of the guild
     if (widget.guild.getMembers().any((element) => element.getGuildMemberId() == newMember.getId())) {
       showToastMessage("User ${newMember.getUserName()} is already a member of your guild!");
+      setState(() {
+        foundNewMember = null;
+      });
+      return;
+    }
+    // Check if the user is in the requestedMembers list
+    if (widget.guildInformation.requestedMembers.any((element) => element.getId() == newMember.getId())) {
+      acceptMemberToJoin(newMember);
+      setState(() {
+        foundNewMember = null;
+      });
       return;
     }
     AuthServiceGuild().askNewMember(newMember.id, widget.guild.guildId).then((response) {
       if (response.getResult()) {
         showToastMessage("Request send to user ${newMember.getUserName()}");
         setState(() {
-          askedMembers.add(newMember);
+          widget.guildInformation.askedMembers.add(newMember);
         });
       } else {
         showToastMessage(response.getMessage());
@@ -123,9 +129,11 @@ class GuildWindowOverviewGuildNewMembersState extends State<GuildWindowOverviewG
         guildMember.setGuildMemberAvatar(newMember.getAvatar());
         guildMember.setRetrieved(true);
         widget.guild.addMember(guildMember);
+        widget.guild.removeGuildInvite(newMember);
         setState(() {
-          requestedMembers.removeWhere((element) => element.id == newMember.getId());
+          widget.guildInformation.requestedMembers.removeWhere((element) => element.id == newMember.getId());
         });
+        ProfileChangeNotifier().notify();
         showToastMessage("User ${newMember.getUserName()} is now a member of your guild!");
       } else {
         showToastMessage(response.getMessage());
@@ -136,7 +144,7 @@ class GuildWindowOverviewGuildNewMembersState extends State<GuildWindowOverviewG
   cancelRequest(User cancelUser) {
     AuthServiceGuild().cancelRequestGuild(cancelUser.getId(), widget.guild.guildId).then((response) {
       if (response.getResult()) {
-        askedMembers.removeWhere((element) => element.id == cancelUser.getId());
+        widget.guildInformation.askedMembers.removeWhere((element) => element.id == cancelUser.getId());
         setState(() {
           showToastMessage("Request to user ${cancelUser.getUserName()} cancelled");
         });
@@ -177,12 +185,12 @@ class GuildWindowOverviewGuildNewMembersState extends State<GuildWindowOverviewG
   }
 
   List<Widget> memberRequestsSendBox() {
-    if (askedMembers.isEmpty) {
+    if (widget.guildInformation.askedMembers.isEmpty) {
       return [];
     } else {
       List<Widget> askedMembersGuild = [];
       askedMembersGuild.add(membersRequestSendHeader());
-      for (User askedMember in askedMembers) {
+      for (User askedMember in widget.guildInformation.askedMembers) {
         askedMembersGuild.add(
             newMemberInABox(
                 askedMember,
@@ -199,12 +207,12 @@ class GuildWindowOverviewGuildNewMembersState extends State<GuildWindowOverviewG
   }
 
   List<Widget> memberRequestsGotBox() {
-    if (requestedMembers.isEmpty) {
+    if (widget.guildInformation.requestedMembers.isEmpty) {
       return [];
     } else {
       List<Widget> requestedMembersGuild = [];
       requestedMembersGuild.add(membersRequestGotHeader());
-      for (User requestedMember in requestedMembers) {
+      for (User requestedMember in widget.guildInformation.requestedMembers) {
         requestedMembersGuild.add(
             newMemberInABox(
                 requestedMember,

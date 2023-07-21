@@ -2,6 +2,7 @@ import 'package:age_of_gold/age_of_gold.dart';
 import 'package:age_of_gold/services/models/guild.dart';
 import 'package:age_of_gold/services/models/user.dart';
 import 'package:age_of_gold/util/util.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_information.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window_overview_guild_new_members.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window_overview_guild_overview.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +17,7 @@ class GuildWindowOverviewGuild extends StatefulWidget {
   final double fontSize;
   final User? me;
   final Guild guild;
+  final GuildInformation guildInformation;
   final Function leaveGuild;
 
   const GuildWindowOverviewGuild({
@@ -27,6 +29,7 @@ class GuildWindowOverviewGuild extends StatefulWidget {
     required this.fontSize,
     required this.me,
     required this.guild,
+    required this.guildInformation,
     required this.leaveGuild,
   }) : super(key: key);
 
@@ -35,6 +38,16 @@ class GuildWindowOverviewGuild extends StatefulWidget {
 }
 
 class GuildWindowOverviewGuildState extends State<GuildWindowOverviewGuild> {
+
+  UniqueKey guildWindowOverviewGuildOverviewKey = UniqueKey();
+  UniqueKey guildWindowOverviewGuildNewMembersKey = UniqueKey();
+
+  double iconSize = 40;
+  int guildOverviewColour = 2;
+  bool showGuildOverview = true;
+
+  int newMembersColour = 0;
+  bool newMembersView = false;
 
   @override
   void initState() {
@@ -60,9 +73,6 @@ class GuildWindowOverviewGuildState extends State<GuildWindowOverviewGuild> {
     newMembersColour = 2;
   }
 
-  double iconSize = 40;
-  int guildOverviewColour = 2;
-  bool showGuildOverview = true;
   Widget guildOverviewButton() {
     return InkWell(
       onTap: () {
@@ -108,8 +118,6 @@ class GuildWindowOverviewGuildState extends State<GuildWindowOverviewGuild> {
     );
   }
 
-  int newMembersColour = 0;
-  bool newMembersView = false;
   Widget newMembersButton() {
     return InkWell(
       onTap: () {
@@ -169,8 +177,6 @@ class GuildWindowOverviewGuildState extends State<GuildWindowOverviewGuild> {
     );
   }
 
-  UniqueKey guildWindowOverviewGuildOverviewKey = UniqueKey();
-  UniqueKey guildWindowOverviewGuildNewMembersKey = UniqueKey();
   Widget guildOverviewContent() {
     if (showGuildOverview) {
       return GuildWindowOverviewGuildOverview(
@@ -194,6 +200,7 @@ class GuildWindowOverviewGuildState extends State<GuildWindowOverviewGuild> {
         fontSize: widget.fontSize,
         me: widget.me,
         guild: widget.guild,
+        guildInformation: widget.guildInformation,
       );
     }
   }

@@ -9,6 +9,7 @@ import 'package:age_of_gold/services/models/user.dart';
 import 'package:age_of_gold/util/render_objects.dart';
 import 'package:age_of_gold/util/util.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/change_guild_crest_box/change_guild_crest_change_notifier.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_information.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/profile_box/profile_change_notifier.dart';
 import 'package:flutter/material.dart';
 
@@ -21,7 +22,7 @@ class GuildWindowOverviewNoGuildCreate extends StatefulWidget {
   final double overviewWidth;
   final double fontSize;
   final User? me;
-  final ChangeGuildCrestChangeNotifier changeGuildCrestChangeNotifier;
+  final GuildInformation guildInformation;
   final Function createGuild;
 
   const GuildWindowOverviewNoGuildCreate({
@@ -32,7 +33,7 @@ class GuildWindowOverviewNoGuildCreate extends StatefulWidget {
     required this.overviewWidth,
     required this.fontSize,
     required this.me,
-    required this.changeGuildCrestChangeNotifier,
+    required this.guildInformation,
     required this.createGuild,
   }) : super(key: key);
 
@@ -57,14 +58,17 @@ class GuildWindowOverviewNoGuildCreateState extends State<GuildWindowOverviewNoG
   }
 
   changeGuildCrestAction() {
-    widget.changeGuildCrestChangeNotifier.setChangeGuildCrestVisible(true);
+    ChangeGuildCrestChangeNotifier changeGuildCrestChangeNotifier = ChangeGuildCrestChangeNotifier();
+    changeGuildCrestChangeNotifier.setGuildCrest(widget.guildInformation.getGuildCrest());
+    changeGuildCrestChangeNotifier.setDefault(widget.guildInformation.getCrestIsDefault());
+    changeGuildCrestChangeNotifier.setChangeGuildCrestVisible(true);
   }
 
   createGuildAction() {
     if (createGuildKey.currentState!.validate()) {
       String? newAvatarRegular;
-      if (!widget.changeGuildCrestChangeNotifier.getDefault()) {
-        newAvatarRegular = base64Encode(widget.changeGuildCrestChangeNotifier.getGuildCrest()!);
+      if (!widget.guildInformation.getCrestIsDefault()) {
+        newAvatarRegular = base64Encode(widget.guildInformation.getGuildCrest()!);
       }
       if (widget.me != null) {
         String guildName = createGuildController.text;
@@ -72,15 +76,16 @@ class GuildWindowOverviewNoGuildCreateState extends State<GuildWindowOverviewNoG
           if (value.getResult()) {
             int guildId = int.parse(value.getMessage());
             String guildName = createGuildController.text;
-            Uint8List? guildCrest = widget.changeGuildCrestChangeNotifier.getGuildCrest();
+            Uint8List? guildCrest = widget.guildInformation.getGuildCrest();
             Guild createdGuild = Guild(guildId, guildName, guildCrest);
-            // You just created a guild, so you're the only member and you're admin.
+            // You just created a guild, so you're the only member and you're guild master.
             GuildMember guildMember = GuildMember(widget.me!.getId(), 0);
             guildMember.setGuildMemberName(widget.me!.getUserName());
             guildMember.setGuildMemberAvatar(widget.me!.getAvatar());
             guildMember.setRetrieved(true);
             createdGuild.addMember(guildMember);
             widget.me!.setGuild(createdGuild);
+            widget.me!.setMyGuildRank();
             widget.createGuild();
             ProfileChangeNotifier().notify();
           } else {
@@ -151,7 +156,7 @@ class GuildWindowOverviewNoGuildCreateState extends State<GuildWindowOverviewNoG
               guildAvatarBox(
                   200,
                   crestHeight,
-                  widget.changeGuildCrestChangeNotifier.getGuildCrest()
+                  widget.guildInformation.getGuildCrest()
               ),
               SizedBox(width: 10),
               ElevatedButton(

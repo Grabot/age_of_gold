@@ -1,6 +1,7 @@
 import 'package:age_of_gold/age_of_gold.dart';
 import 'package:age_of_gold/util/render_objects.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/change_guild_crest_box/change_guild_crest_change_notifier.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_information.dart';
 import 'package:flutter/material.dart';
 
 
@@ -11,7 +12,7 @@ class GuildWindowOverviewNoGuildOverview extends StatefulWidget {
   final double overviewHeight;
   final double overviewWidth;
   final double fontSize;
-  final ChangeGuildCrestChangeNotifier changeGuildCrestChangeNotifier;
+  final GuildInformation guildInformation;
 
   const GuildWindowOverviewNoGuildOverview({
     required Key key,
@@ -20,7 +21,7 @@ class GuildWindowOverviewNoGuildOverview extends StatefulWidget {
     required this.overviewHeight,
     required this.overviewWidth,
     required this.fontSize,
-    required this.changeGuildCrestChangeNotifier,
+    required this.guildInformation,
   }) : super(key: key);
 
   @override
@@ -50,7 +51,7 @@ class GuildWindowOverviewNoGuildOverviewState extends State<GuildWindowOverviewN
             guildAvatarBox(
                 200,
                 225,
-                widget.changeGuildCrestChangeNotifier.getGuildCrest()
+                widget.guildInformation.getGuildCrest()
             ),
             Expanded(
               child: RichText(

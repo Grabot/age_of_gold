@@ -14,6 +14,7 @@ class User {
   late List<Friend> friends;
   Uint8List? avatar;
   Guild? guild;
+  List<Guild> guildInvites = [];
 
   User(this.id, this.userName, this.verified, this.friends, String? timeLock) {
     if (timeLock != null) {
@@ -53,6 +54,14 @@ class User {
 
   void setAvatar(Uint8List avatar) {
     this.avatar = avatar;
+  }
+
+  setGuildInvites(List<Guild> guildInvites) {
+    this.guildInvites = guildInvites;
+  }
+
+  removeGuildRequests() {
+    guildInvites = [];
   }
 
   updateTileLock(String tileLock) {
@@ -97,7 +106,7 @@ class User {
     this.guild = guild;
   }
 
-  setGuildRank() {
+  setMyGuildRank() {
     if (guild != null) {
       for (GuildMember member in guild!.getMembers()) {
         if (member.getGuildMemberId() == id) {
@@ -151,7 +160,7 @@ class User {
 
     if (json.containsKey("guild") && json["guild"] != null) {
       guild = Guild.fromJson(json["guild"]);
-      setGuildRank();
+      setMyGuildRank();
     }
   }
 

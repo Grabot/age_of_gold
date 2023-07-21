@@ -7,6 +7,8 @@ import 'package:age_of_gold/services/models/guild_member.dart';
 import 'package:age_of_gold/services/models/user.dart';
 import 'package:age_of_gold/util/render_objects.dart';
 import 'package:age_of_gold/util/util.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_information.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/profile_box/profile_change_notifier.dart';
 import 'package:flutter/material.dart';
 
 
@@ -18,6 +20,7 @@ class GuildWindowOverviewNoGuildFind extends StatefulWidget {
   final double overviewWidth;
   final double fontSize;
   final User? me;
+  final GuildInformation guildInformation;
   final Function createGuild;
 
   const GuildWindowOverviewNoGuildFind({
@@ -28,6 +31,7 @@ class GuildWindowOverviewNoGuildFind extends StatefulWidget {
     required this.overviewWidth,
     required this.fontSize,
     required this.me,
+    required this.guildInformation,
     required this.createGuild,
   }) : super(key: key);
 
@@ -44,32 +48,21 @@ class GuildWindowOverviewNoGuildFindState extends State<GuildWindowOverviewNoGui
   bool nothingFound = false;
   Guild? foundGuild;
 
-  List<Guild> guildsSendRequests = [];
-  List<Guild> guildsGotRequests = [];
-
   @override
   void initState() {
     _focusFindGuild.addListener(_onFocusFindGuild);
-    AuthServiceGuild().getRequestedUserSend().then((response) {
-      if (response != null) {
-        setState(() {
-          guildsSendRequests = response;
-        });
-      } else {
-        print("no requests send");
-      }
-    });
-    AuthServiceGuild().getRequestedUserGot().then((response) {
-      if (response != null) {
-        setState(() {
-          guildsGotRequests = response;
-        });
-      } else {
-        print("no requests got");
-      }
-    });
+    newMembersInitialize();
     super.initState();
   }
+
+  newMembersInitialize() async {
+    bool requests1 = await widget.guildInformation.getRequestedUserSend();
+    bool requests2 = await widget.guildInformation.getRequestedUserGot(false);
+    if (requests1 || requests2) {
+      setState(() {});
+    }
+  }
+
 
   @override
   void dispose() {
@@ -100,12 +93,20 @@ class GuildWindowOverviewNoGuildFindState extends State<GuildWindowOverviewNoGui
   }
 
   requestToJoinGuild(Guild guildRequested) {
+    // guildsGotRequests
+    if (widget.guildInformation.guildsGotRequests.any((element) => element.getGuildId() == guildRequested.getGuildId())) {
+      acceptRequest(guildRequested);
+      setState(() {
+        foundGuild = null;
+      });
+      return;
+    }
     AuthServiceGuild().requestToJoin(guildRequested.guildId).then((response) {
       if (response.getResult()) {
         print("request to join guild was successful");
         showToastMessage("Requested to join guild ${guildRequested.guildName}");
         setState(() {
-          guildsSendRequests.add(guildRequested);
+          widget.guildInformation.guildsSendRequests.add(guildRequested);
         });
       } else {
         showToastMessage(response.getMessage());
@@ -117,7 +118,7 @@ class GuildWindowOverviewNoGuildFindState extends State<GuildWindowOverviewNoGui
     AuthServiceGuild().cancelRequestUser(guildToCancel.guildId).then((response) {
       if (response.getResult()) {
         // remove guildToCancel from the guildsRequested list
-        guildsSendRequests.removeWhere((element) => element.guildId == guildToCancel.guildId);
+        widget.guildInformation.guildsSendRequests.removeWhere((element) => element.guildId == guildToCancel.guildId);
         setState(() {
           showToastMessage("guild request cancelled");
         });
@@ -140,6 +141,9 @@ class GuildWindowOverviewNoGuildFindState extends State<GuildWindowOverviewNoGui
           guildMember.setRetrieved(true);
           guildToAccept.addMember(guildMember);
           widget.me!.setGuild(guildToAccept);
+          widget.me!.setMyGuildRank();
+          widget.me!.removeGuildRequests();
+          ProfileChangeNotifier().notify();
           widget.createGuild();
         }
       } else {
@@ -416,10 +420,10 @@ class GuildWindowOverviewNoGuildFindState extends State<GuildWindowOverviewNoGui
                   SizedBox(height: 40),
                   guildBox(120),
                   Column(
-                    children: requestedGuildBox(guildsGotRequests, false),
+                    children: requestedGuildBox(widget.guildInformation.guildsGotRequests, false),
                   ),
                   Column(
-                    children: requestedGuildBox(guildsSendRequests, true),
+                    children: requestedGuildBox(widget.guildInformation.guildsSendRequests, true),
                   ),
                 ]
             ),

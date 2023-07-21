@@ -53,11 +53,9 @@ class SocialInteractionState extends State<SocialInteraction> with TickerProvide
   @override
   void initState() {
     super.initState();
-    // TODO: Change to it's own change notifier
+    // TODO: Change to it's own change notifier?
     profileChangeNotifier = ProfileChangeNotifier();
     profileChangeNotifier.addListener(socialInteractionListener);
-    checkUnansweredFriendRequests();
-    checkUnreadMessages();
   }
 
   @override
@@ -82,19 +80,44 @@ class SocialInteractionState extends State<SocialInteraction> with TickerProvide
     unreadMessages = ChatMessages().unreadPersonalMessages();
   }
 
+  checkGuildInformation() {
+    guildNotification = false;
+    // First check if the user does not have a guild yet, but he does have some invites
+    // Second check if the user is in a guild and there are new member requests
+    User? me = Settings().getUser();
+    if (me != null) {
+      if (me.getGuild() == null && me.guildInvites.isNotEmpty) {
+        setState(() {
+          guildNotification = true;
+        });
+      }
+      if (me.getGuild() != null) {
+        if (me.getGuild()!.getJoinRequests().isNotEmpty) {
+          setState(() {
+            guildNotification = true;
+          });
+        }
+      }
+    }
+  }
+
   socketListener() {
     if (mounted) {
+      updateInteractions();
+    }
+  }
+
+  updateInteractions() {
+    setState(() {
       checkUnansweredFriendRequests();
       checkUnreadMessages();
-      setState(() {});
-    }
+      checkGuildInformation();
+    });
   }
 
   socialInteractionListener() {
     if (mounted) {
-      checkUnansweredFriendRequests();
-      checkUnreadMessages();
-      setState(() {});
+      updateInteractions();
     }
   }
 

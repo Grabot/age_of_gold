@@ -3,6 +3,7 @@ import 'package:age_of_gold/services/models/user.dart';
 import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/util/util.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/change_guild_crest_box/change_guild_crest_change_notifier.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_information.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window_overview.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window_util.dart';
@@ -28,11 +29,13 @@ class GuildWindowState extends State<GuildWindow> {
   bool normalMode = true;
 
   late GuildWindowChangeNotifier guildWindowChangeNotifier;
-  late ChangeGuildCrestChangeNotifier changeGuildCrestChangeNotifier;
+  late GuildInformation guildInformation;
   bool showGuildWindow = false;
 
   double guildWindowHeight = 0;
   double guildWindowWidth = 100;
+
+  UniqueKey guildWindowOverviewKey = UniqueKey();
 
   @override
   void initState() {
@@ -40,9 +43,9 @@ class GuildWindowState extends State<GuildWindow> {
     guildWindowChangeNotifier.addListener(guildWindowChangeListener);
     _focusGuildWindow.addListener(_onFocusChange);
 
-    changeGuildCrestChangeNotifier = ChangeGuildCrestChangeNotifier();
-    changeGuildCrestChangeNotifier.setDefault(true);
-    changeGuildCrestChangeNotifier.setGuildCrest(null);
+    guildInformation = GuildInformation();
+    guildInformation.setCrestIsDefault(true);
+    guildInformation.setGuildCrest(null);
     super.initState();
   }
 
@@ -62,13 +65,13 @@ class GuildWindowState extends State<GuildWindow> {
   }
 
   User? me;
-  guildWindowChangeListener() async {
+  guildWindowChangeListener() {
     if (mounted) {
       if (!showGuildWindow && guildWindowChangeNotifier.getGuildWindowVisible()) {
         me = Settings().getUser();
         if (me != null) {
-          setGuildCrest(me!, changeGuildCrestChangeNotifier);
-          await retrieveGuildMembers(me!);
+          retrieveGuildMembers(me!);
+          setGuildCrest(me!, guildInformation);
         }
         setState(() {
           showGuildWindow = true;
@@ -77,8 +80,8 @@ class GuildWindowState extends State<GuildWindow> {
       else if (showGuildWindow && !guildWindowChangeNotifier.getGuildWindowVisible()) {
         // If the window is closed we go back to the default.
         // If a guild is created we still set it to default because it is for the creation tab
-        changeGuildCrestChangeNotifier.setGuildCrest(null);
-        changeGuildCrestChangeNotifier.setDefault(true);
+        guildInformation.setGuildCrest(null);
+        guildInformation.setCrestIsDefault(true);
         setState(() {
           showGuildWindow = false;
         });
@@ -116,7 +119,6 @@ class GuildWindowState extends State<GuildWindow> {
     );
   }
 
-  UniqueKey guildWindowOverviewKey = UniqueKey();
   Widget mainGuildWindow(double guildWindowWidth, double overviewHeight, double fontSize) {
     return SizedBox(
       width: guildWindowWidth,
@@ -131,7 +133,7 @@ class GuildWindowState extends State<GuildWindow> {
             overviewWidth: guildWindowWidth,
             fontSize: fontSize,
             me: me,
-            changeGuildCrestChangeNotifier: changeGuildCrestChangeNotifier
+            guildInformation: guildInformation
           )
         ]
       ),

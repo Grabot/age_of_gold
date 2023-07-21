@@ -2,6 +2,7 @@ import 'package:age_of_gold/age_of_gold.dart';
 import 'package:age_of_gold/services/models/user.dart';
 import 'package:age_of_gold/util/util.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/change_guild_crest_box/change_guild_crest_change_notifier.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_information.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window_overview_no_guild_create.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window_overview_no_guild_find.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window_overview_no_guild_overview.dart';
@@ -16,7 +17,7 @@ class GuildWindowOverviewNoGuild extends StatefulWidget {
   final double overviewWidth;
   final double fontSize;
   final User? me;
-  final ChangeGuildCrestChangeNotifier changeGuildCrestChangeNotifier;
+  final GuildInformation guildInformation;
   final Function createGuild;
 
   const GuildWindowOverviewNoGuild({
@@ -27,7 +28,7 @@ class GuildWindowOverviewNoGuild extends StatefulWidget {
     required this.overviewWidth,
     required this.fontSize,
     required this.me,
-    required this.changeGuildCrestChangeNotifier,
+    required this.guildInformation,
     required this.createGuild,
   }) : super(key: key);
 
@@ -36,6 +37,20 @@ class GuildWindowOverviewNoGuild extends StatefulWidget {
 }
 
 class GuildWindowOverviewNoGuildState extends State<GuildWindowOverviewNoGuild> {
+
+  UniqueKey guildWindowOverviewNoGuildOverviewKey = UniqueKey();
+  UniqueKey guildWindowOverviewNoGuildCreateKey = UniqueKey();
+  UniqueKey guildWindowOverviewNoGuildFindKey = UniqueKey();
+
+  double iconSize = 40;
+  int guildOverviewColour = 2;
+  bool showGuildOverview = true;
+
+  int createGuildColour = 0;
+  bool createGuildView = false;
+
+  int findGuildColour = 0;
+  bool findGuildView = false;
 
   @override
   void initState() {
@@ -50,8 +65,8 @@ class GuildWindowOverviewNoGuildState extends State<GuildWindowOverviewNoGuild> 
 
   switchToOverview() {
     // We'll also change the guild crest to the default one. This is because nothing is created.
-    widget.changeGuildCrestChangeNotifier.setGuildCrest(null);
-    widget.changeGuildCrestChangeNotifier.setDefault(true);
+    widget.guildInformation.setGuildCrest(null);
+    widget.guildInformation.setCrestIsDefault(true);
     showGuildOverview = true;
     createGuildView = false;
     findGuildView = false;
@@ -71,8 +86,8 @@ class GuildWindowOverviewNoGuildState extends State<GuildWindowOverviewNoGuild> 
 
   switchToFind() {
     // We'll also change the guild crest to the default one. This is because nothing is created.
-    widget.changeGuildCrestChangeNotifier.setGuildCrest(null);
-    widget.changeGuildCrestChangeNotifier.setDefault(true);
+    widget.guildInformation.setGuildCrest(null);
+    widget.guildInformation.setCrestIsDefault(true);
     showGuildOverview = false;
     createGuildView = false;
     findGuildView = true;
@@ -81,9 +96,6 @@ class GuildWindowOverviewNoGuildState extends State<GuildWindowOverviewNoGuild> 
     findGuildColour = 2;
   }
 
-  double iconSize = 40;
-  int guildOverviewColour = 2;
-  bool showGuildOverview = true;
   Widget guildOverviewButton() {
     return InkWell(
       onTap: () {
@@ -129,8 +141,6 @@ class GuildWindowOverviewNoGuildState extends State<GuildWindowOverviewNoGuild> 
     );
   }
 
-  int createGuildColour = 0;
-  bool createGuildView = false;
   Widget createGuildButton() {
     return InkWell(
       onTap: () {
@@ -176,8 +186,6 @@ class GuildWindowOverviewNoGuildState extends State<GuildWindowOverviewNoGuild> 
     );
   }
 
-  int findGuildColour = 0;
-  bool findGuildView = false;
   Widget findGuildButton() {
     return InkWell(
       onTap: () {
@@ -238,9 +246,6 @@ class GuildWindowOverviewNoGuildState extends State<GuildWindowOverviewNoGuild> 
     );
   }
 
-  UniqueKey guildWindowOverviewNoGuildOverviewKey = UniqueKey();
-  UniqueKey guildWindowOverviewNoGuildCreateKey = UniqueKey();
-  UniqueKey guildWindowOverviewNoGuildFindKey = UniqueKey();
   Widget overviewContent() {
     if (showGuildOverview) {
       return GuildWindowOverviewNoGuildOverview(
@@ -250,7 +255,7 @@ class GuildWindowOverviewNoGuildState extends State<GuildWindowOverviewNoGuild> 
         overviewHeight: widget.overviewHeight-iconSize,
         overviewWidth: widget.overviewWidth,
         fontSize: widget.fontSize,
-        changeGuildCrestChangeNotifier: widget.changeGuildCrestChangeNotifier,
+        guildInformation: widget.guildInformation,
       );
     } else if (createGuildView) {
       return GuildWindowOverviewNoGuildCreate(
@@ -261,7 +266,7 @@ class GuildWindowOverviewNoGuildState extends State<GuildWindowOverviewNoGuild> 
           overviewWidth: widget.overviewWidth,
           fontSize: widget.fontSize,
           me: widget.me,
-          changeGuildCrestChangeNotifier: widget.changeGuildCrestChangeNotifier,
+          guildInformation: widget.guildInformation,
           createGuild: widget.createGuild,
       );
     } else {
@@ -273,6 +278,7 @@ class GuildWindowOverviewNoGuildState extends State<GuildWindowOverviewNoGuild> 
         overviewWidth: widget.overviewWidth,
         fontSize: widget.fontSize,
         me: widget.me,
+        guildInformation: widget.guildInformation,
         createGuild: widget.createGuild,
       );
     }
