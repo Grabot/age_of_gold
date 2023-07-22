@@ -21,6 +21,7 @@ import 'package:oktoast/oktoast.dart';
 import 'package:url_strategy/url_strategy.dart';
 
 import 'age_of_gold.dart';
+import 'views/user_interface/are_you_sure_box/are_you_sure_box.dart';
 import 'views/user_interface/ui_views/chat_box/chat_box.dart';
 import 'views/user_interface/ui_views/chat_window/chat_window.dart';
 import 'views/user_interface/ui_views/friend_window/friend_window.dart';
@@ -61,6 +62,7 @@ Future<void> main() async {
           'mapCoordinates': _mapCoordinatesBoxBuilder,
           'guildWindow': _guildWindowBoxBuilder,
           'changeGuildCrest': _changeGuildCrestBoxBuilder,
+          'areYouSureBox': _areYouSureBoxBuilder,
           'loadingBox': _loadingBoxBuilder,
         },
         initialActiveOverlays: const [
@@ -76,6 +78,7 @@ Future<void> main() async {
           'mapCoordinates',
           'guildWindow',
           'changeGuildCrest',
+          'areYouSureBox',
           'loadingBox',
         ],
       )
@@ -175,6 +178,10 @@ Widget _changeAvatarBoxBuilder(BuildContext buildContext, AgeOfGold game) {
 
 Widget _loadingBoxBuilder(BuildContext buildContext, AgeOfGold game) {
   return LoadingBox(key: UniqueKey(), game: game);
+}
+
+Widget _areYouSureBoxBuilder(BuildContext buildContext, AgeOfGold game) {
+  return AreYouSureBox(key: UniqueKey(), game: game);
 }
 
 Widget _mapCoordinatesBoxBuilder(BuildContext buildContext, AgeOfGold game) {

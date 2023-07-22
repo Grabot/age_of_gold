@@ -44,12 +44,16 @@ class AuthServiceGuild {
     return baseResponse;
   }
 
-  Future<BaseResponse> leaveGuild() async {
+  Future<BaseResponse> leaveGuild(int userId, int guildId) async {
     String endPoint = "guild/leave";
-    var response = await AuthApi().dio.get(endPoint,
+    var response = await AuthApi().dio.post(endPoint,
         options: Options(headers: {
           HttpHeaders.contentTypeHeader: "application/json",
-        },
+        }),
+        data: jsonEncode(<String, dynamic> {
+          "guild_id": guildId,
+          "user_id": userId,
+        }
       )
     );
 

@@ -7,6 +7,7 @@ import 'package:age_of_gold/services/models/guild_member.dart';
 import 'package:age_of_gold/services/models/user.dart';
 import 'package:age_of_gold/util/render_objects.dart';
 import 'package:age_of_gold/util/util.dart';
+import 'package:age_of_gold/views/user_interface/are_you_sure_box/are_you_sure_change_notifier.dart';
 import 'package:flutter/material.dart';
 
 
@@ -50,6 +51,49 @@ class GuildWindowOverviewGuildOverviewState extends State<GuildWindowOverviewGui
     super.dispose();
   }
 
+  Offset? _tapPosition;
+  void _showPopupMenu() {
+    _storePosition();
+    _showChatDetailPopupMenu();
+  }
+
+  void _showChatDetailPopupMenu() {
+    final RenderBox overlay =
+    Overlay.of(context).context.findRenderObject() as RenderBox;
+
+    showMenu(
+        context: context,
+        items: [GuildSettingPopup(key: UniqueKey())],
+        position: RelativeRect.fromRect(
+            _tapPosition! & const Size(40, 40), Offset.zero & overlay.size))
+        .then((int? delta) {
+      if (delta == 0) {
+        // Leave guild
+        print("leaving guild");
+        if (widget.me == null) {
+          showToastMessage("something went wrong");
+          return;
+        }
+        AreYouSureBoxChangeNotifier areYouSureBoxChangeNotifier = AreYouSureBoxChangeNotifier();
+        areYouSureBoxChangeNotifier.setUserId(widget.me!.getId());
+        areYouSureBoxChangeNotifier.setGuildId(widget.guild.getGuildId());
+        areYouSureBoxChangeNotifier.setShowLogout(false);
+        areYouSureBoxChangeNotifier.setShowLeaveGuild(true);
+        areYouSureBoxChangeNotifier.setAreYouSureBoxVisible(true);
+      } else if (delta == 1) {
+        // change guild crest
+        print("changing guild crest");
+      }
+      return;
+    });
+  }
+
+  void _storePosition() {
+    RenderBox box = guildSettingsKey.currentContext!.findRenderObject() as RenderBox;
+    Offset position = box.localToGlobal(Offset.zero);
+    position = position + const Offset(0, 50);
+    _tapPosition = position;
+  }
 
   Widget guildMemberInteraction(GuildMember? guildMember, double avatarBoxSize, double guildMemberOptionWidth, double fontSize) {
     return SizedBox(
@@ -141,22 +185,7 @@ class GuildWindowOverviewGuildOverviewState extends State<GuildWindowOverviewGui
     return members;
   }
 
-  leaveGuild() {
-    AuthServiceGuild().leaveGuild().then((value) {
-      if (value.getResult()) {
-        print("leave guild success");
-        if (widget.me != null && widget.me!.guild != null) {
-          widget.me!.guild = null;
-          widget.leaveGuild();
-        } else {
-          showToastMessage("an error occured");
-        }
-      } else {
-        showToastMessage(value.getMessage());
-      }
-    });
-  }
-
+  GlobalKey guildSettingsKey = GlobalKey();
   Widget guildOverviewContent(Guild guild) {
     String guildName = guild.getGuildName();
 
@@ -206,7 +235,7 @@ class GuildWindowOverviewGuildOverviewState extends State<GuildWindowOverviewGui
                         ),
                       ]
                     ),
-                    SizedBox(height: 20),
+                    SizedBox(height: 15),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -217,7 +246,6 @@ class GuildWindowOverviewGuildOverviewState extends State<GuildWindowOverviewGui
                         Container(),
                       ]
                     ),
-                    SizedBox(height: 20),
                     Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -225,21 +253,29 @@ class GuildWindowOverviewGuildOverviewState extends State<GuildWindowOverviewGui
                               "Guild score: 0",
                               style: simpleTextStyle(widget.fontSize)
                           ),
-                          ElevatedButton(
-                            onPressed: () {
-                              leaveGuild();
-                            },
-                            style: buttonStyle(true, Colors.red),
-                            child: Container(
-                              alignment: Alignment.center,
-                              width: 60,
-                              height: 30,
-                              child: Text(
-                                'Leave Guild',
-                                style: simpleTextStyle((widget.fontSize/3)*2),
-                              ),
-                            ),
+                          IconButton(
+                              key: guildSettingsKey,
+                              iconSize: 40.0,
+                              icon: const Icon(Icons.settings),
+                              color: Colors.orangeAccent.shade200,
+                              tooltip: 'Settings',
+                              onPressed: _showPopupMenu
                           ),
+                          // ElevatedButton(
+                          //   onPressed: () {
+                          //     leaveGuild();
+                          //   },
+                          //   style: buttonStyle(true, Colors.red),
+                          //   child: Container(
+                          //     alignment: Alignment.center,
+                          //     width: 60,
+                          //     height: 30,
+                          //     child: Text(
+                          //       'Leave Guild',
+                          //       style: simpleTextStyle((widget.fontSize/3)*2),
+                          //     ),
+                          //   ),
+                          // ),
                         ]
                     )
                   ],
@@ -289,4 +325,74 @@ class GuildWindowOverviewGuildOverviewState extends State<GuildWindowOverviewGui
       child: guildOverview(),
     );
   }
+}
+
+class GuildSettingPopup extends PopupMenuEntry<int> {
+
+  GuildSettingPopup({required Key key}) : super(key: key);
+
+  @override
+  bool represents(int? n) => n == 1 || n == -1;
+
+  @override
+  GuildSettingPopupState createState() => GuildSettingPopupState();
+
+  @override
+  double get height => 1;
+}
+
+class GuildSettingPopupState extends State<GuildSettingPopup> {
+  @override
+  Widget build(BuildContext context) {
+    return getPopupItems(context);
+  }
+}
+
+void buttonLeaveGuild(BuildContext context) {
+  Navigator.pop<int>(context, 0);
+}
+
+void buttonChangeGuildCrest(BuildContext context) {
+  Navigator.pop<int>(context, 1);
+}
+
+Widget getPopupItems(BuildContext context) {
+  return Column(
+      children: [
+        Container(
+          alignment: Alignment.centerLeft,
+          child: TextButton(
+              onPressed: () {
+                buttonLeaveGuild(context);
+              },
+              child: Row(
+                children:const [
+                  Text(
+                    'Leave guild',
+                    textAlign: TextAlign.left,
+                    style: TextStyle(color: Colors.white, fontSize: 14),
+                  )
+                ] ,
+              )
+          ),
+        ),
+        Container(
+          alignment: Alignment.centerLeft,
+          child: TextButton(
+              onPressed: () {
+                buttonChangeGuildCrest(context);
+              },
+              child: Row(
+                  children: const [
+                    Text(
+                      "Change guild crest",
+                      textAlign: TextAlign.left,
+                      style: TextStyle(color: Colors.white, fontSize: 14),
+                    ),
+                  ]
+              )
+          ),
+        ),
+      ]
+  );
 }
