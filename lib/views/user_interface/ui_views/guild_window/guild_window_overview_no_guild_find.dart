@@ -48,6 +48,9 @@ class GuildWindowOverviewNoGuildFindState extends State<GuildWindowOverviewNoGui
   bool nothingFound = false;
   Guild? foundGuild;
 
+  double newGuildWidth = 240;
+  int denyRequestState = 0;
+
   @override
   void initState() {
     _focusFindGuild.addListener(_onFocusFindGuild);
@@ -115,12 +118,15 @@ class GuildWindowOverviewNoGuildFindState extends State<GuildWindowOverviewNoGui
   }
 
   cancelRequest(Guild guildToCancel) {
-    AuthServiceGuild().cancelRequestUser(guildToCancel.guildId).then((response) {
+    if (widget.me == null) {
+      showToastMessage("something went wrong");
+      return;
+    }
+    AuthServiceGuild().cancelRequestUser(widget.me!.getId(), guildToCancel.guildId).then((response) {
       if (response.getResult()) {
-        // remove guildToCancel from the guildsRequested list
-        widget.guildInformation.guildsSendRequests.removeWhere((element) => element.guildId == guildToCancel.guildId);
+        showToastMessage("Request for guild ${guildToCancel.getGuildName()} cancelled");
         setState(() {
-          showToastMessage("guild request cancelled");
+          widget.guildInformation.guildsSendRequests.removeWhere((element) => element.guildId == guildToCancel.guildId);
         });
       } else {
         showToastMessage(response.getMessage());
@@ -130,22 +136,35 @@ class GuildWindowOverviewNoGuildFindState extends State<GuildWindowOverviewNoGui
 
   acceptRequest(Guild guildToAccept) {
     AuthServiceGuild().acceptGuildRequestGuild(guildToAccept.guildId).then((response) {
-      if (response.getResult()) {
+      if (response != null) {
+        Guild newGuild = response;
         if (widget.me == null) {
           showToastMessage("something went wrong");
         } else {
-          // You have just joined the guild. You will be the default rank "4" (trader)
-          GuildMember guildMember = GuildMember(widget.me!.getId(), 4);
-          guildMember.setGuildMemberName(widget.me!.getUserName());
-          guildMember.setGuildMemberAvatar(widget.me!.getAvatar());
-          guildMember.setRetrieved(true);
-          guildToAccept.addMember(guildMember);
-          widget.me!.setGuild(guildToAccept);
+          widget.me!.setGuild(newGuild);
           widget.me!.setMyGuildRank();
           widget.me!.removeGuildRequests();
           ProfileChangeNotifier().notify();
           widget.createGuild();
         }
+      } else {
+        showToastMessage("Something went wrong");
+      }
+    });
+  }
+
+  denyRequest(Guild denyGuild) {
+    print("deny request for guild ${denyGuild.getGuildName()}");
+    if (widget.me == null) {
+      showToastMessage("something went wrong");
+      return;
+    }
+    AuthServiceGuild().cancelRequestGuild(widget.me!.getId(), denyGuild.guildId).then((response) {
+      if (response.getResult()) {
+        showToastMessage("Request for guild ${denyGuild.getGuildName()} denied");
+        setState(() {
+          widget.guildInformation.guildsGotRequests.removeWhere((element) => element.guildId == denyGuild.guildId);
+        });
       } else {
         showToastMessage(response.getMessage());
       }
@@ -153,22 +172,27 @@ class GuildWindowOverviewNoGuildFindState extends State<GuildWindowOverviewNoGui
   }
 
   Widget guildInteraction(Guild guild, double newFriendOptionWidth, double fontSize, bool request, bool send) {
+    double rightPadding = 20;
     if (request) {
       return SizedBox(
-        width: newFriendOptionWidth,
+        width: newFriendOptionWidth - rightPadding,
         height: 40,
         child: Row(
             children: [
-              ElevatedButton(
-                onPressed: () {
-                  requestToJoinGuild(guild);
-                },
-                style: buttonStyle(false, Colors.blue),
-                child: Container(
-                  alignment: Alignment.center,
-                  child: Text(
-                    "Request to join guild",
-                    style: simpleTextStyle(widget.fontSize),
+              SizedBox(
+                width: newFriendOptionWidth - rightPadding,
+                height: 40,
+                child: ElevatedButton(
+                  onPressed: () {
+                    requestToJoinGuild(guild);
+                  },
+                  style: buttonStyle(false, Colors.blue),
+                  child: Container(
+                    alignment: Alignment.center,
+                    child: Text(
+                      "Request to join guild",
+                      style: simpleTextStyle(widget.fontSize),
+                    ),
                   ),
                 ),
               )
@@ -182,16 +206,20 @@ class GuildWindowOverviewNoGuildFindState extends State<GuildWindowOverviewNoGui
           height: 40,
           child: Row(
               children: [
-                ElevatedButton(
-                  onPressed: () {
-                    cancelRequest(guild);
-                  },
-                  style: buttonStyle(false, Colors.blue),
-                  child: Container(
-                    alignment: Alignment.center,
-                    child: Text(
-                      "Cancel request",
-                      style: simpleTextStyle(widget.fontSize),
+                SizedBox(
+                  width: newFriendOptionWidth - rightPadding,
+                  height: 40,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      cancelRequest(guild);
+                    },
+                    style: buttonStyle(false, Colors.blue),
+                    child: Container(
+                      alignment: Alignment.center,
+                      child: Text(
+                        "Cancel request",
+                        style: simpleTextStyle(widget.fontSize),
+                      ),
                     ),
                   ),
                 )
@@ -203,12 +231,15 @@ class GuildWindowOverviewNoGuildFindState extends State<GuildWindowOverviewNoGui
           width: newFriendOptionWidth,
           height: 40,
           child: Row(
-              children: [
-                ElevatedButton(
+            children: [
+              SizedBox(
+                width: newFriendOptionWidth - rightPadding - 45,
+                height: 40,
+                child: ElevatedButton(
                   onPressed: () {
                     acceptRequest(guild);
                   },
-                  style: buttonStyle(false, Colors.blue),
+                  style: buttonStyle(false, Colors.green),
                   child: Container(
                     alignment: Alignment.center,
                     child: Text(
@@ -216,8 +247,31 @@ class GuildWindowOverviewNoGuildFindState extends State<GuildWindowOverviewNoGui
                       style: simpleTextStyle(widget.fontSize),
                     ),
                   ),
+                ),
+              ),
+              SizedBox(width: 5),
+              Tooltip(
+                message: "deny request",
+                child: InkWell(
+                  onHover: (value) {
+                    setState(() {
+                      denyRequestState = value ? 1 : 0;
+                    });
+                  },
+                  onTap: () {
+                    setState(() {
+                      denyRequestState = 2;
+                    });
+                    denyRequest(guild);
+                  },
+                  child: addIcon(
+                    40,
+                    Icons.close,
+                    overviewColour(denyRequestState, Colors.red, Colors.redAccent, Colors.red.shade800)
+                  )
                 )
-              ]
+              ),
+            ]
           ),
         );
       }
@@ -269,7 +323,7 @@ class GuildWindowOverviewNoGuildFindState extends State<GuildWindowOverviewNoGui
             guildInABox(
               requestedGuild,
               80,
-              200,
+              newGuildWidth,
               widget.fontSize,
               false,
               send
@@ -281,7 +335,6 @@ class GuildWindowOverviewNoGuildFindState extends State<GuildWindowOverviewNoGui
   }
 
   Widget guildBox(double avatarBoxSize) {
-    double newFriendOptionWidth = 200;
     double fontSizeBox = widget.fontSize;
     if (!widget.normalMode) {
       avatarBoxSize = avatarBoxSize / 1.2;
@@ -289,7 +342,7 @@ class GuildWindowOverviewNoGuildFindState extends State<GuildWindowOverviewNoGui
     }
 
     if (foundGuild != null) {
-      return guildInABox(foundGuild!, avatarBoxSize, newFriendOptionWidth, fontSizeBox, true, true);
+      return guildInABox(foundGuild!, avatarBoxSize, newGuildWidth, fontSizeBox, true, true);
     } else {
       if (nothingFound) {
         return Text(

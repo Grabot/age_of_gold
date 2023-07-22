@@ -240,7 +240,6 @@ class GuildWindowOverviewGuildOverviewState extends State<GuildWindowOverviewGui
                               ),
                             ),
                           ),
-                          Container(),
                         ]
                     )
                   ],

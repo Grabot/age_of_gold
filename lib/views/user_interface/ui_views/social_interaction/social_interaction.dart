@@ -135,26 +135,6 @@ class SocialInteractionState extends State<SocialInteraction> with TickerProvide
     GuildWindowChangeNotifier().setGuildWindowVisible(true);
   }
 
-  Color overviewColour(int state) {
-    if (state == 0) {
-      return Colors.orange;
-    } else if (state == 1) {
-      return Colors.orangeAccent;
-    } else {
-      return Colors.orange.shade800;
-    }
-  }
-
-  Color overviewColourGrey(int state) {
-    if (state == 0) {
-      return Colors.grey;
-    } else if (state == 1) {
-      return Colors.grey.shade400;
-    } else {
-      return Colors.grey.shade800;
-    }
-  }
-
   Widget friendOverviewButton(double profileButtonSize) {
     return SizedBox(
       child: Row(
@@ -181,7 +161,7 @@ class SocialInteractionState extends State<SocialInteraction> with TickerProvide
                     height: profileButtonSize,
                     child: ClipOval(
                       child: Material(
-                        color: overviewColour(friendOverviewState),
+                        color: overviewColour(friendOverviewState, Colors.orange, Colors.orangeAccent, Colors.orange.shade800),
                       )
                     ),
                   ),
@@ -230,7 +210,7 @@ class SocialInteractionState extends State<SocialInteraction> with TickerProvide
                       height: messageButtonSize,
                       child: ClipOval(
                           child: Material(
-                            color: overviewColour(messageOverviewState),
+                            color: overviewColour(messageOverviewState, Colors.orange, Colors.orangeAccent, Colors.orange.shade800),
                           )
                       ),
                     ),
@@ -287,8 +267,8 @@ class SocialInteractionState extends State<SocialInteraction> with TickerProvide
                       child: ClipOval(
                           child: Material(
                             color: inAGuild
-                                ? overviewColour(guildOverviewState)
-                                : overviewColourGrey(guildOverviewState),
+                                ? overviewColour(guildOverviewState, Colors.orange, Colors.orangeAccent, Colors.orange.shade800)
+                                : overviewColour(guildOverviewState, Colors.grey, Colors.grey.shade400, Colors.grey.shade800)
                           )
                       ),
                     ),

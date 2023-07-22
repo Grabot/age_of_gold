@@ -232,7 +232,7 @@ class AuthServiceGuild {
     }
   }
 
-  Future<BaseResponse> cancelRequestUser(int guildId) async {
+  Future<BaseResponse> cancelRequestUser(int userId, int guildId) async {
     String endPoint = "guild/request/cancel/user";
     var response = await AuthApi().dio.post(endPoint,
         options: Options(headers: {
@@ -240,6 +240,7 @@ class AuthServiceGuild {
         }),
         data: jsonEncode(<String, dynamic> {
           "guild_id": guildId,
+          "user_id": userId
         }
       )
     );
@@ -265,7 +266,7 @@ class AuthServiceGuild {
     return baseResponse;
   }
 
-  Future<BaseResponse> acceptGuildRequestGuild(int guildId) async {
+  Future<Guild?> acceptGuildRequestGuild(int guildId) async {
     String endPoint = "guild/request/accept/guild";
     var response = await AuthApi().dio.post(endPoint,
         options: Options(headers: {
@@ -277,8 +278,20 @@ class AuthServiceGuild {
       )
     );
 
-    BaseResponse baseResponse = BaseResponse.fromJson(response.data);
-    return baseResponse;
+    Map<String, dynamic> json = response.data;
+    if (!json.containsKey("result")) {
+      return null;
+    } else {
+      if (json["result"]) {
+        if (json.containsKey("guild")) {
+          return Guild.fromJson(json["guild"]);
+        } else {
+          return null;
+        }
+      } else {
+        return null;
+      }
+    }
   }
 
 

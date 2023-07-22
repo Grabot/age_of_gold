@@ -49,6 +49,9 @@ class GuildWindowOverviewGuildNewMembersState extends State<GuildWindowOverviewG
   bool nothingFound = false;
   User? foundNewMember;
 
+  double newFriendWidth = 240;
+  int denyRequestState = 0;
+
   @override
   void initState() {
     super.initState();
@@ -124,12 +127,13 @@ class GuildWindowOverviewGuildNewMembersState extends State<GuildWindowOverviewG
   acceptMemberToJoin(User newMember) {
     AuthServiceGuild().acceptGuildRequestUser(newMember.id, widget.guild.guildId).then((response) {
       if (response.getResult()) {
+        widget.guild.removeGuildInvite(newMember);
+        // TODO: Add new users via socket?
         GuildMember guildMember = GuildMember(newMember.getId(), 4);
         guildMember.setGuildMemberName(newMember.getUserName());
         guildMember.setGuildMemberAvatar(newMember.getAvatar());
         guildMember.setRetrieved(true);
         widget.guild.addMember(guildMember);
-        widget.guild.removeGuildInvite(newMember);
         setState(() {
           widget.guildInformation.requestedMembers.removeWhere((element) => element.id == newMember.getId());
         });
@@ -147,6 +151,19 @@ class GuildWindowOverviewGuildNewMembersState extends State<GuildWindowOverviewG
         widget.guildInformation.askedMembers.removeWhere((element) => element.id == cancelUser.getId());
         setState(() {
           showToastMessage("Request to user ${cancelUser.getUserName()} cancelled");
+        });
+      } else {
+        showToastMessage(response.getMessage());
+      }
+    });
+  }
+
+  denyRequest(User denyUser) {
+    AuthServiceGuild().cancelRequestUser(denyUser.getId(), widget.guild.guildId).then((response) {
+      if (response.getResult()) {
+        showToastMessage("Request of user ${denyUser.getUserName()} denied");
+        setState(() {
+          widget.guildInformation.requestedMembers.removeWhere((element) => element.getId() == denyUser.getId());
         });
       } else {
         showToastMessage(response.getMessage());
@@ -195,7 +212,7 @@ class GuildWindowOverviewGuildNewMembersState extends State<GuildWindowOverviewG
             newMemberInABox(
                 askedMember,
                 80,
-                200,
+                newFriendWidth,
                 widget.fontSize,
                 false,
                 true
@@ -217,7 +234,7 @@ class GuildWindowOverviewGuildNewMembersState extends State<GuildWindowOverviewG
             newMemberInABox(
                 requestedMember,
                 80,
-                200,
+                newFriendWidth,
                 widget.fontSize,
                 false,
                 false
@@ -229,22 +246,27 @@ class GuildWindowOverviewGuildNewMembersState extends State<GuildWindowOverviewG
   }
 
   Widget newMemberInteraction(User newMember, double newFriendOptionWidth, double fontSize, bool request, bool send) {
+    double rightPadding = 20;
     if (request) {
       return SizedBox(
-        width: newFriendOptionWidth,
+        width: newFriendOptionWidth - rightPadding,
         height: 40,
         child: Row(
             children: [
-              ElevatedButton(
-                onPressed: () {
-                  askNewMemberToJoin(newMember);
-                },
-                style: buttonStyle(false, Colors.blue),
-                child: Container(
-                  alignment: Alignment.center,
-                  child: Text(
-                    "Ask to join guild",
-                    style: simpleTextStyle(widget.fontSize),
+              SizedBox(
+                width: newFriendOptionWidth - rightPadding,
+                height: 40,
+                child: ElevatedButton(
+                  onPressed: () {
+                    askNewMemberToJoin(newMember);
+                  },
+                  style: buttonStyle(false, Colors.blue),
+                  child: Container(
+                    alignment: Alignment.center,
+                    child: Text(
+                      "Ask to join guild",
+                      style: simpleTextStyle(widget.fontSize),
+                    ),
                   ),
                 ),
               )
@@ -258,19 +280,45 @@ class GuildWindowOverviewGuildNewMembersState extends State<GuildWindowOverviewG
           height: 40,
           child: Row(
               children: [
-                ElevatedButton(
-                  onPressed: () {
-                    acceptMemberToJoin(newMember);
-                  },
-                  style: buttonStyle(false, Colors.blue),
-                  child: Container(
-                    alignment: Alignment.center,
-                    child: Text(
-                      "Accept request!",
-                      style: simpleTextStyle(widget.fontSize),
+                SizedBox(
+                  width: newFriendOptionWidth - rightPadding - 45,
+                  height: 40,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      acceptMemberToJoin(newMember);
+                    },
+                    style: buttonStyle(false, Colors.green),
+                    child: Container(
+                      alignment: Alignment.center,
+                      child: Text(
+                        "Accept request!",
+                        style: simpleTextStyle(widget.fontSize),
+                      ),
                     ),
                   ),
-                )
+                ),
+                SizedBox(width: 5),
+                Tooltip(
+                  message: "deny request",
+                  child: InkWell(
+                    onHover: (value) {
+                      setState(() {
+                        denyRequestState = value ? 1 : 0;
+                      });
+                    },
+                    onTap: () {
+                      setState(() {
+                        denyRequestState = 2;
+                      });
+                      denyRequest(newMember);
+                    },
+                    child: addIcon(
+                      40,
+                      Icons.close,
+                      overviewColour(denyRequestState, Colors.red, Colors.redAccent, Colors.red.shade800)
+                    )
+                  )
+                ),
               ]
           ),
         );
@@ -280,16 +328,20 @@ class GuildWindowOverviewGuildNewMembersState extends State<GuildWindowOverviewG
           height: 40,
           child: Row(
               children: [
-                ElevatedButton(
-                  onPressed: () {
-                    cancelRequest(newMember);
-                  },
-                  style: buttonStyle(false, Colors.blue),
-                  child: Container(
-                    alignment: Alignment.center,
-                    child: Text(
-                      "Cancel request",
-                      style: simpleTextStyle(widget.fontSize),
+                SizedBox(
+                  width: newFriendOptionWidth - rightPadding,
+                  height: 40,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      cancelRequest(newMember);
+                    },
+                    style: buttonStyle(false, Colors.blue),
+                    child: Container(
+                      alignment: Alignment.center,
+                      child: Text(
+                        "Cancel request",
+                        style: simpleTextStyle(widget.fontSize),
+                      ),
                     ),
                   ),
                 )
@@ -324,7 +376,6 @@ class GuildWindowOverviewGuildNewMembersState extends State<GuildWindowOverviewG
   }
 
   Widget newMemberBox(double avatarBoxSize) {
-    double newFriendOptionWidth = 200;
     double fontSizeBox = widget.fontSize;
     if (!widget.normalMode) {
       avatarBoxSize = avatarBoxSize / 1.2;
@@ -332,7 +383,7 @@ class GuildWindowOverviewGuildNewMembersState extends State<GuildWindowOverviewG
     }
 
     if (foundNewMember != null) {
-      return newMemberInABox(foundNewMember!, avatarBoxSize, newFriendOptionWidth, fontSizeBox, true, true);
+      return newMemberInABox(foundNewMember!, avatarBoxSize, newFriendWidth, fontSizeBox, true, true);
     } else {
       if (nothingFound) {
         return Text(
