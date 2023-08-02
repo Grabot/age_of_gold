@@ -61,6 +61,7 @@ class GuildWindowOverviewNoGuildCreateState extends State<GuildWindowOverviewNoG
     ChangeGuildCrestChangeNotifier changeGuildCrestChangeNotifier = ChangeGuildCrestChangeNotifier();
     changeGuildCrestChangeNotifier.setGuildCrest(widget.guildInformation.getGuildCrest());
     changeGuildCrestChangeNotifier.setDefault(widget.guildInformation.getCrestIsDefault());
+    changeGuildCrestChangeNotifier.setCreateCrest(true);
     changeGuildCrestChangeNotifier.setChangeGuildCrestVisible(true);
   }
 

@@ -13,11 +13,10 @@ import 'package:age_of_gold/views/user_interface/ui_views/are_you_sure_box/are_y
 import 'package:age_of_gold/views/user_interface/ui_views/change_guild_crest_box/change_guild_crest_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/chat_window/chat_window_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_information.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window_overview_change_ranks.dart';
 import 'package:flutter/material.dart';
 
 
-class GuildWindowOverviewGuildOverview extends StatefulWidget {
+class GuildWindowOverviewChangeRanks extends StatefulWidget {
 
   final AgeOfGold game;
   final bool normalMode;
@@ -29,7 +28,7 @@ class GuildWindowOverviewGuildOverview extends StatefulWidget {
   final GuildInformation guildInformation;
   final Function leaveGuild;
 
-  const GuildWindowOverviewGuildOverview({
+  const GuildWindowOverviewChangeRanks({
     required Key key,
     required this.game,
     required this.normalMode,
@@ -43,10 +42,10 @@ class GuildWindowOverviewGuildOverview extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  GuildWindowOverviewGuildOverviewState createState() => GuildWindowOverviewGuildOverviewState();
+  GuildWindowOverviewChangeRanksState createState() => GuildWindowOverviewChangeRanksState();
 }
 
-class GuildWindowOverviewGuildOverviewState extends State<GuildWindowOverviewGuildOverview> {
+class GuildWindowOverviewChangeRanksState extends State<GuildWindowOverviewChangeRanks> {
 
   GlobalKey guildSettingsKey = GlobalKey();
 
@@ -61,93 +60,9 @@ class GuildWindowOverviewGuildOverviewState extends State<GuildWindowOverviewGui
     super.initState();
   }
 
-
   @override
   void dispose() {
     super.dispose();
-  }
-
-  Offset? _tapPosition;
-  void _showPopupMenu() {
-    _storePosition();
-    _showChatDetailPopupMenu();
-  }
-
-  void _showChatDetailPopupMenu() {
-    final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
-
-    showMenu(
-        context: context,
-        items: [GuildSettingPopup(
-            key: UniqueKey(),
-            isAdministrator: widget.guild.isAdministrator
-        )],
-        position: RelativeRect.fromRect(
-            _tapPosition! & const Size(40, 40), Offset.zero & overlay.size))
-        .then((int? delta) {
-      if (delta == 0) {
-        leaveGuildOption();
-      } else if (delta == 1) {
-        // change guild crest
-        changeGuildCrest();
-      }
-      return;
-    });
-  }
-
-  leaveGuildOption() {
-    if (widget.me == null) {
-      showToastMessage("something went wrong");
-      return;
-    }
-    AreYouSureBoxChangeNotifier areYouSureBoxChangeNotifier = AreYouSureBoxChangeNotifier();
-    areYouSureBoxChangeNotifier.setUserId(widget.me!.getId());
-    areYouSureBoxChangeNotifier.setGuildId(widget.guild.getGuildId());
-    areYouSureBoxChangeNotifier.setShowLogout(false);
-    areYouSureBoxChangeNotifier.setShowLeaveGuild(true);
-    areYouSureBoxChangeNotifier.setAreYouSureBoxVisible(true);
-  }
-
-  changeGuildCrest() {
-    ChangeGuildCrestChangeNotifier changeGuildCrestChangeNotifier = ChangeGuildCrestChangeNotifier();
-    changeGuildCrestChangeNotifier.setGuildCrest(widget.guildInformation.getGuildCrest());
-    changeGuildCrestChangeNotifier.setDefault(widget.guildInformation.getCrestIsDefault());
-    changeGuildCrestChangeNotifier.setCreateCrest(false);
-    changeGuildCrestChangeNotifier.setChangeGuildCrestVisible(true);
-  }
-
-  messageFriend(GuildMember guildMember) {
-    ClearUI().clearUserInterfaces();
-    ChatMessages chatMessages = ChatMessages();
-    // If the guildmember is a friend than the `addChatRegion` function will find that chat.
-    chatMessages.addChatRegion(
-        guildMember.getGuildMemberName(),
-        guildMember.getGuildMemberId(),
-        0,
-        false
-    );
-    chatMessages.setActiveChatTab("Personal");
-    ChatWindowChangeNotifier().setChatWindowVisible(true);
-  }
-
-  removeGuildMember(GuildMember guildMember) {
-    AuthServiceGuild().removeMember(guildMember.getGuildMemberId(), widget.guild.getGuildId()).then((value) {
-      if (value.getResult()) {
-        widget.guild.getMembers().removeWhere((element) => element.getGuildMemberId() == guildMember.getGuildMemberId());
-        setState(() {
-          showToastMessage("member ${guildMember.getGuildMemberName()} removed from the Guild");
-        });
-      } else {
-        showToastMessage(value.getMessage());
-      }
-    });
-  }
-
-  void _storePosition() {
-    RenderBox box = guildSettingsKey.currentContext!.findRenderObject() as RenderBox;
-    Offset position = box.localToGlobal(Offset.zero);
-    position = position + const Offset(0, 50);
-    _tapPosition = position;
   }
 
   changedSearch(String typedText) {
@@ -162,67 +77,71 @@ class GuildWindowOverviewGuildOverviewState extends State<GuildWindowOverviewGui
     setState(() {});
   }
 
-  Widget guildMemberInteraction(GuildMember guildMember, double avatarBoxSize, double guildMemberOptionWidth, double fontSize, bool isMe) {
+  changeGuildMemberRank(GuildMember guildMember, String newValue) {
+    if (newValue == guildMember.getGuildMemberRankName()) {
+      return;
+    }
+    AuthServiceGuild().changeGuildMemberRank(
+        guildMember.getGuildMemberId(),
+        widget.guild.getGuildId(),
+        guildMember.getRankId(newValue)
+    ).then((value) {
+      if (value.getResult()) {
+        showToastMessage("Rank of member ${guildMember.getGuildMemberName()} changed to $newValue");
+        setState(() {
+          guildMember.setGuildMemberRankName(newValue);
+        });
+      } else {
+        showToastMessage(value.getMessage());
+      }
+    });
+  }
+
+  Widget changeRankInteraction(GuildMember guildMember, double avatarBoxSize, double guildMemberOptionWidth, double fontSize, bool isMe) {
     if (isMe) {
       return Container();
     } else {
-      return SizedBox(
-        width: guildMemberOptionWidth,
-        height: 40,
-        child: Row(
-            children: [
-              InkWell(
-                  onTap: () {
-                    setState(() {
-                      messageFriend(guildMember);
-                    });
-                  },
-                  child: Tooltip(
-                      message: 'Message guild member',
-                      child: addIcon(40, Icons.message, Colors.green)
-                  )
-              ),
-              widget.guild.isAdministrator ? const SizedBox(width: 10) : Container(),
-              widget.guild.isAdministrator ? InkWell(
-                onTap: () {
-                  setState(() {
-                    removeGuildMember(guildMember);
-                  });
-                },
-                child: Tooltip(
-                  message: 'Remove guild member',
-                  child: addIcon(40, Icons.person_remove, Colors.red),
-                ),
-              ) : Container(),
-            ]
-        ),
+      return DropdownButton<String>(
+        value: guildMember.getGuildMemberRankName(),
+        items: <String>['Guildmaster', 'Officer', 'Merchant', 'Trader']
+            .map<DropdownMenuItem<String>>((String value) {
+          return DropdownMenuItem<String>(
+            value: value,
+            child: Text(
+              value,
+              style: TextStyle(fontSize: fontSize),
+            ),
+          );
+        }).toList(),
+        onChanged: (String? newValue) {
+          if (newValue != null) {
+            changeGuildMemberRank(guildMember, newValue);
+          }
+        },
       );
     }
   }
 
   Widget guildMemberBox(GuildMember guildMember, double boxSize, double fontSize) {
-    double newFriendOptionWidth = 100;
+    double changeRankOptionWidth = 200;
     double sidePadding = 40;
     if (!widget.normalMode) {
       boxSize = boxSize / 1.2;
       fontSize = fontSize / 1.8;
       sidePadding = 10;
     }
-    if (!widget.guild.isAdministrator) {
-      newFriendOptionWidth = 40;
-    }
+
     bool isMe = false;
     if (widget.me != null) {
       if (widget.me!.getId() == guildMember.getGuildMemberId()) {
         isMe = true;
-        newFriendOptionWidth = 0;
       }
     }
 
     String guildMemberName = guildMember.getGuildMemberName();
     Uint8List? guildMemberAvatar = guildMember.getGuildMemberAvatar();
 
-    double crestTextSize = widget.overviewWidth - boxSize - newFriendOptionWidth - sidePadding - sidePadding;
+    double crestTextSize = widget.overviewWidth - boxSize - sidePadding - changeRankOptionWidth - sidePadding;
     return Container(
       color: isMe ? Colors.blue : Colors.transparent,
       child: Row(
@@ -257,7 +176,7 @@ class GuildWindowOverviewGuildOverviewState extends State<GuildWindowOverviewGui
                 )
               ],
             ),
-            guildMemberInteraction(guildMember, boxSize, newFriendOptionWidth, fontSize, isMe),
+            changeRankInteraction(guildMember, boxSize, changeRankOptionWidth, fontSize, isMe),
             SizedBox(width: sidePadding),
           ]
       ),
@@ -373,23 +292,6 @@ class GuildWindowOverviewGuildOverviewState extends State<GuildWindowOverviewGui
                         Container(),
                       ]
                     ),
-                    Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                              "Guild score: ${guild.getGuildScore()}",
-                              style: simpleTextStyle(widget.fontSize)
-                          ),
-                          IconButton(
-                              key: guildSettingsKey,
-                              iconSize: 40.0,
-                              icon: const Icon(Icons.settings),
-                              color: Colors.orangeAccent.shade200,
-                              tooltip: 'Settings',
-                              onPressed: _showPopupMenu
-                          ),
-                        ]
-                    )
                   ],
                 ),
               ),
@@ -449,18 +351,7 @@ class GuildWindowOverviewGuildOverviewState extends State<GuildWindowOverviewGui
   }
 
   Widget guildMemberRanksChanging() {
-    return GuildWindowOverviewChangeRanks(
-        key: UniqueKey(),
-        game: widget.game,
-        normalMode: widget.normalMode,
-        overviewHeight: widget.overviewHeight,
-        overviewWidth: widget.overviewWidth,
-        fontSize: widget.fontSize,
-        me: widget.me,
-        guild: widget.guild,
-        guildInformation: widget.guildInformation,
-        leaveGuild: widget.leaveGuild
-    );
+    return Container();
   }
 
   Widget guildOverview() {
@@ -479,79 +370,4 @@ class GuildWindowOverviewGuildOverviewState extends State<GuildWindowOverviewGui
       child: guildOverview(),
     );
   }
-}
-
-class GuildSettingPopup extends PopupMenuEntry<int> {
-
-  final bool isAdministrator;
-
-  const GuildSettingPopup({
-    required Key key,
-    required this.isAdministrator,
-  }) : super(key: key);
-
-  @override
-  bool represents(int? n) => n == 1 || n == -1;
-
-  @override
-  GuildSettingPopupState createState() => GuildSettingPopupState();
-
-  @override
-  double get height => 1;
-}
-
-class GuildSettingPopupState extends State<GuildSettingPopup> {
-  @override
-  Widget build(BuildContext context) {
-    return getPopupItems(context, widget.isAdministrator);
-  }
-}
-
-void buttonLeaveGuild(BuildContext context) {
-  Navigator.pop<int>(context, 0);
-}
-
-void buttonChangeGuildCrest(BuildContext context) {
-  Navigator.pop<int>(context, 1);
-}
-
-Widget getPopupItems(BuildContext context, bool isAdministrator) {
-  return Column(
-      children: [
-        Container(
-          alignment: Alignment.centerLeft,
-          child: TextButton(
-              onPressed: () {
-                buttonLeaveGuild(context);
-              },
-              child: Row(
-                children:const [
-                  Text(
-                    'Leave guild',
-                    textAlign: TextAlign.left,
-                    style: TextStyle(color: Colors.white, fontSize: 14),
-                  )
-                ] ,
-              )
-          ),
-        ),
-        isAdministrator ? Container(
-          alignment: Alignment.centerLeft,
-          child: TextButton(
-              onPressed: () {
-                buttonChangeGuildCrest(context);
-              },
-              child: Row(
-                  children: const [
-                    Text(
-                      "Change guild crest",
-                      textAlign: TextAlign.left,
-                      style: TextStyle(color: Colors.white, fontSize: 14),
-                    ),
-                  ]
-              )
-          ),
-        ) : Container(),
-      ]
-  );
 }

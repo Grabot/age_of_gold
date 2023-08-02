@@ -5,9 +5,10 @@ import 'package:flutter/material.dart';
 
 class GuildMember {
 
-  int? guildMemberId;
+  late int guildMemberId;  // same as user id
   int? guildMemberRank;
-  String? guildMemberName;
+  String guildMemberRankName = "";
+  String guildMemberName = "";
 
   Uint8List? guildMemberAvatar;
   bool memberRetrieved = false;
@@ -17,22 +18,22 @@ class GuildMember {
   GuildMember(this.guildMemberId, this.guildMemberRank);
 
   GuildMember.fromJson(Map<String, dynamic> json) {
-    if (json.containsKey("id")) {
-      guildMemberId = json["id"];
-    }
+    guildMemberId = json["id"];
+
     if (json.containsKey("username")) {
       guildMemberName = json["username"];
     }
     if (json.containsKey("avatar")) {
       guildMemberAvatar = json["avatar"];
     }
+    setGuildRank();
   }
 
-  setGuildMemberId(int? guildMemberId) {
+  setGuildMemberId(int guildMemberId) {
     this.guildMemberId = guildMemberId;
   }
 
-  int? getGuildMemberId() {
+  int getGuildMemberId() {
     return guildMemberId;
   }
 
@@ -40,22 +41,58 @@ class GuildMember {
     return guildMemberRank;
   }
 
-  setGuildMemberName(String? guildMemberName) {
+  setGuildMemberName(String guildMemberName) {
     this.guildMemberName = guildMemberName;
     if (guildMemberAvatar != null && guildMemberName != null) {
       memberRetrieved = true;
     }
   }
 
-  String? getGuildMemberName() {
+  String getGuildMemberName() {
     return guildMemberName;
   }
 
   setGuildMemberAvatar(Uint8List? guildMemberAvatar) {
     this.guildMemberAvatar = guildMemberAvatar;
-    if (guildMemberAvatar != null && guildMemberName != null) {
+    if (guildMemberAvatar != null) {
       memberRetrieved = true;
     }
+  }
+
+  setGuildRank() {
+    if (getGuildMemberRank() != null) {
+      if (getGuildMemberRank() == 0) {
+        setGuildMemberRankName("Guildmaster");
+      } else if (getGuildMemberRank() == 1) {
+        setGuildMemberRankName("Officer");
+      } else if (getGuildMemberRank() == 2) {
+        setGuildMemberRankName("Merchant");
+      } else {
+        setGuildMemberRankName("Trader");
+      }
+    }
+  }
+
+  int getRankId(String guildRank) {
+    if (guildRank == "Trader") {
+      return 3;
+    } else if (guildRank == "Merchant") {
+      return 2;
+    } else if (guildRank == "Officer") {
+      return 1;
+    } else if (guildRank == "Guildmaster") {
+      return 0;
+    } else {
+      return 4;
+    }
+  }
+
+  setGuildMemberRankName(String guildMemberRankName) {
+    this.guildMemberRankName = guildMemberRankName;
+  }
+
+  String getGuildMemberRankName() {
+    return guildMemberRankName;
   }
 
   Uint8List? getGuildMemberAvatar() {

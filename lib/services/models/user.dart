@@ -110,9 +110,12 @@ class User {
     if (guild != null) {
       for (GuildMember member in guild!.getMembers()) {
         if (member.getGuildMemberId() == id) {
+          guild!.setAdministrator(false);
           if (member.getGuildMemberRank() == 0) {
+            guild!.setAdministrator(true);
             guild!.setGuildRank("Guildmaster");
           } else if (member.getGuildMemberRank() == 1) {
+            guild!.setAdministrator(true);
             guild!.setGuildRank("Officer");
           } else if (member.getGuildMemberRank() == 2) {
             guild!.setGuildRank("Merchant");

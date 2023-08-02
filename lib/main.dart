@@ -21,7 +21,7 @@ import 'package:oktoast/oktoast.dart';
 import 'package:url_strategy/url_strategy.dart';
 
 import 'age_of_gold.dart';
-import 'views/user_interface/are_you_sure_box/are_you_sure_box.dart';
+import 'views/user_interface/ui_views/are_you_sure_box/are_you_sure_box.dart';
 import 'views/user_interface/ui_views/chat_box/chat_box.dart';
 import 'views/user_interface/ui_views/chat_window/chat_window.dart';
 import 'views/user_interface/ui_views/friend_window/friend_window.dart';
@@ -52,6 +52,7 @@ Future<void> main() async {
         overlayBuilderMap: const {
           'chatBox': _chatBoxBuilder,
           'tileBox': _tileBoxBuilder,
+          'mapCoordinates': _mapCoordinatesBoxBuilder,
           'profileBox': _profileBoxBuilder,
           'socialInteraction': _socialInteractionBuilder,
           'profileOverview': _profileOverviewBuilder,
@@ -59,7 +60,6 @@ Future<void> main() async {
           'chatWindow': _chatWindowBuilder,
           'friendWindow': _friendWindowBuilder,
           'userBox': _userBoxBuilder,
-          'mapCoordinates': _mapCoordinatesBoxBuilder,
           'guildWindow': _guildWindowBoxBuilder,
           'changeGuildCrest': _changeGuildCrestBoxBuilder,
           'areYouSureBox': _areYouSureBoxBuilder,
@@ -69,13 +69,13 @@ Future<void> main() async {
           'chatBox',
           'tileBox',
           'profileBox',
+          'mapCoordinates',
           'socialInteraction',
           'profileOverview',
           'changeAvatar',
           'chatWindow',
           'friendWindow',
           'userBox',
-          'mapCoordinates',
           'guildWindow',
           'changeGuildCrest',
           'areYouSureBox',

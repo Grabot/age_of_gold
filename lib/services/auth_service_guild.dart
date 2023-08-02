@@ -61,6 +61,30 @@ class AuthServiceGuild {
     return baseResponse;
   }
 
+  Future<BaseResponse> changeGuildCrest(int guildId, String? guildCrest) async {
+    String endPoint = "guild/change/crest";
+    String dataChangeGuildCrest;
+    if (guildCrest != null) {
+      dataChangeGuildCrest = jsonEncode(<String, dynamic> {
+        "guild_id": guildId,
+        "guild_crest": guildCrest,
+      });
+    } else {
+      dataChangeGuildCrest = jsonEncode(<String, dynamic> {
+        "guild_id": guildId,
+      });
+    }
+    var response = await AuthApi().dio.post(endPoint,
+        options: Options(headers: {
+          HttpHeaders.contentTypeHeader: "application/json",
+        }),
+        data: dataChangeGuildCrest
+    );
+
+    BaseResponse baseResponse = BaseResponse.fromJson(response.data);
+    return baseResponse;
+  }
+
   Future<Guild?> searchGuild(String guildName) async {
     String endPoint = "guild/search";
     var response = await AuthApi().dio.post(endPoint,
@@ -316,7 +340,7 @@ class AuthServiceGuild {
     return baseResponse;
   }
 
-    Future<BaseResponse> askNewMember(int newMemberId, int guildId) async {
+  Future<BaseResponse> askNewMember(int newMemberId, int guildId) async {
     String endPoint = "guild/request/guild";
     var response = await AuthApi().dio.post(endPoint,
         options: Options(headers: {
@@ -325,6 +349,41 @@ class AuthServiceGuild {
         data: jsonEncode(<String, dynamic> {
           "user_id": newMemberId,
           "guild_id": guildId,
+        }
+      )
+    );
+
+    BaseResponse baseResponse = BaseResponse.fromJson(response.data);
+    return baseResponse;
+  }
+
+  Future<BaseResponse> removeMember(int removeMemberId, int guildId) async {
+    String endPoint = "guild/remove/member";
+    var response = await AuthApi().dio.post(endPoint,
+        options: Options(headers: {
+          HttpHeaders.contentTypeHeader: "application/json",
+        }),
+        data: jsonEncode(<String, dynamic> {
+          "remove_member_id": removeMemberId,
+          "guild_id": guildId,
+        }
+        )
+    );
+
+    BaseResponse baseResponse = BaseResponse.fromJson(response.data);
+    return baseResponse;
+  }
+
+  Future<BaseResponse> changeGuildMemberRank(int changedMemberId, int guildId, int newRank) async {
+    String endPoint = "guild/change/member/rank";
+    var response = await AuthApi().dio.post(endPoint,
+        options: Options(headers: {
+          HttpHeaders.contentTypeHeader: "application/json",
+        }),
+        data: jsonEncode(<String, dynamic> {
+          "changed_member_id": changedMemberId,
+          "guild_id": guildId,
+          "new_rank": newRank,
         }
       )
     );

@@ -3,6 +3,7 @@ import 'package:age_of_gold/services/models/guild.dart';
 import 'package:age_of_gold/services/models/user.dart';
 import 'package:age_of_gold/util/util.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_information.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window_overview_change_ranks.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window_overview_guild_new_members.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window_overview_guild_overview.dart';
 import 'package:flutter/material.dart';
@@ -41,6 +42,7 @@ class GuildWindowOverviewGuildState extends State<GuildWindowOverviewGuild> {
 
   UniqueKey guildWindowOverviewGuildOverviewKey = UniqueKey();
   UniqueKey guildWindowOverviewGuildNewMembersKey = UniqueKey();
+  UniqueKey guildWindowOverviewGuildChangeGuildRanksKey = UniqueKey();
 
   double iconSize = 40;
   int guildOverviewColour = 2;
@@ -48,6 +50,9 @@ class GuildWindowOverviewGuildState extends State<GuildWindowOverviewGuild> {
 
   int newMembersColour = 0;
   bool newMembersView = false;
+
+  int changeMemberRanksColour = 0;
+  bool changeMemberView = false;
 
   @override
   void initState() {
@@ -62,18 +67,32 @@ class GuildWindowOverviewGuildState extends State<GuildWindowOverviewGuild> {
   switchToOverview() {
     showGuildOverview = true;
     newMembersView = false;
+    changeMemberView = false;
     guildOverviewColour = 2;
     newMembersColour = 0;
+    changeMemberRanksColour = 0;
   }
 
   switchToNewMembers() {
     showGuildOverview = false;
     newMembersView = true;
+    changeMemberView = false;
     guildOverviewColour = 0;
     newMembersColour = 2;
+    changeMemberRanksColour = 0;
   }
 
-  Widget guildOverviewButton() {
+  switchToChangeGuildRanks() {
+    print("switcing to guild ranks");
+    showGuildOverview = false;
+    newMembersView = false;
+    changeMemberView = true;
+    guildOverviewColour = 0;
+    newMembersColour = 0;
+    changeMemberRanksColour = 2;
+  }
+
+  Widget guildOverviewButton(double buttonWidth) {
     return InkWell(
       onTap: () {
         setState(() {
@@ -94,7 +113,7 @@ class GuildWindowOverviewGuildState extends State<GuildWindowOverviewGuild> {
         });
       },
       child: Container(
-        width: widget.overviewWidth/2,
+        width: buttonWidth,
         height: iconSize,
         color: getDetailColour(guildOverviewColour),
         child: Row(
@@ -118,7 +137,52 @@ class GuildWindowOverviewGuildState extends State<GuildWindowOverviewGuild> {
     );
   }
 
-  Widget newMembersButton() {
+  Widget changeRankMemberButton(double buttonWidth) {
+    return InkWell(
+      onTap: () {
+        setState(() {
+          switchToChangeGuildRanks();
+        });
+      },
+      onHover: (hovering) {
+        setState(() {
+          if (hovering) {
+            changeMemberRanksColour = 1;
+          } else {
+            if (changeMemberView) {
+              changeMemberRanksColour = 2;
+            } else {
+              changeMemberRanksColour = 0;
+            }
+          }
+        });
+      },
+      child: Container(
+        width: buttonWidth,
+        height: iconSize,
+        color: getDetailColour(changeMemberRanksColour),
+        child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              SizedBox(width: 1),
+              Row(
+                children: [
+                  Text(
+                    "Change guild ranks",
+                    style: simpleTextStyle(
+                      widget.fontSize,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(width: 1),
+            ]
+        ),
+      ),
+    );
+  }
+
+  Widget newMembersButton(double buttonWidth) {
     return InkWell(
       onTap: () {
         setState(() {
@@ -139,7 +203,7 @@ class GuildWindowOverviewGuildState extends State<GuildWindowOverviewGuild> {
         });
       },
       child: Container(
-        width: widget.overviewWidth/2,
+        width: buttonWidth,
         height: iconSize,
         color: getDetailColour(newMembersColour),
         child: Row(
@@ -163,18 +227,32 @@ class GuildWindowOverviewGuildState extends State<GuildWindowOverviewGuild> {
     );
   }
 
-  Widget bottomButtons() {
-    return SizedBox(
-      width: widget.overviewWidth,
-      height: iconSize,
-      child: Row(
+  Widget bottomButtons(bool isAdministrator) {
+    if (isAdministrator) {
+      return SizedBox(
+        width: widget.overviewWidth,
+        height: iconSize,
+        child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            guildOverviewButton(),
-            newMembersButton(),
+            guildOverviewButton(widget.overviewWidth / 3),
+            newMembersButton(widget.overviewWidth / 3),
+            changeRankMemberButton(widget.overviewWidth / 3),
           ]
-      ),
-    );
+        ),
+      );
+    } else {
+      return SizedBox(
+        width: widget.overviewWidth,
+        height: iconSize,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            guildOverviewButton(widget.overviewWidth),
+          ]
+        ),
+      );
+    }
   }
 
   Widget guildOverviewContent() {
@@ -188,9 +266,10 @@ class GuildWindowOverviewGuildState extends State<GuildWindowOverviewGuild> {
         fontSize: widget.fontSize,
         me: widget.me,
         guild: widget.guild,
+        guildInformation: widget.guildInformation,
         leaveGuild: widget.leaveGuild,
       );
-    } else {
+    } else if (newMembersView) {
       return GuildWindowOverviewGuildNewMembers(
         key: guildWindowOverviewGuildNewMembersKey,
         game: widget.game,
@@ -202,6 +281,19 @@ class GuildWindowOverviewGuildState extends State<GuildWindowOverviewGuild> {
         guild: widget.guild,
         guildInformation: widget.guildInformation,
       );
+    } else {
+      return GuildWindowOverviewChangeRanks(
+          key: guildWindowOverviewGuildChangeGuildRanksKey,
+          game: widget.game,
+          normalMode: widget.normalMode,
+          overviewHeight: widget.overviewHeight-iconSize,
+          overviewWidth: widget.overviewWidth,
+          fontSize: widget.fontSize,
+          me: widget.me,
+          guild: widget.guild,
+          guildInformation: widget.guildInformation,
+          leaveGuild: widget.leaveGuild
+      );
     }
   }
 
@@ -212,7 +304,7 @@ class GuildWindowOverviewGuildState extends State<GuildWindowOverviewGuild> {
         child: Column(
             children: [
               guildOverviewContent(),
-              bottomButtons()
+              bottomButtons(widget.guild.isAdministrator)
             ]
         ),
       )

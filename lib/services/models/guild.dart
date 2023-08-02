@@ -12,12 +12,14 @@ class Guild {
   String guildRank = "";
 
   // The member ids of the guild, along with their ranks.
-  // List<List<int>> members = [[]];
   List<GuildMember> guildMembers = [];
   List<User> joinRequests = [];
+  bool isAdministrator = false;  // Indicates if the member has admin rights.
 
   bool? accepted;
   bool? requested;
+
+  int guildScore = 0;
 
   Guild(this.guildId, this.guildName, this.guildCrest);
 
@@ -32,11 +34,11 @@ class Guild {
       guildCrest = base64Decode(json["guild_crest"].replaceAll("\n", ""));
     }
     if (json.containsKey("members")) {
-      // members = json['members'];
       for (List member in json['members']) {
         int memberId = member[0];
         int memberRank = member[1];
         GuildMember guildMember = GuildMember(memberId, memberRank);
+        guildMember.setGuildRank();
         guildMembers.add(guildMember);
       }
     }
@@ -94,6 +96,18 @@ class Guild {
 
   removeGuildInvite(User newMember) {
     joinRequests.removeWhere((user) => user.getId() == newMember.getId());
+  }
+
+  setAdministrator(bool isAdministrator) {
+    this.isAdministrator = isAdministrator;
+  }
+
+  bool getAdministrator() {
+    return isAdministrator;
+  }
+
+  int getGuildScore() {
+    return guildScore;
   }
 
   @override

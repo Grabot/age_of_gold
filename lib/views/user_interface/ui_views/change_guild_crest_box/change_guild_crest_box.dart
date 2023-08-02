@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
+import 'package:age_of_gold/services/auth_service_guild.dart';
+import 'package:age_of_gold/services/models/user.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_information.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window_change_notifier.dart';
 import 'package:flutter/services.dart';
@@ -128,17 +130,50 @@ class ChangeGuildCrestBoxState extends State<ChangeGuildCrestBox> with TickerPro
         regular = image.copyResize(regular, width: 512);
       }
       GuildInformation guildInformation = GuildInformation();
+      User? me = Settings().getUser();
       if (!changeGuildCrestChangeNotifier.getDefault()) {
         Uint8List regularImage = image.encodePng(regular);
         changeGuildCrestChangeNotifier.setGuildCrest(regularImage);
         guildInformation.setGuildCrest(regularImage);
         guildInformation.setCrestIsDefault(false);
+        if (!changeGuildCrestChangeNotifier.getCreateCrest()) {
+          if (me != null && me.getGuild() != null) {
+            // Set the image, but also send it to the server
+            String newAvatarRegular = base64Encode(regularImage);
+            me.getGuild()!.setGuildCrest(regularImage);
+            AuthServiceGuild().changeGuildCrest(me.getGuild()!.getGuildId(), newAvatarRegular).then((value) {
+              if (value.getResult()) {
+                me.getGuild()!.setGuildCrest(regularImage);
+                LoadingBoxChangeNotifier().setLoadingBoxVisible(false);
+                GuildWindowChangeNotifier().notify();
+              } else {
+                showToastMessage("Error changing guild crest");
+              }
+            });
+          }
+        }
       } else {
         guildInformation.setGuildCrest(null);
         guildInformation.setCrestIsDefault(true);
+        if (!changeGuildCrestChangeNotifier.getCreateCrest()) {
+          if (me != null && me.getGuild() != null) {
+            // Set the default image, but also send it to the server
+            AuthServiceGuild().changeGuildCrest(me.getGuild()!.getGuildId(), null).then((value) {
+              if (value.getResult()) {
+                me.getGuild()!.setGuildCrest(null);
+                LoadingBoxChangeNotifier().setLoadingBoxVisible(false);
+                GuildWindowChangeNotifier().notify();
+              } else {
+                showToastMessage("Error changing guild crest");
+              }
+            });
+          }
+        }
       }
-      LoadingBoxChangeNotifier().setLoadingBoxVisible(false);
-      GuildWindowChangeNotifier().notify();
+      if (changeGuildCrestChangeNotifier.getCreateCrest()) {
+        LoadingBoxChangeNotifier().setLoadingBoxVisible(false);
+        GuildWindowChangeNotifier().notify();
+      }
       goBack();
     });
   }
@@ -286,6 +321,10 @@ class ChangeGuildCrestBoxState extends State<ChangeGuildCrestBox> with TickerPro
   }
 
   Widget selectImageButton(double buttonWidth, double buttonHeight, double fontSize) {
+    String saveText = "Select new guild crest";
+    if (!changeGuildCrestChangeNotifier.getCreateCrest()) {
+      saveText = "Save new guild crest image";
+    }
     return Container(
       width: buttonWidth,
       height: buttonHeight,
@@ -297,7 +336,7 @@ class ChangeGuildCrestBoxState extends State<ChangeGuildCrestBox> with TickerPro
         child: Container(
           alignment: Alignment.center,
           child: Text(
-            'Select new guild crest',
+            saveText,
             style: simpleTextStyle(fontSize),
           ),
         ),

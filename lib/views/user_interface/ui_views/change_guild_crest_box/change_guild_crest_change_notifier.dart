@@ -8,6 +8,8 @@ class ChangeGuildCrestChangeNotifier extends ChangeNotifier {
   bool showChangeGuildCrest = false;
   bool isDefault = false;
 
+  bool createCrest = false;
+
   static final ChangeGuildCrestChangeNotifier _instance = ChangeGuildCrestChangeNotifier._internal();
 
   ChangeGuildCrestChangeNotifier._internal();
@@ -39,5 +41,13 @@ class ChangeGuildCrestChangeNotifier extends ChangeNotifier {
 
   getDefault() {
     return isDefault;
+  }
+
+  setCreateCrest(bool createCrest) {
+    this.createCrest = createCrest;
+  }
+
+  bool getCreateCrest() {
+    return createCrest;
   }
 }

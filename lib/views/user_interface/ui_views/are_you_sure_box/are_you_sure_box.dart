@@ -4,7 +4,8 @@ import 'package:age_of_gold/services/models/user.dart';
 import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/util/navigation_service.dart';
 import 'package:age_of_gold/util/util.dart';
-import 'package:age_of_gold/views/user_interface/are_you_sure_box/are_you_sure_change_notifier.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/are_you_sure_box/are_you_sure_change_notifier.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_information.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window_change_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:age_of_gold/locator.dart';
@@ -86,6 +87,9 @@ class AreYouSureBoxState extends State<AreYouSureBox> {
           print("leave guild success");
           if (me.guild != null) {
             me.setGuild(null);
+            GuildInformation guildInformation = GuildInformation();
+            guildInformation.setGuildCrest(null);
+            guildInformation.setCrestIsDefault(true);
             GuildWindowChangeNotifier().setGuildWindowVisible(true);
             areYouSureBoxChangeNotifier.setAreYouSureBoxVisible(false);
           } else {
