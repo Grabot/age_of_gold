@@ -46,6 +46,7 @@ class GuildWindowState extends State<GuildWindow> {
     guildInformation = GuildInformation();
     guildInformation.setCrestIsDefault(true);
     guildInformation.setGuildCrest(null);
+    guildInformation.addListener(guildWindowChangeListener);
     super.initState();
   }
 
@@ -67,8 +68,8 @@ class GuildWindowState extends State<GuildWindow> {
   User? me;
   guildWindowChangeListener() {
     if (mounted) {
+      me = Settings().getUser();
       if (!showGuildWindow && guildWindowChangeNotifier.getGuildWindowVisible()) {
-        me = Settings().getUser();
         if (me != null) {
           retrieveGuildMembers(me!);
           setGuildCrest(me!, guildInformation);
@@ -87,6 +88,9 @@ class GuildWindowState extends State<GuildWindow> {
         });
       } else if (showGuildWindow && guildWindowChangeNotifier.getGuildWindowVisible()) {
         // window already visible, just update if needed
+        if (me != null) {
+          retrieveGuildMembers(me!);
+        }
         setState(() {});
       }
     }

@@ -128,8 +128,7 @@ class GuildWindowOverviewGuildNewMembersState extends State<GuildWindowOverviewG
     AuthServiceGuild().acceptGuildRequestUser(newMember.id, widget.guild.guildId).then((response) {
       if (response.getResult()) {
         widget.guild.removeGuildInvite(newMember);
-        // TODO: Add new users via socket?
-        GuildMember guildMember = GuildMember(newMember.getId(), 4);
+        GuildMember guildMember = GuildMember(newMember.getId(), 3);
         guildMember.setGuildMemberName(newMember.getUserName());
         guildMember.setGuildMemberAvatar(newMember.getAvatar());
         guildMember.setRetrieved(true);

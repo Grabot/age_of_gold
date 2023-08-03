@@ -123,4 +123,8 @@ class GuildInformation extends ChangeNotifier {
     guildsGotRequests = [];
     guildsGotRequestsRetrieved = false;
   }
+
+  notify() {
+    notifyListeners();
+  }
 }

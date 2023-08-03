@@ -77,7 +77,20 @@ class Guild {
   }
 
   addMember(GuildMember member) {
-    guildMembers.add(member);
+    if (guildMembers.contains((element) => element.getGuildMemberId() == member.getGuildMemberId())) {
+      GuildMember existingMember = guildMembers
+          .where((element) => element.getGuildMemberId() == member.getGuildMemberId())
+          .first;
+      if (member.isMemberRetrieved() && !existingMember.isMemberRetrieved()) {
+        guildMembers.removeWhere((element) =>
+        element.getGuildMemberId() == existingMember.getGuildMemberId());
+        guildMembers.add(member);
+      } else {
+        // in all other situation we do nothing.
+      }
+    } else {
+      guildMembers.add(member);
+    }
   }
 
   setMyGuildRank(String myGuildRank) {

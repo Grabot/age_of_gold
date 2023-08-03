@@ -56,6 +56,7 @@ class SocialInteractionState extends State<SocialInteraction> with TickerProvide
     // TODO: Change to it's own change notifier?
     profileChangeNotifier = ProfileChangeNotifier();
     profileChangeNotifier.addListener(socialInteractionListener);
+    socket.addListener(socialInteractionListener);
   }
 
   @override

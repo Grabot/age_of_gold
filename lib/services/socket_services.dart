@@ -2,11 +2,13 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:age_of_gold/services/auth_service_social.dart';
+import 'package:age_of_gold/services/models/guild_member.dart';
 import 'package:age_of_gold/services/models/user.dart';
 import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/util/util.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/chat_messages.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/selected_tile_info.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_information.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/profile_box/profile_change_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
@@ -47,6 +49,10 @@ class SocketServices extends ChangeNotifier {
 
   logout(int userId) {
     leaveRoom(userId);
+  }
+
+  enteredGuild(int guildId) {
+    joinGuildInformation(guildId);
   }
 
   startSockConnection() {
@@ -147,7 +153,7 @@ class SocketServices extends ChangeNotifier {
       socket.emit(
         "join",
         {
-          'userId': userId,
+          'user_id': userId,
         },
       );
     }
@@ -285,8 +291,45 @@ class SocketServices extends ChangeNotifier {
   void leaveRoom(int userId) {
     if (socket.connected) {
       socket.emit("leave", {
-        'userId': userId,
+        'user_id': userId,
       });
+    }
+  }
+
+  void joinGuildInformation(int guildId) {
+    socket.emit(
+      "join_guild",
+      {
+        'guild_id': guildId,
+      },
+    );
+    socket.on('guild_new_member', (data) {
+      print("newGuildMember $data");
+      addNewGuildMember(data["member"]);
+      notifyListeners();
+    });
+  }
+
+  addNewGuildMember(Map<String, dynamic> member) {
+    int userId = member["user_id"];
+    int rank = member["rank"];
+    GuildMember guildMember = GuildMember(userId, rank);
+    guildMember.setGuildRank();
+    User? currentUser = Settings().getUser();
+    if (currentUser != null) {
+      if (currentUser.getGuild() != null) {
+        // First check if it is already in the guild
+        // (might be possible if the user had the window open when the response came in)
+        if (!currentUser.getGuild()!.getMembers().contains((element) => element.getGuildMemberId() == userId)) {
+          currentUser.getGuild()!.addMember(guildMember);
+          // currentUser.getGuild()!.removeGuildInvite(User(userId, "", false, [], null));
+          GuildInformation guildInformation = GuildInformation();
+          guildInformation.requestedMembers.removeWhere((element) => element.id == userId);
+          guildInformation.askedMembers.removeWhere((element) => element.id == userId);
+          guildInformation.notify();
+          notifyListeners();
+        }
+      }
     }
   }
 

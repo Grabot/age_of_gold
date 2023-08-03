@@ -116,6 +116,7 @@ additionalLoginInformation(User me) {
       }
     });
   } else {
+    SocketServices().enteredGuild(me.getGuild()!.getGuildId());
     AuthServiceGuild().getRequestedGuildSend(me.getGuild()!.getGuildId(), true).then((response) {
       if (response != null) {
         me.getGuild()!.setJoinRequests(response);
