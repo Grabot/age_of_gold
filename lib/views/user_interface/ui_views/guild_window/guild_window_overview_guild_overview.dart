@@ -55,12 +55,17 @@ class GuildWindowOverviewGuildOverviewState extends State<GuildWindowOverviewGui
   bool searchModeMembers = false;
 
   List<GuildMember>? shownGuildMembers;
+  int myRankId = 4;
 
   @override
   void initState() {
+    if (widget.me != null) {
+      if (widget.me!.getGuild() != null) {
+        myRankId = widget.me!.getGuild()!.getMyGuildRankId();
+      }
+    }
     super.initState();
   }
-
 
   @override
   void dispose() {
@@ -131,6 +136,10 @@ class GuildWindowOverviewGuildOverviewState extends State<GuildWindowOverviewGui
   }
 
   removeGuildMember(GuildMember guildMember) {
+    if (myRankId >= getRankId(guildMember.getGuildMemberRankName())) {
+      showToastMessage("you can't remove a member with the same or higher rank as you");
+      return;
+    }
     AuthServiceGuild().removeMember(guildMember.getGuildMemberId(), widget.guild.getGuildId()).then((value) {
       if (value.getResult()) {
         widget.guild.getMembers().removeWhere((element) => element.getGuildMemberId() == guildMember.getGuildMemberId());
@@ -163,6 +172,10 @@ class GuildWindowOverviewGuildOverviewState extends State<GuildWindowOverviewGui
   }
 
   Widget guildMemberInteraction(GuildMember guildMember, double avatarBoxSize, double guildMemberOptionWidth, double fontSize, bool isMe) {
+    bool canRemove = true;
+    if (myRankId >= getRankId(guildMember.getGuildMemberRankName())) {
+      canRemove = false;
+    }
     if (isMe) {
       return Container();
     } else {
@@ -182,8 +195,8 @@ class GuildWindowOverviewGuildOverviewState extends State<GuildWindowOverviewGui
                       child: addIcon(40, Icons.message, Colors.green)
                   )
               ),
-              widget.guild.isAdministrator ? const SizedBox(width: 10) : Container(),
-              widget.guild.isAdministrator ? InkWell(
+              widget.guild.isAdministrator && canRemove ? const SizedBox(width: 10) : Container(),
+              widget.guild.isAdministrator && canRemove ? InkWell(
                 onTap: () {
                   setState(() {
                     removeGuildMember(guildMember);

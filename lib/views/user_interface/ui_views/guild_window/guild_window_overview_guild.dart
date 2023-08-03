@@ -54,9 +54,27 @@ class GuildWindowOverviewGuildState extends State<GuildWindowOverviewGuild> {
   int changeMemberRanksColour = 0;
   bool changeMemberView = false;
 
+  bool unansweredMemberRequests = false;
+
   @override
   void initState() {
     super.initState();
+    checkGuildInformation();
+  }
+
+  checkGuildInformation() {
+    unansweredMemberRequests = false;
+    // First check if the user does not have a guild yet, but he does have some invites
+    // Second check if the user is in a guild and there are new member requests
+    if (widget.me != null) {
+      if (widget.me!.getGuild() != null) {
+        if (widget.me!.getGuild()!.getJoinRequests().isNotEmpty) {
+          setState(() {
+            unansweredMemberRequests = true;
+          });
+        }
+      }
+    }
   }
 
   @override
@@ -71,6 +89,7 @@ class GuildWindowOverviewGuildState extends State<GuildWindowOverviewGuild> {
     guildOverviewColour = 2;
     newMembersColour = 0;
     changeMemberRanksColour = 0;
+    checkGuildInformation();
   }
 
   switchToNewMembers() {
@@ -80,16 +99,17 @@ class GuildWindowOverviewGuildState extends State<GuildWindowOverviewGuild> {
     guildOverviewColour = 0;
     newMembersColour = 2;
     changeMemberRanksColour = 0;
+    checkGuildInformation();
   }
 
   switchToChangeGuildRanks() {
-    print("switcing to guild ranks");
     showGuildOverview = false;
     newMembersView = false;
     changeMemberView = true;
     guildOverviewColour = 0;
     newMembersColour = 0;
     changeMemberRanksColour = 2;
+    checkGuildInformation();
   }
 
   Widget guildOverviewButton(double buttonWidth) {
@@ -210,15 +230,28 @@ class GuildWindowOverviewGuildState extends State<GuildWindowOverviewGuild> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               SizedBox(width: 1),
-              Row(
+              Stack(
                 children: [
-                  Text(
-                    "New members",
-                    style: simpleTextStyle(
-                      widget.fontSize,
-                    ),
+                  Row(
+                    children: [
+                      SizedBox(
+                        width: 12,
+                        height: 50,
+                      ),
+                      Text(
+                        "New members",
+                        style: simpleTextStyle(
+                          widget.fontSize,
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                  unansweredMemberRequests ? Image.asset(
+                    "assets/images/ui/icon/update_notification.png",
+                    width: iconSize,
+                    height: iconSize,
+                  ) : Container(),
+                ]
               ),
               SizedBox(width: 1),
             ]

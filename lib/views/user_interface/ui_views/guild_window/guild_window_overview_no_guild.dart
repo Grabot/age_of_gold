@@ -52,11 +52,26 @@ class GuildWindowOverviewNoGuildState extends State<GuildWindowOverviewNoGuild> 
   int findGuildColour = 0;
   bool findGuildView = false;
 
+  bool unansweredGuildRequests = false;
+
   @override
   void initState() {
     super.initState();
+    checkGuildInformation();
   }
 
+  checkGuildInformation() {
+    unansweredGuildRequests = false;
+    // First check if the user does not have a guild yet, but he does have some invites
+    // Second check if the user is in a guild and there are new member requests
+    if (widget.me != null) {
+      if (widget.me!.getGuild() == null && widget.me!.guildInvites.isNotEmpty) {
+        setState(() {
+          unansweredGuildRequests = true;
+        });
+      }
+    }
+  }
 
   @override
   void dispose() {
@@ -73,6 +88,7 @@ class GuildWindowOverviewNoGuildState extends State<GuildWindowOverviewNoGuild> 
     createGuildColour = 0;
     guildOverviewColour = 2;
     findGuildColour = 0;
+    checkGuildInformation();
   }
 
   switchToCreate() {
@@ -82,6 +98,7 @@ class GuildWindowOverviewNoGuildState extends State<GuildWindowOverviewNoGuild> 
     guildOverviewColour = 0;
     createGuildColour = 2;
     findGuildColour = 0;
+    checkGuildInformation();
   }
 
   switchToFind() {
@@ -94,6 +111,7 @@ class GuildWindowOverviewNoGuildState extends State<GuildWindowOverviewNoGuild> 
     guildOverviewColour = 0;
     createGuildColour = 0;
     findGuildColour = 2;
+    checkGuildInformation();
   }
 
   Widget guildOverviewButton() {
@@ -214,15 +232,28 @@ class GuildWindowOverviewNoGuildState extends State<GuildWindowOverviewNoGuild> 
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               SizedBox(width: 1),
-              Row(
+              Stack(
                 children: [
-                  Text(
-                    "Find guild",
-                    style: simpleTextStyle(
-                      widget.fontSize,
-                    ),
+                  Row(
+                    children: [
+                      SizedBox(
+                        width: 12,
+                        height: 50,
+                      ),
+                      Text(
+                        "Find guild",
+                        style: simpleTextStyle(
+                          widget.fontSize,
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                  unansweredGuildRequests ? Image.asset(
+                    "assets/images/ui/icon/update_notification.png",
+                    width: iconSize,
+                    height: iconSize,
+                  ) : Container(),
+                ]
               ),
               SizedBox(width: 1),
             ]
