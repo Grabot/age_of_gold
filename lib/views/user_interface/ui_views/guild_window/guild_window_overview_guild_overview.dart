@@ -367,7 +367,7 @@ class GuildWindowOverviewGuildOverviewState extends State<GuildWindowOverviewGui
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                            "Your guild rank: ${guild.getGuildRank()}",
+                            "Your guild rank: ${guild.getMyGuildRank()}",
                             style: simpleTextStyle(widget.fontSize)
                         ),
                         Container(),

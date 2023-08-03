@@ -14,6 +14,7 @@ import 'package:age_of_gold/views/user_interface/ui_views/change_guild_crest_box
 import 'package:age_of_gold/views/user_interface/ui_views/chat_window/chat_window_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_information.dart';
 import 'package:flutter/material.dart';
+import 'package:quiver/core.dart';
 
 
 class GuildWindowOverviewChangeRanks extends StatefulWidget {
@@ -53,16 +54,45 @@ class GuildWindowOverviewChangeRanksState extends State<GuildWindowOverviewChang
   final TextEditingController searchGuildMembersController = TextEditingController();
   bool searchModeMembers = false;
 
-  List<GuildMember>? shownGuildMembers;
+  List<GuildMember> shownGuildMembers = [];
+  int myRankId = 4;
 
   @override
   void initState() {
+    shownGuildMembers = widget.guild.getMembers();
+    if (widget.me != null) {
+      if (widget.me!.getGuild() != null) {
+        myRankId = widget.me!.getGuild()!.getMyGuildRankId();
+      }
+    }
     super.initState();
   }
 
   @override
   void dispose() {
     super.dispose();
+  }
+
+  List<DropdownMenuItem<GuildMemberRankData>> buildDropdownMenuItems(List rankData) {
+    List<DropdownMenuItem<GuildMemberRankData>> items = [];
+    for (GuildMemberRankData guildMemberRankData in rankData) {
+      items.add(
+        DropdownMenuItem(
+          value: guildMemberRankData,
+          child: Container(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  Text(guildMemberRankData.name)
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+    return items;
   }
 
   changedSearch(String typedText) {
@@ -81,10 +111,19 @@ class GuildWindowOverviewChangeRanksState extends State<GuildWindowOverviewChang
     if (newValue == guildMember.getGuildMemberRankName()) {
       return;
     }
+    if (myRankId >= getRankId(newValue)) {
+      showToastMessage("You can't change the rank to be higher or similar to yours.");
+      return;
+    }
+    if (myRankId >= getRankId(guildMember.getGuildMemberRankName())) {
+      showToastMessage("You can't change the rank of a member that has the same or higher rank as you.");
+      return;
+    }
+
     AuthServiceGuild().changeGuildMemberRank(
         guildMember.getGuildMemberId(),
         widget.guild.getGuildId(),
-        guildMember.getRankId(newValue)
+        getRankId(newValue)
     ).then((value) {
       if (value.getResult()) {
         showToastMessage("Rank of member ${guildMember.getGuildMemberName()} changed to $newValue");
@@ -97,26 +136,27 @@ class GuildWindowOverviewChangeRanksState extends State<GuildWindowOverviewChang
     });
   }
 
+  onChangeDropdownItem(GuildMember guildMember, GuildMemberRankData? newSelectedTile) {
+    if (newSelectedTile != null) {
+      setState(() {
+        changeGuildMemberRank(guildMember, newSelectedTile.name);
+      });
+    }
+  }
+
   Widget changeRankInteraction(GuildMember guildMember, double avatarBoxSize, double guildMemberOptionWidth, double fontSize, bool isMe) {
+    GuildMemberRankData selectedRank = GuildMemberRankData(
+        guildMember.getGuildMemberRankName(),
+        getRankId(guildMember.getGuildMemberRankName())
+    );
     if (isMe) {
       return Container();
     } else {
-      return DropdownButton<String>(
-        value: guildMember.getGuildMemberRankName(),
-        items: <String>['Guildmaster', 'Officer', 'Merchant', 'Trader']
-            .map<DropdownMenuItem<String>>((String value) {
-          return DropdownMenuItem<String>(
-            value: value,
-            child: Text(
-              value,
-              style: TextStyle(fontSize: fontSize),
-            ),
-          );
-        }).toList(),
-        onChanged: (String? newValue) {
-          if (newValue != null) {
-            changeGuildMemberRank(guildMember, newValue);
-          }
+      return DropdownButton(
+        value: selectedRank,
+        items: buildDropdownMenuItems(GuildMemberRankData.getGuildMemberRanks()),
+        onChanged: (GuildMemberRankData? newSelectedTile) {
+          onChangeDropdownItem(guildMember, newSelectedTile);
         },
       );
     }
@@ -185,11 +225,7 @@ class GuildWindowOverviewChangeRanksState extends State<GuildWindowOverviewChang
 
   List<Widget> memberList(Guild guild) {
     List<Widget> members = [];
-    List<GuildMember> guildMembers = guild.getMembers();
-    if (shownGuildMembers != null) {
-      guildMembers = shownGuildMembers!;
-    }
-    for (GuildMember member in guildMembers) {
+    for (GuildMember member in shownGuildMembers) {
       members.add(
           guildMemberBox(member, 70, widget.fontSize)
       );
@@ -286,7 +322,7 @@ class GuildWindowOverviewChangeRanksState extends State<GuildWindowOverviewChang
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                            "Your guild rank: ${guild.getGuildRank()}",
+                            "Your guild rank: ${guild.getMyGuildRank()}",
                             style: simpleTextStyle(widget.fontSize)
                         ),
                         Container(),
@@ -370,4 +406,28 @@ class GuildWindowOverviewChangeRanksState extends State<GuildWindowOverviewChang
       child: guildOverview(),
     );
   }
+}
+
+class GuildMemberRankData {
+  String name;
+  int guildRankId;
+
+  GuildMemberRankData(this.name, this.guildRankId);
+
+  static List<GuildMemberRankData> getGuildMemberRanks() {
+    return <GuildMemberRankData>[
+      GuildMemberRankData("Guildmaster", 0),
+      GuildMemberRankData("Officer", 1),
+      GuildMemberRankData("Merchant", 2),
+      GuildMemberRankData("Trader", 3),
+    ];
+  }
+
+  @override
+  bool operator == (Object other) =>
+      other is GuildMemberRankData && name == other.name && guildRankId == other.guildRankId;
+
+  @override
+  int get hashCode => hash2(name.hashCode, guildRankId.hashCode);
+
 }

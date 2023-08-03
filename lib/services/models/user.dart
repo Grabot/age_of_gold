@@ -113,14 +113,14 @@ class User {
           guild!.setAdministrator(false);
           if (member.getGuildMemberRank() == 0) {
             guild!.setAdministrator(true);
-            guild!.setGuildRank("Guildmaster");
+            guild!.setMyGuildRank("Guildmaster");
           } else if (member.getGuildMemberRank() == 1) {
             guild!.setAdministrator(true);
-            guild!.setGuildRank("Officer");
+            guild!.setMyGuildRank("Officer");
           } else if (member.getGuildMemberRank() == 2) {
-            guild!.setGuildRank("Merchant");
+            guild!.setMyGuildRank("Merchant");
           } else {
-            guild!.setGuildRank("Trader");
+            guild!.setMyGuildRank("Trader");
           }
           return;
         }

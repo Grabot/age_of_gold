@@ -51,6 +51,7 @@ dependencies:
   isolated_worker: ^0.1.1
   dropdown_button2: ^1.0.0
   back_button_interceptor: ^6.0.2
+  quiver: ^3.2.1
 
 dev_dependencies:
   flutter_test:

@@ -133,6 +133,7 @@ class GuildWindowOverviewGuildNewMembersState extends State<GuildWindowOverviewG
         guildMember.setGuildMemberName(newMember.getUserName());
         guildMember.setGuildMemberAvatar(newMember.getAvatar());
         guildMember.setRetrieved(true);
+        guildMember.setGuildRank();
         widget.guild.addMember(guildMember);
         setState(() {
           widget.guildInformation.requestedMembers.removeWhere((element) => element.id == newMember.getId());

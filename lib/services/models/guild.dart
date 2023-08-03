@@ -3,13 +3,15 @@ import 'dart:typed_data';
 
 import 'package:age_of_gold/services/models/guild_member.dart';
 import 'package:age_of_gold/services/models/user.dart';
+import 'package:age_of_gold/util/util.dart';
 
 class Guild {
 
   late int guildId;
   late String guildName;
   Uint8List? guildCrest;
-  String guildRank = "";
+  String myGuildRank = "";
+  int myGuildRankId = 4;
 
   // The member ids of the guild, along with their ranks.
   List<GuildMember> guildMembers = [];
@@ -78,12 +80,17 @@ class Guild {
     guildMembers.add(member);
   }
 
-  setGuildRank(String guildRank) {
-    this.guildRank = guildRank;
+  setMyGuildRank(String myGuildRank) {
+    this.myGuildRank = myGuildRank;
+    myGuildRankId = getRankId(myGuildRank);
   }
 
-  String getGuildRank() {
-    return guildRank;
+  String getMyGuildRank() {
+    return myGuildRank;
+  }
+
+  int getMyGuildRankId() {
+    return myGuildRankId;
   }
 
   setJoinRequests(List<User> joinRequests) {

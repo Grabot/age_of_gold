@@ -43,7 +43,7 @@ class GuildMember {
 
   setGuildMemberName(String guildMemberName) {
     this.guildMemberName = guildMemberName;
-    if (guildMemberAvatar != null && guildMemberName != null) {
+    if (guildMemberAvatar != null) {
       memberRetrieved = true;
     }
   }
@@ -70,20 +70,6 @@ class GuildMember {
       } else {
         setGuildMemberRankName("Trader");
       }
-    }
-  }
-
-  int getRankId(String guildRank) {
-    if (guildRank == "Trader") {
-      return 3;
-    } else if (guildRank == "Merchant") {
-      return 2;
-    } else if (guildRank == "Officer") {
-      return 1;
-    } else if (guildRank == "Guildmaster") {
-      return 0;
-    } else {
-      return 4;
     }
   }
 

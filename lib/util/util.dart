@@ -498,3 +498,17 @@ Color overviewColour(int state, Color colour0, Color colour1, Color colour2) {
     return colour2;
   }
 }
+
+int getRankId(String guildRank) {
+  if (guildRank == "Trader") {
+    return 3;
+  } else if (guildRank == "Merchant") {
+    return 2;
+  } else if (guildRank == "Officer") {
+    return 1;
+  } else if (guildRank == "Guildmaster") {
+    return 0;
+  } else {
+    return 4;
+  }
+}
