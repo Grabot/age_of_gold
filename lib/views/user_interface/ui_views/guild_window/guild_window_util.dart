@@ -1,6 +1,7 @@
 
 import 'dart:convert';
 
+import 'package:age_of_gold/services/auth_service_guild.dart';
 import 'package:age_of_gold/services/auth_service_social.dart';
 import 'package:age_of_gold/services/models/guild_member.dart';
 import 'package:age_of_gold/services/models/user.dart';
@@ -14,8 +15,8 @@ retrieveGuildMembers(User me) {
     // or we have not yet retrieved the users from the ids
     List<int> membersToRetrieve = [];
     for (GuildMember member in me.getGuild()!.getMembers()) {
-      if (member.getGuildMemberId() != null && !member.isMemberRetrieved()) {
-        membersToRetrieve.add(member.getGuildMemberId()!);
+      if (!member.isMemberRetrieved()) {
+        membersToRetrieve.add(member.getGuildMemberId());
       }
     }
     if (membersToRetrieve.isNotEmpty) {

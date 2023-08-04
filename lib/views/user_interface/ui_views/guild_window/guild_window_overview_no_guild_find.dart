@@ -96,7 +96,6 @@ class GuildWindowOverviewNoGuildFindState extends State<GuildWindowOverviewNoGui
   }
 
   requestToJoinGuild(Guild guildRequested) {
-    // guildsGotRequests
     if (widget.guildInformation.guildsGotRequests.any((element) => element.getGuildId() == guildRequested.getGuildId())) {
       acceptRequest(guildRequested);
       setState(() {
@@ -125,6 +124,9 @@ class GuildWindowOverviewNoGuildFindState extends State<GuildWindowOverviewNoGui
     AuthServiceGuild().cancelRequestUser(widget.me!.getId(), guildToCancel.guildId).then((response) {
       if (response.getResult()) {
         showToastMessage("Request for guild ${guildToCancel.getGuildName()} cancelled");
+        if (widget.me != null) {
+          widget.me!.guildInvites.removeWhere((element) => element.getGuildId() == guildToCancel.guildId);
+        }
         setState(() {
           widget.guildInformation.guildsSendRequests.removeWhere((element) => element.guildId == guildToCancel.guildId);
         });
@@ -162,9 +164,14 @@ class GuildWindowOverviewNoGuildFindState extends State<GuildWindowOverviewNoGui
     AuthServiceGuild().cancelRequestGuild(widget.me!.getId(), denyGuild.guildId).then((response) {
       if (response.getResult()) {
         showToastMessage("Request for guild ${denyGuild.getGuildName()} denied");
+        if (widget.me != null) {
+          widget.me!.guildInvites.removeWhere((element) => element.getGuildId() == denyGuild.guildId);
+        }
         setState(() {
           widget.guildInformation.guildsGotRequests.removeWhere((element) => element.guildId == denyGuild.guildId);
         });
+        GuildInformation().notify();
+        ProfileChangeNotifier().notify();
       } else {
         showToastMessage(response.getMessage());
       }

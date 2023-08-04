@@ -1,6 +1,8 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:age_of_gold/services/auth_service_guild.dart';
+import 'package:age_of_gold/services/auth_service_social.dart';
 import 'package:age_of_gold/services/models/guild.dart';
 import 'package:age_of_gold/services/models/user.dart';
 import 'package:flutter/material.dart';
@@ -47,9 +49,37 @@ class GuildInformation extends ChangeNotifier {
     return crestIsDefault;
   }
 
+  Future<bool> checkRetrievedUsers(List<User> checkUsers) async {
+    List<int> membersToRetrieve = [];
+    for (User member in checkUsers) {
+      if (member.getAvatar() == null) {
+        membersToRetrieve.add(member.getId());
+      }
+    }
+    if (membersToRetrieve.isNotEmpty) {
+      List? response = await AuthServiceSocial().getFriendAvatars(membersToRetrieve);
+      if (response != null) {
+        for (Map<String, dynamic> possibleGuildMember in response) {
+          int userId = possibleGuildMember["id"];
+          String userName = possibleGuildMember["username"];
+          String userAvatar = possibleGuildMember["avatar"];
+          for (User requestedMember in checkUsers) {
+            if (requestedMember.getId() == userId) {
+              requestedMember.setUsername(userName);
+              requestedMember.setAvatar(base64Decode(userAvatar.replaceAll("\n", "")));
+            }
+          }
+        }
+        return true;
+      }
+    }
+    return false;
+  }
+
   Future<bool> getRequestedGuildSend(int guildId, bool minimal) async {
     if (requestedMembersRetrieved) {
-      return false;
+      // Check if any of the users in the requestedMembers list have not been retrieved.
+      return checkRetrievedUsers(requestedMembers);
     } else {
       List<User>? response = await AuthServiceGuild().getRequestedGuildSend(guildId, minimal);
       if (response != null) {
@@ -64,7 +94,7 @@ class GuildInformation extends ChangeNotifier {
 
   Future<bool> getRequestedGuildGot(int guildId) async {
     if (askedMembersRetrieved) {
-      return false;
+      return checkRetrievedUsers(askedMembers);
     } else {
       List<User>? response = await AuthServiceGuild().getRequestedGuildGot(guildId);
       if (response != null) {
@@ -109,6 +139,38 @@ class GuildInformation extends ChangeNotifier {
         return false;
       }
     }
+  }
+
+  addRequestedMember(User user) {
+    if (requestedMembers.any((element) => element.getId() == user.getId())) {
+      User existingMember = requestedMembers.where((element) => element.getId() == user.getId()).first;
+      if (user.getAvatar() != null && existingMember.getAvatar() == null) {
+        requestedMembers.removeWhere((element) => element.getId() == existingMember.getId());
+        requestedMembers.add(user);
+      } else {
+        // in all other situation we do nothing because the member is already correctly in the list.
+      }
+    } else {
+      requestedMembers.add(user);
+    }
+    checkRetrievedUsers(requestedMembers);
+    notifyListeners();
+  }
+
+  addAskedMember(User user) {
+    if (askedMembers.any((element) => element.getId() == user.getId())) {
+      User existingMember = askedMembers.where((element) => element.getId() == user.getId()).first;
+      if ((user.getAvatar() != null) && existingMember.getAvatar() == null) {
+        askedMembers.removeWhere((element) => element.getId() == existingMember.getId());
+        askedMembers.add(user);
+      } else {
+        // in all other situation we do nothing because the member is already correctly in the list.
+      }
+    } else {
+      askedMembers.add(user);
+    }
+    checkRetrievedUsers(askedMembers);
+    notifyListeners();
   }
 
   clearInformation() {

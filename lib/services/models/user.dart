@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:age_of_gold/services/models/friend.dart';
 import 'package:age_of_gold/services/models/guild.dart';
 import 'package:age_of_gold/services/models/guild_member.dart';
+import 'package:age_of_gold/services/socket_services.dart';
 
 class User {
 
@@ -60,6 +61,25 @@ class User {
     this.guildInvites = guildInvites;
   }
 
+  addGuildInvites(Guild guildInvite) {
+    if (guildInvites.any((element) => element.getGuildId() == guildInvite.getGuildId())) {
+      Guild existingGuild = guildInvites
+          .where((element) => element.getGuildId() == guildInvite.getGuildId())
+          .first;
+      if (guildInvite.retrieved && !existingGuild.retrieved) {
+        guildInvites.removeWhere((element) => element.getGuildId() == existingGuild.getGuildId());
+      guildInvites.add(guildInvite);
+        return;
+      } else {
+        // in all other situation we do nothing because the member is already correctly in the list.
+        return;
+      }
+    } else {
+      guildInvites.add(guildInvite);
+      return;
+    }
+  }
+
   removeGuildRequests() {
     guildInvites = [];
   }
@@ -104,6 +124,9 @@ class User {
 
   setGuild(Guild? guild) {
     this.guild = guild;
+    if (this.guild != null) {
+      SocketServices().joinGuildInformation(this.guild!.getGuildId());
+    }
   }
 
   setMyGuildRank() {
@@ -162,7 +185,7 @@ class User {
     }
 
     if (json.containsKey("guild") && json["guild"] != null) {
-      guild = Guild.fromJson(json["guild"]);
+      guild = Guild.fromJson(json["guild"], false);
       setMyGuildRank();
     }
   }

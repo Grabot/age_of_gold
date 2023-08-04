@@ -103,7 +103,7 @@ class AuthServiceGuild {
     } else {
       if (json["result"]) {
         if (json.containsKey("guild")) {
-          return Guild.fromJson(json["guild"]);
+          return Guild.fromJson(json["guild"], false);
         } else {
           return null;
         }
@@ -148,7 +148,7 @@ class AuthServiceGuild {
           List requests = json["guild_requests"];
           List<Guild> guilds = [];
           for (Map<String, dynamic> request in requests) {
-            guilds.add(Guild.fromJson(request));
+            guilds.add(Guild.fromJson(request, false));
           }
           return guilds;
         } else {
@@ -181,7 +181,7 @@ class AuthServiceGuild {
           List requests = json["guild_requests"];
           List<Guild> guilds = [];
           for (Map<String, dynamic> request in requests) {
-            guilds.add(Guild.fromJson(request));
+            guilds.add(Guild.fromJson(request, minimal));
           }
           return guilds;
         } else {
@@ -312,7 +312,7 @@ class AuthServiceGuild {
     } else {
       if (json["result"]) {
         if (json.containsKey("guild")) {
-          return Guild.fromJson(json["guild"]);
+          return Guild.fromJson(json["guild"], false);
         } else {
           return null;
         }

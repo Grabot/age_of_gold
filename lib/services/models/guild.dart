@@ -15,7 +15,6 @@ class Guild {
 
   // The member ids of the guild, along with their ranks.
   List<GuildMember> guildMembers = [];
-  List<User> joinRequests = [];
   bool isAdministrator = false;  // Indicates if the member has admin rights.
 
   bool? accepted;
@@ -23,9 +22,11 @@ class Guild {
 
   int guildScore = 0;
 
+  bool retrieved = true;
+
   Guild(this.guildId, this.guildName, this.guildCrest);
 
-  Guild.fromJson(Map<String, dynamic> json) {
+  Guild.fromJson(Map<String, dynamic> json, bool minimal) {
     if (json.containsKey("guild_id")) {
       guildId = json['guild_id'];
     }
@@ -50,6 +51,8 @@ class Guild {
     if (json.containsKey("requested")) {
       requested = json['requested'];
     }
+    // If it was minimal, it wasn't fully retrieved.
+    retrieved = !minimal;
   }
 
   int getGuildId() {
@@ -77,19 +80,40 @@ class Guild {
   }
 
   addMember(GuildMember member) {
-    if (guildMembers.contains((element) => element.getGuildMemberId() == member.getGuildMemberId())) {
+    if (guildMembers.any((element) => element.getGuildMemberId() == member.getGuildMemberId())) {
       GuildMember existingMember = guildMembers
           .where((element) => element.getGuildMemberId() == member.getGuildMemberId())
           .first;
       if (member.isMemberRetrieved() && !existingMember.isMemberRetrieved()) {
-        guildMembers.removeWhere((element) =>
-        element.getGuildMemberId() == existingMember.getGuildMemberId());
+        guildMembers.removeWhere((element) => element.getGuildMemberId() == existingMember.getGuildMemberId());
         guildMembers.add(member);
+        return;
       } else {
-        // in all other situation we do nothing.
+        // in all other situation we do nothing because the member is already correctly in the list.
+        return;
       }
     } else {
       guildMembers.add(member);
+      return;
+    }
+  }
+
+  removeMember(GuildMember member) {
+    if (guildMembers.any((element) => element.getGuildMemberId() == member.getGuildMemberId())) {
+      guildMembers.removeWhere((element) => element.getGuildMemberId() == member.getGuildMemberId());
+    }
+  }
+
+  changeMemberRank(GuildMember changedGuildMember) {
+    if (guildMembers.any((element) => element.getGuildMemberId() == changedGuildMember.getGuildMemberId())) {
+      if (changedGuildMember.getGuildMemberRank() != null) {
+        // update the rank of the changed member
+        GuildMember existingMember = guildMembers
+            .where((element) => element.getGuildMemberId() == changedGuildMember.getGuildMemberId())
+            .first;
+        existingMember.setGuildMemberRank(changedGuildMember.getGuildMemberRank()!);
+        existingMember.setGuildRank();
+      }
     }
   }
 
@@ -104,18 +128,6 @@ class Guild {
 
   int getMyGuildRankId() {
     return myGuildRankId;
-  }
-
-  setJoinRequests(List<User> joinRequests) {
-    this.joinRequests = joinRequests;
-  }
-
-  List<User> getJoinRequests() {
-    return joinRequests;
-  }
-
-  removeGuildInvite(User newMember) {
-    joinRequests.removeWhere((user) => user.getId() == newMember.getId());
   }
 
   setAdministrator(bool isAdministrator) {

@@ -56,10 +56,20 @@ class GuildWindowOverviewGuildState extends State<GuildWindowOverviewGuild> {
 
   bool unansweredMemberRequests = false;
 
+  late GuildInformation guildInformation;
+
   @override
   void initState() {
     super.initState();
+    guildInformation = GuildInformation();
+    guildInformation.addListener(guildWindowChangeListener);
     checkGuildInformation();
+  }
+
+  guildWindowChangeListener() {
+    if (mounted) {
+      checkGuildInformation();
+    }
   }
 
   checkGuildInformation() {
@@ -68,7 +78,7 @@ class GuildWindowOverviewGuildState extends State<GuildWindowOverviewGuild> {
     // Second check if the user is in a guild and there are new member requests
     if (widget.me != null) {
       if (widget.me!.getGuild() != null) {
-        if (widget.me!.getGuild()!.getJoinRequests().isNotEmpty) {
+        if (guildInformation.requestedMembers.isNotEmpty) {
           setState(() {
             unansweredMemberRequests = true;
           });

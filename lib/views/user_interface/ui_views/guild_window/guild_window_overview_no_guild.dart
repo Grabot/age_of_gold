@@ -54,10 +54,20 @@ class GuildWindowOverviewNoGuildState extends State<GuildWindowOverviewNoGuild> 
 
   bool unansweredGuildRequests = false;
 
+  late GuildInformation guildInformation;
+
   @override
   void initState() {
     super.initState();
     checkGuildInformation();
+    guildInformation = GuildInformation();
+    guildInformation.addListener(guildWindowChangeListener);
+  }
+
+  guildWindowChangeListener() {
+    if (mounted) {
+      checkGuildInformation();
+    }
   }
 
   checkGuildInformation() {

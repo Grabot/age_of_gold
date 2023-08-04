@@ -114,10 +114,12 @@ class GuildWindowOverviewGuildNewMembersState extends State<GuildWindowOverviewG
     }
     AuthServiceGuild().askNewMember(newMember.id, widget.guild.guildId).then((response) {
       if (response.getResult()) {
+        print("doing call asked join");
         showToastMessage("Request send to user ${newMember.getUserName()}");
         setState(() {
-          widget.guildInformation.askedMembers.add(newMember);
+          widget.guildInformation.addAskedMember(newMember);
         });
+        print("doing call asked join DONE");
       } else {
         showToastMessage(response.getMessage());
       }
@@ -127,7 +129,6 @@ class GuildWindowOverviewGuildNewMembersState extends State<GuildWindowOverviewG
   acceptMemberToJoin(User newMember) {
     AuthServiceGuild().acceptGuildRequestUser(newMember.id, widget.guild.guildId).then((response) {
       if (response.getResult()) {
-        widget.guild.removeGuildInvite(newMember);
         GuildMember guildMember = GuildMember(newMember.getId(), 3);
         guildMember.setGuildMemberName(newMember.getUserName());
         guildMember.setGuildMemberAvatar(newMember.getAvatar());
@@ -152,6 +153,7 @@ class GuildWindowOverviewGuildNewMembersState extends State<GuildWindowOverviewG
         setState(() {
           showToastMessage("Request to user ${cancelUser.getUserName()} cancelled");
         });
+        ProfileChangeNotifier().notify();
       } else {
         showToastMessage(response.getMessage());
       }
@@ -165,6 +167,7 @@ class GuildWindowOverviewGuildNewMembersState extends State<GuildWindowOverviewG
         setState(() {
           widget.guildInformation.requestedMembers.removeWhere((element) => element.getId() == denyUser.getId());
         });
+        ProfileChangeNotifier().notify();
       } else {
         showToastMessage(response.getMessage());
       }

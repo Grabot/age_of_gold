@@ -37,6 +37,10 @@ class GuildMember {
     return guildMemberId;
   }
 
+  setGuildMemberRank(int guildMemberRank) {
+    this.guildMemberRank = guildMemberRank;
+  }
+
   int? getGuildMemberRank() {
     return guildMemberRank;
   }

@@ -119,7 +119,7 @@ additionalLoginInformation(User me) {
     SocketServices().enteredGuild(me.getGuild()!.getGuildId());
     AuthServiceGuild().getRequestedGuildSend(me.getGuild()!.getGuildId(), true).then((response) {
       if (response != null) {
-        me.getGuild()!.setJoinRequests(response);
+        GuildInformation().requestedMembers = response;
         ProfileChangeNotifier().notify();
       } else {
         print("no requests");

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:age_of_gold/services/auth_service_social.dart';
+import 'package:age_of_gold/services/models/guild.dart';
 import 'package:age_of_gold/services/models/guild_member.dart';
 import 'package:age_of_gold/services/models/user.dart';
 import 'package:age_of_gold/services/settings.dart';
@@ -9,6 +10,7 @@ import 'package:age_of_gold/util/util.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/chat_messages.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/selected_tile_info.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_information.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/profile_box/profile_change_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
@@ -169,6 +171,41 @@ class SocketServices extends ChangeNotifier {
       changeTile(data);
       notifyListeners();
     });
+    socket.on('guild_requested_to_join', (data) {
+      guildRequestedToJoin(data["guild"]);
+      notifyListeners();
+    });
+    socket.on('guild_request_denied', (data) {
+      guildRequestDenied(data);
+      notifyListeners();
+    });
+  }
+
+  guildRequestedToJoin(Map<String, dynamic> guildRequest) {
+    User? currentUser = Settings().getUser();
+    if (currentUser != null) {
+      int guildId = guildRequest["user_id"];
+      String guildName = guildRequest["guild_name"];
+      bool? accepted = guildRequest["accepted"];
+      bool? requested = guildRequest["requested"];
+      Guild guild = Guild(guildId, guildName, null);
+      guild.accepted = accepted;
+      guild.requested = requested;
+      guild.retrieved = false;
+      currentUser.addGuildInvites(guild);
+    }
+  }
+
+  guildRequestDenied(Map<String, dynamic> deniedRequest) {
+    User? currentUser = Settings().getUser();
+    if (currentUser != null) {
+      int guildId = deniedRequest["guild_id"];
+      Guild deniedGuild = Guild(guildId, "", null);
+      currentUser.guildInvites.removeWhere((element) => element.getGuildId() == deniedGuild.guildId);
+      GuildInformation().guildsSendRequests.removeWhere((element) => element.guildId == deniedGuild.guildId);
+      GuildInformation().guildsGotRequests.removeWhere((element) => element.guildId == deniedGuild.guildId);
+      GuildInformation().notify();
+    }
   }
 
   bool joinedChatRooms = false;
@@ -297,6 +334,7 @@ class SocketServices extends ChangeNotifier {
   }
 
   void joinGuildInformation(int guildId) {
+    print("joining guild room: $guildId");
     socket.emit(
       "join_guild",
       {
@@ -306,6 +344,30 @@ class SocketServices extends ChangeNotifier {
     socket.on('guild_new_member', (data) {
       print("newGuildMember $data");
       addNewGuildMember(data["member"]);
+      notifyListeners();
+    });
+    socket.on('guild_request_cancelled', (data) {
+      requestGuildCancelled(data["member_cancelled"]);
+      notifyListeners();
+    });
+    socket.on('member_request_to_join', (data) {
+      requestGuildToJoin(data["member_requested"]);
+      notifyListeners();
+    });
+    socket.on('member_asked_to_join', (data) {
+      memberAskedToJoinByGuild(data["member_asked"]);
+      notifyListeners();
+    });
+    socket.on('guild_crest_changed', (data) {
+      guildCrestChanged(data);
+      notifyListeners();
+    });
+    socket.on('member_changed_rank', (data) {
+      memberChangedRank(data["member_changed"]);
+      notifyListeners();
+    });
+    socket.on('guild_member_removed', (data) {
+      guildMemberRemoved(data["member_removed"]);
       notifyListeners();
     });
   }
@@ -322,13 +384,99 @@ class SocketServices extends ChangeNotifier {
         // (might be possible if the user had the window open when the response came in)
         if (!currentUser.getGuild()!.getMembers().contains((element) => element.getGuildMemberId() == userId)) {
           currentUser.getGuild()!.addMember(guildMember);
-          // currentUser.getGuild()!.removeGuildInvite(User(userId, "", false, [], null));
           GuildInformation guildInformation = GuildInformation();
           guildInformation.requestedMembers.removeWhere((element) => element.id == userId);
           guildInformation.askedMembers.removeWhere((element) => element.id == userId);
           guildInformation.notify();
           notifyListeners();
         }
+      }
+    }
+  }
+
+  requestGuildCancelled(Map<String, dynamic> memberCancelled) {
+    print("request guild cancelled! $memberCancelled");
+    User? currentUser = Settings().getUser();
+    if (currentUser != null) {
+      if (currentUser.getGuild() != null) {
+        int userId = memberCancelled["user_id"];
+        GuildInformation guildInformation = GuildInformation();
+        guildInformation.requestedMembers.removeWhere((element) => element.id == userId);
+        guildInformation.askedMembers.removeWhere((element) => element.id == userId);
+        guildInformation.notify();
+        ProfileChangeNotifier().notify();
+      }
+    }
+  }
+
+  requestGuildToJoin(Map<String, dynamic> memberRequested) {
+    print("requestGuildToJoin! $memberRequested");
+    User? currentUser = Settings().getUser();
+    if (currentUser != null) {
+      if (currentUser.getGuild() != null) {
+        int userId = memberRequested["user_id"];
+        GuildInformation guildInformation = GuildInformation();
+        guildInformation.addRequestedMember(User(userId, "", false, [], null));
+        guildInformation.notify();
+        ProfileChangeNotifier().notify();
+      }
+    }
+  }
+
+  memberAskedToJoinByGuild(Map<String, dynamic> memberAsked) {
+    User? currentUser = Settings().getUser();
+    if (currentUser != null) {
+      if (currentUser.getGuild() != null) {
+        int userId = memberAsked["user_id"];
+        GuildInformation guildInformation = GuildInformation();
+        guildInformation.addAskedMember(User(userId, "", false, [], null));
+        guildInformation.notify();
+      }
+    }
+  }
+
+  guildCrestChanged(Map<String, dynamic> crestChanged) {
+    User? currentUser = Settings().getUser();
+    if (currentUser != null) {
+      if (currentUser.getGuild() != null) {
+        if (crestChanged["guild_avatar"] == null) {
+          currentUser.getGuild()!.setGuildCrest(null);
+        } else {
+          currentUser.getGuild()!.setGuildCrest(
+              base64Decode(crestChanged["guild_avatar"].replaceAll("\n", "")));
+        }
+        GuildInformation().notify();
+      }
+    }
+  }
+
+  memberChangedRank(Map<String, dynamic> memberChanged) {
+    print("member changed rank");
+    User? currentUser = Settings().getUser();
+    if (currentUser != null) {
+      if (currentUser.getGuild() != null) {
+        int guildMemberId = memberChanged["user_id"];
+        int guildMemberRank = memberChanged["new_rank"];
+        GuildMember changedGuildMember = GuildMember(guildMemberId, guildMemberRank);
+        currentUser.getGuild()!.changeMemberRank(changedGuildMember);
+        // Check if the changed member is me
+        if (currentUser.getId() == guildMemberId) {
+          currentUser.setMyGuildRank();
+        }
+        GuildInformation().notify();
+      }
+    }
+  }
+
+  guildMemberRemoved(Map<String, dynamic> memberRemoved) {
+    User? currentUser = Settings().getUser();
+    if (currentUser != null) {
+      if (currentUser.getGuild() != null) {
+        int userId = memberRemoved["user_id"];
+        // only the id is needed for removal
+        GuildMember changedGuildMember = GuildMember(userId, 3);
+        currentUser.getGuild()!.removeMember(changedGuildMember);
+        GuildInformation().notify();
       }
     }
   }
