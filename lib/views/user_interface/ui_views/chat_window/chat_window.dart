@@ -1,6 +1,7 @@
 import 'package:age_of_gold/age_of_gold.dart';
 import 'package:age_of_gold/services/auth_service_world.dart';
 import 'package:age_of_gold/services/socket_services.dart';
+import 'package:age_of_gold/util/render_objects.dart';
 import 'package:age_of_gold/util/util.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/chat_messages.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/clear_ui.dart';
@@ -39,6 +40,7 @@ class ChatWindowState extends State<ChatWindow> {
 
   bool isWorld = false;
   bool isEvent = false;
+  bool isGuildChat = false;
 
   bool hasPersonalChats = false;
 
@@ -122,20 +124,29 @@ class ChatWindowState extends State<ChatWindow> {
       chatTitle = "World Chat";
       isWorld = true;
       isEvent = false;
+      isGuildChat = false;
     } if (chatMessages.getActiveChatTab() == "World") {
       chatTitle = "World Chat";
       isWorld = true;
       isEvent = false;
+      isGuildChat = false;
     } else if (chatMessages.getActiveChatTab() == "Events") {
       chatTitle = "Events";
       isWorld = false;
       isEvent = true;
+      isGuildChat = false;
+    } else if (chatMessages.getActiveChatTab() == "Guild") {
+      chatTitle = "Guild chat";
+      isWorld = false;
+      isEvent = false;
+      isGuildChat = true;
     } else if (chatMessages.getActiveChatTab() == "Personal") {
       // Find the user that was currently active in the chatbox.
       for (ChatData chatData in chatMessages.regions) {
         if (chatData.name == chatMessages.getMessageUser()) {
           isEvent = false;
           isWorld = false;
+          isGuildChat = false;
           chatTitle = chatData.name;
           chatMessages.setSelectedChatData(chatData);
           chatMessages.setActiveChatTab("Personal");
@@ -210,6 +221,7 @@ class ChatWindowState extends State<ChatWindow> {
       chatMessages.setMessageUser(null);
       isEvent = false;
       isWorld = true;
+      isGuildChat = false;
       selectionScreen = false;
     });
   }
@@ -223,6 +235,21 @@ class ChatWindowState extends State<ChatWindow> {
       chatMessages.setMessageUser(null);
       isEvent = true;
       isWorld = false;
+      isGuildChat = false;
+      selectionScreen = false;
+    });
+  }
+
+  pressedGuildChat() {
+    setState(() {
+      chatMessages.setActiveChatTab("Guild");
+      chatTitle = "Guild Chat";
+      ChatBoxChangeNotifier().setActiveTab("Guild");
+      chatMessages.setSelectedChatData(null);
+      chatMessages.setMessageUser(null);
+      isEvent = false;
+      isWorld = false;
+      isGuildChat = true;
       selectionScreen = false;
     });
   }
@@ -239,12 +266,32 @@ class ChatWindowState extends State<ChatWindow> {
       style: buttonStyle(false, buttonColour),
       child: Row(
         children: [
-          Container(
-            width: 40,
-            height: 40,
-            child: Image.asset(
-              "assets/images/ui/icon/globe_icon_no_colour.png",
-            ),
+          Stack(
+            children: [
+              Row(
+                children: [
+                  SizedBox(width: 15),
+                  SizedBox(
+                    width: 40,
+                    height: 40,
+                    child: Image.asset(
+                      "assets/images/ui/icon/globe_icon_no_colour.png",
+                    ),
+                  ),
+                ]
+              ),
+              chatMessages.worldMessagesUnread != 0 ? Container(
+                padding: const EdgeInsets.only(left: 5, top: 5),
+                child: Text(
+                  chatMessages.worldMessagesUnread.toString(),
+                  style: const TextStyle(
+                    color: Colors.red,
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ) : Container(),
+            ]
           ),
           Expanded(
             child: Container(
@@ -313,6 +360,7 @@ class ChatWindowState extends State<ChatWindow> {
       chatTitle = chatData.name;
       isEvent = false;
       isWorld = false;
+      isGuildChat = false;
       chatMessages.setSelectedChatData(chatData);
       chatMessages.setMessageUser(chatData.name);
       chatMessages.setActiveChatTab("Personal");
@@ -350,6 +398,20 @@ class ChatWindowState extends State<ChatWindow> {
         children: [
           Stack(
             children: [
+              Row(
+                children: [
+                  SizedBox(width: 15),
+                  SizedBox(
+                    width: 40,
+                    height: 50,
+                    child: Icon(
+                      Icons.person,
+                      color: chatData.friend ? Colors.orangeAccent : Colors.grey,
+                      size: 40,
+                    ),
+                  ),
+                ]
+              ),
               chatData.unreadMessages != 0 ? Container(
                 padding: const EdgeInsets.only(left: 5, top: 5),
                 child: Text(
@@ -361,15 +423,6 @@ class ChatWindowState extends State<ChatWindow> {
                   ),
                 ),
               ) : Container(),
-              SizedBox(
-                width: 50,
-                height: 50,
-                child: Icon(
-                  Icons.person,
-                  color: chatData.friend ? Colors.orangeAccent : Colors.grey,
-                  size: 40,
-                ),
-              ),
             ]
           ),
           const SizedBox(width: 10),
@@ -468,9 +521,6 @@ class ChatWindowState extends State<ChatWindow> {
 
   Widget personalChats(double leftColumnWidth, double remainingHeight, double fontSize) {
     double personalChatHeight = remainingHeight;
-    if (hasGroupChats) {
-      personalChatHeight = remainingHeight/2;
-    }
     double personalChatHeaderHeight = 50;
     if (searchActive) {
       personalChatHeaderHeight = 100;
@@ -495,15 +545,86 @@ class ChatWindowState extends State<ChatWindow> {
     }
   }
 
-  Widget groupChats(double leftColumnWidth, double remainingHeight, double fontSize) {
-    // TODO: implement groupChats
-    return Container();
+  Widget guildChatButton(double guildChatButtonHeight, fontSize) {
+    MaterialColor buttonColour = Colors.blue;
+    if (isGuildChat) {
+      buttonColour = Colors.green;
+    }
+    return Column(
+      children: [
+        Container(
+          height: 30,
+          child: Row(
+            children: [
+              Text(
+                "Guild Chat",
+                style: simpleTextStyle(fontSize)
+              ),
+            ]
+          ),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            pressedGuildChat();
+          },
+          style: buttonStyle(false, buttonColour),
+          child: Row(
+            children: [
+              Stack(
+                children: [
+                  Row(
+                    children: [
+                      SizedBox(width: 15),
+                      SizedBox(
+                        width: 40,
+                        height: 40 * 1.125,
+                        child: guildAvatarBox(
+                            40,
+                            40 * 1.125,
+                            chatMessages.getGuild()!.getGuildCrest()
+                        )
+                      ),
+                    ]
+                  ),
+                  chatMessages.guildMessagesUnread != 0 ? Container(
+                    padding: const EdgeInsets.only(left: 5, top: 5),
+                    child: Text(
+                      chatMessages.guildMessagesUnread.toString(),
+                      style: const TextStyle(
+                        color: Colors.red,
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ) : Container(),
+                ]
+              ),
+              Expanded(
+                child: Container(
+                  alignment: Alignment.center,
+                  height: guildChatButtonHeight - 30,
+                  child: Text(
+                    'Guild Chat',
+                    style: simpleTextStyle(fontSize),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ]
+    );
   }
 
   Widget leftColumn(double leftColumnWidth, double leftColumnHeight, double fontSize) {
     double worldChatButtonHeight = 50;
+    double guildChatButtonHeight = 80; // 50 for button with 30 for header
+    bool inAGuild = chatMessages.getGuild() != null;
+    if (!inAGuild) {
+      guildChatButtonHeight = 0;
+    }
     double eventsButtonHeight = 50;
-    double remainingHeight = leftColumnHeight - worldChatButtonHeight - eventsButtonHeight;
+    double remainingHeight = leftColumnHeight - worldChatButtonHeight - guildChatButtonHeight - eventsButtonHeight;
     return Column(
       children: [
         Container(
@@ -511,8 +632,8 @@ class ChatWindowState extends State<ChatWindow> {
           child: Column(
             children: [
               worldChatButton(leftColumnWidth, worldChatButtonHeight, fontSize),
+              inAGuild ? guildChatButton(guildChatButtonHeight, fontSize) : Container(),
               personalChats(leftColumnWidth, remainingHeight, fontSize),
-              groupChats(leftColumnWidth, remainingHeight, fontSize),
             ],
           ),
         ),

@@ -201,6 +201,9 @@ class ChatBoxState extends State<ChatBox> {
       // We only set the last one to true,
       // since that's the one we use to determine if there are unread messages
       chatMessages.chatMessages.last.read = true;
+    } else if (chatMessages.getActiveChatTab() == "Guild") {
+      chatMessages.setUnreadGuildMessages(false);
+      chatMessages.guildMessages.last.read = true;
     } else if (chatMessages.getActiveChatTab() == "Events") {
       chatMessages.setUnreadEventMessages(false);
       chatMessages.eventMessages.last.read = true;
@@ -268,6 +271,14 @@ class ChatBoxState extends State<ChatBox> {
     return chatTab("Events", chatMessages.getUnreadEventMessages());
   }
 
+  Widget chatTabGuild() {
+    if (chatMessages.getGuild() != null) {
+      return chatTab("Guild", chatMessages.getUnreadGuildMessages());
+    } else {
+      return Container();
+    }
+  }
+
   Widget chatTabChats() {
     return chatDropDownRegionTopBar();
   }
@@ -300,6 +311,7 @@ class ChatBoxState extends State<ChatBox> {
             showMesssageWindow(topBarHeight),
             chatTabWorld(),
             chatTabEvents(),
+            chatTabGuild(),
             chatTabChats(),
             showOrHideChatBox(topBarHeight)
           ],

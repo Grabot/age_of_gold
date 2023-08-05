@@ -116,7 +116,6 @@ additionalLoginInformation(User me) {
       }
     });
   } else {
-    SocketServices().enteredGuildRoom(me.getGuild()!.getGuildId());
     AuthServiceGuild().getRequestedGuildSend(me.getGuild()!.getGuildId(), true).then((response) {
       if (response != null) {
         GuildInformation().requestedMembers = response;

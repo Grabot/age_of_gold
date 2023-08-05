@@ -3,7 +3,8 @@ import 'message.dart';
 
 
 class GuildMessage extends Message {
-  GuildMessage(super.senderId, super.senderName, super.body, super.me, super.timestamp, super.read);
+  bool guildEvent;
+  GuildMessage(super.senderId, super.senderName, super.body, super.me, super.timestamp, super.read, this.guildEvent);
 
   @override
   Color messageColour = Colors.orangeAccent;

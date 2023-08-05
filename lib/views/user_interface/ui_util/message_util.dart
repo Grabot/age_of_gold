@@ -310,6 +310,12 @@ sendMessage(String message, String activeTab, GlobalKey<FormState> chatFormKey, 
   if (chatFormKey.currentState!.validate()) {
     if (activeTab == "World") {
       AuthServiceSocial().sendMessageChatGlobal(message);
+    } else if (activeTab == "Guild") {
+      if (Settings().getUser() != null) {
+        if (Settings().getUser()!.getGuild() != null) {
+          AuthServiceSocial().sendMessageChatGuild(Settings().getUser()!.getGuild()!.getGuildId(), message);
+        }
+      }
     } else if (activeTab == "Personal") {
       if (selectedChatData != null) {
         int toUserid = selectedChatData.senderId;

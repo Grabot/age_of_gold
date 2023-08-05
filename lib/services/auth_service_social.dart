@@ -5,6 +5,7 @@ import 'package:age_of_gold/services/models/base_response.dart';
 import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/chat_messages.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/messages/global_message.dart';
+import 'package:age_of_gold/views/user_interface/ui_util/messages/guild_message.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/messages/message.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/messages/personal_message.dart';
 import 'package:dio/dio.dart';
@@ -50,29 +51,17 @@ class AuthServiceSocial {
     });
   }
 
-  // sendMessageChatLocal(String message, int hexQ, int hexR, int tileQ, int tileR) {
-  //   sendMessageLocal(message, hexQ, hexR, tileQ, tileR).then((value) {
-  //     if (value != "success") {
-  //       // TODO: What to do when it is not successful
-  //     } else {
-  //       // The socket should handle the receiving and placing of the message
-  //     }
-  //   }).onError((error, stackTrace) {
-  //     // TODO: What to do on an error?
-  //   });
-  // }
-  //
-  // sendMessageChatGuild(String message, String guildName) {
-  //   sendMessageGuild(message, guildName).then((value) {
-  //     if (value != "success") {
-  //       // TODO: What to do when it is not successful
-  //     } else {
-  //       // The socket should handle the receiving and placing of the message
-  //     }
-  //   }).onError((error, stackTrace) {
-  //     // TODO: What to do on an error?
-  //   });
-  // }
+  sendMessageChatGuild(int guildId, String message) {
+    sendMessageGuild(guildId, message).then((value) {
+      if (value != "success") {
+        // TODO: What to do when it is not successful
+      } else {
+        // The socket should handle the receiving and placing of the message
+      }
+    }).onError((error, stackTrace) {
+      // TODO: What to do on an error?
+    });
+  }
 
   sendMessageChatPersonal(String message, int userId) {
     sendMessagePersonal(message, userId).then((value) {
@@ -110,58 +99,30 @@ class AuthServiceSocial {
     }
   }
 
-  // Future<String> sendMessageLocal(String message, int hexQ, int hexR, int tileQ, int tileR) async {
-  //   String endPoint = "send/message/local";
-  //   var response = await AuthApi().dio.post(endPoint,
-  //       options: Options(headers: {
-  //         HttpHeaders.contentTypeHeader: "application/json",
-  //       }),
-  //       data: jsonEncode(<String, String>{
-  //         "message": message,
-  //         "hex_q": hexQ.toString(),
-  //         "hex_r": hexR.toString(),
-  //         "tile_q": tileQ.toString(),
-  //         "tile_r": tileR.toString()
-  //       }
-  //     )
-  //   );
-  //
-  //   Map<String, dynamic> json = response.data;
-  //   if (!json.containsKey("result")) {
-  //     return "an error occurred";
-  //   } else {
-  //     if (json["result"]) {
-  //       return "success";
-  //     } else {
-  //       return json["message"];
-  //     }
-  //   }
-  // }
-  //
-  // Future<String> sendMessageGuild(String message, String guildName) async {
-  //   String endPoint = "send/message/guild";
-  //   var response = await AuthApi().dio.post(endPoint,
-  //       options: Options(headers: {
-  //         HttpHeaders.contentTypeHeader: "application/json",
-  //       }),
-  //       data: jsonEncode(<String, String>{
-  //         "message": message,
-  //         "guild_name": guildName
-  //       }
-  //     )
-  //   );
-  //
-  //   Map<String, dynamic> json = response.data;
-  //   if (!json.containsKey("result")) {
-  //     return "an error occurred";
-  //   } else {
-  //     if (json["result"]) {
-  //       return "success";
-  //     } else {
-  //       return json["message"];
-  //     }
-  //   }
-  // }
+  Future<String> sendMessageGuild(int guildId, String message) async {
+    String endPoint = "send/message/guild";
+    var response = await AuthApi().dio.post(endPoint,
+        options: Options(headers: {
+          HttpHeaders.contentTypeHeader: "application/json",
+        }),
+        data: jsonEncode(<String, dynamic>{
+          "guild_id": guildId,
+          "message": message,
+        }
+      )
+    );
+
+    Map<String, dynamic> json = response.data;
+    if (!json.containsKey("result")) {
+      return "an error occurred";
+    } else {
+      if (json["result"]) {
+        return "success";
+      } else {
+        return json["message"];
+      }
+    }
+  }
 
   Future<String> sendMessagePersonal(String message, int userId) async {
     String endPoint = "send/message/personal";
@@ -224,6 +185,57 @@ class AuthServiceSocial {
           }
           DateTime timestamp = DateTime.parse(time).toLocal();
           messageList.add(GlobalMessage(senderId, senderName, body, me, timestamp, true));
+        }
+        return messageList;
+      }
+    }
+  }
+
+  Future<List<GuildMessage>?> getMessagesGuild(int guildId, int page) async {
+    String endPoint = "get/message/guild?page=$page&size=$pageSize";
+    var response = await AuthApi().dio.post(endPoint,
+      options: Options(headers: {
+        HttpHeaders.contentTypeHeader: "application/json",
+      }),
+      data: jsonEncode(<String, dynamic>{
+        "guild_id": guildId
+      })
+    );
+
+    Map<String, dynamic> json = response.data;
+    // For the messages we use a fastapi pagination return function
+    // This will not contain result, but we use the size parameter
+    // If the size is {pageSize} it was successful, if it is 1 it failed.
+    if (!json.containsKey("size")) {
+      return null;
+    } else {
+      if (json["size"] != pageSize) {
+        return null;
+      } else {
+        if (!json.containsKey("items")) {
+          return null;
+        }
+        List messages = json["items"];
+        List<GuildMessage> messageList = [];
+        String nameMe = Settings().getUser()!.getUserName();
+        for (var message in messages) {
+          String? senderName = message["sender_name"];
+          int? senderId = message["sender_id"];
+          String body = message["body"];
+          String time = message["timestamp"];
+          if (!time.endsWith("Z")) {
+            // The server has utc timestamp, but it's not formatted with the 'Z'.
+            time += "Z";
+          }
+          DateTime timestamp = DateTime.parse(time).toLocal();
+          bool isEvent = false;
+          if (senderId == null) {
+            senderId = -1;
+            isEvent = true;
+          }
+          senderName ??= "Event";
+          bool me = senderName == nameMe;
+          messageList.add(GuildMessage(senderId, senderName, body, me, timestamp, true, isEvent));
         }
         return messageList;
       }

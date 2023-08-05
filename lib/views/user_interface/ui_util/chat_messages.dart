@@ -1,5 +1,6 @@
 import 'package:age_of_gold/services/auth_service_social.dart';
 import 'package:age_of_gold/services/models/friend.dart';
+import 'package:age_of_gold/services/models/guild.dart';
 import 'package:age_of_gold/services/models/user.dart';
 import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/util/util.dart';
@@ -9,8 +10,6 @@ import 'package:age_of_gold/views/user_interface/ui_util/messages/guild_message.
 import 'package:age_of_gold/views/user_interface/ui_util/messages/local_message.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/messages/message.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/messages/personal_message.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/chat_box/chat_box.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/chat_box/chat_box_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/profile_box/profile_change_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -19,6 +18,7 @@ class ChatMessages extends ChangeNotifier {
   List<Message> chatMessages = [];
   List<EventMessage> eventMessages = [];
   Map<String, List<PersonalMessage>> personalMessages = {};
+  List<GuildMessage> guildMessages = [];
   Map<String, bool> personalMessageRetrieved = {};
   Map<String, int> personalMessagePage = {};
   String? messageUser;
@@ -28,18 +28,24 @@ class ChatMessages extends ChangeNotifier {
   // We keep track of the number of personal chats and create dropdown options for those chats.
   List<DropdownMenuItem<ChatData>>? dropdownMenuItems;
 
-  // We make a distinction between "World", "Events" and "Personal" for friends and guilds
+  // We make a distinction between "World", "Events", "Guild" and "Personal" for friends
   String activateChatTab = "World";
 
   bool chatWindowActive = false;
   bool unreadWorldMessages = false;
   bool unreadEventMessages = false;
+  bool unreadGuildMessages = false;
+  Guild? usersGuild;
 
   static final ChatMessages _instance = ChatMessages._internal();
 
   ChatData? selectedChatData;
 
   int currentPage = 1;
+  int currentPageGuild = 1;
+
+  int worldMessagesUnread = 0;
+  int guildMessagesUnread = 0;
 
   ChatMessages._internal();
 
@@ -67,8 +73,15 @@ class ChatMessages extends ChangeNotifier {
     chatWindowActive = value;
   }
 
+  setGuild(Guild? guild) {
+    usersGuild = guild;
+  }
+
+  Guild? getGuild() {
+    return usersGuild;
+  }
+
   initializeChatMessages() {
-    chatMessages = [];
     DateTime firstTime = DateTime(2023);
     String message = "Welcome to the Age of Gold chat!";
     Message newMessage = Message(-1, "Server", message, false, firstTime, true);
@@ -76,6 +89,9 @@ class ChatMessages extends ChangeNotifier {
     String messageEvent = "Here you can see any event that happened in your view!";
     EventMessage newEventMessage = EventMessage(-1, "Server", messageEvent, false, firstTime, true);
     eventMessages.add(newEventMessage);
+    String messageGuild = "Welcome to your Guild chat!";
+    GuildMessage newMessageGuild = GuildMessage(-1, "Server", messageGuild, false, firstTime, true, true);
+    guildMessages.add(newMessageGuild);
   }
 
   bool unreadPersonalMessages() {
@@ -87,7 +103,7 @@ class ChatMessages extends ChangeNotifier {
     return false;
   }
 
-  setDateTiles(List<Message> messages, bool personal) {
+  setDateTiles(List<Message> messages, int chat) {
     // clear the date tiles if they exists already
     messages.removeWhere((element) => element.senderId == -2);
 
@@ -110,10 +126,16 @@ class ChatMessages extends ChangeNotifier {
         if (dayMessage == yesterday) {
           timeMessageTile = "Yesterday";
         }
-        if (personal) {
+        if (chat == 1) {
+          // guild chat
+          GuildMessage timeMessage = GuildMessage(-2, "Server", timeMessageTile, false, dayMessage, true, true);
+          messages.insert(i, timeMessage);
+        } else if (chat == 2) {
+          // personal chat
           PersonalMessage timeMessage = PersonalMessage(-2, "Server", timeMessageTile, false, dayMessage, true, "Server");
           messages.insert(i, timeMessage);
         } else {
+          // gobal chat (0)
           Message timeMessage = Message(-2, "Server", timeMessageTile, false, dayMessage, true);
           messages.insert(i, timeMessage);
         }
@@ -151,7 +173,7 @@ class ChatMessages extends ChangeNotifier {
         // If the chatbox is open on this user we don't set the unreadMessage
         if (messageUser != other) {
           chatData.unreadMessages += 1;
-          setDateTiles(personalMessages[chatData.name]!, true);
+          setDateTiles(personalMessages[chatData.name]!, 2);
         }
         found = true;
       }
@@ -180,13 +202,42 @@ class ChatMessages extends ChangeNotifier {
     PersonalMessage newMessage = PersonalMessage(1, from, message, me, messageTime, false, to);
     // Add it to both the chatMessages and the personalMessages
     chatMessages.add(newMessage);
-    setDateTiles(chatMessages, false);
+    setDateTiles(chatMessages, 0);
     addChatToPersonalMessages(from, senderId, to, newMessage);
     newGlobalMessageEvent(newMessage);
 
     if (!me) {
       checkReadPersonalMessage(senderId);
     }
+  }
+
+  addGuildMessage(int? senderId, String? senderName, String message, String timestamp) {
+    bool isGuildEvent = false;
+    if (senderName == null) {
+      senderName = "Server";
+      isGuildEvent = true;
+    }
+    senderId ??= -1;
+    if (!timestamp.endsWith("Z")) {
+      // The server has utc timestamp, but it's not formatted with the 'Z'.
+      timestamp += "Z";
+    }
+    DateTime messageTime = DateTime.parse(timestamp).toLocal();
+    bool me = false;
+    if (Settings().getUser() != null) {
+      if (Settings().getUser()!.getUserName() == senderName) {
+        me = true;
+      }
+    }
+
+    GuildMessage newMessage = GuildMessage(senderId, senderName, message, me, messageTime, false, isGuildEvent);
+    guildMessages.add(newMessage);
+    setDateTiles(chatMessages, 1);
+
+    if (!me) {
+      checkReadGuildMessage();
+    }
+    newGuildMessageEvent(newMessage);
   }
 
   combinePersonalMessages(ChatData chatData, List<PersonalMessage> messages) {
@@ -210,22 +261,45 @@ class ChatMessages extends ChangeNotifier {
     }
   }
 
+  combineGuildMessages(List<GuildMessage> messages) {
+    guildMessages.addAll(messages);
+    guildMessages.sort((a, b) => a.timestamp.compareTo(b.timestamp));
+    for (int i = guildMessages.length - 1; i >= 1; i--) {
+      if (guildMessages[i].equals(guildMessages[i-1])) {
+        guildMessages.removeAt(i);
+      }
+    }
+  }
+
   retrieveGlobalMessages() {
     AuthServiceSocial().getMessagesGlobal(currentPage).then((value) {
       if (value != null) {
         currentPage += 1;
         combineGlobalMessages(value);
-        setDateTiles(chatMessages, false);
+        setDateTiles(chatMessages, 0);
         notifyListeners();
       }
     });
+  }
+
+  retrieveGuildMessages() {
+    if (usersGuild != null) {
+      AuthServiceSocial().getMessagesGuild(usersGuild!.getGuildId(), currentPageGuild).then((value) {
+        if (value != null) {
+          currentPageGuild += 1;
+          combineGuildMessages(value);
+          setDateTiles(guildMessages, 1);
+          notifyListeners();
+        }
+      });
+    }
   }
 
   retrievePersonalMessages(ChatData chatData) {
     AuthServiceSocial().getMessagePersonal(chatData, personalMessagePage[chatData.name]!).then((value) {
       if (value != null) {
         combinePersonalMessages(chatData, value);
-        setDateTiles(personalMessages[chatData.name]!, true);
+        setDateTiles(personalMessages[chatData.name]!, 2);
         chatData.unreadMessages = 0;
         // send a trigger that the messages are read.
         AuthServiceSocial().readMessagePersonal(chatData.senderId).then((value) {});
@@ -234,8 +308,7 @@ class ChatMessages extends ChangeNotifier {
         personalMessageRetrieved[chatData.name] = true;
         personalMessagePage[chatData.name] = personalMessagePage[chatData.name]! + 1;
       } else {
-        showToastMessage(
-            "Could not get messages, sorry for the inconvenience");
+        showToastMessage("Could not get messages, sorry for the inconvenience");
       }
       notifyListeners();
     }).onError((error, stackTrace) {
@@ -263,7 +336,16 @@ class ChatMessages extends ChangeNotifier {
     }
   }
 
-  addMessage(String userName, int senderId, String message, int regionType, String timestamp) {
+  checkReadGuildMessage() {
+    if (activateChatTab == "Guild") {
+      if (usersGuild != null) {
+        // TODO: Add read guild functionality?
+        // AuthServiceSocial().readMessagePersonal(fromId).then((value) {});
+      }
+    }
+  }
+
+  addMessage(String userName, int senderId, String message, String timestamp) {
     if (!timestamp.endsWith("Z")) {
       // The server has utc timestamp, but it's not formatted with the 'Z'.
       timestamp += "Z";
@@ -277,13 +359,7 @@ class ChatMessages extends ChangeNotifier {
     // These will not all work this way and they will probably
     // functionally work different, but for now see them as placeholders
     // TODO: what to do with id's? Use them or remove them?
-    if (regionType == 1) {
-      newMessage = LocalMessage(senderId, userName, message, me, messageTime, false);
-    } else if (regionType == 2) {
-      newMessage = GuildMessage(senderId, userName, message, me, messageTime, false);
-    } else {
-      newMessage = GlobalMessage(senderId, userName, message, me, messageTime, false);
-    }
+    newMessage = GlobalMessage(senderId, userName, message, me, messageTime, false);
     chatMessages.add(newMessage);
     newGlobalMessageEvent(newMessage);
   }
@@ -330,10 +406,22 @@ class ChatMessages extends ChangeNotifier {
     notifyListeners();
   }
 
-  newGlobalMessageEvent(Message lastMessage) {
+  newGuildMessageEvent(GuildMessage lastMessage) {
+    if (lastMessage.senderName != Settings().getUser()!.getUserName()) {
+      unreadGuildMessages = true;
+      guildMessagesUnread += 1;
+    }
 
+    if (guildMessages.length > 100) {
+      guildMessages.removeAt(0);
+    }
+    notifyListeners();
+  }
+
+  newGlobalMessageEvent(Message lastMessage) {
     if (lastMessage.senderName != Settings().getUser()!.getUserName()) {
       unreadWorldMessages = true;
+      worldMessagesUnread += 1;
     }
 
     if (chatMessages.length > 1000) {
@@ -354,12 +442,26 @@ class ChatMessages extends ChangeNotifier {
     unreadEventMessages = unread;
   }
 
+  setUnreadGuildMessages(bool unread) {
+    if (unread == false) {
+      guildMessagesUnread = 0;
+    }
+    unreadGuildMessages = unread;
+  }
+
   setUnreadWorldMessages(bool unread) {
+    if (unread == false) {
+      worldMessagesUnread = 0;
+    }
     unreadWorldMessages = unread;
   }
 
   bool getUnreadEventMessages() {
     return unreadEventMessages;
+  }
+
+  bool getUnreadGuildMessages() {
+    return unreadGuildMessages;
   }
 
   bool getUnreadWorldMessages() {
@@ -371,9 +473,11 @@ class ChatMessages extends ChangeNotifier {
     selectedChatData = null;
     chatMessages.removeWhere((element) => element is PersonalMessage);
     eventMessages = [];
+    guildMessages = [];
     messageUser = null;
     regions = [];
     activateChatTab = "World";
+    usersGuild = null;
   }
 
   initializeChatRegions() {
@@ -413,13 +517,15 @@ class ChatMessages extends ChangeNotifier {
     List<Message> messages = chatMessages;
     if (activateChatTab == "Events") {
       messages = eventMessages;
+    } else if (activateChatTab == "Guild") {
+      messages = guildMessages;
     } else {
       if (selectedChatData != null) {
         messages = getMessagesFromUser(
             selectedChatData!.name
         );
       } else {
-        // In the regular world chat we want to get all the messages except the personal messages that were send by the user
+        // In the regular world chat we want to get all the messages except the personal messages that were send by me to someone
         if (Settings().getUser() != null) {
           messages = getAllWorldMessages(
               Settings().getUser()!.getUserName());
@@ -493,10 +599,15 @@ class ChatMessages extends ChangeNotifier {
 
   login() {
     regions = [];
+    chatMessages = [];
     chatWindowActive = false;
     unreadWorldMessages = false;
     unreadEventMessages = false;
+    unreadGuildMessages = false;
+    guildMessagesUnread = 0;
+    worldMessagesUnread = 0;
     eventMessages = [];
+    guildMessages = [];
     personalMessages = {};
     personalMessageRetrieved = {};
     personalMessagePage = {};
@@ -506,6 +617,7 @@ class ChatMessages extends ChangeNotifier {
     activateChatTab = "World";
     initializeChatMessages();
     retrieveGlobalMessages();
+    retrieveGuildMessages();
     // populate chatData with guilds or friends?
     initializeChatRegions();
   }
