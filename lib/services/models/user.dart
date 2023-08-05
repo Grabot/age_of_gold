@@ -5,6 +5,7 @@ import 'package:age_of_gold/services/models/friend.dart';
 import 'package:age_of_gold/services/models/guild.dart';
 import 'package:age_of_gold/services/models/guild_member.dart';
 import 'package:age_of_gold/services/socket_services.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_information.dart';
 
 class User {
 
@@ -125,6 +126,12 @@ class User {
   setGuild(Guild? guild) {
     this.guild = guild;
     if (this.guild != null) {
+      // We set a guild, so remove any invites or request that have been made.
+      GuildInformation guildInformation = GuildInformation();
+      guildInformation.guildsSendRequests = [];
+      guildInformation.guildsGotRequests = [];
+      removeGuildRequests();
+      setMyGuildRank();
       SocketServices().joinGuildInformation(this.guild!.getGuildId());
     }
   }

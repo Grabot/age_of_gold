@@ -86,7 +86,6 @@ class GuildWindowOverviewNoGuildCreateState extends State<GuildWindowOverviewNoG
             guildMember.setRetrieved(true);
             createdGuild.addMember(guildMember);
             widget.me!.setGuild(createdGuild);
-            widget.me!.setMyGuildRank();
             widget.createGuild();
             ProfileChangeNotifier().notify();
           } else {

@@ -1,4 +1,5 @@
 import 'package:age_of_gold/age_of_gold.dart';
+import 'package:age_of_gold/services/auth_service_guild.dart';
 import 'package:age_of_gold/services/models/guild.dart';
 import 'package:age_of_gold/services/models/user.dart';
 import 'package:age_of_gold/util/util.dart';
@@ -64,6 +65,23 @@ class GuildWindowOverviewGuildState extends State<GuildWindowOverviewGuild> {
     guildInformation = GuildInformation();
     guildInformation.addListener(guildWindowChangeListener);
     checkGuildInformation();
+    if (widget.me != null) {
+      if (!widget.guild.retrieved) {
+        AuthServiceGuild().getGuild(widget.guild.guildId, widget.me!.getId()).then((response) {
+          if (response != null) {
+            widget.me!.setGuild(response);
+            GuildInformation guildInformation = GuildInformation();
+            guildInformation.setGuildCrest(response.getGuildCrest());
+            if (response.getGuildCrest() != null) {
+              guildInformation.setCrestIsDefault(false);
+            } else {
+              guildInformation.setCrestIsDefault(true);
+            }
+            guildInformation.notify();
+          }
+        });
+      }
+    }
   }
 
   guildWindowChangeListener() {

@@ -85,16 +85,11 @@ class AreYouSureBoxState extends State<AreYouSureBox> {
       AuthServiceGuild().leaveGuild(userId, guildId).then((value) {
         if (value.getResult()) {
           print("leave guild success");
-          if (me.guild != null) {
-            me.setGuild(null);
-            GuildInformation guildInformation = GuildInformation();
-            guildInformation.setGuildCrest(null);
-            guildInformation.setCrestIsDefault(true);
-            GuildWindowChangeNotifier().setGuildWindowVisible(true);
-            areYouSureBoxChangeNotifier.setAreYouSureBoxVisible(false);
-          } else {
-            showToastMessage("an error occured");
-          }
+          me.setGuild(null);
+          GuildInformation guildInformation = GuildInformation();
+          guildInformation.setGuildCrest(null);
+          guildInformation.setCrestIsDefault(true);
+          areYouSureBoxChangeNotifier.setAreYouSureBoxVisible(false);
         } else {
           showToastMessage(value.getMessage());
         }

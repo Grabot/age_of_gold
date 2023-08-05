@@ -113,6 +113,35 @@ class AuthServiceGuild {
     }
   }
 
+  Future<Guild?> getGuild(int guildId, int userId) async {
+    String endPoint = "guild/get";
+    var response = await AuthApi().dio.post(endPoint,
+        options: Options(headers: {
+          HttpHeaders.contentTypeHeader: "application/json",
+        }),
+        data: jsonEncode(<String, dynamic> {
+          "guild_id": guildId,
+          "user_id": userId,
+        }
+      )
+    );
+
+    Map<String, dynamic> json = response.data;
+    if (!json.containsKey("result")) {
+      return null;
+    } else {
+      if (json["result"]) {
+        if (json.containsKey("guild")) {
+          return Guild.fromJson(json["guild"], false);
+        } else {
+          return null;
+        }
+      } else {
+        return null;
+      }
+    }
+  }
+
   Future<BaseResponse> requestToJoin(int guildId) async {
     String endPoint = "guild/request/user";
     var response = await AuthApi().dio.post(endPoint,

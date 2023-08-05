@@ -144,8 +144,6 @@ class GuildWindowOverviewNoGuildFindState extends State<GuildWindowOverviewNoGui
           showToastMessage("something went wrong");
         } else {
           widget.me!.setGuild(newGuild);
-          widget.me!.setMyGuildRank();
-          widget.me!.removeGuildRequests();
           ProfileChangeNotifier().notify();
           widget.createGuild();
         }

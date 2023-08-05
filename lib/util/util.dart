@@ -116,7 +116,7 @@ additionalLoginInformation(User me) {
       }
     });
   } else {
-    SocketServices().enteredGuild(me.getGuild()!.getGuildId());
+    SocketServices().enteredGuildRoom(me.getGuild()!.getGuildId());
     AuthServiceGuild().getRequestedGuildSend(me.getGuild()!.getGuildId(), true).then((response) {
       if (response != null) {
         GuildInformation().requestedMembers = response;
@@ -227,7 +227,12 @@ Tile? getTileWrap(HexagonList hexagonList, int qArray, int rArray, int newTileQ,
 }
 
 logoutUser(Settings settings, NavigationService navigationService) {
-  SocketServices().logout(settings.getUser()!.id);
+  if (settings.getUser() != null) {
+    SocketServices().logout(settings.getUser()!.id);
+    if (settings.getUser()!.getGuild() != null) {
+      SocketServices().leaveGuildRoom(settings.getUser()!.getGuild()!.getGuildId());
+    }
+  }
   GuildInformation().clearInformation();
   ChatMessages().clearPersonalMessages();
   ProfileChangeNotifier().setProfileVisible(false);

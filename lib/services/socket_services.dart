@@ -53,8 +53,12 @@ class SocketServices extends ChangeNotifier {
     leaveRoom(userId);
   }
 
-  enteredGuild(int guildId) {
+  enteredGuildRoom(int guildId) {
     joinGuildInformation(guildId);
+  }
+
+  leaveGuildRoom(int guildId) {
+    leaveGuildInformation(guildId);
   }
 
   startSockConnection() {
@@ -179,12 +183,16 @@ class SocketServices extends ChangeNotifier {
       guildRequestDenied(data);
       notifyListeners();
     });
+    socket.on('guild_accepted_member', (data) {
+      guildAcceptedMember(data["guild"]);
+      notifyListeners();
+    });
   }
 
   guildRequestedToJoin(Map<String, dynamic> guildRequest) {
     User? currentUser = Settings().getUser();
     if (currentUser != null) {
-      int guildId = guildRequest["user_id"];
+      int guildId = guildRequest["guild_id"];
       String guildName = guildRequest["guild_name"];
       bool? accepted = guildRequest["accepted"];
       bool? requested = guildRequest["requested"];
@@ -205,6 +213,21 @@ class SocketServices extends ChangeNotifier {
       GuildInformation().guildsSendRequests.removeWhere((element) => element.guildId == deniedGuild.guildId);
       GuildInformation().guildsGotRequests.removeWhere((element) => element.guildId == deniedGuild.guildId);
       GuildInformation().notify();
+    }
+  }
+
+  guildAcceptedMember(Map<String, dynamic> acceptedRequest) {
+    User? currentUser = Settings().getUser();
+    if (currentUser != null) {
+      int guildId = acceptedRequest["guild_id"];
+      String guildName = acceptedRequest["guild_name"];
+      bool? accepted = acceptedRequest["accepted"];
+      bool? requested = acceptedRequest["requested"];
+      Guild guild = Guild(guildId, guildName, null);
+      guild.accepted = accepted;
+      guild.requested = requested;
+      guild.retrieved = false;
+      currentUser.setGuild(guild);
     }
   }
 
@@ -333,7 +356,7 @@ class SocketServices extends ChangeNotifier {
     }
   }
 
-  void joinGuildInformation(int guildId) {
+  joinGuildInformation(int guildId) {
     print("joining guild room: $guildId");
     socket.emit(
       "join_guild",
@@ -370,6 +393,15 @@ class SocketServices extends ChangeNotifier {
       guildMemberRemoved(data["member_removed"]);
       notifyListeners();
     });
+  }
+
+  leaveGuildInformation(int guildId) {
+    print("leaving guild room: $guildId");
+    if (socket.connected) {
+      socket.emit("leave_guild", {
+        'guild_id': guildId,
+      });
+    }
   }
 
   addNewGuildMember(Map<String, dynamic> member) {
@@ -476,6 +508,12 @@ class SocketServices extends ChangeNotifier {
         // only the id is needed for removal
         GuildMember changedGuildMember = GuildMember(userId, 3);
         currentUser.getGuild()!.removeMember(changedGuildMember);
+        // Check if the changed member is me
+        if (currentUser.getId() == userId) {
+          GuildWindowChangeNotifier().setGuildWindowVisible(false);
+          leaveGuildRoom(currentUser.getGuild()!.getGuildId());
+          currentUser.setGuild(null);
+        }
         GuildInformation().notify();
       }
     }
