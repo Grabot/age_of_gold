@@ -397,18 +397,30 @@ class SocketServices extends ChangeNotifier {
   }
 
   addNewGuildMember(Map<String, dynamic> member) {
-    int userId = member["user_id"];
-    int rank = member["rank"];
-    GuildMember guildMember = GuildMember(userId, rank);
-    guildMember.setGuildRank();
     User? currentUser = Settings().getUser();
     if (currentUser != null) {
       if (currentUser.getGuild() != null) {
+        int userId = member["user_id"];
+        int rank = member["rank"];
+        GuildMember guildMember = GuildMember(userId, rank);
+        guildMember.setGuildRank();
         // First check if it is already in the guild
         // (might be possible if the user had the window open when the response came in)
         if (!currentUser.getGuild()!.getMembers().contains((element) => element.getGuildMemberId() == userId)) {
-          currentUser.getGuild()!.addMember(guildMember);
           GuildInformation guildInformation = GuildInformation();
+          // set details we already know from the other lists.
+          User? maybeRequested = guildInformation.requestedMembers.where((element) => element.getId() == userId).firstOrNull;
+          User? maybeAsked = guildInformation.askedMembers.where((element) => element.getId() == userId).firstOrNull;
+          if (maybeRequested != null) {
+            guildMember.setGuildMemberName(maybeRequested.getUserName());
+            guildMember.setGuildMemberAvatar(maybeRequested.getAvatar());
+          } else if (maybeAsked != null) {
+            guildMember.setGuildMemberName(maybeAsked.getUserName());
+            guildMember.setGuildMemberAvatar(maybeAsked.getAvatar());
+          }
+          addNewMemberGuildMessage(guildMember);
+          currentUser.getGuild()!.addMember(guildMember);
+          // remove from the other lists
           guildInformation.requestedMembers.removeWhere((element) => element.id == userId);
           guildInformation.askedMembers.removeWhere((element) => element.id == userId);
           guildInformation.notify();
@@ -416,6 +428,13 @@ class SocketServices extends ChangeNotifier {
         }
       }
     }
+  }
+
+  addNewMemberGuildMessage(GuildMember newGuildMember) {
+    String username = newGuildMember.getGuildMemberName();
+    DateTime now = DateTime.now();
+    String message = "$username joined the guild!";
+    receivedMessageGuild(-1, "Server", message, now.toString());
   }
 
   requestGuildCancelled(Map<String, dynamic> memberCancelled) {
@@ -469,27 +488,54 @@ class SocketServices extends ChangeNotifier {
           currentUser.getGuild()!.setGuildCrest(
               base64Decode(crestChanged["guild_avatar"].replaceAll("\n", "")));
         }
+        DateTime now = DateTime.now();
+        String message = "The guild crest has been changed!";
+        receivedMessageGuild(-1, "Server", message, now.toString());
         GuildInformation().notify();
       }
     }
   }
 
   memberChangedRank(Map<String, dynamic> memberChanged) {
-    print("member changed rank");
     User? currentUser = Settings().getUser();
     if (currentUser != null) {
       if (currentUser.getGuild() != null) {
         int guildMemberId = memberChanged["user_id"];
         int guildMemberRank = memberChanged["new_rank"];
         GuildMember changedGuildMember = GuildMember(guildMemberId, guildMemberRank);
+        String? oldRank;
+        GuildMember? currentRankMember = currentUser.getGuild()!.getMembers().where((element) => element.getGuildMemberId() == guildMemberId).firstOrNull;
+        if (currentRankMember != null) {
+          oldRank = currentRankMember.getGuildMemberRankName();
+        }
         currentUser.getGuild()!.changeMemberRank(changedGuildMember);
+        GuildInformation guildInformation = GuildInformation();
+        memberChangedRankGuildMessage(currentUser.getGuild()!.getMembers(), guildInformation, guildMemberId, oldRank);
         // Check if the changed member is me
         if (currentUser.getId() == guildMemberId) {
           currentUser.setMyGuildRank();
         }
-        GuildInformation().notify();
+        guildInformation.notify();
       }
     }
+  }
+
+  memberChangedRankGuildMessage(List<GuildMember> guildMembers, GuildInformation guildInformation, int userId, String? oldRank) {
+    // rank is already changed, so retrieve the member and get the new rank
+    GuildMember? member = guildMembers.where((element) => element.getGuildMemberId() == userId).firstOrNull;
+    String username = "";
+    if (member != null) {
+      username = member.getGuildMemberName();
+    } else {
+      return;
+    }
+
+    DateTime now = DateTime.now();
+    String message = "$username changed his rank to ${member.getGuildMemberRankName()}!";
+    if (oldRank != null) {
+      message = "The rank of $username changed from $oldRank to ${member.getGuildMemberRankName()}!";
+    }
+    receivedMessageGuild(-1, "Server", message, now.toString());
   }
 
   guildMemberRemoved(Map<String, dynamic> memberRemoved) {
@@ -499,6 +545,8 @@ class SocketServices extends ChangeNotifier {
         int userId = memberRemoved["user_id"];
         // only the id is needed for removal
         GuildMember changedGuildMember = GuildMember(userId, 3);
+        GuildInformation guildInformation = GuildInformation();
+        memberRemovedGuildMessage(currentUser.getGuild()!.getMembers(), guildInformation, userId);
         currentUser.getGuild()!.removeMember(changedGuildMember);
         // Check if the changed member is me
         if (currentUser.getId() == userId) {
@@ -506,9 +554,23 @@ class SocketServices extends ChangeNotifier {
           leaveGuildRoom(currentUser.getGuild()!.getGuildId());
           currentUser.setGuild(null);
         }
-        GuildInformation().notify();
+        guildInformation.notify();
       }
     }
+  }
+
+  memberRemovedGuildMessage(List<GuildMember> guildMembers, GuildInformation guildInformation, int userId) {
+    GuildMember? member = guildMembers.where((element) => element.getGuildMemberId() == userId).firstOrNull;
+    String username = "";
+    if (member != null) {
+      username = member.getGuildMemberName();
+    } else {
+      return;
+    }
+
+    DateTime now = DateTime.now();
+    String message = "$username is no longer part of the guild.";
+    receivedMessageGuild(-1, "Server", message, now.toString());
   }
 
   getHexagon(int q, int r) {
