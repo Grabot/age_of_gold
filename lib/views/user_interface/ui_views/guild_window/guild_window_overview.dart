@@ -41,6 +41,9 @@ class GuildWindowOverviewState extends State<GuildWindowOverview> {
   bool invitePlayerView = false;
   int invitePlayerColour = 0;
 
+  UniqueKey guildWindowOverviewNoGuildKey = UniqueKey();
+  UniqueKey guildWindowOverviewGuildKey = UniqueKey();
+
   @override
   void initState() {
     _focusGuildWindow.addListener(_onFocusChange);
@@ -76,8 +79,6 @@ class GuildWindowOverviewState extends State<GuildWindowOverview> {
     setState(() {});
   }
 
-  UniqueKey guildWindowOverviewNoGuildKey = UniqueKey();
-  UniqueKey guildWindowOverviewGuildKey = UniqueKey();
   Widget guildAvatarOverview() {
     if (widget.me == null || widget.me!.getGuild() == null) {
       return GuildWindowOverviewNoGuild(

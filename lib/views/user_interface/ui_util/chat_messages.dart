@@ -487,8 +487,8 @@ class ChatMessages extends ChangeNotifier {
       for (Friend friend in friends) {
         if (friend.isAccepted() || friend.unreadMessages != 0) {
           addChatRegion(
+              friend.getFriendId(),
               friend.getFriendName()!,
-              friend.getFriendId()!,
               friend.unreadMessages!,
               friend.isAccepted()
           );
@@ -562,7 +562,7 @@ class ChatMessages extends ChangeNotifier {
     }
   }
 
-  addChatRegion(String username, int senderId, int unreadMessages, bool isFriend) {
+  addChatRegion(int senderId, String username, int unreadMessages, bool isFriend) {
     // select personal region if it exists, otherwise just create it first.
     bool exists = false;
     for (int i = 0; i < regions.length; i++) {

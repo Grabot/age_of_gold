@@ -126,8 +126,8 @@ class GuildWindowOverviewGuildOverviewState extends State<GuildWindowOverviewGui
     ChatMessages chatMessages = ChatMessages();
     // If the guildmember is a friend than the `addChatRegion` function will find that chat.
     chatMessages.addChatRegion(
-        guildMember.getGuildMemberName(),
         guildMember.getGuildMemberId(),
+        guildMember.getGuildMemberName(),
         0,
         false
     );

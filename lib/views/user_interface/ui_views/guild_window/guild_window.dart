@@ -37,6 +37,8 @@ class GuildWindowState extends State<GuildWindow> {
 
   UniqueKey guildWindowOverviewKey = UniqueKey();
 
+  User? me;
+
   @override
   void initState() {
     guildWindowChangeNotifier = GuildWindowChangeNotifier();
@@ -65,7 +67,6 @@ class GuildWindowState extends State<GuildWindow> {
     widget.game.guildWindowFocus(_focusGuildWindow.hasFocus);
   }
 
-  User? me;
   guildWindowChangeListener() {
     if (mounted) {
       me = Settings().getUser();
@@ -152,7 +153,6 @@ class GuildWindowState extends State<GuildWindow> {
         children: [
           guildWindowHeader(guildWindowWidth, headerHeight, fontSize),
           mainGuildWindow(guildWindowWidth, remainingHeight, fontSize),
-          // bottomButtons(guildWindowWidth, bottomBarHeight, fontSize)
         ]
       )
     );

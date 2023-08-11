@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 class Friend {
 
   late bool accepted;
-  int? friendId;
+  late int friendId;
   String? friendName;
 
   // determines if the request was send or received, can be null
@@ -19,6 +19,7 @@ class Friend {
   Friend(this.accepted, this.requested, this.unreadMessages, this.friendName);
 
   Friend.fromJson(Map<String, dynamic> json) {
+    friendId = json["friend_id"];
     if (json.containsKey("accepted")) {
       accepted = json["accepted"];
     }
@@ -27,9 +28,6 @@ class Friend {
     }
     if (json.containsKey("unread_messages")) {
       unreadMessages = json["unread_messages"];
-    }
-    if (json.containsKey("friend_id")) {
-      friendId = json["friend_id"];
     }
     if (json.containsKey("friend_name")) {
       friendName = json["friend_name"];
@@ -66,11 +64,11 @@ class Friend {
     return friendName;
   }
 
-  setFriendId(int? friendId) {
+  setFriendId(int friendId) {
     this.friendId = friendId;
   }
 
-  int? getFriendId() {
+  int getFriendId() {
     return friendId;
   }
 
