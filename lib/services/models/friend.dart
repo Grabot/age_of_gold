@@ -16,7 +16,7 @@ class Friend {
   Uint8List? friendAvatar;
   bool retrievedAvatar = false;
 
-  Friend(this.accepted, this.requested, this.unreadMessages, this.friendName);
+  Friend(this.friendId, this.accepted, this.requested, this.unreadMessages, this.friendName);
 
   Friend.fromJson(Map<String, dynamic> json) {
     friendId = json["friend_id"];
@@ -62,10 +62,6 @@ class Friend {
 
   String? getFriendName() {
     return friendName;
-  }
-
-  setFriendId(int friendId) {
-    this.friendId = friendId;
   }
 
   int getFriendId() {

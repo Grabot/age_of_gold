@@ -83,8 +83,7 @@ class UserBoxState extends State<UserBox> with TickerProviderStateMixin {
       if (value.getResult()) {
         User? currentUser = Settings().getUser();
         User newFriend = userBoxChangeNotifier.getUser()!;
-        Friend friend = Friend(false, true, 0, newFriend.getUserName());
-        friend.setFriendId(newFriend.getId());
+        Friend friend = Friend(newFriend.getId(), false, true, 0, newFriend.getUserName());
         friend.setFriendAvatar(newFriend.getAvatar());
         if (value.getMessage() == "success") {
           if (currentUser != null) {

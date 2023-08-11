@@ -41,8 +41,6 @@ class FriendWindowState extends State<FriendWindow> {
 
   SocketServices socket = SocketServices();
 
-  bool unansweredFriendRequests = false;
-
   int friendOverviewColour = 2;
   int friendRequestsColour = 0;
   int findFriendColour = 0;
@@ -102,11 +100,7 @@ class FriendWindowState extends State<FriendWindow> {
 
   goBack() {
     setState(() {
-      if (findFriendView || friendRequestsView) {
-        switchToOverview();
-      } else {
-        FriendWindowChangeNotifier().setFriendWindowVisible(false);
-      }
+      FriendWindowChangeNotifier().setFriendWindowVisible(false);
     });
   }
 
@@ -117,6 +111,7 @@ class FriendWindowState extends State<FriendWindow> {
     friendOverviewColour = 2;
     friendRequestsColour = 0;
     findFriendColour = 0;
+    friendWindowChangeNotifier.checkUnansweredFriendRequests(me);
   }
 
   switchToFriendRequest() {
@@ -126,6 +121,7 @@ class FriendWindowState extends State<FriendWindow> {
     friendOverviewColour = 0;
     friendRequestsColour = 2;
     findFriendColour = 0;
+    friendWindowChangeNotifier.checkUnansweredFriendRequests(me);
   }
 
   switchToFindFriend() {
@@ -135,6 +131,7 @@ class FriendWindowState extends State<FriendWindow> {
     friendOverviewColour = 0;
     friendRequestsColour = 0;
     findFriendColour = 2;
+    friendWindowChangeNotifier.checkUnansweredFriendRequests(me);
   }
 
 
@@ -254,7 +251,7 @@ class FriendWindowState extends State<FriendWindow> {
                         ),
                       ],
                     ),
-                    unansweredFriendRequests ? Image.asset(
+                    friendWindowChangeNotifier.unansweredFriendRequests ? Image.asset(
                       "assets/images/ui/icon/update_notification.png",
                       width: iconSize,
                       height: iconSize,
@@ -293,23 +290,23 @@ class FriendWindowState extends State<FriendWindow> {
         height: iconSize,
         color: getDetailColour(findFriendColour),
         child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              SizedBox(width: 1),
-              Row(
-                children: [
-                  addIcon(iconSize, Icons.add, Colors.orange),
-                  SizedBox(width: 5),
-                  Text(
-                    "Add new friend",
-                    style: simpleTextStyle(
-                      fontSize,
-                    ),
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            SizedBox(width: 1),
+            Row(
+              children: [
+                addIcon(iconSize, Icons.add, Colors.orange),
+                SizedBox(width: 5),
+                Text(
+                  "Add new friend",
+                  style: simpleTextStyle(
+                    fontSize,
                   ),
-                ],
-              ),
-              SizedBox(width: 1),
-            ]
+                ),
+              ],
+            ),
+            SizedBox(width: 1),
+          ]
         ),
       ),
     );
@@ -320,12 +317,12 @@ class FriendWindowState extends State<FriendWindow> {
       width: friendWindowWidth,
       height: iconSize,
       child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            friendOverviewButton(friendWindowWidth / 3, fontSize),
-            friendRequestsButton(friendWindowWidth / 3, fontSize),
-            findFriendButton(friendWindowWidth / 3, fontSize),
-          ]
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          friendOverviewButton(friendWindowWidth / 3, fontSize),
+          friendRequestsButton(friendWindowWidth / 3, fontSize),
+          findFriendButton(friendWindowWidth / 3, fontSize),
+        ]
       ),
     );
   }
@@ -336,17 +333,18 @@ class FriendWindowState extends State<FriendWindow> {
         width: guildWindowWidth,
         height: overviewHeight,
         child: Column(
-            children: [
-              FriendWindowOverview(
-                key: friendWindowOverviewKey,
-                game: widget.game,
-                normalMode: normalMode,
-                friendWindowHeight: overviewHeight,
-                friendWindowWidth: guildWindowWidth,
-                fontSize: fontSize,
-                me: me,
-              )
-            ]
+          children: [
+            FriendWindowOverview(
+              key: friendWindowOverviewKey,
+              game: widget.game,
+              normalMode: normalMode,
+              friendWindowHeight: overviewHeight,
+              friendWindowWidth: guildWindowWidth,
+              fontSize: fontSize,
+              me: me,
+              friendWindowChangeNotifier: friendWindowChangeNotifier
+            )
+          ]
         ),
       );
     } else if (friendRequestsView) {
@@ -354,17 +352,18 @@ class FriendWindowState extends State<FriendWindow> {
         width: guildWindowWidth,
         height: overviewHeight,
         child: Column(
-            children: [
-              FriendWindowFriendRequests(
-                key: friendWindowOverviewKey,
-                game: widget.game,
-                normalMode: normalMode,
-                friendWindowHeight: overviewHeight,
-                friendWindowWidth: guildWindowWidth,
-                fontSize: fontSize,
-                me: me,
-              )
-            ]
+          children: [
+            FriendWindowFriendRequests(
+              key: friendWindowOverviewKey,
+              game: widget.game,
+              normalMode: normalMode,
+              friendWindowHeight: overviewHeight,
+              friendWindowWidth: guildWindowWidth,
+              fontSize: fontSize,
+              me: me,
+              friendWindowChangeNotifier: friendWindowChangeNotifier
+            )
+          ]
         ),
       );
     } else {
@@ -372,17 +371,18 @@ class FriendWindowState extends State<FriendWindow> {
         width: guildWindowWidth,
         height: overviewHeight,
         child: Column(
-            children: [
-              FriendWindowFindFriend(
-                key: friendWindowOverviewKey,
-                game: widget.game,
-                normalMode: normalMode,
-                friendWindowHeight: overviewHeight,
-                friendWindowWidth: guildWindowWidth,
-                fontSize: fontSize,
-                me: me,
-              )
-            ]
+          children: [
+            FriendWindowFindFriend(
+              key: friendWindowOverviewKey,
+              game: widget.game,
+              normalMode: normalMode,
+              friendWindowHeight: overviewHeight,
+              friendWindowWidth: guildWindowWidth,
+              fontSize: fontSize,
+              me: me,
+              friendWindowChangeNotifier: friendWindowChangeNotifier
+            )
+          ]
         ),
       );
     }

@@ -9,6 +9,7 @@ import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/util/util.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/chat_messages.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/selected_tile_info.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/friend_window/friend_window_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_information.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/profile_box/profile_change_notifier.dart';
@@ -301,13 +302,10 @@ class SocketServices extends ChangeNotifier {
     if (currentUser != null) {
       int id = from["id"];
       String username = from["username"];
-      Friend friend = Friend(false, false, 0, username);
-      friend.setFriendId(id);
-      String avatarFriend = from["avatar"];
-      friend.retrievedAvatar = true;
-      friend.setFriendAvatar(base64Decode(avatarFriend.replaceAll("\n", "")));
+      Friend friend = Friend(id, false, false, 0, username);
       currentUser.addFriend(friend);
       showToastMessage("received a friend request from $username");
+      FriendWindowChangeNotifier().notify();
     }
   }
 
@@ -315,6 +313,7 @@ class SocketServices extends ChangeNotifier {
     User? currentUser = Settings().getUser();
     if (currentUser != null) {
       currentUser.removeFriend(friendId);
+      FriendWindowChangeNotifier().notify();
     }
   }
 
@@ -322,12 +321,10 @@ class SocketServices extends ChangeNotifier {
     User? currentUser = Settings().getUser();
     if (currentUser != null) {
       User newFriend = User.fromJson(from);
-      Friend friend = Friend(false, false, newFriend.id, newFriend.getUserName());
-      String avatarFriend = from["avatar"];
-      friend.retrievedAvatar = true;
-      friend.setFriendAvatar(base64Decode(avatarFriend.replaceAll("\n", "")));
+      Friend friend = Friend(newFriend.getId(), true, false, 0, newFriend.getUserName());
       currentUser.addFriend(friend);
       showToastMessage("${newFriend.userName} accepted your friend request");
+      FriendWindowChangeNotifier().notify();
     }
   }
 

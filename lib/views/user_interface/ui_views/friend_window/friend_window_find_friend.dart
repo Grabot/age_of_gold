@@ -6,6 +6,7 @@ import 'package:age_of_gold/services/models/friend.dart';
 import 'package:age_of_gold/services/models/user.dart';
 import 'package:age_of_gold/util/render_objects.dart';
 import 'package:age_of_gold/util/util.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/friend_window/friend_window_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/profile_box/profile_change_notifier.dart';
 import 'package:flutter/material.dart';
 
@@ -18,6 +19,7 @@ class FriendWindowFindFriend extends StatefulWidget {
   final double friendWindowWidth;
   final double fontSize;
   final User? me;
+  final FriendWindowChangeNotifier friendWindowChangeNotifier;
 
   const FriendWindowFindFriend({
     required Key key,
@@ -27,6 +29,7 @@ class FriendWindowFindFriend extends StatefulWidget {
     required this.friendWindowWidth,
     required this.fontSize,
     required this.me,
+    required this.friendWindowChangeNotifier,
   }) : super(key: key);
 
   @override
@@ -68,8 +71,7 @@ class FriendWindowFindFriendState extends State<FriendWindowFindFriend> {
         nothingFound = false;
         User newFriend = value;
         setState(() {
-          possibleNewFriend = Friend(false, null, 0, value.getUserName());
-          possibleNewFriend!.setFriendId(newFriend.getId());
+          possibleNewFriend = Friend(newFriend.getId(), false, null, 0, value.getUserName());
           possibleNewFriend!.setFriendAvatar(newFriend.getAvatar());
         });
       } else {
@@ -87,15 +89,9 @@ class FriendWindowFindFriendState extends State<FriendWindowFindFriend> {
           if (widget.me != null) {
             friend.setRequested(true);
             widget.me!.addFriend(friend);
-            // checkUnansweredFriendRequests();
+            widget.friendWindowChangeNotifier.checkUnansweredFriendRequests(widget.me);
             ProfileChangeNotifier().notify();
             setState(() {
-              // headerText = "Friend Requests";
-              // socialView = false;
-              // addFriendView = false;
-              // detailRequestColour = 2;
-              // detailFriendColour = 0;
-              // detailAddFriendColour = 0;
               possibleNewFriend = null;
               addController.text = "";
             });
@@ -108,13 +104,7 @@ class FriendWindowFindFriendState extends State<FriendWindowFindFriend> {
             friend.setAccepted(true);
             friend.setRequested(false);
             widget.me!.addFriend(friend);
-            // checkUnansweredFriendRequests();
-            // socialView = true;
-            // addFriendView = false;
-            // headerText = "Friend List";
-            // detailRequestColour = 0;
-            // detailFriendColour = 2;
-            // detailAddFriendColour = 0;
+            widget.friendWindowChangeNotifier.checkUnansweredFriendRequests(widget.me);
             showToastMessage("You are now friends with ${friend.getFriendName()!}");
             ProfileChangeNotifier profileChangeNotifier = ProfileChangeNotifier();
             profileChangeNotifier.setProfileVisible(false);

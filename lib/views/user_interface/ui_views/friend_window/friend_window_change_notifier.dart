@@ -9,8 +9,8 @@ import 'package:flutter/material.dart';
 class FriendWindowChangeNotifier extends ChangeNotifier {
 
   bool showFriendWindow = false;
-
   String headerText = "Social";
+  bool unansweredFriendRequests = false;
 
   static final FriendWindowChangeNotifier _instance = FriendWindowChangeNotifier._internal();
 
@@ -38,6 +38,18 @@ class FriendWindowChangeNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
+  checkUnansweredFriendRequests(User? me) {
+    if (me != null) {
+      unansweredFriendRequests = false;
+      for (Friend friend in me.friends) {
+        if (!friend.isAccepted() && friend.requested != null && friend.requested == false) {
+          unansweredFriendRequests = true;
+          break;
+        }
+      }
+    }
+  }
+
   retrieveIds(User me, List<int> friendsToRetrieve) async {
     AuthServiceSocial().getFriendAvatars(friendsToRetrieve).then((value) {
       if (value != null) {
@@ -62,11 +74,31 @@ class FriendWindowChangeNotifier extends ChangeNotifier {
     List<int> friendsToRetrieve = [];
     for (Friend friend in me.getFriends()) {
       if (friend.isAccepted()) {
-        friendsToRetrieve.add(friend.getFriendId());
+        if (!friend.retrievedAvatar) {
+          friendsToRetrieve.add(friend.getFriendId());
+        }
       }
     }
     if (friendsToRetrieve.isNotEmpty) {
       retrieveIds(me, friendsToRetrieve);
     }
+  }
+
+  checkRequestedRetrieved(User me) async {
+    List<int> friendsToRetrieve = [];
+    for (Friend friend in me.getFriends()) {
+      if (!friend.isAccepted()) {
+        if (!friend.retrievedAvatar) {
+          friendsToRetrieve.add(friend.getFriendId());
+        }
+      }
+    }
+    if (friendsToRetrieve.isNotEmpty) {
+      retrieveIds(me, friendsToRetrieve);
+    }
+  }
+
+  notify() {
+    notifyListeners();
   }
 }

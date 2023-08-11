@@ -101,18 +101,26 @@ class User {
   addFriend(Friend friend) {
     // update friend if the username is already in the list
     for (Friend f in friends) {
-      if (f.getFriendName()!.toLowerCase() == friend.getFriendName()!.toLowerCase()) {
-        f.setAccepted(friend.isAccepted());
-        f.setRequested(friend.isRequested());
-        f.setFriendName(friend.getFriendName());
-        f.setUnreadMessages(friend.getUnreadMessages());
-        f.setFriendAvatar(friend.getFriendAvatar());
-        f.setFriendId(friend.getFriendId());
-        f.retrievedAvatar = friend.retrievedAvatar;
-        return;
+      if (f.getFriendId() == friend.getFriendId()) {
+        if (friend.retrievedAvatar) {
+          f.setAccepted(friend.isAccepted());
+          f.setRequested(friend.isRequested());
+          f.setFriendName(friend.getFriendName());
+          f.setUnreadMessages(friend.getUnreadMessages());
+          f.setFriendAvatar(friend.getFriendAvatar());
+          f.retrievedAvatar = friend.retrievedAvatar;
+          return;
+        } else {
+          // the friend already exists and maybe it's information retrieved, but it is now updated.
+          // update the information except the avatar and username.
+          f.setAccepted(friend.isAccepted());
+          f.setRequested(friend.isRequested());
+          f.setUnreadMessages(friend.getUnreadMessages());
+          return;
+        }
       }
     }
-    // If the friend was not updated we add it to the list.
+    // If the friend was not updated it is not in the list, so we add it to the list.
     friends.add(friend);
   }
 

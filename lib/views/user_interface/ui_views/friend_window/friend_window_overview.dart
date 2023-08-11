@@ -22,6 +22,7 @@ class FriendWindowOverview extends StatefulWidget {
   final double friendWindowWidth;
   final double fontSize;
   final User? me;
+  final FriendWindowChangeNotifier friendWindowChangeNotifier;
 
   const FriendWindowOverview({
     required Key key,
@@ -31,6 +32,7 @@ class FriendWindowOverview extends StatefulWidget {
     required this.friendWindowWidth,
     required this.fontSize,
     required this.me,
+    required this.friendWindowChangeNotifier,
   }) : super(key: key);
 
   @override
@@ -45,14 +47,23 @@ class FriendWindowOverviewState extends State<FriendWindowOverview> {
   void initState() {
     _focusFriendWindow.addListener(_onFocusChange);
     if (widget.me != null) {
-      FriendWindowChangeNotifier().checkAcceptedRetrieved(widget.me!);
+      widget.friendWindowChangeNotifier.checkAcceptedRetrieved(widget.me!);
     }
+    widget.friendWindowChangeNotifier.addListener(friendOverviewChangeNotifier);
     super.initState();
   }
 
   @override
   void dispose() {
     super.dispose();
+  }
+
+  friendOverviewChangeNotifier() {
+    if (mounted) {
+      if (widget.me != null) {
+        widget.friendWindowChangeNotifier.checkAcceptedRetrieved(widget.me!);
+      }
+    }
   }
 
   void _onFocusChange() {
@@ -80,7 +91,7 @@ class FriendWindowOverviewState extends State<FriendWindowOverview> {
           if (widget.me != null) {
             widget.me!.removeFriend(friend.getFriendId());
             showToastMessage("${friend.getFriendName()} and you are no longer friends");
-            // checkUnansweredFriendRequests();
+            widget.friendWindowChangeNotifier.checkUnansweredFriendRequests(widget.me);
             ProfileChangeNotifier().notify();
           }
         });
