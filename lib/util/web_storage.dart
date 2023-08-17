@@ -26,5 +26,6 @@ class SecureStorage {
 
   Future logout() async {
     await storage.write(key: _keyAccessToken, value: null);
+    await storage.write(key: _keyRefreshToken, value: null);
   }
 }

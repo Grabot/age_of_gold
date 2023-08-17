@@ -32,6 +32,7 @@ class _PasswordResetState extends State<PasswordReset> {
   final formKeyPasswordReset = GlobalKey<FormState>();
 
   String? accessToken;
+  String? refreshToken;
 
   bool invalid = false;
   bool passwordUpdated = false;
@@ -42,15 +43,16 @@ class _PasswordResetState extends State<PasswordReset> {
     String baseUrl = Uri.base.toString();
     String path = Uri.base.path;
     accessToken = Uri.base.queryParameters["access_token"];
+    refreshToken = Uri.base.queryParameters["refresh_token"];
 
     print("base: $baseUrl");
     print("path: $path");
     print("access token: $accessToken");
+    print("refresh token: $refreshToken");
 
-    if (accessToken != null) {
-      AuthServiceLogin authService = AuthServiceLogin();
+    if (accessToken != null && refreshToken != null) {
       // Check if the token from the mail is still valid.
-      authService.passwordResetCheck(accessToken!).then((passwordResetResponse) {
+      AuthServiceLogin().passwordResetCheck(accessToken!, refreshToken!).then((passwordResetResponse) {
         setState(() {
           invalid = !passwordResetResponse.getResult();
         });
@@ -65,11 +67,13 @@ class _PasswordResetState extends State<PasswordReset> {
   resetPassword() {
     if (formKeyPasswordReset.currentState!.validate()) {
       // The other controller has the same password.
-      if (accessToken != null) {
+      if (accessToken != null && refreshToken != null) {
         String newPassword = passwordReset1Controller.text;
-        AuthServiceLogin authService = AuthServiceLogin();
         // Check if the token from the mail is still valid.
-        authService.updatePassword(accessToken!, newPassword).then((updatePasswordResponse) {
+        AuthServiceLogin().updatePassword(accessToken!, refreshToken!, newPassword).then((updatePasswordResponse) {
+          print("password updated $updatePasswordResponse");
+          print("password updated ${updatePasswordResponse.getResult()}");
+          print("password updated ${updatePasswordResponse.getMessage()}");
           setState(() {
             passwordUpdated = updatePasswordResponse.getResult();
           });
@@ -97,7 +101,7 @@ class _PasswordResetState extends State<PasswordReset> {
           Column(
             children: [
               Text(
-                "This link has already been used. \nTo reset your password, return to the login page and select \"Forgot Password\" to send a new email.",
+                "This link has expired or has already been used. \nTo reset your password, return to the login page and select \"Forgot Password\" to send a new email.",
                 style: TextStyle(color: Colors.white70, fontSize: fontSize),
                 textAlign: TextAlign.center,
               ),

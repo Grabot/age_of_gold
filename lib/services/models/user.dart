@@ -13,7 +13,7 @@ class User {
   late int id;
   late String userName;
   late DateTime tileLock;
-  late bool verified;
+  bool verified = false;
   late List<Friend> friends;
   Uint8List? avatar;
   Guild? guild;

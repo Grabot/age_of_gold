@@ -355,7 +355,7 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
             children: [
               tileTimeInformation(width, fontSize),  // TODO: tileinformation not working?
               // SizedBox(height: 20),
-              // verifyEmailBox(width, fontSize),
+              verifyEmailBox(width, fontSize),
             ],
           ),
         ),

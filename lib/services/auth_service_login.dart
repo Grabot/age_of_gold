@@ -54,6 +54,21 @@ class AuthServiceLogin {
     return loginResponse;
   }
 
+  Future<BaseResponse> logout() async {
+    String endPoint = "logout";
+    var response = await AuthApi().dio.post(endPoint,
+        options: Options(headers: {
+          HttpHeaders.contentTypeHeader: "application/json",
+        }),
+        data: jsonEncode(<String, String>{
+        }
+      )
+    );
+
+    BaseResponse baseResponse = BaseResponse.fromJson(response.data);
+    return baseResponse;
+  }
+
   Future<LoginResponse> getRefresh(String accessToken, String refreshToken) async {
     Settings().setLoggingIn(true);
     String endPoint = "refresh";
@@ -114,14 +129,15 @@ class AuthServiceLogin {
     return baseResponse;
   }
 
-  Future<BaseResponse> passwordResetCheck(String accessToken) async {
+  Future<BaseResponse> passwordResetCheck(String accessToken, String refreshToken) async {
     String endPoint = "password/check";
     var response = await AuthApi().dio.post(endPoint,
         options: Options(headers: {
           HttpHeaders.contentTypeHeader: "application/json",
         }),
         data: jsonEncode(<String, String> {
-          "access_token": accessToken
+          "access_token": accessToken,
+          "refresh_token": refreshToken
         }
       )
     );
@@ -131,7 +147,7 @@ class AuthServiceLogin {
     return baseResponse;
   }
 
-  Future<BaseResponse> updatePassword(String accessToken, String newPassword) async {
+  Future<BaseResponse> updatePassword(String accessToken, String refreshToken, String newPassword) async {
     String endPoint = "password/update";
     var response = await AuthApi().dio.post(endPoint,
         options: Options(headers: {
@@ -139,6 +155,7 @@ class AuthServiceLogin {
         }),
         data: jsonEncode(<String, String> {
           "access_token": accessToken,
+          "refresh_token": refreshToken,
           "new_password": newPassword
         }
       )
@@ -163,14 +180,15 @@ class AuthServiceLogin {
     return baseResponse;
   }
 
-  Future<BaseResponse> emailVerificationCheck(String accessToken) async {
+  Future<BaseResponse> emailVerificationCheck(String accessToken, String refreshToken) async {
     String endPoint = "email/verification";
     var response = await AuthApi().dio.post(endPoint,
         options: Options(headers: {
           HttpHeaders.contentTypeHeader: "application/json",
         }),
         data: jsonEncode(<String, String> {
-          "access_token": accessToken
+          "access_token": accessToken,
+          "refresh_token": refreshToken,
         }
       )
     );

@@ -27,6 +27,7 @@ class _EmailVerificationState extends State<EmailVerification> {
   final NavigationService _navigationService = locator<NavigationService>();
 
   String? accessToken;
+  String? refreshToken;
 
   bool emailValidated = false;
   bool alreadyVerified = false;
@@ -37,22 +38,23 @@ class _EmailVerificationState extends State<EmailVerification> {
     String baseUrl = Uri.base.toString();
     String path = Uri.base.path;
     accessToken = Uri.base.queryParameters["access_token"];
+    refreshToken = Uri.base.queryParameters["refresh_token"];
 
     print("base: $baseUrl");
     print("path: $path");
     print("access token: $accessToken");
 
-    if (accessToken != null) {
+    if (accessToken != null && refreshToken != null) {
       AuthServiceLogin authService = AuthServiceLogin();
       // Check if the token from the mail is still valid.
-      authService.emailVerificationCheck(accessToken!).then((emailVerificationResponse) {
+      authService.emailVerificationCheck(accessToken!, refreshToken!).then((emailVerificationResponse) {
         if (emailVerificationResponse.getResult()) {
           showToastMessage(emailVerificationResponse.getMessage());
           setState(() {
             emailValidated = true;
           });
         } else {
-          showToastMessage(emailVerificationResponse.getMessage());
+          showToastMessage("Verification failed, perhaps the link is expired?");
         }
       });
     } else {

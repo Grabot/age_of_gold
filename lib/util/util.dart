@@ -5,6 +5,7 @@ import 'package:age_of_gold/age_of_gold.dart';
 import 'package:age_of_gold/component/tile.dart';
 import 'package:age_of_gold/constants/route_paths.dart' as routes;
 import 'package:age_of_gold/services/auth_service_guild.dart';
+import 'package:age_of_gold/services/auth_service_login.dart';
 import 'package:age_of_gold/services/models/login_response.dart';
 import 'package:age_of_gold/services/socket_services.dart';
 import 'package:age_of_gold/util/hexagon_list.dart';
@@ -225,8 +226,9 @@ Tile? getTileWrap(HexagonList hexagonList, int qArray, int rArray, int newTileQ,
   return null;
 }
 
-logoutUser(Settings settings, NavigationService navigationService) {
+logoutUser(Settings settings, NavigationService navigationService) async {
   if (settings.getUser() != null) {
+    await AuthServiceLogin().logout();  // we assume it will work, but it doesn't matter if it doesn't
     SocketServices().logout(settings.getUser()!.id);
     if (settings.getUser()!.getGuild() != null) {
       SocketServices().leaveGuildRoom(settings.getUser()!.getGuild()!.getGuildId());

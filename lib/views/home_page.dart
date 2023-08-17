@@ -32,6 +32,18 @@ class _HomePageState extends State<HomePage> {
 
   bool showLogin = false;
 
+  @override
+  void initState() {
+    super.initState();
+    String path = Uri.base.path;
+    if (path == routes.HomeRoute || path == routes.GameRoute) {
+      WidgetsFlutterBinding.ensureInitialized();
+      WidgetsBinding.instance.addPostFrameCallback((_){
+        loginCheck(path);
+      });
+    }
+  }
+
   Future<bool> accessTokenLogin(String accessToken) async {
     try {
       LoginResponse loginResponse = await AuthServiceLogin().getTokenLogin(accessToken);
@@ -51,10 +63,10 @@ class _HomePageState extends State<HomePage> {
     try {
       LoginResponse loginResponse = await AuthServiceLogin().getRefresh(accessToken, refreshToken);
       if (loginResponse.getResult()) {
-        print("access token still valid!");
+        print("refresh token still valid!");
         return true;
       } else if (!loginResponse.getResult()) {
-        print("access token NOT valid!");
+        print("refresh token NOT valid!");
       }
     } catch(error) {
       showToastMessage(error.toString());
@@ -76,8 +88,8 @@ class _HomePageState extends State<HomePage> {
           // Go to the game, unless you're already there.
           if (path != routes.GameRoute) {
             goToGame(_navigationService, widget.game);
+            return;
           }
-          return;
         }
       }
 
@@ -91,8 +103,8 @@ class _HomePageState extends State<HomePage> {
           if (refreshTokenSuccessful) {
             if (path != routes.GameRoute) {
               goToGame(_navigationService, widget.game);
+              return;
             }
-            return;
           }
         }
       }
@@ -101,18 +113,6 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       showLogin = true;
     });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    String path = Uri.base.path;
-    if (path == routes.HomeRoute || path == routes.GameRoute) {
-      WidgetsFlutterBinding.ensureInitialized();
-      WidgetsBinding.instance.addPostFrameCallback((_){
-        loginCheck(path);
-      });
-    }
   }
 
   @override
