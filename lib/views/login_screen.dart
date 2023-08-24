@@ -321,6 +321,11 @@ class LoginScreenState extends State<LoginScreen> {
                       ? "Please provide an Email address"
                       : null;
                 },
+                onFieldSubmitted: (value) {
+                  if (!isLoading) {
+                    forgotPassword();
+                  }
+                },
                 scrollPadding: const EdgeInsets.only(bottom: 130),
                 controller: forgotPasswordEmailController,
                 autofillHints: [AutofillHints.email],
@@ -444,6 +449,11 @@ class LoginScreenState extends State<LoginScreen> {
                   onTap: () {
                     if (!isLoading) {
                       print("tapped field 3 2");
+                    }
+                  },
+                  onFieldSubmitted: (value) {
+                    if (!isLoading) {
+                      signInAgeOfGold();
                     }
                   },
                   obscureText: true,
@@ -606,6 +616,11 @@ class LoginScreenState extends State<LoginScreen> {
               return val == null || val.isEmpty
                   ? "Please provide a password"
                   : null;
+            },
+            onFieldSubmitted: (value) {
+              if (!isLoading) {
+                signUpAgeOfGold();
+              }
             },
             scrollPadding: const EdgeInsets.only(bottom: 100),
             controller: password2Controller,
