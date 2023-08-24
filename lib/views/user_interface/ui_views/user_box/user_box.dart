@@ -5,7 +5,9 @@ import 'package:age_of_gold/services/models/user.dart';
 import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/util/render_objects.dart';
 import 'package:age_of_gold/util/util.dart';
+import 'package:age_of_gold/views/user_interface/ui_util/chat_messages.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/chat_box/chat_box_change_notifier.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/chat_window/chat_window_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/user_box/user_box_change_notifier.dart';
 import 'package:flutter/material.dart';
 
@@ -115,10 +117,19 @@ class UserBoxState extends State<UserBox> with TickerProviderStateMixin {
 
   sendMessage() {
     setState(() {
-      goBack();
-      ChatBoxChangeNotifier chatBoxChangeNotifier = ChatBoxChangeNotifier();
-      chatBoxChangeNotifier.setChatUser(userBoxChangeNotifier.getUser()!);
-      chatBoxChangeNotifier.setChatBoxVisible(true);
+      if (userBoxChangeNotifier.getUser() != null) {
+        goBack();
+        ChatMessages chatMessages = ChatMessages();
+        chatMessages.addChatRegion(
+            userBoxChangeNotifier.getUser()!.getId(),
+            userBoxChangeNotifier.getUser()!.getUserName(),
+            0,
+            false,
+            true
+        );
+        chatMessages.setActiveChatTab("Personal");
+        ChatWindowChangeNotifier().setChatWindowVisible(true);
+      }
     });
   }
 

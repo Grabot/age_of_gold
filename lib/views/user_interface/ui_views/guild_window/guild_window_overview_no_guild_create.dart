@@ -78,7 +78,7 @@ class GuildWindowOverviewNoGuildCreateState extends State<GuildWindowOverviewNoG
             int guildId = int.parse(value.getMessage());
             String guildName = createGuildController.text;
             Uint8List? guildCrest = widget.guildInformation.getGuildCrest();
-            Guild createdGuild = Guild(guildId, guildName, guildCrest);
+            Guild createdGuild = Guild(guildId, guildName, 0, guildCrest);
             // You just created a guild, so you're the only member and you're guild master.
             GuildMember guildMember = GuildMember(widget.me!.getId(), 0);
             guildMember.setGuildMemberName(widget.me!.getUserName());

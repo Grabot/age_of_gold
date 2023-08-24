@@ -129,7 +129,8 @@ class GuildWindowOverviewGuildOverviewState extends State<GuildWindowOverviewGui
         guildMember.getGuildMemberId(),
         guildMember.getGuildMemberName(),
         0,
-        false
+        false,
+        true
     );
     chatMessages.setActiveChatTab("Personal");
     ChatWindowChangeNotifier().setChatWindowVisible(true);

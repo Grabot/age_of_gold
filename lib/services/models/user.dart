@@ -134,7 +134,6 @@ class User {
 
   setGuild(Guild? guild) {
     this.guild = guild;
-    ChatMessages().setGuild(guild);
     if (this.guild != null) {
       // We set a guild, so remove any invites or request that have been made.
       GuildInformation guildInformation = GuildInformation();

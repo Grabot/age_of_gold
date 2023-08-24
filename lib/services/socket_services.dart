@@ -197,7 +197,7 @@ class SocketServices extends ChangeNotifier {
       String guildName = guildRequest["guild_name"];
       bool? accepted = guildRequest["accepted"];
       bool? requested = guildRequest["requested"];
-      Guild guild = Guild(guildId, guildName, null);
+      Guild guild = Guild(guildId, guildName, 0, null);
       guild.accepted = accepted;
       guild.requested = requested;
       guild.retrieved = false;
@@ -209,7 +209,7 @@ class SocketServices extends ChangeNotifier {
     User? currentUser = Settings().getUser();
     if (currentUser != null) {
       int guildId = deniedRequest["guild_id"];
-      Guild deniedGuild = Guild(guildId, "", null);
+      Guild deniedGuild = Guild(guildId, "", 0, null);
       currentUser.guildInvites.removeWhere((element) => element.getGuildId() == deniedGuild.guildId);
       GuildInformation().guildsSendRequests.removeWhere((element) => element.guildId == deniedGuild.guildId);
       GuildInformation().guildsGotRequests.removeWhere((element) => element.guildId == deniedGuild.guildId);
@@ -224,7 +224,7 @@ class SocketServices extends ChangeNotifier {
       String guildName = acceptedRequest["guild_name"];
       bool? accepted = acceptedRequest["accepted"];
       bool? requested = acceptedRequest["requested"];
-      Guild guild = Guild(guildId, guildName, null);
+      Guild guild = Guild(guildId, guildName, 0, null);
       guild.accepted = accepted;
       guild.requested = requested;
       guild.retrieved = false;

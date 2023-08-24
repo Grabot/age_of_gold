@@ -5,9 +5,6 @@ import 'package:flutter/material.dart';
 class ChatBoxChangeNotifier extends ChangeNotifier {
 
   bool showChatBox = false;
-  User? chatUser;
-  // String? chatUser;
-  String? activeTab;
 
   static final ChatBoxChangeNotifier _instance = ChatBoxChangeNotifier._internal();
 
@@ -24,23 +21,6 @@ class ChatBoxChangeNotifier extends ChangeNotifier {
 
   getChatBoxVisible() {
     return showChatBox;
-  }
-
-  User? getChatUser() {
-    return chatUser;
-  }
-
-  setChatUser(User userName) {
-    this.chatUser = userName;
-  }
-
-  setActiveTab(String tab) {
-    this.activeTab = tab;
-    notifyListeners();
-  }
-
-  String? getActiveTab() {
-    return activeTab;
   }
 
   notify() {

@@ -85,6 +85,22 @@ class AuthServiceGuild {
     return baseResponse;
   }
 
+  Future<BaseResponse> readMessageGuild(int guildId) async {
+    String endPoint = "read/message/guild";
+    var response = await AuthApi().dio.post(endPoint,
+        options: Options(headers: {
+          HttpHeaders.contentTypeHeader: "application/json",
+        }),
+        data: jsonEncode(<String, dynamic>{
+          "guild_id": guildId
+        }
+      )
+    );
+
+    BaseResponse baseResponse = BaseResponse.fromJson(response.data);
+    return baseResponse;
+  }
+
   Future<Guild?> searchGuild(String guildName) async {
     String endPoint = "guild/search";
     var response = await AuthApi().dio.post(endPoint,

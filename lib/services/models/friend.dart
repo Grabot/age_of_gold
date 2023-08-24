@@ -89,7 +89,7 @@ class Friend {
 
   @override
   String toString() {
-    return 'Friend{accepted: $accepted}';
+    return 'Friend{friendId: $friendId, friendName: $friendName, accepted: $accepted, requested: $requested, unreadMessages: $unreadMessages}';
   }
 
 }

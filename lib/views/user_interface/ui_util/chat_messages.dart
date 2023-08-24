@@ -1,3 +1,4 @@
+import 'package:age_of_gold/services/auth_service_guild.dart';
 import 'package:age_of_gold/services/auth_service_social.dart';
 import 'package:age_of_gold/services/models/friend.dart';
 import 'package:age_of_gold/services/models/guild.dart';
@@ -10,6 +11,8 @@ import 'package:age_of_gold/views/user_interface/ui_util/messages/guild_message.
 import 'package:age_of_gold/views/user_interface/ui_util/messages/local_message.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/messages/message.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/messages/personal_message.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/chat_box/chat_box_change_notifier.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/chat_window/chat_window_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/profile_box/profile_change_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -35,7 +38,6 @@ class ChatMessages extends ChangeNotifier {
   bool unreadWorldMessages = false;
   bool unreadEventMessages = false;
   bool unreadGuildMessages = false;
-  Guild? usersGuild;
 
   static final ChatMessages _instance = ChatMessages._internal();
 
@@ -61,6 +63,11 @@ class ChatMessages extends ChangeNotifier {
       if (!personalMessageRetrieved[chatData.name]!) {
         retrievePersonalMessages(chatData);
       }
+    } else {
+      // check if the guild was pressed and retrieve the messages
+      if (getActiveChatTab() == "Guild") {
+        retrieveGuildMessages();
+      }
     }
     notifyListeners();
   }
@@ -71,14 +78,6 @@ class ChatMessages extends ChangeNotifier {
 
   setChatWindowActive(bool value) {
     chatWindowActive = value;
-  }
-
-  setGuild(Guild? guild) {
-    usersGuild = guild;
-  }
-
-  Guild? getGuild() {
-    return usersGuild;
   }
 
   initializeChatMessages() {
@@ -99,6 +98,9 @@ class ChatMessages extends ChangeNotifier {
       if (chatData.unreadMessages != 0) {
         return true;
       }
+    }
+    if (unreadGuildMessages) {
+      return true;
     }
     return false;
   }
@@ -171,7 +173,7 @@ class ChatMessages extends ChangeNotifier {
       if (chatData.name == other) {
         print("change region");
         // If the chatbox is open on this user we don't set the unreadMessage
-        if (messageUser != other) {
+        if (!checkIfPersonalMessageIsRead(other, null)) {
           chatData.unreadMessages += 1;
           setDateTiles(personalMessages[chatData.name]!, 2);
         }
@@ -187,6 +189,53 @@ class ChatMessages extends ChangeNotifier {
     removePlaceholder();
   }
 
+  setGuildUnreadMessages() {
+    User? currentUser = Settings().getUser();
+    if (currentUser != null) {
+      if (currentUser.getGuild() != null) {
+        if (currentUser.getGuild()!.unreadMessages != null) {
+          if (currentUser.getGuild()!.unreadMessages! > 0) {
+            guildMessagesUnread = currentUser.getGuild()!.unreadMessages!;
+            unreadGuildMessages = true;
+          }
+        }
+      }
+    }
+  }
+
+  checkPersonalMessageRead() {
+    for (ChatData chatData in regions) {
+      if (checkIfPersonalMessageIsRead(chatData.name, null)) {
+        // either the chat window or the chat box was open and the chat was open on this user.
+        readChatData(chatData);
+      }
+    }
+  }
+
+  readChatData(ChatData chatData) {
+    chatData.unreadMessages = 0;
+    ProfileChangeNotifier().notify();
+    dropdownMenuItems = buildDropdownMenuItems();
+    AuthServiceSocial().readMessagePersonal(chatData.senderId).then((value) {});
+  }
+
+  checkIfPersonalMessageIsRead(String? fromName, int? fromId) {
+    if (ChatWindowChangeNotifier().getChatWindowVisible() ||
+        ChatBoxChangeNotifier().getChatBoxVisible()) {
+      if (fromName != null) {
+        if (selectedChatData != null && selectedChatData!.name == fromName) {
+          return true;
+        }
+      }
+      if (fromId != null) {
+        if (selectedChatData != null && selectedChatData!.senderId == fromId) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
   addPersonalMessage(String from, int senderId, String to, String message, String timestamp) {
     if (!timestamp.endsWith("Z")) {
       // The server has utc timestamp, but it's not formatted with the 'Z'.
@@ -199,7 +248,7 @@ class ChatMessages extends ChangeNotifier {
         me = true;
       }
     }
-    PersonalMessage newMessage = PersonalMessage(1, from, message, me, messageTime, false, to);
+    PersonalMessage newMessage = PersonalMessage(senderId, from, message, me, messageTime, false, to);
     // Add it to both the chatMessages and the personalMessages
     chatMessages.add(newMessage);
     setDateTiles(chatMessages, 0);
@@ -209,6 +258,7 @@ class ChatMessages extends ChangeNotifier {
     if (!me) {
       checkReadPersonalMessage(senderId);
     }
+    notifyListeners();
   }
 
   addGuildMessage(int? senderId, String? senderName, String message, String timestamp) {
@@ -283,15 +333,20 @@ class ChatMessages extends ChangeNotifier {
   }
 
   retrieveGuildMessages() {
-    if (usersGuild != null) {
-      AuthServiceSocial().getMessagesGuild(usersGuild!.getGuildId(), currentPageGuild).then((value) {
-        if (value != null) {
-          currentPageGuild += 1;
-          combineGuildMessages(value);
-          setDateTiles(guildMessages, 1);
-          notifyListeners();
-        }
-      });
+    User? currentUser = Settings().getUser();
+    if (currentUser != null) {
+      if (currentUser.getGuild() != null) {
+        AuthServiceSocial().getMessagesGuild(currentUser.getGuild()!.getGuildId(), currentPageGuild).then((
+            value) {
+          if (value != null) {
+            currentPageGuild += 1;
+            combineGuildMessages(value);
+            setDateTiles(guildMessages, 1);
+            AuthServiceGuild().readMessageGuild(currentUser.getGuild()!.guildId).then((value) {});
+            notifyListeners();
+          }
+        });
+      }
     }
   }
 
@@ -319,6 +374,8 @@ class ChatMessages extends ChangeNotifier {
   retrieveMoreMessages() {
     if (activateChatTab == "World") {
       retrieveGlobalMessages();
+    } else if (activateChatTab == "Guild") {
+      retrieveGuildMessages();
     } else if (activateChatTab == "Personal") {
       if (selectedChatData != null) {
         retrievePersonalMessages(selectedChatData!);
@@ -329,8 +386,7 @@ class ChatMessages extends ChangeNotifier {
 
   checkReadPersonalMessage(int fromId) {
     if (activateChatTab == "Personal") {
-      if (selectedChatData != null && selectedChatData!.senderId == fromId) {
-        // new message while window open. Immediately read message
+      if (checkIfPersonalMessageIsRead(null, fromId)) {
         AuthServiceSocial().readMessagePersonal(fromId).then((value) {});
       }
     }
@@ -338,9 +394,18 @@ class ChatMessages extends ChangeNotifier {
 
   checkReadGuildMessage() {
     if (activateChatTab == "Guild") {
-      if (usersGuild != null) {
-        // TODO: Add read guild functionality?
-        // AuthServiceSocial().readMessagePersonal(fromId).then((value) {});
+      User? currentUser = Settings().getUser();
+      if (currentUser != null) {
+        if (currentUser.getGuild() != null) {
+          if (ChatWindowChangeNotifier().getChatWindowVisible() ||
+              ChatBoxChangeNotifier().getChatBoxVisible()) {
+            AuthServiceGuild().readMessageGuild(currentUser.getGuild()!.guildId).then((value) {});
+            unreadGuildMessages = false;
+            guildMessagesUnread = 0;
+            ProfileChangeNotifier().notify();
+            notifyListeners();
+          }
+        }
       }
     }
   }
@@ -362,6 +427,7 @@ class ChatMessages extends ChangeNotifier {
     newMessage = GlobalMessage(senderId, userName, message, me, messageTime, false);
     chatMessages.add(newMessage);
     newGlobalMessageEvent(newMessage);
+    notifyListeners();
   }
 
   List<Message> getMessagesFromUser(String senderName) {
@@ -408,6 +474,12 @@ class ChatMessages extends ChangeNotifier {
 
   newGuildMessageEvent(GuildMessage lastMessage) {
     if (lastMessage.senderName != Settings().getUser()!.getUserName()) {
+      if (activateChatTab == "Guild") {
+        if (ChatWindowChangeNotifier().getChatWindowVisible() ||
+            ChatBoxChangeNotifier().getChatBoxVisible()) {
+          return;
+        }
+      }
       unreadGuildMessages = true;
       guildMessagesUnread += 1;
     }
@@ -420,6 +492,24 @@ class ChatMessages extends ChangeNotifier {
 
   newGlobalMessageEvent(Message lastMessage) {
     if (lastMessage.senderName != Settings().getUser()!.getUserName()) {
+      // There is a special case for when the user has a different chat open, a personal chat.
+      // These show up in the global messages, but if a new message is send in that chat
+      // we don't want to show it as unread in the global chat
+      if (activateChatTab == "Personal") {
+        if (ChatWindowChangeNotifier().getChatWindowVisible() ||
+            ChatBoxChangeNotifier().getChatBoxVisible()) {
+          if (!lastMessage.me && selectedChatData != null && selectedChatData!.senderId == lastMessage.senderId) {
+            return;
+          }
+        }
+      }
+      if (activateChatTab == "World") {
+        if (ChatWindowChangeNotifier().getChatWindowVisible() ||
+            ChatBoxChangeNotifier().getChatBoxVisible()) {
+          return;
+        }
+      }
+      // In other cases we set the unread messages to true and add a unread message
       unreadWorldMessages = true;
       worldMessagesUnread += 1;
     }
@@ -427,7 +517,6 @@ class ChatMessages extends ChangeNotifier {
     if (chatMessages.length > 1000) {
       chatMessages.removeAt(0);
     }
-    notifyListeners();
   }
 
   setActiveChatTab(String tab) {
@@ -477,7 +566,6 @@ class ChatMessages extends ChangeNotifier {
     messageUser = null;
     regions = [];
     activateChatTab = "World";
-    usersGuild = null;
   }
 
   initializeChatRegions() {
@@ -485,13 +573,18 @@ class ChatMessages extends ChangeNotifier {
     if (currentUser != null) {
       List<Friend> friends = currentUser.getFriends();
       for (Friend friend in friends) {
-        if (friend.isAccepted() || friend.unreadMessages != 0) {
-          addChatRegion(
-              friend.getFriendId(),
-              friend.getFriendName()!,
-              friend.unreadMessages!,
-              friend.isAccepted()
-          );
+        addChatRegion(
+            friend.getFriendId(),
+            friend.getFriendName()!,
+            friend.unreadMessages!,
+            friend.isAccepted(),
+            false
+        );
+      }
+      if (currentUser.getGuild() != null) {
+        if (currentUser.getGuild()!.unreadMessages > 0) {
+          unreadGuildMessages = true;
+          guildMessagesUnread = currentUser.getGuild()!.unreadMessages;
         }
       }
     }
@@ -562,20 +655,25 @@ class ChatMessages extends ChangeNotifier {
     }
   }
 
-  addChatRegion(int senderId, String username, int unreadMessages, bool isFriend) {
+  addChatRegion(int senderId, String username, int unreadMessages, bool isFriend, bool selectUser) {
     // select personal region if it exists, otherwise just create it first.
     bool exists = false;
     for (int i = 0; i < regions.length; i++) {
       if (regions[i].name == username) {
-        // _selectedChatData = chatMessages.regions[i];
-        setMessageUser(regions[i].name);
+        if (selectUser) {
+          selectedChatData = regions[i];
+          setMessageUser(regions[i].name);
+        }
         exists = true;
       }
     }
     if (!exists) {
       ChatData newChatData = ChatData(3, senderId, username, unreadMessages, isFriend);
       addNewRegion(newChatData);
-      setMessageUser(newChatData.name);
+      if (selectUser) {
+        selectedChatData = newChatData;
+        setMessageUser(newChatData.name);
+      }
       // Check if the placeholder "No Chats Found!" is in the list and remove it.
       removePlaceholder();
     }
@@ -612,12 +710,12 @@ class ChatMessages extends ChangeNotifier {
     personalMessageRetrieved = {};
     personalMessagePage = {};
     currentPage = 1;
+    currentPageGuild = 1;
     selectedChatData = null;
     messageUser = null;
     activateChatTab = "World";
     initializeChatMessages();
     retrieveGlobalMessages();
-    retrieveGuildMessages();
     // populate chatData with guilds or friends?
     initializeChatRegions();
   }

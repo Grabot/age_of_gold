@@ -1,5 +1,9 @@
+import 'dart:typed_data';
+
 import 'package:age_of_gold/age_of_gold.dart';
 import 'package:age_of_gold/services/auth_service_world.dart';
+import 'package:age_of_gold/services/models/user.dart';
+import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/services/socket_services.dart';
 import 'package:age_of_gold/util/render_objects.dart';
 import 'package:age_of_gold/util/util.dart';
@@ -104,6 +108,8 @@ class ChatWindowState extends State<ChatWindow> {
           if (chatMessages.getActiveChatTab() == "Events") {
             chatMessages.setUnreadEventMessages(false);
           }
+          chatMessages.checkPersonalMessageRead();
+          chatMessages.checkReadGuildMessage();
           ChatBoxChangeNotifier().notify();
         });
       }
@@ -216,7 +222,6 @@ class ChatWindowState extends State<ChatWindow> {
     setState(() {
       chatMessages.setActiveChatTab("World");
       chatTitle = "World Chat";
-      ChatBoxChangeNotifier().setActiveTab("World");
       chatMessages.setSelectedChatData(null);
       chatMessages.setMessageUser(null);
       isEvent = false;
@@ -230,7 +235,6 @@ class ChatWindowState extends State<ChatWindow> {
     setState(() {
       chatMessages.setActiveChatTab("Events");
       chatTitle = "Events";
-      ChatBoxChangeNotifier().setActiveTab("Events");
       chatMessages.setSelectedChatData(null);
       chatMessages.setMessageUser(null);
       isEvent = true;
@@ -243,8 +247,8 @@ class ChatWindowState extends State<ChatWindow> {
   pressedGuildChat() {
     setState(() {
       chatMessages.setActiveChatTab("Guild");
+      chatMessages.checkReadGuildMessage();
       chatTitle = "Guild Chat";
-      ChatBoxChangeNotifier().setActiveTab("Guild");
       chatMessages.setSelectedChatData(null);
       chatMessages.setMessageUser(null);
       isEvent = false;
@@ -364,6 +368,12 @@ class ChatWindowState extends State<ChatWindow> {
       chatMessages.setSelectedChatData(chatData);
       chatMessages.setMessageUser(chatData.name);
       chatMessages.setActiveChatTab("Personal");
+      // If the chat is already received we still need to set it to read.
+      // It is possible that new messages arrived via socket and it
+      // won't retrieve more old messages and check if they are read.
+      if (chatMessages.checkIfPersonalMessageIsRead(null, chatData.senderId)) {
+        chatMessages.readChatData(chatData);
+      }
       selectionScreen = false;
     });
   }
@@ -550,6 +560,11 @@ class ChatWindowState extends State<ChatWindow> {
     if (isGuildChat) {
       buttonColour = Colors.green;
     }
+    Uint8List? guildCrest;
+    User? currentUser = Settings().getUser();
+    if (currentUser != null && currentUser.getGuild() != null) {
+      guildCrest = currentUser.getGuild()!.getGuildCrest();
+    }
     return Column(
       children: [
         Container(
@@ -581,7 +596,7 @@ class ChatWindowState extends State<ChatWindow> {
                         child: guildAvatarBox(
                             40,
                             40 * 1.125,
-                            chatMessages.getGuild()!.getGuildCrest()
+                            guildCrest
                         )
                       ),
                     ]
@@ -619,7 +634,11 @@ class ChatWindowState extends State<ChatWindow> {
   Widget leftColumn(double leftColumnWidth, double leftColumnHeight, double fontSize) {
     double worldChatButtonHeight = 50;
     double guildChatButtonHeight = 80; // 50 for button with 30 for header
-    bool inAGuild = chatMessages.getGuild() != null;
+    User? currentUser = Settings().getUser();
+    bool inAGuild = false;
+    if (currentUser != null) {
+      inAGuild = currentUser.getGuild() != null;
+    }
     if (!inAGuild) {
       guildChatButtonHeight = 0;
     }

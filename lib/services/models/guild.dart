@@ -19,12 +19,13 @@ class Guild {
 
   bool? accepted;
   bool? requested;
+  int unreadMessages = 0;
 
   int guildScore = 0;
 
   bool retrieved = true;
 
-  Guild(this.guildId, this.guildName, this.guildCrest);
+  Guild(this.guildId, this.guildName, this.unreadMessages, this.guildCrest);
 
   Guild.fromJson(Map<String, dynamic> json, bool minimal) {
     if (json.containsKey("guild_id")) {
@@ -45,6 +46,7 @@ class Guild {
         guildMembers.add(guildMember);
       }
     }
+    unreadMessages = json["unread_messages"];
     if (json.containsKey("accepted")) {
       accepted = json['accepted'];
     }
@@ -142,8 +144,16 @@ class Guild {
     return guildScore;
   }
 
+  setUnreadMessages(int unreadMessages) {
+    this.unreadMessages = unreadMessages;
+  }
+
+  int getUnreadMessages() {
+    return unreadMessages;
+  }
+
   @override
   String toString() {
-    return 'Guild{guildId: $guildId, guildName: $guildName, guildMembers: $guildMembers}';
+    return 'Guild{guildId: $guildId, guildName: $guildName, guildMembers: $guildMembers, unreadMessages: $unreadMessages, guildScore: $guildScore}';
   }
 }

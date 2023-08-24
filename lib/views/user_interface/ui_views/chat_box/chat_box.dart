@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:age_of_gold/age_of_gold.dart';
 import 'package:age_of_gold/services/auth_service_world.dart';
+import 'package:age_of_gold/services/models/user.dart';
 import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/services/socket_services.dart';
 import 'package:age_of_gold/util/util.dart';
@@ -85,10 +86,11 @@ class ChatBoxState extends State<ChatBox> {
   int chatBoxOpenTime = 30;
   tileBoxOpen() {
     tileBoxVisible = true;
-    ChatBoxChangeNotifier().setChatBoxVisible(true);
+    chatBoxChangeNotifier.setChatBoxVisible(true);
     chatBoxTimer = Timer(Duration(seconds: chatBoxOpenTime), () {
       setState(() {
         tileBoxVisible = false;
+        chatBoxChangeNotifier.setChatBoxVisible(false);
       });
     });
   }
@@ -98,6 +100,7 @@ class ChatBoxState extends State<ChatBox> {
     chatBoxTimer = Timer(Duration(seconds: chatBoxOpenTime), () {
       setState(() {
         tileBoxVisible = false;
+        chatBoxChangeNotifier.setChatBoxVisible(false);
       });
     });
   }
@@ -105,24 +108,22 @@ class ChatBoxState extends State<ChatBox> {
   chatBoxChangeListener() {
     if (mounted) {
       if (!normalMode) {
-        if (chatBoxChangeNotifier.getActiveTab() != null) {
-          if (chatBoxChangeNotifier.getActiveTab() == "World" || chatBoxChangeNotifier.getActiveTab() == "Events") {
-            chatMessages.setSelectedChatData(null);
-          }
+        if (chatMessages.getActiveChatTab() == "World" || chatMessages.getActiveChatTab() == "Events") {
+          chatMessages.setSelectedChatData(null);
         }
       }
       if (!tileBoxVisible && chatBoxChangeNotifier.getChatBoxVisible()) {
-        if (chatBoxChangeNotifier.getChatUser() != null) {
-          userInteraction(true, chatBoxChangeNotifier.getChatUser()!.getId(), chatBoxChangeNotifier.getChatUser()!.getUserName());
+        if (chatMessages.selectedChatData != null) {
+          userInteraction(true, chatMessages.selectedChatData!.senderId, chatMessages.selectedChatData!.name);
           chatMessages.setActiveChatTab("Personal");
         }
       }
       if (tileBoxVisible && !chatBoxChangeNotifier.getChatBoxVisible()) {
         tileBoxVisible = false;
       }
-      if (tileBoxVisible && chatBoxChangeNotifier.getChatUser() != null) {
+      if (tileBoxVisible && chatMessages.selectedChatData != null) {
         // The user has selected a user to message. Change to that chat.
-        userInteraction(true, chatBoxChangeNotifier.getChatUser()!.getId(), chatBoxChangeNotifier.getChatUser()!.getUserName());
+        userInteraction(true, chatMessages.selectedChatData!.senderId, chatMessages.selectedChatData!.name);
         chatMessages.setActiveChatTab("Personal");
         _focusChatBox.requestFocus();
       }
@@ -165,6 +166,8 @@ class ChatBoxState extends State<ChatBox> {
       chatMessages.setActiveChatTab(tabName);
       chatMessages.setSelectedChatData(null);
       chatMessages.setMessageUser(null);
+      chatMessages.checkPersonalMessageRead();
+      chatMessages.checkReadGuildMessage();
       readMessages();
     });
   }
@@ -227,6 +230,7 @@ class ChatBoxState extends State<ChatBox> {
           onPressed: () {
             setState(() {
               tileBoxVisible = false;
+              chatBoxChangeNotifier.setChatBoxVisible(false);
             });
           },
         ),
@@ -272,7 +276,8 @@ class ChatBoxState extends State<ChatBox> {
   }
 
   Widget chatTabGuild() {
-    if (chatMessages.getGuild() != null) {
+    User? currentUser = Settings().getUser();
+    if (currentUser != null && currentUser.getGuild() != null) {
       return chatTab("Guild", chatMessages.getUnreadGuildMessages());
     } else {
       return Container();
@@ -524,6 +529,9 @@ class ChatBoxState extends State<ChatBox> {
           chatMessages.setSelectedChatData(selectedChat);
           chatMessages.setMessageUser(selectedChat.name);
           chatMessages.setActiveChatTab("Personal");
+          if (chatMessages.checkIfPersonalMessageIsRead(selectedChat.name, null)) {
+            chatMessages.readChatData(selectedChat);
+          }
         } else {
           chatMessages.setActiveChatTab("World");
         }

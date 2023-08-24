@@ -77,7 +77,8 @@ class FriendWindowOverviewState extends State<FriendWindowOverview> {
         friend.getFriendId(),
         friend.getFriendName()!,
         friend.unreadMessages!,
-        friend.isAccepted()
+        friend.isAccepted(),
+        true
     );
     chatMessages.setActiveChatTab("Personal");
     ChatWindowChangeNotifier().setChatWindowVisible(true);
