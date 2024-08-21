@@ -53,7 +53,7 @@ class LoadingBoxState extends State<LoadingBox> {
   }
 
   void _onFocusChange() {
-    widget.game.loadingBoxFocus(_focusLoadingBox.hasFocus);
+    widget.game.windowFocus(_focusLoadingBox.hasFocus);
   }
 
   Widget loadingBox(BuildContext context) {

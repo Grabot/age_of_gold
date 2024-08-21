@@ -67,7 +67,7 @@ class FriendWindowOverviewState extends State<FriendWindowOverview> {
   }
 
   void _onFocusChange() {
-    widget.game.guildWindowFocus(_focusFriendWindow.hasFocus);
+    widget.game.windowFocus(_focusFriendWindow.hasFocus);
   }
 
   messageFriend(Friend friend) {

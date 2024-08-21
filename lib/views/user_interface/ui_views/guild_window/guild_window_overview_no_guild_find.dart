@@ -73,7 +73,7 @@ class GuildWindowOverviewNoGuildFindState extends State<GuildWindowOverviewNoGui
   }
 
   _onFocusFindGuild() {
-    widget.game.guildWindowFocus(_focusFindGuild.hasFocus);
+    widget.game.windowFocus(_focusFindGuild.hasFocus);
   }
 
   findGuildAction() {

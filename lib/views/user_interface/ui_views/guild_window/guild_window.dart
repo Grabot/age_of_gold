@@ -64,7 +64,7 @@ class GuildWindowState extends State<GuildWindow> {
   }
 
   void _onFocusChange() {
-    widget.game.guildWindowFocus(_focusGuildWindow.hasFocus);
+    widget.game.windowFocus(_focusGuildWindow.hasFocus);
   }
 
   guildWindowChangeListener() {

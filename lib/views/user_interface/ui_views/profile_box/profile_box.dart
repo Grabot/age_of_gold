@@ -77,8 +77,8 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
 
     _focusProfileBox.addListener(_onFocusChange);
     settings.addListener(settingsChangeListener);
-    _focusUsernameChange.addListener(_onFocusUsernameChange);
-    _focusPasswordChange.addListener(_onFocusPasswordChange);
+    _focusUsernameChange.addListener(_onFocusChange);
+    _focusPasswordChange.addListener(_onFocusChange);
 
     setState(() {
 
@@ -107,16 +107,8 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
     }
   }
 
-  _onFocusPasswordChange() {
-    widget.game.profileFocus(_focusPasswordChange.hasFocus);
-  }
-
-  _onFocusUsernameChange() {
-    widget.game.profileFocus(_focusUsernameChange.hasFocus);
-  }
-
   _onFocusChange() {
-    widget.game.profileFocus(_focusProfileBox.hasFocus);
+    widget.game.windowFocus(_focusPasswordChange.hasFocus);
   }
 
   settingsChangeListener() {

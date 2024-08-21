@@ -59,7 +59,7 @@ class FriendWindowState extends State<FriendWindow> {
     friendWindowChangeNotifier.addListener(friendWindowChangeListener);
 
     _focusFriendWindow.addListener(_onFocusChange);
-    _focusAdd.addListener(_onFocusAddFriendChange);
+    _focusAdd.addListener(_onFocusChange);
 
     socket.checkFriends();
     socket.addListener(socketListener);
@@ -77,12 +77,8 @@ class FriendWindowState extends State<FriendWindow> {
     super.dispose();
   }
 
-  _onFocusAddFriendChange() {
-    widget.game.profileFocus(_focusAdd.hasFocus);
-  }
-
   void _onFocusChange() {
-    widget.game.friendWindowFocus(_focusFriendWindow.hasFocus);
+    widget.game.windowFocus(_focusFriendWindow.hasFocus);
   }
 
   friendWindowChangeListener() {

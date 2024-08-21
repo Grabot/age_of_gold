@@ -59,7 +59,7 @@ class FriendWindowFindFriendState extends State<FriendWindowFindFriend> {
   }
 
   void _onFocusChange() {
-    widget.game.guildWindowFocus(_focusAdd.hasFocus);
+    widget.game.windowFocus(_focusAdd.hasFocus);
   }
 
   searchForFriend(String possibleFriend) {

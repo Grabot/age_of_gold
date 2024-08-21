@@ -36,7 +36,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     String path = Uri.base.path;
-    if (path == routes.HomeRoute || path == routes.GameRoute) {
+    if (path == routes.HomeRoute || path == routes.HomeRoute) {
       WidgetsFlutterBinding.ensureInitialized();
       WidgetsBinding.instance.addPostFrameCallback((_){
         loginCheck(path);
@@ -86,7 +86,7 @@ class _HomePageState extends State<HomePage> {
         bool accessTokenSuccessful = await accessTokenLogin(accessToken);
         if (accessTokenSuccessful) {
           // Go to the game, unless you're already there.
-          if (path != routes.GameRoute) {
+          if (path != routes.HomeRoute) {
             goToGame(_navigationService, widget.game);
             return;
           }
@@ -101,7 +101,7 @@ class _HomePageState extends State<HomePage> {
           // refresh token valid! Attempt to refresh tokens and login with it.
           bool refreshTokenSuccessful = await refreshTokenLogin(accessToken, refreshToken);
           if (refreshTokenSuccessful) {
-            if (path != routes.GameRoute) {
+            if (path != routes.HomeRoute) {
               goToGame(_navigationService, widget.game);
               return;
             }

@@ -470,7 +470,7 @@ goToGame(NavigationService navigationService, AgeOfGold game) {
   if (game.isMounted) {
     game.startGame();
   }
-  navigationService.navigateTo(routes.GameRoute);
+  navigationService.navigateTo(routes.HomeRoute);
 }
 
 Color getDetailColour(int detailColour) {

@@ -63,7 +63,7 @@ class AreYouSureBoxState extends State<AreYouSureBox> {
   }
 
   void _onFocusChange() {
-    widget.game.loadingBoxFocus(_focusAreYouSureBox.hasFocus);
+    widget.game.windowFocus(_focusAreYouSureBox.hasFocus);
   }
 
   cancelButtonAction() {

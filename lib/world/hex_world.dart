@@ -126,13 +126,17 @@ class HexWorld extends Component {
 
     // We draw the border a bit further (about a hex) than what you're seeing,
     // this is so the sections load before you scroll on them.
-    double borderOffsetX = -((radius * 2 + 1) * xSize);
-    double borderOffsetY = -((radius * 2 + 1) * ySize);
+    double borderOffsetX = ((radius * 2 + 1) * xSize);
+    double borderOffsetY = ((radius * 2 + 1) * ySize);
 
-    double leftScreen = cameraPosition.x - (worldSize.x / 2) + borderOffsetX;
-    double rightScreen = cameraPosition.x + (worldSize.x / 2) - borderOffsetX;
-    double topScreen = cameraPosition.y - (worldSize.y / 2) + borderOffsetY;
-    double bottomScreen = cameraPosition.y + (worldSize.y / 2) - borderOffsetY;
+    double leftScreen = cameraPosition.x - (worldSize.x / 2) - borderOffsetX;
+    double rightScreen = cameraPosition.x + (worldSize.x / 2) + borderOffsetX;
+    double topScreen = cameraPosition.y - (worldSize.y / 2) - borderOffsetY;
+    double bottomScreen = cameraPosition.y + (worldSize.y / 2) + borderOffsetY;
+    // double leftScreen = cameraPosition.x - (worldSize.x / 2) + 500;
+    // double rightScreen = cameraPosition.x + (worldSize.x / 2) - 500;
+    // double topScreen = cameraPosition.y - (worldSize.y / 2) + 500;
+    // double bottomScreen = cameraPosition.y + (worldSize.y / 2) - 500;
 
     screen = Rect.fromLTRB(leftScreen, topScreen, rightScreen, bottomScreen);
   }

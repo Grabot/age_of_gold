@@ -9,7 +9,6 @@ import 'package:age_of_gold/util/util.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/chat_messages.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/clear_ui.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/message_util.dart';
-import 'package:age_of_gold/views/user_interface/ui_util/messages/message.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/chat_box/chat_box_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/chat_window/chat_window_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/user_box/user_box_change_notifier.dart';
@@ -138,7 +137,7 @@ class ChatBoxState extends State<ChatBox> {
   }
 
   void _onFocusChange() {
-    widget.game.chatBoxFocus(_focusChatBox.hasFocus);
+    widget.game.windowFocus(_focusChatBox.hasFocus);
     if (_focusChatBox.hasFocus) {
       // When it gets the focus we want to know where it is right now.
       List<int>? cameraProperties = widget.game.getCameraPos();
@@ -203,13 +202,19 @@ class ChatBoxState extends State<ChatBox> {
       chatMessages.unreadWorldMessages = false;
       // We only set the last one to true,
       // since that's the one we use to determine if there are unread messages
-      chatMessages.chatMessages.last.read = true;
+      if (chatMessages.chatMessages.isNotEmpty) {
+        chatMessages.chatMessages.last.read = true;
+      }
     } else if (chatMessages.getActiveChatTab() == "Guild") {
       chatMessages.setUnreadGuildMessages(false);
-      chatMessages.guildMessages.last.read = true;
+      if (chatMessages.guildMessages.isNotEmpty) {
+        chatMessages.guildMessages.last.read = true;
+      }
     } else if (chatMessages.getActiveChatTab() == "Events") {
       chatMessages.setUnreadEventMessages(false);
-      chatMessages.eventMessages.last.read = true;
+      if (chatMessages.eventMessages.isNotEmpty) {
+        chatMessages.eventMessages.last.read = true;
+      }
     }
   }
 
@@ -495,7 +500,7 @@ class ChatBoxState extends State<ChatBox> {
           value: chatMessages.getSelectedChatData(),
           disabledHint: null,
           items: chatMessages.getDropdownMenuItems(),
-          dropdownWidth: 300,
+          // dropdownWidth: 300,
           onChanged: onChangeDropdownItem,
           hint: Container(
             padding: EdgeInsets.only(left: 15),
@@ -511,7 +516,7 @@ class ChatBoxState extends State<ChatBox> {
             ),
           ),
           isExpanded: true,
-          iconSize: 0.0,
+          // iconSize: 0.0,
         ),
       ),
     );

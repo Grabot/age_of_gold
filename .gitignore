@@ -49,3 +49,5 @@ url_base.dart
 base_url.dart
 
 web/crop/
+
+pubspec.lock

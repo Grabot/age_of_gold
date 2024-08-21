@@ -77,7 +77,7 @@ class UserBoxState extends State<UserBox> with TickerProviderStateMixin {
   }
 
   void _onFocusChange() {
-    widget.game.userBoxFocus(_focusUserBox.hasFocus);
+    widget.game.windowFocus(_focusUserBox.hasFocus);
   }
 
   addFriend() {

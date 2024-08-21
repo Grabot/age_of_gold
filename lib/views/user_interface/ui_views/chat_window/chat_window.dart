@@ -160,18 +160,18 @@ class ChatWindowState extends State<ChatWindow> {
         }
       }
     }
-    if (chatMessages.regions[0].name != "No Chats Found!") {
+    if (chatMessages.regions.isNotEmpty && chatMessages.regions[0].name != "No Chats Found!") {
       hasPersonalChats = true;
       shownChatData = chatMessages.regions;
     }
   }
 
   void _onFocusChange() {
-    widget.game.chatWindowFocus(_focusChatWindow.hasFocus);
+    widget.game.windowFocus(_focusChatWindow.hasFocus);
   }
 
   void _onFocusChangeSearch() {
-    widget.game.chatWindowFocus(_focusSearch.hasFocus);
+    widget.game.windowFocus(_focusSearch.hasFocus);
   }
 
   goBack() {

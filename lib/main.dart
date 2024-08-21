@@ -84,8 +84,8 @@ Future<void> main() async {
       )
   );
 
-  LoginScreen loginScreen = LoginScreen(key: UniqueKey(), game: game);
-  Widget home = HomePage(key: UniqueKey(), game: game, loginScreen: loginScreen);
+  // LoginScreen loginScreen = LoginScreen(key: UniqueKey(), game: game);
+  // Widget home = HomePage(key: UniqueKey(), game: game, loginScreen: loginScreen);
   Widget worldAccess = WorldAccess(key: UniqueKey(), game: game);
   Widget passwordReset = PasswordReset(key: UniqueKey(), game: game);
   Widget emailVerification = EmailVerification(key: UniqueKey(), game: game);
@@ -104,9 +104,8 @@ Future<void> main() async {
           ),
           initialRoute: '/',
           routes: {
-            routes.HomeRoute: (context) => home,
+            routes.HomeRoute: (context) => gameWidget,
             routes.WorldAccessRoute: (context) => worldAccess,
-            routes.GameRoute: (context) => gameWidget,
             routes.PasswordResetRoute: (context) => passwordReset,
             routes.EmailVerificationRoute: (context) => emailVerification
           },
@@ -115,12 +114,6 @@ Future<void> main() async {
               return MaterialPageRoute(
                   builder: (context) {
                     return worldAccess;
-                  }
-              );
-            } else if (settings.name!.startsWith(routes.GameRoute)) {
-              return MaterialPageRoute(
-                  builder: (context) {
-                    return gameWidget;
                   }
               );
             } else if (settings.name!.startsWith(routes.PasswordResetRoute)) {
@@ -138,7 +131,7 @@ Future<void> main() async {
             } else {
               return MaterialPageRoute(
                   builder: (context) {
-                    return home;
+                    return gameWidget;
                   }
               );
             }

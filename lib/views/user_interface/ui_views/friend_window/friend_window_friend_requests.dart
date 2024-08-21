@@ -64,7 +64,7 @@ class FriendWindowFriendRequestsState extends State<FriendWindowFriendRequests> 
   }
 
   void _onFocusChange() {
-    widget.game.guildWindowFocus(_focusFriendWindow.hasFocus);
+    widget.game.windowFocus(_focusFriendWindow.hasFocus);
   }
 
   cancelFriendRequest(Friend friend) {
