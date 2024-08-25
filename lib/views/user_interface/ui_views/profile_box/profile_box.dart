@@ -9,6 +9,7 @@ import 'package:age_of_gold/util/countdown.dart';
 import 'package:age_of_gold/util/navigation_service.dart';
 import 'package:age_of_gold/util/render_objects.dart';
 import 'package:age_of_gold/util/util.dart';
+import 'package:age_of_gold/views/login_view/login_window_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/are_you_sure_box/are_you_sure_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/change_avatar_box/change_avatar_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/profile_box/profile_change_notifier.dart';
@@ -316,10 +317,12 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
     return Column(
       children: [
         Container(
-          margin: EdgeInsets.only(top: 20),
+          margin: const EdgeInsets.only(top: 20),
           child: ElevatedButton(
             onPressed: () {
-              _navigationService.navigateTo(routes.HomeRoute, arguments: {'message': "Checked out the world and ready to register!"});
+              showProfile = false;
+              LoginWindowChangeNotifier().setLoginWindowVisible(true);
+              goBack();
             },
             style: buttonStyle(false, Colors.blue),
             child: Container(

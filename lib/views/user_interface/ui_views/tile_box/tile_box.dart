@@ -153,6 +153,7 @@ class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
             selectedTileInfo.selectedTile!.tileR,
             tileType
         ).then((value) {
+          print("change tile type value: $value");
           if (value == "success") {
             selectedTileInfo.selectedTile!.tileType = tileType;
             selectedTileInfo.setLastChangedByAvatar(settings.getAvatar()!);

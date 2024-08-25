@@ -114,7 +114,15 @@ class HexWorld extends Component {
     if (q != currentCameraQ || r != currentCameraR) {
       currentCameraQ = q;
       currentCameraR = r;
-      mapCoordinatesChangeNotifier.setCoordinates([q, r]);
+
+      Tile? cameraTile = hexagonList.getTileFromCoordinates(q, r);
+
+      if (cameraTile != null) {
+        mapCoordinatesChangeNotifier
+            .setCoordinates([cameraTile.tileQ, cameraTile.tileR]);
+      } else {
+        mapCoordinatesChangeNotifier.setCoordinates([q, r]);
+      }
     }
   }
 

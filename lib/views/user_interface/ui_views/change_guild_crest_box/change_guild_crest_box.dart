@@ -94,6 +94,9 @@ class ChangeGuildCrestBoxState extends State<ChangeGuildCrestBox> with TickerPro
       String? extension = picked.files.first.extension;
       if (extension != "png" && extension != "jpg" && extension != "jpeg") {
         showToastMessage("Please pick a png or jpeg file");
+        setState(() {
+          loadingBoxChangeNotifier.setLoadingBoxVisible(false);
+        });
       } else {
         setState(() {
           imageCrop = picked.files.first.bytes!;

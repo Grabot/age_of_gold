@@ -571,6 +571,10 @@ class SocketServices extends ChangeNotifier {
   }
 
   getHexagon(int q, int r) {
+    // Here we want to get the hexagon from the hexagonList
+    // But we don't actually get the hexagons, we just fill the array with empty Hexagon objects
+    // When it is needed we will retrieve the hexagons from the server with the actuallyGetHexagons function.
+    // I apologize for the bad naming conventions, might change it later. (TODO?)
     int qHex = hexagonList.hexQ + q - hexagonList.currentHexQ;
     int rHex = hexagonList.hexR + r - hexagonList.currentHexR;
 
@@ -586,6 +590,9 @@ class SocketServices extends ChangeNotifier {
 
   actuallyGetHexagons(Hexagon hexRetrieve) {
     // setToRetrieve and retrieve are both false if it gets here.
+    // When we need to actually get the hexagons we first check if it maybe has done that already
+    // We have 2 flags, the `setToRetrieve` flag and the `retrieved` flag.
+    // We set the `setToRetrieve` flag to true because we want to retrieve the hexagon.
     hexRetrieve.setToRetrieve = true;
 
     Tuple2 retrieve = Tuple2(hexRetrieve.q, hexRetrieve.r);
@@ -593,6 +600,9 @@ class SocketServices extends ChangeNotifier {
       hexRetrievals.add(retrieve);
     }
 
+    // We will gather the hexagons and the `gatherHexagons` flag will be false at first
+    // We immediately set it to true and after 500ms we will actually get the hexagons
+    // This gives the code the time to gather all the hexagons that need to be retrieved
     if (!gatherHexagons) {
       Future.delayed(const Duration(milliseconds: 500), () {
         gatherHexagons = false;
@@ -603,6 +613,10 @@ class SocketServices extends ChangeNotifier {
   }
 
   actuallyActuallyGetHexagons() {
+    // Finally when we have checked which hexagons we want to retrieve
+    // and which hexagons we should retrieve
+    // and have done so for every hexagons and gathered them all.
+    // we will actually get the hexagons from the server.
     AuthServiceWorld().retrieveHexagons(hexagonList, this, hexRetrievals).then((value) {
       if (value != "success") {
         // put the hexagons back to be retrieved

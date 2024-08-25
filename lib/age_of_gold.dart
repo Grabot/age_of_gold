@@ -1,20 +1,20 @@
-import 'dart:math';
-import 'dart:ui';
-
-import 'package:age_of_gold/component/get_texture.dart';
+import 'package:age_of_gold/component/hexagon.dart';
 import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/services/socket_services.dart';
+import 'package:age_of_gold/util/web_storage.dart';
+import 'package:age_of_gold/views/login_view/login_window_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/profile_box/profile_change_notifier.dart';
 import 'package:age_of_gold/world/hex_world.dart';
-import 'package:flame/components.dart';
 import 'package:flame/events.dart';
-import 'package:flame/experimental.dart';
 import 'package:flame/game.dart';
 import 'package:flame/input.dart';
-import 'package:flame/sprite.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:jwt_decode/jwt_decode.dart';
 import 'package:universal_html/html.dart' as html;
+
+import 'util/game_start_login.dart';
+import 'util/tapped_map.dart';
 
 
 // flutter run -d chrome --release --web-hostname localhost --web-port 7357
@@ -26,20 +26,31 @@ class AgeOfGold extends FlameGame with DragCallbacks, KeyboardEvents, ScrollDete
   SocketServices? socket;
 
   Vector2 cameraVelocity = Vector2.zero();
-  Vector2 cameraAcceleration = Vector2.zero();
 
+  late Settings settings;
   @override
   Future<void> onLoad() async {
     await super.onLoad();
     socket = SocketServices();
     socket!.addListener(socketListener);
+    settings = Settings();
     html.window.onBeforeUnload.listen((event) async {
-      Settings settings = Settings();
       if (settings.getUser() != null) {
         socket!.leaveRoom(settings.getUser()!.id);
       }
     });
+    // Start the game!
+    // This can be done before the login check is done.
+    // If the user can log in we will do it anyway and everything will update.
     startGame();
+    // automatically log in using (possibly) stored tokens
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      loginCheck().then((loggedIn) {
+        if (!loggedIn) {
+          LoginWindowChangeNotifier().setLoginWindowVisible(true);
+        }
+      });
+    });
   }
 
   HexWorld? gameWorld;
@@ -49,6 +60,7 @@ class AgeOfGold extends FlameGame with DragCallbacks, KeyboardEvents, ScrollDete
     world.add(gameWorld!);
 
     gameSize = camera.viewport.size / camera.viewfinder.zoom;
+    checkHexagonArraySize();
   }
 
   endGame() {
@@ -65,7 +77,6 @@ class AgeOfGold extends FlameGame with DragCallbacks, KeyboardEvents, ScrollDete
     }
   }
 
-  final Paint linePaint = Paint()..color = const Color(0xffff0000);
   @override
   void render(Canvas canvas) {
     super.render(canvas);
@@ -77,9 +88,10 @@ class AgeOfGold extends FlameGame with DragCallbacks, KeyboardEvents, ScrollDete
     double zoomIncrease = (info.raw.scrollDelta.dy/1000);
     camera.viewfinder.zoom *= (1 - zoomIncrease);
 
-    gameSize = camera.viewport.size / camera.viewfinder.zoom;
-
     clampZoom();
+
+    gameSize = camera.viewport.size / camera.viewfinder.zoom;
+    checkHexagonArraySize();
   }
 
   Vector2 gameSize = Vector2(0, 0);
@@ -112,7 +124,7 @@ class AgeOfGold extends FlameGame with DragCallbacks, KeyboardEvents, ScrollDete
     }
   }
 
-  double maxSpeed = 100000;
+  double maxSpeed = 1000;
   void updateMapScroll() {
     // First limit the dragTo position
     // This is to ensure that scroll speed won't be too high.
@@ -153,6 +165,8 @@ class AgeOfGold extends FlameGame with DragCallbacks, KeyboardEvents, ScrollDete
     double cameraZoom = camera.viewfinder.zoom;
     Vector2 tapPos = info.eventPosition.widget / cameraZoom;
     tapPos.sub(gameSize / 2);
+    tapPos.add(camera.viewfinder.position);
+    // Screen position will be used to display the tile info box.
     Vector2 screenPos = info.eventPosition.global;
     gameWorld!.onTappedUp(tapPos, screenPos);
     gameWorld!.focusWorld();
@@ -186,8 +200,8 @@ class AgeOfGold extends FlameGame with DragCallbacks, KeyboardEvents, ScrollDete
     start!.sub((gameSize / cameraZoom) / 2);
     // We need to move the pointer according to the current camera position
 
-    // _world!.resetClick();
-    // _world!.focusWorld();
+    gameWorld!.resetClick();
+    gameWorld!.focusWorld();
 
     if (pointerId1 == -1) {
       pointerId1 = event.pointerId;
@@ -239,7 +253,7 @@ class AgeOfGold extends FlameGame with DragCallbacks, KeyboardEvents, ScrollDete
 
   resetDrag() {
     if (pinched) {
-      // checkHexagonArraySize();
+      checkHexagonArraySize();
       pinched = false;
     }
     start = null;
@@ -278,7 +292,16 @@ class AgeOfGold extends FlameGame with DragCallbacks, KeyboardEvents, ScrollDete
   }
 
   List<int>? getCameraPos() {
+    List<int> tileProperties = getTileFromPos(camera.viewfinder.position.x, camera.viewfinder.position.y);
+    int q = tileProperties[0];
+    int r = tileProperties[1];
 
+    Hexagon? hexagon = gameWorld!.getHexFromTile(q, r);
+    if (hexagon != null) {
+      int hexQ = hexagon.hexQArray;
+      int hexR = hexagon.hexRArray;
+      return [hexQ, hexR, q, r];
+    }
     return null;
   }
 
@@ -293,7 +316,7 @@ class AgeOfGold extends FlameGame with DragCallbacks, KeyboardEvents, ScrollDete
     if (!playFieldFocus && isKeyDown) {
       return KeyEventResult.ignored;
     } else {
-      // _world!.resetClick();
+      gameWorld!.resetClick();
       // mousespeed between 10 and 140 for camera.zoom between 0.1 and 4
       double mouseSpeed = (40 / camera.viewfinder.zoom);
       if (camera.viewfinder.zoom < 1) {
@@ -318,51 +341,51 @@ class AgeOfGold extends FlameGame with DragCallbacks, KeyboardEvents, ScrollDete
       return KeyEventResult.handled;
     }
   }
-}
 
-// class GameWorld extends Component {
-//
-//   SpriteBatch? spriteBatch;
-//
-//   Vector2? start;
-//   Vector2? end;
-//   updateTemp(Vector2? start, Vector2? end) {
-//     this.start = start;
-//     this.end = end;
-//   }
-//   @override
-//   Future<void> onLoad() async {
-//     await super.onLoad();
-//     bgRect = const Rect.fromLTWH(-20, -20, 40, 40);
-//
-//     SpriteBatch.load('tile_variants/sprite_regular.png').then((SpriteBatch batch) {
-//       spriteBatch = batch;
-//
-//       spriteBatch!.add(
-//           source: tileTextures[0][0],
-//           offset: Vector2(0, 0),
-//           scale: 1
-//       );
-//     });
-//   }
-//
-//   @override
-//   void update(double dt) {
-//   }
-//
-//   late final Rect bgRect;
-//   final Paint bgPaint = Paint()..color = const Color(0xffff0000);
-//   @override
-//   void render(Canvas canvas) {
-//
-//     if (spriteBatch != null) {
-//       spriteBatch!.render(canvas);
-//     }
-//
-//     if (start != null && end != null) {
-//       Offset offsetStart = Offset(start!.x, start!.y);
-//       Offset offsetEnd = Offset(end!.x, end!.y);
-//       canvas.drawLine(offsetStart, offsetEnd, bgPaint);
-//     }
-//   }
-// }
+  @override
+  void onGameResize(Vector2 size) {
+    // This needs to be done to position the HUD margin components correctly.
+    double previousZoom = camera.viewfinder.zoom;
+    camera.viewfinder.zoom = 1;
+    super.onGameResize(size);
+    camera.viewfinder.zoom = previousZoom;
+    gameSize = camera.viewport.size / camera.viewfinder.zoom;
+    checkHexagonArraySize();
+  }
+
+  int currentHexSize = 0;
+  checkHexagonArraySize() {
+    double currentZoom = camera.viewfinder.zoom;
+    double currentWidth = gameSize.x;
+    double currentHeight = gameSize.y;
+    print("current zoom: $currentZoom  currentWidth: $currentWidth  currentHeight: $currentHeight");
+    if (gameWorld != null) {
+      int hexArraySize = 0;
+      if (currentWidth < 2000 && currentHeight < 1100) {
+        // tiny monitor resolution
+        hexArraySize = 10 + (4 - currentZoom.floor()) * 4;
+        if (currentZoom < 0.2) {
+          hexArraySize += 20;
+        } else if (currentZoom < 0.5) {
+          hexArraySize += 8;
+        }
+        print("small: $hexArraySize");
+      } else {
+        // large 4k monitor resolution on full screen
+        hexArraySize = 14 + (4 - currentZoom.floor()) * 6;
+        if (currentZoom < 0.2) {
+          hexArraySize += 36;
+        } else if (currentZoom < 0.5) {
+          hexArraySize += 10;
+        }
+        print("large: $hexArraySize");
+      }
+      if (currentHexSize != hexArraySize) {
+        currentHexSize = hexArraySize;
+        print("changing hexSize: $currentHexSize  zoom: $currentZoom");
+        gameWorld!.setHexagonArraySize(hexArraySize);
+      }
+    }
+  }
+
+}

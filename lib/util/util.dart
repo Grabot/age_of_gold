@@ -11,6 +11,7 @@ import 'package:age_of_gold/services/socket_services.dart';
 import 'package:age_of_gold/util/hexagon_list.dart';
 import 'package:age_of_gold/util/web_storage.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/chat_messages.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/are_you_sure_box/are_you_sure_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_information.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/profile_box/profile_change_notifier.dart';
 import 'package:flame/components.dart';
@@ -239,7 +240,7 @@ logoutUser(Settings settings, NavigationService navigationService) async {
   ProfileChangeNotifier().setProfileVisible(false);
   settings.logout();
   SecureStorage().logout().then((value) {
-    navigationService.navigateTo(routes.HomeRoute, arguments: {'message': "Logged out"});
+    AreYouSureBoxChangeNotifier().setAreYouSureBoxVisible(false);
   });
 }
 
@@ -369,22 +370,22 @@ addHexagon(HexagonList hexagonList, SocketServices socketServices, data) {
 
 ButtonStyle buttonStyle(bool active, MaterialColor buttonColor) {
   return ButtonStyle(
-      overlayColor: MaterialStateProperty.resolveWith<Color?>(
-            (Set<MaterialState> states) {
-          if (states.contains(MaterialState.hovered)) {
+      overlayColor: WidgetStateProperty.resolveWith<Color?>(
+            (Set<WidgetState> states) {
+          if (states.contains(WidgetState.hovered)) {
             return buttonColor.shade600;
           }
-          if (states.contains(MaterialState.pressed)) {
+          if (states.contains(WidgetState.pressed)) {
             return buttonColor.shade300;
           }
           return null;
         },
       ),
-      backgroundColor: MaterialStateProperty.resolveWith<Color?>(
-              (Set<MaterialState> states) {
+      backgroundColor: WidgetStateProperty.resolveWith<Color?>(
+              (Set<WidgetState> states) {
             return active? buttonColor.shade800 : buttonColor;
           }),
-      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+      shape: WidgetStateProperty.all<RoundedRectangleBorder>(
           RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(30.0),
           )
@@ -518,4 +519,14 @@ int getRankId(String guildRank) {
   } else {
     return 4;
   }
+}
+
+Widget ageOfGoldLogo(double width, bool normalMode) {
+  return Container(
+      padding: normalMode
+          ? EdgeInsets.only(left: width/4, right: width/4)
+          : EdgeInsets.only(left: width/8, right: width/8),
+      alignment: Alignment.center,
+      child: Image.asset("assets/images/flutterfly_logo.png")
+  );
 }

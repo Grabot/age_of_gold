@@ -5,9 +5,7 @@ import 'package:age_of_gold/locator.dart';
 import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/util/navigation_service.dart';
 import 'package:age_of_gold/views/email_verification_page.dart';
-import 'package:age_of_gold/views/home_page.dart';
-import 'package:age_of_gold/views/login_screen.dart';
-import 'package:age_of_gold/views/password_reset_page.dart';
+import 'package:age_of_gold/views/login_view/login_window.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/change_avatar_box/change_avatar_box.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/change_guild_crest_box/change_guild_crest_box.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window.dart';
@@ -51,6 +49,7 @@ Future<void> main() async {
         game: game,
         overlayBuilderMap: const {
           'chatBox': _chatBoxBuilder,
+          'loginWindow': _loginWindowBuilder,
           'tileBox': _tileBoxBuilder,
           'mapCoordinates': _mapCoordinatesBoxBuilder,
           'profileBox': _profileBoxBuilder,
@@ -67,6 +66,7 @@ Future<void> main() async {
         },
         initialActiveOverlays: const [
           'chatBox',
+          'loginWindow',
           'tileBox',
           'profileBox',
           'mapCoordinates',
@@ -87,7 +87,7 @@ Future<void> main() async {
   // LoginScreen loginScreen = LoginScreen(key: UniqueKey(), game: game);
   // Widget home = HomePage(key: UniqueKey(), game: game, loginScreen: loginScreen);
   Widget worldAccess = WorldAccess(key: UniqueKey(), game: game);
-  Widget passwordReset = PasswordReset(key: UniqueKey(), game: game);
+  // Widget passwordReset = PasswordReset(key: UniqueKey(), game: game);
   Widget emailVerification = EmailVerification(key: UniqueKey(), game: game);
 
   runApp(
@@ -106,7 +106,6 @@ Future<void> main() async {
           routes: {
             routes.HomeRoute: (context) => gameWidget,
             routes.WorldAccessRoute: (context) => worldAccess,
-            routes.PasswordResetRoute: (context) => passwordReset,
             routes.EmailVerificationRoute: (context) => emailVerification
           },
           onGenerateRoute: (settings) {
@@ -114,12 +113,6 @@ Future<void> main() async {
               return MaterialPageRoute(
                   builder: (context) {
                     return worldAccess;
-                  }
-              );
-            } else if (settings.name!.startsWith(routes.PasswordResetRoute)) {
-              return MaterialPageRoute(
-                  builder: (context) {
-                    return passwordReset;
                   }
               );
             } else if (settings.name!.startsWith(routes.EmailVerificationRoute)) {
@@ -143,6 +136,10 @@ Future<void> main() async {
 
 Widget _chatBoxBuilder(BuildContext buildContext, AgeOfGold game) {
   return ChatBox(key: UniqueKey(), game: game);
+}
+
+Widget _loginWindowBuilder(BuildContext buildContext, AgeOfGold game) {
+  return LoginWindow(key: UniqueKey(), game: game);
 }
 
 Widget _tileBoxBuilder(BuildContext buildContext, AgeOfGold game) {

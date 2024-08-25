@@ -1,7 +1,9 @@
 import 'package:age_of_gold/component/hexagon.dart';
 import 'package:age_of_gold/component/tile.dart';
+import 'package:age_of_gold/services/auth_service_world.dart';
 import 'package:age_of_gold/services/socket_services.dart';
 import 'package:age_of_gold/util/util.dart';
+import 'package:tuple/tuple.dart';
 
 class HexagonList {
   static final HexagonList _instance = HexagonList._internal();
@@ -75,6 +77,7 @@ class HexagonList {
   }
 
   changeArraySize(int arraySize) {
+    List<Tuple2> hexRetrievals = [];
     if (hexagons.length != arraySize) {
       int arraySizeTile = arraySize * 14 + 50;
       if (hexagons.length < arraySize) {
@@ -95,7 +98,7 @@ class HexagonList {
           hexQ = (hexagons.length / 2).ceil();
           hexR = (hexagons[0].length / 2).ceil();
 
-          fillNewArrayEdges();
+          hexRetrievals = fillNewArrayEdges(hexRetrievals);
         }
         while (tiles.length < arraySizeTile) {
           for (int i = 0; i < tiles.length; i++) {
@@ -135,6 +138,11 @@ class HexagonList {
         tileR = (tiles[0].length / 2).ceil();
       }
     }
+    for (Tuple2 retrieve in hexRetrievals) {
+      // Here we will add empty hexagons to the newly made array.
+      // We will fill these with the retrieved hexagons once they are needed.
+      socketServices.getHexagon(retrieve.item1, retrieve.item2);
+    }
   }
 
   removeArrayEdges() {
@@ -168,7 +176,7 @@ class HexagonList {
     }
   }
 
-  fillNewArrayEdges() {
+  List<Tuple2> fillNewArrayEdges(List<Tuple2> currentHexRetrievals) {
     List newHexes = [];
 
     for (int qSock = 0; qSock < hexagons[0].length; qSock ++) {
@@ -191,8 +199,12 @@ class HexagonList {
 
     List hexNewUnique = removeDuplicates(newHexes);
     for (int x = 0; x < hexNewUnique.length; x++) {
-      socketServices.getHexagon(hexNewUnique[x][0], hexNewUnique[x][1]);
+      Tuple2 retrieve = Tuple2(hexNewUnique[x][0], hexNewUnique[x][1]);
+      if (!currentHexRetrievals.contains(retrieve)) {
+        currentHexRetrievals.add(retrieve);
+      }
     }
+    return currentHexRetrievals;
   }
 
   setBackToRetrieve() {
