@@ -10,6 +10,8 @@ import 'package:age_of_gold/views/user_interface/ui_views/chat_window/chat_windo
 import 'package:age_of_gold/views/user_interface/ui_views/friend_window/friend_window_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_information.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window_change_notifier.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/map_coordinates/map_coordinates_change_notifier.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/map_coordintes_window/map_coordinates_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/profile_box/profile_change_notifier.dart';
 import 'package:flutter/material.dart';
 
@@ -38,6 +40,7 @@ class SocialInteractionState extends State<SocialInteraction> with TickerProvide
   int levelClock = 0;
   bool canChangeTiles = true;
 
+  int mapCoordinateOverviewState = 0;
   int friendOverviewState = 0;
   int messageOverviewState = 0;
   int guildOverviewState = 0;
@@ -105,6 +108,10 @@ class SocialInteractionState extends State<SocialInteraction> with TickerProvide
     }
   }
 
+  showMapCoordinatesWindow() {
+    MapCoordinatesWindowChangeNotifier().setMapCoordinatesVisible(true);
+  }
+
   showFriendWindow() {
     FriendWindowChangeNotifier().setFriendWindowVisible(true);
   }
@@ -117,6 +124,60 @@ class SocialInteractionState extends State<SocialInteraction> with TickerProvide
   showGuildWindow() {
     print("pressed the guild button");
     GuildWindowChangeNotifier().setGuildWindowVisible(true);
+  }
+
+  Widget mapCoordinatesButton(double mapCoordinateButtonSize) {
+    return SizedBox(
+      child: Row(
+          children: [
+            const SizedBox(width: 5),
+            Tooltip(
+              message: "Jump to coordinates",
+              child: InkWell(
+                onHover: (value) {
+                  setState(() {
+                    mapCoordinateOverviewState = value ? 1 : 0;
+                  });
+                },
+                onTap: () {
+                  setState(() {
+                    mapCoordinateOverviewState = 2;
+                    showMapCoordinatesWindow();
+                  });
+                },
+                child: Stack(
+                  children: [
+                    SizedBox(
+                      width: mapCoordinateButtonSize,
+                      height: mapCoordinateButtonSize,
+                      child: ClipOval(
+                          child: Material(
+                            color: overviewColour(mapCoordinateOverviewState, Colors.orange, Colors.orangeAccent, Colors.orange.shade800),
+                          )
+                      ),
+                    ),
+                    Container(
+                      width: mapCoordinateButtonSize,
+                      height: mapCoordinateButtonSize,
+                      child: Icon(
+                        size: (mapCoordinateButtonSize/5) * 3,
+                        Icons.location_on,
+                        color: Colors.white,
+                        shadows: <Shadow>[Shadow(color: Colors.black, blurRadius: 3.0)],
+                      ),
+                    ),
+                    friendWindowChangeNotifier.unansweredFriendRequests ? Image.asset(
+                      "assets/images/ui/icon/update_notification.png",
+                      width: mapCoordinateButtonSize,
+                      height: mapCoordinateButtonSize,
+                    ) : Container(),
+                  ],
+                ),
+              ),
+            ),
+          ]
+      ),
+    );
   }
 
   Widget friendOverviewButton(double profileButtonSize) {
@@ -282,6 +343,8 @@ class SocialInteractionState extends State<SocialInteraction> with TickerProvide
         children: [
           SizedBox(height: profileAvatarHeight),
           SizedBox(height: 10),
+          mapCoordinatesButton(50),
+          SizedBox(height: 10),
           friendOverviewButton(50),
           SizedBox(height: 10),
           messageOverviewButton(50),
@@ -303,6 +366,8 @@ class SocialInteractionState extends State<SocialInteraction> with TickerProvide
             children: [
               SizedBox(width: totalWidth/2),
               SizedBox(width: 5),
+              mapCoordinatesButton(30),
+              SizedBox(width: 5),
               friendOverviewButton(30),
               SizedBox(width: 5),
               messageOverviewButton(30),
@@ -321,8 +386,10 @@ class SocialInteractionState extends State<SocialInteraction> with TickerProvide
     double profileOverviewWidth = 50 + 5;
     double fontSize = 16;
     // We use the total height to hide the chatbox below
-    // In NormalMode the height has the 3 buttons and some padding added.
+    // In NormalMode the height has the 4 buttons and some padding added.
     double profileOverviewHeight = 100;
+    profileOverviewHeight += 50;
+    profileOverviewHeight += 10;
     profileOverviewHeight += 50;
     profileOverviewHeight += 10;
     profileOverviewHeight += 50;
@@ -332,6 +399,8 @@ class SocialInteractionState extends State<SocialInteraction> with TickerProvide
     normalMode = true;
     if (MediaQuery.of(context).size.width <= 800) {
       profileOverviewWidth = MediaQuery.of(context).size.width/2;
+      profileOverviewWidth += 30;
+      profileOverviewWidth += 10;
       profileOverviewWidth += 30;
       profileOverviewWidth += 10;
       profileOverviewWidth += 30;

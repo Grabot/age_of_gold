@@ -1,6 +1,10 @@
+import 'dart:math';
+
 import 'package:age_of_gold/component/hexagon.dart';
+import 'package:age_of_gold/services/auth_service_world.dart';
 import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/services/socket_services.dart';
+import 'package:age_of_gold/util/util.dart';
 import 'package:age_of_gold/util/web_storage.dart';
 import 'package:age_of_gold/views/login_view/login_window_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/profile_box/profile_change_notifier.dart';
@@ -13,6 +17,7 @@ import 'package:flutter/services.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:universal_html/html.dart' as html;
 
+import 'constants/global.dart';
 import 'util/game_start_login.dart';
 import 'util/tapped_map.dart';
 
@@ -55,10 +60,8 @@ class AgeOfGold extends FlameGame with DragCallbacks, KeyboardEvents, ScrollDete
 
   HexWorld? gameWorld;
   startGame() async {
-
     gameWorld = HexWorld(0, 0);
     world.add(gameWorld!);
-
     gameSize = camera.viewport.size / camera.viewfinder.zoom;
     checkHexagonArraySize();
   }
@@ -265,7 +268,6 @@ class AgeOfGold extends FlameGame with DragCallbacks, KeyboardEvents, ScrollDete
     distanceBetweenFingers = null;
     pointerId1 = -1;
     pointerId2 = -1;
-    // dragTo = cameraPosition;
     // _world!.focusWorld();
   }
 
@@ -388,4 +390,91 @@ class AgeOfGold extends FlameGame with DragCallbacks, KeyboardEvents, ScrollDete
     }
   }
 
+  List<int> getWraparounds(int hexQ, int hexR) {
+    int wrapQ = 0;
+    int wrapR = 0;
+
+    if (hexQ < -mapSize) {
+      while (hexQ < -mapSize) {
+        hexQ += (2 * mapSize + 1);
+        wrapQ -= 1;
+      }
+    }
+
+    if (hexQ > mapSize) {
+      while (hexQ > mapSize) {
+        hexQ -= (2 * mapSize + 1);
+        wrapQ += 1;
+      }
+    }
+
+    if (hexR < -mapSize) {
+      while (hexR < -mapSize) {
+        hexR += (2 * mapSize + 1);
+        wrapR -= 1;
+      }
+    }
+
+    if (hexR > mapSize) {
+      while (hexR > mapSize) {
+        hexR -= (2 * mapSize + 1);
+        wrapR += 1;
+      }
+    }
+
+    return [hexQ, wrapQ, hexR, wrapR];
+  }
+
+
+  jumpToCoordinates(int tileQ, int tileR) {
+    if (gameWorld != null) {
+      // reset the camera zoom and hexagon array size.
+      camera.viewfinder.zoom = 1;
+      gameSize = camera.viewport.size / camera.viewfinder.zoom;
+      checkHexagonArraySize();
+      // Revert the transformations applied in getTileFromPos
+
+      int hexQ = convertTileToHexQ(tileQ, tileR);
+      int hexR = convertTileToHexR(tileQ, tileR);
+
+      int newTileQ = tileQ;
+      int newTileR = tileR;
+
+      List<int> wraparounds1 = getWraparounds(hexQ, hexR);
+      int actualHexQ = wraparounds1[0];
+      int wrapQ = wraparounds1[1];
+      int actualHexR = wraparounds1[2];
+      int wrapR = wraparounds1[3];
+      print("hexQ: $hexQ  hexR: $hexR  actualHexQ: $actualHexQ  actualHexR: $actualHexR  wrapQ: $wrapQ  wrapR: $wrapR");
+
+      if (wrapQ != 0 || wrapR != 0) {
+        // `wrapQ` or `wrapR` are not 0 so we are jumping to the point on the map that is wrapped around.
+        // So we will subtract the wraparound values from the new tile values.
+        // This is the opposite of when the camera is off the map and we get tiles and
+        // calculate the wraparound values in a similar method but reversed in `addHexagon`
+        if (wrapQ != 0) {
+          newTileQ -= (mapSize * 2 + 1) * 9 * wrapQ;
+          newTileR -= (mapSize * 2 + 1) * -4 * wrapQ;
+        }
+        if (wrapR  != 0) {
+          newTileQ -= (mapSize * 2 + 1) * 5 * wrapR;
+          newTileR -= (mapSize * 2 + 1) * -9 * wrapR;
+        }
+        showToastMessage("Given coordinates q: $tileQ and r: $tileR are out of bounds, jumping to wrapped coordinates: $newTileQ, $newTileR");
+      }
+
+      // We use the tile values to calculate the camera position.
+      double cameraX = xSize * ((3/2) * newTileQ) + xSize;
+      double cameraY = ySize * (sqrt(3)/2 * newTileQ + sqrt(3) * newTileR) * -1;
+
+      // We position the camera to that position and also the dragTo position.
+      camera.viewfinder.position = Vector2(cameraX, cameraY);
+      dragTo = Vector2(cameraX, cameraY);
+      // We reset the world to the new position so that it will retrieve the new hexagons.
+      gameWorld!.resetWorld(actualHexQ, actualHexR);
+    }
+  }
+
 }
+
+// 123, 321

@@ -527,6 +527,6 @@ Widget ageOfGoldLogo(double width, bool normalMode) {
           ? EdgeInsets.only(left: width/4, right: width/4)
           : EdgeInsets.only(left: width/8, right: width/8),
       alignment: Alignment.center,
-      child: Image.asset("assets/images/flutterfly_logo.png")
+      child: Image.asset("assets/images/hex_place_logo.png")
   );
 }

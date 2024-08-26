@@ -674,14 +674,4 @@ class SocketServices extends ChangeNotifier {
     wrapCoordinates.add(wrapCoordinate);
   }
 
-  Tile createTile(int tileType, int tileDataQ, int tileDataR, var tileData) {
-    return Tile(
-        tileDataQ,
-        tileDataR,
-        tileData["type"],
-        tileData["q"],
-        tileData["r"]
-    );
-  }
-
 }

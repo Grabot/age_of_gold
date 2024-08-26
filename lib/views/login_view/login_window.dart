@@ -77,7 +77,7 @@ class LoginWindowState extends State<LoginWindow> {
     });
   }
 
-  signInFlutterFly() {
+  signInAgeOfGold() {
     if (formKeyLogin.currentState!.validate() && !isLoading) {
       _controller.jumpTo(0);
       isLoading = true;
@@ -102,7 +102,7 @@ class LoginWindowState extends State<LoginWindow> {
     }
   }
 
-  signUpFlutterFly() {
+  signUpAgeOfGold() {
     if (formKeyRegister.currentState!.validate() && !isLoading) {
       _controller.jumpTo(0);
       isLoading = true;
@@ -527,7 +527,7 @@ class LoginWindowState extends State<LoginWindow> {
               },
               onFieldSubmitted: (value) {
                 if (!isLoading) {
-                  signUpFlutterFly();
+                  signUpAgeOfGold();
                 }
               },
               scrollPadding: const EdgeInsets.only(bottom: 100),
@@ -545,7 +545,7 @@ class LoginWindowState extends State<LoginWindow> {
             ElevatedButton(
               onPressed: () {
                 if (!isLoading) {
-                  signUpFlutterFly();
+                  signUpAgeOfGold();
                 }
               },
               style: buttonStyle(false, Colors.blue),
@@ -654,7 +654,7 @@ class LoginWindowState extends State<LoginWindow> {
                     },
                     onFieldSubmitted: (value) {
                       if (!isLoading) {
-                        signInFlutterFly();
+                        signInAgeOfGold();
                       }
                     },
                     obscureText: true,
@@ -708,7 +708,7 @@ class LoginWindowState extends State<LoginWindow> {
             ElevatedButton(
               onPressed: () {
                 if (!isLoading) {
-                  signInFlutterFly();
+                  signInAgeOfGold();
                 }
               },
               style: buttonStyle(false, Colors.blue),
@@ -745,6 +745,16 @@ class LoginWindowState extends State<LoginWindow> {
     );
   }
 
+  Widget ageOfGoldName(double width, double fontSize) {
+    return Text(
+      "Age of Gold",
+      style: TextStyle(
+          color: Colors.white,
+          fontSize: fontSize*2
+      ),
+    );
+  }
+
   Widget loginScreen(double width, double loginBoxSize, double fontSize) {
     return SingleChildScrollView(
         controller: _controller,
@@ -754,6 +764,9 @@ class LoginWindowState extends State<LoginWindow> {
           child: Column(
             children: [
               loginHeader(width, 40, fontSize),
+              const SizedBox(height: 10),
+              ageOfGoldName(width, fontSize),
+              const SizedBox(height: 10),
               ageOfGoldLogo(width, normalMode),
               signUpMode == 0 ? login(width - (30 * 2), fontSize) : Container(),
               signUpMode == 1 ? register(width - (30 * 2), fontSize) : Container(),

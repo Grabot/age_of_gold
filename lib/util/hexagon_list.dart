@@ -48,6 +48,7 @@ class HexagonList {
   }
 
   retrieveHexagons(int startHexQ, int startHexR) {
+    print("Retrieving hexagons q: $startHexQ r: $startHexR");
     int currentSizeHex = hexagons.length;
     int currentSizeTile = currentSizeHex * 14 + 50;
     hexagons = List.generate(currentSizeHex, (_) =>

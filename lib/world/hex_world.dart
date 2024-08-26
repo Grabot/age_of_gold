@@ -65,6 +65,10 @@ class HexWorld extends Component {
     }
   }
 
+  jumpToCoordinates(int q, int r) {
+    hexagonList.retrieveHexagons(q, r);
+  }
+
   resetClick() {
     mouseTile = null;
     selectedTileInfo.setCurrentTile(null);
@@ -166,7 +170,6 @@ class HexWorld extends Component {
   }
 
   resetWorld(int hexQ, int hexR) {
-    // Only use in emergencies
     hexagonList.retrieveHexagons(hexQ, hexR);
   }
 

@@ -10,6 +10,7 @@ import 'package:age_of_gold/views/user_interface/ui_views/change_avatar_box/chan
 import 'package:age_of_gold/views/user_interface/ui_views/change_guild_crest_box/change_guild_crest_box.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/map_coordinates/map_coordinates.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/map_coordintes_window/map_coordinates_window.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/social_interaction/social_interaction.dart';
 import 'package:age_of_gold/views/world_access_page.dart';
 import 'package:flame/flame.dart';
@@ -50,6 +51,7 @@ Future<void> main() async {
         overlayBuilderMap: const {
           'chatBox': _chatBoxBuilder,
           'loginWindow': _loginWindowBuilder,
+          'mapCoordinatesWindow': _mapCoordinatesWindowBuilder,
           'tileBox': _tileBoxBuilder,
           'mapCoordinates': _mapCoordinatesBoxBuilder,
           'profileBox': _profileBoxBuilder,
@@ -67,6 +69,7 @@ Future<void> main() async {
         initialActiveOverlays: const [
           'chatBox',
           'loginWindow',
+          'mapCoordinatesWindow',
           'tileBox',
           'profileBox',
           'mapCoordinates',
@@ -84,10 +87,7 @@ Future<void> main() async {
       )
   );
 
-  // LoginScreen loginScreen = LoginScreen(key: UniqueKey(), game: game);
-  // Widget home = HomePage(key: UniqueKey(), game: game, loginScreen: loginScreen);
   Widget worldAccess = WorldAccess(key: UniqueKey(), game: game);
-  // Widget passwordReset = PasswordReset(key: UniqueKey(), game: game);
   Widget emailVerification = EmailVerification(key: UniqueKey(), game: game);
 
   runApp(
@@ -176,6 +176,10 @@ Widget _areYouSureBoxBuilder(BuildContext buildContext, AgeOfGold game) {
 
 Widget _mapCoordinatesBoxBuilder(BuildContext buildContext, AgeOfGold game) {
   return MapCoordinates(key: UniqueKey(), game: game);
+}
+
+Widget _mapCoordinatesWindowBuilder(BuildContext buildContext, AgeOfGold game) {
+  return MapCoordinatesWindow(key: UniqueKey(), game: game);
 }
 
 Widget _chatWindowBuilder(BuildContext buildContext, AgeOfGold game) {

@@ -1,5 +1,6 @@
 import 'package:age_of_gold/age_of_gold.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/map_coordinates/map_coordinates_change_notifier.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/map_coordintes_window/map_coordinates_change_notifier.dart';
 import 'package:flutter/material.dart';
 
 
@@ -78,18 +79,23 @@ class MapCoordinatesState extends State<MapCoordinates> {
   }
 
   Widget mapCoordinatesBox(BuildContext context, double widthMapCoordinates) {
-    return Container(
-      width: widthMapCoordinates,
-      height: 50,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          showLocationIcon(),
-          SizedBox(width: 20),
-          showCoordinate("Q: $qCoordinate"),
-          SizedBox(width: 10),
-          showCoordinate("R: $rCoordinate"),
-        ],
+    return GestureDetector(
+      onTap: () {
+        MapCoordinatesWindowChangeNotifier().setMapCoordinatesVisible(true);
+      },
+      child: Container(
+        width: widthMapCoordinates,
+        height: 50,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            showLocationIcon(),
+            const SizedBox(width: 20),
+            showCoordinate("Q: $qCoordinate"),
+            const SizedBox(width: 10),
+            showCoordinate("R: $rCoordinate"),
+          ],
+        ),
       ),
     );
   }
