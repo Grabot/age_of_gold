@@ -5,10 +5,10 @@ import 'package:age_of_gold/locator.dart';
 import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/util/navigation_service.dart';
 import 'package:age_of_gold/views/email_verification_page.dart';
-import 'package:age_of_gold/views/login_view/login_window.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/change_avatar_box/change_avatar_box.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/change_guild_crest_box/change_guild_crest_box.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/login_view/login_window.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/map_coordinates/map_coordinates.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/map_coordintes_window/map_coordinates_window.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/social_interaction/social_interaction.dart';
@@ -49,11 +49,11 @@ Future<void> main() async {
         focusNode: gameFocus,
         game: game,
         overlayBuilderMap: const {
+          'mapCoordinates': _mapCoordinatesBoxBuilder,
           'chatBox': _chatBoxBuilder,
           'loginWindow': _loginWindowBuilder,
           'mapCoordinatesWindow': _mapCoordinatesWindowBuilder,
           'tileBox': _tileBoxBuilder,
-          'mapCoordinates': _mapCoordinatesBoxBuilder,
           'profileBox': _profileBoxBuilder,
           'socialInteraction': _socialInteractionBuilder,
           'profileOverview': _profileOverviewBuilder,
@@ -67,12 +67,12 @@ Future<void> main() async {
           'loadingBox': _loadingBoxBuilder,
         },
         initialActiveOverlays: const [
+          'mapCoordinates',
           'chatBox',
           'loginWindow',
           'mapCoordinatesWindow',
           'tileBox',
           'profileBox',
-          'mapCoordinates',
           'socialInteraction',
           'profileOverview',
           'changeAvatar',

@@ -7,10 +7,11 @@ import 'package:age_of_gold/services/auth_service_login.dart';
 import 'package:age_of_gold/services/models/login_request.dart';
 import 'package:age_of_gold/services/models/register_request.dart';
 import 'package:age_of_gold/util/util.dart';
-import 'package:age_of_gold/views/login_view/login_window_change_notifier.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/login_view/login_window_change_notifier.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -57,15 +58,36 @@ class LoginWindowState extends State<LoginWindow> {
   bool showTopScoreScreen = true;
   bool showBottomScoreScreen = true;
 
+  late StreamSubscription<bool> keyboardSubscription;
+
+  double loginBoxSize = 100;
+  double loginWidth = 0;
+  double loginHeight = 0;
+  double fontSize = 16;
+
   @override
   void initState() {
     loginWindowChangeNotifier = LoginWindowChangeNotifier();
     loginWindowChangeNotifier.addListener(loginWindowChangeListener);
+    var keyboardVisibilityController = KeyboardVisibilityController();
+    keyboardSubscription = keyboardVisibilityController.onChange.listen((bool visible) {
+      if (visible) {
+        setState(() {
+          loginHeight = (loginHeight / 3) * 2;
+        });
+      } else {
+        setState(() {
+          setWindowSize();
+        });
+      }
+    });
+
     super.initState();
   }
 
   @override
   void dispose() {
+    keyboardSubscription.cancel();
     _controller.dispose();
     super.dispose();
   }
@@ -153,9 +175,28 @@ class LoginWindowState extends State<LoginWindow> {
     }
   }
 
+  setWindowSize() {
+
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
+
+    normalMode = true;
+    loginBoxSize = 100;
+    loginWidth = 800;
+    loginHeight = (screenHeight / 10) * 6;
+    // When the width is smaller than this we assume it's mobile.
+    if (screenWidth <= 800 || screenHeight - 200 > screenWidth) {
+      loginWidth = screenWidth - 50;
+      normalMode = false;
+      loginBoxSize = 50;
+      loginHeight = (screenHeight / 10) * 7;
+    }
+  }
+
   loginWindowChangeListener() {
     if (mounted) {
       if (!showLoginWindow && loginWindowChangeNotifier.getLoginWindowVisible()) {
+        setWindowSize();
         setState(() {
           showLoginWindow = true;
         });
@@ -170,7 +211,7 @@ class LoginWindowState extends State<LoginWindow> {
     }
   }
 
-  Widget loginAlternatives(double loginBoxSize, double fontSize) {
+  Widget loginAlternatives(double loginBoxSize) {
     return Column(
       children: [
         Row(
@@ -289,7 +330,7 @@ class LoginWindowState extends State<LoginWindow> {
     );
   }
 
-  Widget resetPasswordEmailSend(double width, double fontSize) {
+  Widget resetPasswordEmailSend(double width) {
     return Column(
       children: [
         Text(
@@ -309,7 +350,7 @@ class LoginWindowState extends State<LoginWindow> {
     );
   }
 
-  Widget resetPassword(double width, double fontSize) {
+  Widget resetPassword(double width) {
     return Form(
       key: formKeyReset,
       child: Column(
@@ -408,7 +449,7 @@ class LoginWindowState extends State<LoginWindow> {
     );
   }
 
-  Widget register(double width, double fontSize) {
+  Widget register(double width) {
     return Form(
       key: formKeyRegister,
       child: Column(
@@ -564,7 +605,7 @@ class LoginWindowState extends State<LoginWindow> {
     );
   }
 
-  Widget login(double width, double fontSize) {
+  Widget login(double width) {
     return Form(
       key: formKeyLogin,
       child: Column(
@@ -727,7 +768,7 @@ class LoginWindowState extends State<LoginWindow> {
     );
   }
 
-  Widget loginHeader(double headerWidth, double headerHeight, double fontSize) {
+  Widget loginHeader(double headerHeight) {
     return Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -745,7 +786,7 @@ class LoginWindowState extends State<LoginWindow> {
     );
   }
 
-  Widget ageOfGoldName(double width, double fontSize) {
+  Widget ageOfGoldName() {
     return Text(
       "Age of Gold",
       style: TextStyle(
@@ -755,7 +796,7 @@ class LoginWindowState extends State<LoginWindow> {
     );
   }
 
-  Widget loginScreen(double width, double loginBoxSize, double fontSize) {
+  Widget loginScreen(double loginBoxSize) {
     return SingleChildScrollView(
         controller: _controller,
         child: Container(
@@ -763,16 +804,16 @@ class LoginWindowState extends State<LoginWindow> {
           padding: const EdgeInsets.symmetric(horizontal: 30),
           child: Column(
             children: [
-              loginHeader(width, 40, fontSize),
+              loginHeader(40),
               const SizedBox(height: 10),
-              ageOfGoldName(width, fontSize),
+              ageOfGoldName(),
               const SizedBox(height: 10),
-              ageOfGoldLogo(width, normalMode),
-              signUpMode == 0 ? login(width - (30 * 2), fontSize) : Container(),
-              signUpMode == 1 ? register(width - (30 * 2), fontSize) : Container(),
-              signUpMode == 2 && !passwordResetSend ? resetPassword(width - (30 * 2), fontSize) : Container(),
-              signUpMode == 2 && passwordResetSend ? resetPasswordEmailSend(width - (30 * 2), fontSize) : Container(),
-              signUpMode != 2 ? loginAlternatives(loginBoxSize, fontSize) : Container(),
+              ageOfGoldLogo(loginWidth, normalMode),
+              signUpMode == 0 ? login(loginWidth - (30 * 2)) : Container(),
+              signUpMode == 1 ? register(loginWidth - (30 * 2)) : Container(),
+              signUpMode == 2 && !passwordResetSend ? resetPassword(loginWidth - (30 * 2)) : Container(),
+              signUpMode == 2 && passwordResetSend ? resetPasswordEmailSend(loginWidth - (30 * 2)) : Container(),
+              signUpMode != 2 ? loginAlternatives(loginBoxSize) : Container(),
               const SizedBox(height: 40),
             ],
           ),
@@ -780,31 +821,19 @@ class LoginWindowState extends State<LoginWindow> {
     );
   }
 
-  Widget loginOrRegisterBox(double screenWidth, double screenHeight, double fontSize) {
-    normalMode = true;
-    double loginBoxSize = 100;
-    double width = 800;
-    double height = (screenHeight / 10) * 6;
-    // When the width is smaller than this we assume it's mobile.
-    if (screenWidth <= 800 || screenHeight - 200 > screenWidth) {
-      width = screenWidth - 50;
-      normalMode = false;
-      loginBoxSize = 50;
-    }
+  Widget loginOrRegisterBox() {
+
     return Align(
       alignment: FractionalOffset.center,
       child: showLoginWindow ? SizedBox(
-          width: width,
-          height: height,
-          child: loginScreen(width, loginBoxSize, fontSize)
+          width: loginWidth,
+          height: loginHeight,
+          child: loginScreen(loginBoxSize)
       ) : Container(),
     );
   }
 
   Widget loginOrRegisterScreen(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height;
-    double fontSize = 16;
     return Container(
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
@@ -818,7 +847,7 @@ class LoginWindowState extends State<LoginWindow> {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       Container(),
-                      loginOrRegisterBox(screenWidth, screenHeight, fontSize),
+                      loginOrRegisterBox(),
                     ]
                 )
             )
@@ -860,10 +889,8 @@ class LoginWindowState extends State<LoginWindow> {
     ];
 
     GoogleSignIn googleSignIn;
-    bool fromWeb = false;
     if (kIsWeb) {
       // Web
-      fromWeb = true;
       googleSignIn = GoogleSignIn(
         clientId: clientIdLoginWeb,
         scopes: scopes,
@@ -897,20 +924,18 @@ class LoginWindowState extends State<LoginWindow> {
       return;
     }
 
-    // TODO: fix?
-    // AuthServiceLogin().getLoginGoogle(googleAccessToken, fromWeb).then((
-    //     loginResponse) {
-    //   if (loginResponse.getResult()) {
-    //     ScoreScreenChangeNotifier().notify();
-    //     goBack();
-    //     isLoading = false;
-    //     setState(() {});
-    //   } else if (!loginResponse.getResult()) {
-    //     showToastMessage(loginResponse.getMessage());
-    //   }
-    // }).onError((error, stackTrace) {
-    //   showToastMessage(error.toString());
-    // });
+    AuthServiceLogin().getLoginGoogle(googleAccessToken).then((
+        loginResponse) {
+      if (loginResponse.getResult()) {
+        goBack();
+        isLoading = false;
+        setState(() {});
+      } else if (!loginResponse.getResult()) {
+        showToastMessage(loginResponse.getMessage());
+      }
+    }).onError((error, stackTrace) {
+      showToastMessage(error.toString());
+    });
     isLoading = false;
   }
 }

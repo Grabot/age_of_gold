@@ -292,6 +292,7 @@ class ProfileOverviewState extends State<ProfileOverview> with TickerProviderSta
     double fontSize = 16;
     // We use the total height to hide the chatbox below
     // In NormalMode the height has the 2 buttons and some padding added.
+    double statusBarPadding = MediaQuery.of(context).viewPadding.top;
     double profileOverviewHeight = 100;
     normalMode = true;
     if (MediaQuery.of(context).size.width <= 800) {
@@ -304,7 +305,7 @@ class ProfileOverviewState extends State<ProfileOverview> with TickerProviderSta
     return SingleChildScrollView(
       child: SizedBox(
         width: profileOverviewWidth,
-        height: profileOverviewHeight,
+        height: profileOverviewHeight + statusBarPadding,
         child: Align(
           alignment: FractionalOffset.topLeft,
           child: normalMode

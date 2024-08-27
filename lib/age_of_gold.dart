@@ -1,12 +1,10 @@
 import 'dart:math';
 
 import 'package:age_of_gold/component/hexagon.dart';
-import 'package:age_of_gold/services/auth_service_world.dart';
 import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/services/socket_services.dart';
 import 'package:age_of_gold/util/util.dart';
-import 'package:age_of_gold/util/web_storage.dart';
-import 'package:age_of_gold/views/login_view/login_window_change_notifier.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/login_view/login_window_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/profile_box/profile_change_notifier.dart';
 import 'package:age_of_gold/world/hex_world.dart';
 import 'package:flame/events.dart';
@@ -14,7 +12,6 @@ import 'package:flame/game.dart';
 import 'package:flame/input.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:jwt_decode/jwt_decode.dart';
 import 'package:universal_html/html.dart' as html;
 
 import 'constants/global.dart';
@@ -241,10 +238,10 @@ class AgeOfGold extends FlameGame with DragCallbacks, KeyboardEvents, ScrollDete
         secondFinger!.sub((camera.viewfinder.position) * cameraZoom);
         finger2 = true;
       }
-      // // Once 2 fingers have been detected and updated we do the pinch zoom
-      // if (finger1 && finger2) {
-      //   pinchZoom();
-      // }
+      // Once 2 fingers have been detected and updated we do the pinch zoom
+      if (finger1 && finger2) {
+        pinchZoom();
+      }
     }
   }
 
@@ -256,6 +253,7 @@ class AgeOfGold extends FlameGame with DragCallbacks, KeyboardEvents, ScrollDete
 
   resetDrag() {
     if (pinched) {
+      gameSize = camera.viewport.size / camera.viewfinder.zoom;
       checkHexagonArraySize();
       pinched = false;
     }
@@ -360,7 +358,6 @@ class AgeOfGold extends FlameGame with DragCallbacks, KeyboardEvents, ScrollDete
     double currentZoom = camera.viewfinder.zoom;
     double currentWidth = gameSize.x;
     double currentHeight = gameSize.y;
-    print("current zoom: $currentZoom  currentWidth: $currentWidth  currentHeight: $currentHeight");
     if (gameWorld != null) {
       int hexArraySize = 0;
       if (currentWidth < 2000 && currentHeight < 1100) {
@@ -371,7 +368,6 @@ class AgeOfGold extends FlameGame with DragCallbacks, KeyboardEvents, ScrollDete
         } else if (currentZoom < 0.5) {
           hexArraySize += 8;
         }
-        print("small: $hexArraySize");
       } else {
         // large 4k monitor resolution on full screen
         hexArraySize = 14 + (4 - currentZoom.floor()) * 6;
@@ -380,11 +376,9 @@ class AgeOfGold extends FlameGame with DragCallbacks, KeyboardEvents, ScrollDete
         } else if (currentZoom < 0.5) {
           hexArraySize += 10;
         }
-        print("large: $hexArraySize");
       }
       if (currentHexSize != hexArraySize) {
         currentHexSize = hexArraySize;
-        print("changing hexSize: $currentHexSize  zoom: $currentZoom");
         gameWorld!.setHexagonArraySize(hexArraySize);
       }
     }
@@ -474,7 +468,4 @@ class AgeOfGold extends FlameGame with DragCallbacks, KeyboardEvents, ScrollDete
       gameWorld!.resetWorld(actualHexQ, actualHexR);
     }
   }
-
 }
-
-// 123, 321

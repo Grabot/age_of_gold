@@ -275,17 +275,6 @@ class UserBoxState extends State<UserBox> with TickerProviderStateMixin {
     );
   }
 
-  Widget scoreBox() {
-    return Container(
-      padding: EdgeInsets.all(30),
-      child: Column(
-        children: [
-          Text("Score: 0")
-        ],
-      ),
-    );
-  }
-
   Widget userBoxNormal(double userBoxWidth, double userBoxHeight, double fontSize) {
     return Column(
       children: [
@@ -294,7 +283,6 @@ class UserBoxState extends State<UserBox> with TickerProviderStateMixin {
         Row(
           children: [
             !isMe ? userSocialBox(200) : userSocialBoxMe(200),
-            scoreBox(),
           ],
         )
       ],
@@ -307,7 +295,6 @@ class UserBoxState extends State<UserBox> with TickerProviderStateMixin {
         userHeader(),
         avatarOverviewMobile(),
         !isMe ? userSocialBox(userBoxWidth) : userSocialBoxMe(userBoxWidth),
-        scoreBox(),
       ],
     );
   }

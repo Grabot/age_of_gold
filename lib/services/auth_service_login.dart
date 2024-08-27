@@ -215,4 +215,39 @@ class AuthServiceLogin {
     }
     return loginResponse;
   }
+
+
+  Future<LoginResponse> getLoginGoogle(String accessToken) async {
+    Settings().setLoggingIn(true);
+    String endPoint = "login/google/token";
+    var response = await AuthApi().dio.post(endPoint,
+        options: Options(headers: {
+          HttpHeaders.contentTypeHeader: "application/json",
+        }),
+        data: jsonEncode(<String, dynamic> {
+          "access_token": accessToken
+        }));
+
+    LoginResponse loginResponse = LoginResponse.fromJson(response.data);
+    if (loginResponse.getResult()) {
+      successfulLogin(loginResponse);
+    }
+    return loginResponse;
+  }
+
+  Future<BaseResponse> removeAccount(String accessToken, String refreshToken) async {
+    String endPoint = "remove/account/verify";
+    var response = await AuthApi().dio.post(endPoint,
+        options: Options(headers: {
+          HttpHeaders.contentTypeHeader: "application/json",
+        }),
+        data: jsonEncode(<String, String> {
+          "access_token": accessToken,
+          "refresh_token": refreshToken
+        })
+    );
+
+    BaseResponse baseResponse = BaseResponse.fromJson(response.data);
+    return baseResponse;
+  }
 }

@@ -1,4 +1,5 @@
 import 'package:age_of_gold/age_of_gold.dart';
+import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/map_coordinates/map_coordinates_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/map_coordintes_window/map_coordinates_change_notifier.dart';
 import 'package:flutter/material.dart';
@@ -81,9 +82,11 @@ class MapCoordinatesState extends State<MapCoordinates> {
   Widget mapCoordinatesBox(BuildContext context, double widthMapCoordinates) {
     return GestureDetector(
       onTap: () {
-        MapCoordinatesWindowChangeNotifier().setMapCoordinatesVisible(true);
+        if (Settings().getUser() != null) {
+          MapCoordinatesWindowChangeNotifier().setMapCoordinatesVisible(true);
+        }
       },
-      child: Container(
+      child: SizedBox(
         width: widthMapCoordinates,
         height: 50,
         child: Row(
@@ -104,9 +107,10 @@ class MapCoordinatesState extends State<MapCoordinates> {
   Widget build(BuildContext context) {
     double widthMapCoordinates = 250;
     double width = MediaQuery.of(context).size.width;
+    double height = MediaQuery.of(context).size.height;
     return Positioned(
         left: width / 2 - (widthMapCoordinates/2),
-        bottom: 50.0,
+        bottom: height/10,
         child: mapCoordinatesBox(context, widthMapCoordinates)
     );
   }

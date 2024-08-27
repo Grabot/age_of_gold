@@ -503,13 +503,13 @@ class ChatBoxState extends State<ChatBox> {
           // dropdownWidth: 300,
           onChanged: onChangeDropdownItem,
           hint: Container(
-            padding: EdgeInsets.only(left: 15),
+            padding: const EdgeInsets.only(left: 15),
             child: RichText(
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               text: TextSpan(
                 text: hintText,
-                style: TextStyle(
+                style: const TextStyle(
                   color: Colors.white,
                 ),
               ),

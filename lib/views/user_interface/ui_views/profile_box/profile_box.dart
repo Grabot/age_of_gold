@@ -9,9 +9,9 @@ import 'package:age_of_gold/util/countdown.dart';
 import 'package:age_of_gold/util/navigation_service.dart';
 import 'package:age_of_gold/util/render_objects.dart';
 import 'package:age_of_gold/util/util.dart';
-import 'package:age_of_gold/views/login_view/login_window_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/are_you_sure_box/are_you_sure_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/change_avatar_box/change_avatar_change_notifier.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/login_view/login_window_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/profile_box/profile_change_notifier.dart';
 import 'package:flutter/material.dart';
 
@@ -39,8 +39,6 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
 
   Settings settings = Settings();
 
-  User? currentUser;
-
   late AnimationController _controller;
   int levelClock = 0;
   bool canChangeTiles = true;
@@ -66,7 +64,6 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
     profileChangeNotifier = ProfileChangeNotifier();
     profileChangeNotifier.addListener(profileChangeListener);
 
-    currentUser = settings.getUser();
     _controller = AnimationController(
         vsync: this,
         duration: Duration(
@@ -96,6 +93,7 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
   profileChangeListener() {
     if (mounted) {
       if (!showProfile && profileChangeNotifier.getProfileVisible()) {
+        updateTimeLock();
         setState(() {
           showProfile = true;
         });
@@ -119,7 +117,7 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
   }
 
   updateTimeLock() {
-    if (currentUser != null) {
+    if (settings.getUser() != null) {
       DateTime timeLock = settings.getUser()!.getTileLock();
       if (timeLock.isAfter(DateTime.now())) {
         levelClock = timeLock.difference(DateTime.now()).inSeconds;
@@ -200,26 +198,26 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
     });
   }
 
-  Widget verifyEmailButton(double width, double fontSize) {
-    return Container(
-      margin: EdgeInsets.only(top: 20),
-      child: ElevatedButton(
-        onPressed: () {
-          verifyEmail();
-        },
-        style: buttonStyle(false, Colors.blue),
-        child: Container(
-          alignment: Alignment.center,
-          width: 400,
-          height: 50,
-          child: Text(
-            'Verify email',
-            style: simpleTextStyle(fontSize),
-          ),
-        ),
-      ),
-    );
-  }
+  // Widget verifyEmailButton(double width, double fontSize) {
+  //   return Container(
+  //     margin: EdgeInsets.only(top: 20),
+  //     child: ElevatedButton(
+  //       onPressed: () {
+  //         verifyEmail();
+  //       },
+  //       style: buttonStyle(false, Colors.blue),
+  //       child: Container(
+  //         alignment: Alignment.center,
+  //         width: 400,
+  //         height: 50,
+  //         child: Text(
+  //           'Verify email',
+  //           style: simpleTextStyle(fontSize),
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
 
   goBack() {
     setState(() {
@@ -275,13 +273,13 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
     );
   }
 
-  Widget verifyEmailBox(double width, double fontSize) {
-    return Container(
-        child: settings.getUser()!.isVerified()
-            ? userVerified(width, fontSize)
-            : verifyEmailButton(width, fontSize)
-    );
-  }
+  // Widget verifyEmailBox(double width, double fontSize) {
+  //   return Container(
+  //       child: settings.getUser()!.isVerified()
+  //           ? userVerified(width, fontSize)
+  //           : verifyEmailButton(width, fontSize)
+  //   );
+  // }
 
   Widget profileHeader(double headerWidth, double headerHeight, double fontSize) {
     return Row(
@@ -348,9 +346,9 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
           width: 500,
           child: Column(
             children: [
-              tileTimeInformation(width, fontSize),  // TODO: tileinformation not working?
-              // SizedBox(height: 20),
-              verifyEmailBox(width, fontSize),
+              tileTimeInformation(width, fontSize),
+              // const SizedBox(height: 20),
+              // verifyEmailBox(width, fontSize),
             ],
           ),
         ),
@@ -542,7 +540,7 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
     );
   }
 
-  Widget sombodyLoggedInMobile(double width, double fontSize) {
+  Widget somebodyLoggedInMobile(double width, double fontSize) {
     double widthAvatar = 300;
     if (width < widthAvatar) {
       widthAvatar = width;
@@ -551,7 +549,7 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
       children: [
         profileAvatar(widthAvatar, fontSize),
         tileTimeInformation(width, fontSize),
-        // SizedBox(height: 20),
+        // const SizedBox(height: 20),
         // verifyEmailBox(width, fontSize),
       ],
     );
@@ -568,7 +566,7 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
   Widget mobileModeProfile(double width, double fontSize) {
     return Container(
         child: settings.getUser() != null
-            ? sombodyLoggedInMobile(width, fontSize)
+            ? somebodyLoggedInMobile(width, fontSize)
             : nobodyLoggedIn(width, fontSize)
     );
   }

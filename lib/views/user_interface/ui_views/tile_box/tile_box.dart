@@ -75,8 +75,6 @@ class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
               children: [
                 Image.asset(
                   tileData.imagePath,
-                  width: 110,
-                  height: 60,
                   scale: 0.5
                 ),
                 const SizedBox(
@@ -211,7 +209,7 @@ class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
 
   Widget dropdownThing(double dropDownWidth, double dropDownHeight) {
     if (selectedTileInfo.selectedTile != null) {
-      return Container(
+      return SizedBox(
         width: dropDownWidth,
         height: dropDownHeight,
         child: DropdownButton(
