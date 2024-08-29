@@ -6,7 +6,6 @@ import 'package:age_of_gold/util/navigation_service.dart';
 import 'package:age_of_gold/util/util.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/are_you_sure_box/are_you_sure_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_information.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window_change_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:age_of_gold/locator.dart';
 
@@ -103,17 +102,17 @@ class AreYouSureBoxState extends State<AreYouSureBox> {
         cancelButtonAction();
       },
       child: AlertDialog(
-        title: Text("Leave guild?"),
-        content: Text("Are you sure you want to leave the guild?"),
+        title: const Text("Leave guild?"),
+        content: const Text("Are you sure you want to leave the guild?"),
         actions: [
           ElevatedButton(
-            child: Text("Cancel"),
+            child: const Text("Cancel"),
             onPressed:  () {
               cancelButtonAction();
             },
           ),
           ElevatedButton(
-            child: Text("Leave"),
+            child: const Text("Leave"),
             onPressed:  () {
               leaveGuildButtonAction();
             },
@@ -134,17 +133,17 @@ class AreYouSureBoxState extends State<AreYouSureBox> {
         cancelButtonAction();
       },
       child: AlertDialog(
-        title: Text("Logout?"),
-        content: Text("Are you sure you want to logout?"),
+        title: const Text("Logout?"),
+        content: const Text("Are you sure you want to logout?"),
         actions: [
           ElevatedButton(
-            child: Text("Cancel"),
+            child: const Text("Cancel"),
             onPressed:  () {
               cancelButtonAction();
             },
           ),
           ElevatedButton(
-            child: Text("Logout"),
+            child: const Text("Logout"),
             onPressed:  () {
               logoutAction();
             },

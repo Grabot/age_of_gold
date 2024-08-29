@@ -7,11 +7,6 @@ import 'package:age_of_gold/services/models/guild_member.dart';
 import 'package:age_of_gold/services/models/user.dart';
 import 'package:age_of_gold/util/render_objects.dart';
 import 'package:age_of_gold/util/util.dart';
-import 'package:age_of_gold/views/user_interface/ui_util/chat_messages.dart';
-import 'package:age_of_gold/views/user_interface/ui_util/clear_ui.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/are_you_sure_box/are_you_sure_change_notifier.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/change_guild_crest_box/change_guild_crest_change_notifier.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/chat_window/chat_window_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_information.dart';
 import 'package:flutter/material.dart';
 import 'package:quiver/core.dart';
@@ -289,8 +284,8 @@ class GuildWindowOverviewChangeRanksState extends State<GuildWindowOverviewChang
                 crestHeight,
                 guild.getGuildCrest()
               ),
-              SizedBox(width: 20),
-              Container(
+              const SizedBox(width: 20),
+              SizedBox(
                 width: widget.overviewWidth - crestWidth-20,
                 height: crestHeight-100,
                 child: Column(
@@ -317,7 +312,7 @@ class GuildWindowOverviewChangeRanksState extends State<GuildWindowOverviewChang
                         ),
                       ]
                     ),
-                    SizedBox(height: 15),
+                    const SizedBox(height: 15),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -333,7 +328,7 @@ class GuildWindowOverviewChangeRanksState extends State<GuildWindowOverviewChang
               ),
             ],
           ),
-          SizedBox(height: 5),
+          const SizedBox(height: 5),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -372,8 +367,8 @@ class GuildWindowOverviewChangeRanksState extends State<GuildWindowOverviewChang
               ),
             ]
           ),
-          SizedBox(height: 20),
-          Container(
+          const SizedBox(height: 20),
+          SizedBox(
             width: widget.overviewWidth,
             height: remainingHeight,
             child: SingleChildScrollView(

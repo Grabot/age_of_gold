@@ -78,11 +78,6 @@ class AgeOfGold extends FlameGame with DragCallbacks, KeyboardEvents, ScrollDete
   }
 
   @override
-  void render(Canvas canvas) {
-    super.render(canvas);
-  }
-
-  @override
   void onScroll(PointerScrollInfo info) {
     super.onScroll(info);
     double zoomIncrease = (info.raw.scrollDelta.dy/1000);

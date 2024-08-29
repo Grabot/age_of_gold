@@ -5,7 +5,6 @@ import 'package:age_of_gold/services/models/friend.dart';
 import 'package:age_of_gold/services/models/guild.dart';
 import 'package:age_of_gold/services/models/guild_member.dart';
 import 'package:age_of_gold/services/socket_services.dart';
-import 'package:age_of_gold/views/user_interface/ui_util/chat_messages.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_information.dart';
 
 class User {

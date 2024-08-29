@@ -10,7 +10,6 @@ import 'package:age_of_gold/views/user_interface/ui_views/chat_window/chat_windo
 import 'package:age_of_gold/views/user_interface/ui_views/friend_window/friend_window_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_information.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window_change_notifier.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/map_coordinates/map_coordinates_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/map_coordintes_window/map_coordinates_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/profile_box/profile_change_notifier.dart';
 import 'package:flutter/material.dart';
@@ -58,10 +57,6 @@ class SocialInteractionState extends State<SocialInteraction> with TickerProvide
     socket.addListener(socialInteractionListener);
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
 
   checkUnreadMessages() {
     unreadMessages = ChatMessages().unreadPersonalMessages();
@@ -156,14 +151,14 @@ class SocialInteractionState extends State<SocialInteraction> with TickerProvide
                           )
                       ),
                     ),
-                    Container(
+                    SizedBox(
                       width: mapCoordinateButtonSize,
                       height: mapCoordinateButtonSize,
                       child: Icon(
                         size: (mapCoordinateButtonSize/5) * 3,
                         Icons.location_on,
                         color: Colors.white,
-                        shadows: <Shadow>[Shadow(color: Colors.black, blurRadius: 3.0)],
+                        shadows: const <Shadow>[Shadow(color: Colors.black, blurRadius: 3.0)],
                       ),
                     ),
                     friendWindowChangeNotifier.unansweredFriendRequests ? Image.asset(
@@ -184,7 +179,7 @@ class SocialInteractionState extends State<SocialInteraction> with TickerProvide
     return SizedBox(
       child: Row(
         children: [
-          SizedBox(width: 5),
+          const SizedBox(width: 5),
           Tooltip(
             message: "Socials",
             child: InkWell(
@@ -233,7 +228,7 @@ class SocialInteractionState extends State<SocialInteraction> with TickerProvide
     return SizedBox(
       child: Row(
           children: [
-            SizedBox(width: 5),
+            const SizedBox(width: 5),
             Tooltip(
               message: "messages",
               child: InkWell(
@@ -289,7 +284,7 @@ class SocialInteractionState extends State<SocialInteraction> with TickerProvide
     return SizedBox(
       child: Row(
           children: [
-            SizedBox(width: 5),
+            const SizedBox(width: 5),
             Tooltip(
               message: "guild",
               child: InkWell(
@@ -342,13 +337,13 @@ class SocialInteractionState extends State<SocialInteraction> with TickerProvide
       child: Column(
         children: [
           SizedBox(height: profileAvatarHeight),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           mapCoordinatesButton(50),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           friendOverviewButton(50),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           messageOverviewButton(50),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           guildOverviewButton(50)
         ]
       ),
@@ -365,13 +360,13 @@ class SocialInteractionState extends State<SocialInteraction> with TickerProvide
           Row(
             children: [
               SizedBox(width: totalWidth/2),
-              SizedBox(width: 5),
+              const SizedBox(width: 5),
               mapCoordinatesButton(30),
-              SizedBox(width: 5),
+              const SizedBox(width: 5),
               friendOverviewButton(30),
-              SizedBox(width: 5),
+              const SizedBox(width: 5),
               messageOverviewButton(30),
-              SizedBox(width: 5),
+              const SizedBox(width: 5),
               guildOverviewButton(30)
             ]
           ),
@@ -416,7 +411,7 @@ class SocialInteractionState extends State<SocialInteraction> with TickerProvide
     }
 
     return SingleChildScrollView(
-      child: Container(
+      child: SizedBox(
         width: profileOverviewWidth,
         height: profileOverviewHeight,
         child: Align(

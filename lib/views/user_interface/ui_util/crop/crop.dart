@@ -33,14 +33,14 @@ class Crop extends StatelessWidget {
   final ValueChanged<Uint8List>? onResize;
 
   const Crop({
-    Key? key,
+    super.key,
     required this.image,
     required this.onCropped,
     required this.hexCrop,
     this.controller,
     this.onStatusChanged,
     this.onResize,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -74,14 +74,13 @@ class _CropEditor extends StatefulWidget {
   final ValueChanged<Uint8List>? onResize;
 
   const _CropEditor({
-    Key? key,
     required this.image,
     required this.onCropped,
     required this.hexCrop,
     this.controller,
     this.onStatusChanged,
     this.onResize,
-  }) : super(key: key);
+  });
 
   @override
   _CropEditorState createState() => _CropEditorState();
@@ -576,10 +575,10 @@ class _CropAreaHexClipper extends CustomClipper<Path> {
 /// This Widget automaticall fits the appropriate size.
 class DotControl extends StatelessWidget {
   const DotControl({
-    Key? key,
+    super.key,
     this.color = Colors.white,
     this.padding = 8,
-  }) : super(key: key);
+  });
 
   /// [Color] of this widget. [Colors.white] by default.
   final Color color;

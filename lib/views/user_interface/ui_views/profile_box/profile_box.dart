@@ -1,9 +1,7 @@
 import 'package:age_of_gold/age_of_gold.dart';
-import 'package:age_of_gold/constants/route_paths.dart' as routes;
 import 'package:age_of_gold/locator.dart';
 import 'package:age_of_gold/services/auth_service_login.dart';
 import 'package:age_of_gold/services/auth_service_setting.dart';
-import 'package:age_of_gold/services/models/user.dart';
 import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/util/countdown.dart';
 import 'package:age_of_gold/util/navigation_service.dart';
@@ -164,7 +162,7 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
             children:
             [
               profileHeader(width, headerHeight, fontSize),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               userInformationBox(width, fontSize, normalMode),
             ]
         ),
@@ -286,7 +284,7 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Container(
-          margin: EdgeInsets.all(20),
+          margin: const EdgeInsets.all(20),
           child: settings.getUser() == null
               ? Text(
             "No user logged in",
@@ -342,7 +340,7 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
     return Row(
       children: [
         profileAvatar(300, fontSize),
-        Container(
+        SizedBox(
           width: 500,
           child: Column(
             children: [
@@ -358,15 +356,15 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
 
   Widget changeUserNameField(double avatarWidth, double fontSize) {
     return Container(
-      margin: EdgeInsets.all(10),
+      margin: const EdgeInsets.all(10),
       decoration: BoxDecoration(
           border: Border.all(color: Colors.blueAccent)
       ),
       child: Container(
-        margin: EdgeInsets.all(4),
+        margin: const EdgeInsets.all(4),
         child: Column(
           children: [
-            Container(
+            SizedBox(
               height: 40,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -398,7 +396,7 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
                       ? "Please enter a username if you want to change it"
                       : null;
                 },
-                scrollPadding: EdgeInsets.only(bottom: 120),
+                scrollPadding: const EdgeInsets.only(bottom: 120),
                 decoration: const InputDecoration(
                   hintText: "New username",
                   hintStyle: TextStyle(color: Colors.white54),
@@ -430,15 +428,15 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
 
   Widget changePasswordField(double avatarWidth, double fontSize) {
     return Container(
-      margin: EdgeInsets.all(10),
+      margin: const EdgeInsets.all(10),
       decoration: BoxDecoration(
           border: Border.all(color: Colors.blueAccent)
       ),
       child: Container(
-        margin: EdgeInsets.all(4),
+        margin: const EdgeInsets.all(4),
         child: Column(
           children: [
-            Container(
+            SizedBox(
               height: 40,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -470,14 +468,14 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
                       ? "fill in new password"
                       : null;
                 },
-                scrollPadding: EdgeInsets.only(bottom: 120),
+                scrollPadding: const EdgeInsets.only(bottom: 120),
                 decoration: const InputDecoration(
                   hintText: "New password",
                   hintStyle: TextStyle(color: Colors.white54),
                   border: InputBorder.none,
                 ),
                 obscureText: true,
-                autofillHints: [AutofillHints.newPassword],
+                autofillHints: const [AutofillHints.newPassword],
                 style: TextStyle(color: Colors.white, fontSize: fontSize),
               ),
             ),
@@ -503,7 +501,7 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
   }
 
   Widget profileAvatar(double avatarWidth, double fontSize) {
-    return Container(
+    return SizedBox(
         width: avatarWidth,
         child: Column(
             children: [
@@ -519,7 +517,7 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
                   overflow: TextOverflow.ellipsis,
                   text: TextSpan(
                     text: settings.getUser()!.getUserName(),
-                    style: TextStyle(color: Colors.white, fontSize: 34),
+                    style: const TextStyle(color: Colors.white, fontSize: 34),
                   ),
                 ),
               ),
@@ -657,7 +655,7 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
 
 class SettingPopup extends PopupMenuEntry<int> {
 
-  SettingPopup({required Key key}) : super(key: key);
+  const SettingPopup({required Key key}) : super(key: key);
 
   @override
   bool represents(int? n) => n == 1 || n == -1;
@@ -701,8 +699,8 @@ Widget getPopupItems(BuildContext context) {
             onPressed: () {
               buttonChangeProfile(context);
             },
-            child: Row(
-              children:const [
+            child: const Row(
+              children:[
                 Text(
                   'Change avatar',
                   textAlign: TextAlign.left,
@@ -718,8 +716,8 @@ Widget getPopupItems(BuildContext context) {
             onPressed: () {
               buttonChangeUsername(context);
             },
-            child: Row(
-              children: const [
+            child: const Row(
+              children: [
                 Text(
                   "Change username",
                   textAlign: TextAlign.left,
@@ -735,8 +733,8 @@ Widget getPopupItems(BuildContext context) {
             onPressed: () {
               buttonChangePassword(context);
             },
-            child: Row(
-              children: const [
+            child: const Row(
+              children: [
                 Text(
                   "Change password",
                   textAlign: TextAlign.left,
@@ -752,8 +750,8 @@ Widget getPopupItems(BuildContext context) {
             onPressed: () {
               buttonLogout(context);
             },
-            child: Row(
-              children: const [
+            child: const Row(
+              children: [
                 Text(
                   "Logout",
                   textAlign: TextAlign.left,

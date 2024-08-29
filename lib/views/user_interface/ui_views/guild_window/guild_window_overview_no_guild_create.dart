@@ -116,7 +116,7 @@ class GuildWindowOverviewNoGuildCreateState extends State<GuildWindowOverviewNoG
               )
             ],
           ),
-          Container(
+          SizedBox(
             height: guildTextFieldHeight,
             child: Form(
               key: createGuildKey,
@@ -158,7 +158,7 @@ class GuildWindowOverviewNoGuildCreateState extends State<GuildWindowOverviewNoG
                   crestHeight,
                   widget.guildInformation.getGuildCrest()
               ),
-              SizedBox(width: 10),
+              const SizedBox(width: 10),
               ElevatedButton(
                 onPressed: () {
                   changeGuildCrestAction();

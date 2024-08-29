@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:age_of_gold/services/settings.dart';
 import 'package:dio/dio.dart';
 import 'auth_api.dart';
 import 'models/base_response.dart';

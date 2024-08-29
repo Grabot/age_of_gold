@@ -1,6 +1,5 @@
 import 'package:age_of_gold/component/hexagon.dart';
 import 'package:age_of_gold/component/tile.dart';
-import 'package:age_of_gold/services/auth_service_world.dart';
 import 'package:age_of_gold/services/socket_services.dart';
 import 'package:age_of_gold/util/util.dart';
 import 'package:tuple/tuple.dart';

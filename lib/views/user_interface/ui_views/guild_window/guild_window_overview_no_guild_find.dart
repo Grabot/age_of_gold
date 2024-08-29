@@ -3,7 +3,6 @@ import 'dart:typed_data';
 import 'package:age_of_gold/age_of_gold.dart';
 import 'package:age_of_gold/services/auth_service_guild.dart';
 import 'package:age_of_gold/services/models/guild.dart';
-import 'package:age_of_gold/services/models/guild_member.dart';
 import 'package:age_of_gold/services/models/user.dart';
 import 'package:age_of_gold/util/render_objects.dart';
 import 'package:age_of_gold/util/util.dart';
@@ -254,7 +253,7 @@ class GuildWindowOverviewNoGuildFindState extends State<GuildWindowOverviewNoGui
                   ),
                 ),
               ),
-              SizedBox(width: 5),
+              const SizedBox(width: 5),
               Tooltip(
                 message: "deny request",
                 child: InkWell(
@@ -405,11 +404,11 @@ class GuildWindowOverviewNoGuildFindState extends State<GuildWindowOverviewNoGui
               child: RichText(
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  text: TextSpan(
+                  text: const TextSpan(
                       children: [
                         TextSpan(
                             text: "Find a guild to join!",
-                            style: const TextStyle(
+                            style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 30,
                                 fontWeight: FontWeight.bold
@@ -430,7 +429,7 @@ class GuildWindowOverviewNoGuildFindState extends State<GuildWindowOverviewNoGui
                   Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        SizedBox(width: 10),
+                        const SizedBox(width: 10),
                         SizedBox(
                           width: widget.overviewWidth - 150,
                           height: 50,
@@ -472,10 +471,10 @@ class GuildWindowOverviewNoGuildFindState extends State<GuildWindowOverviewNoGui
                               )
                           ),
                         ),
-                        SizedBox(width: 10),
+                        const SizedBox(width: 10),
                       ]
                   ),
-                  SizedBox(height: 40),
+                  const SizedBox(height: 40),
                   guildBox(120),
                   Column(
                     children: requestedGuildBox(widget.guildInformation.guildsGotRequests, false),

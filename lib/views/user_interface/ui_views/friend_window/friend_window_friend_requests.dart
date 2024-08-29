@@ -171,7 +171,7 @@ class FriendWindowFriendRequestsState extends State<FriendWindowFriendRequests> 
                     child: addIcon(40, Icons.check, Colors.green)
                 ),
               ),
-              SizedBox(width: 10),
+              const SizedBox(width: 10),
               InkWell(
                 onTap: () {
                   setState(() {

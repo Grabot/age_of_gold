@@ -1,14 +1,12 @@
 import 'package:age_of_gold/services/auth_service_guild.dart';
 import 'package:age_of_gold/services/auth_service_social.dart';
 import 'package:age_of_gold/services/models/friend.dart';
-import 'package:age_of_gold/services/models/guild.dart';
 import 'package:age_of_gold/services/models/user.dart';
 import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/util/util.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/messages/event_message.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/messages/global_message.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/messages/guild_message.dart';
-import 'package:age_of_gold/views/user_interface/ui_util/messages/local_message.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/messages/message.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/messages/personal_message.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/chat_box/chat_box_change_notifier.dart';
@@ -193,13 +191,11 @@ class ChatMessages extends ChangeNotifier {
     User? currentUser = Settings().getUser();
     if (currentUser != null) {
       if (currentUser.getGuild() != null) {
-        if (currentUser.getGuild()!.unreadMessages != null) {
-          if (currentUser.getGuild()!.unreadMessages! > 0) {
-            guildMessagesUnread = currentUser.getGuild()!.unreadMessages!;
-            unreadGuildMessages = true;
-          }
+        if (currentUser.getGuild()!.unreadMessages > 0) {
+          guildMessagesUnread = currentUser.getGuild()!.unreadMessages;
+          unreadGuildMessages = true;
         }
-      }
+            }
     }
   }
 
@@ -739,7 +735,7 @@ class ChatMessages extends ChangeNotifier {
         padding: const EdgeInsets.only(left: 6.0),
         child: Row(
           children: [
-            newChatData.unreadMessages != 0 ? Text("! ") : Text("  "),
+            newChatData.unreadMessages != 0 ? const Text("! ") : const Text("  "),
             Expanded(
               child: Text(
                 newChatData.name,
@@ -773,7 +769,7 @@ class ChatDetailPopup extends PopupMenuEntry<int> {
 
   final bool isMe;
 
-  ChatDetailPopup({
+  const ChatDetailPopup({
     required Key key,
     required this.isMe
   }) : super(key: key);
@@ -812,7 +808,7 @@ Widget getPopupItems(BuildContext context, bool isMe) {
           onPressed: () {
             buttonMessageUser(context);
           },
-          child: Text(
+          child: const Text(
             'Message user',
             textAlign: TextAlign.left,
             style: TextStyle(color: Colors.white, fontSize: 14),
@@ -824,7 +820,7 @@ Widget getPopupItems(BuildContext context, bool isMe) {
           onPressed: () {
             buttonViewUser(context);
           },
-          child: Text(
+          child: const Text(
             "View user",
             textAlign: TextAlign.left,
             style: TextStyle(color: Colors.white, fontSize: 14),

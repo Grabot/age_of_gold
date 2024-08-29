@@ -6,7 +6,6 @@ import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/util/render_objects.dart';
 import 'package:age_of_gold/util/util.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/chat_messages.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/chat_box/chat_box_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/chat_window/chat_window_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/user_box/user_box_change_notifier.dart';
 import 'package:flutter/material.dart';
@@ -44,10 +43,6 @@ class UserBoxState extends State<UserBox> with TickerProviderStateMixin {
     super.initState();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
 
   userBoxChangeListener() {
     if (mounted) {
@@ -149,7 +144,7 @@ class UserBoxState extends State<UserBox> with TickerProviderStateMixin {
 
   Widget avatarOverviewNormal() {
     return Container(
-      padding: EdgeInsets.all(10),
+      padding: const EdgeInsets.all(10),
       child: Row(
         children: [
           avatarBox(200, 200, userBoxChangeNotifier.getUser()!.getAvatar()!),
@@ -161,7 +156,7 @@ class UserBoxState extends State<UserBox> with TickerProviderStateMixin {
                 children: [
                   TextSpan(
                     text: userBoxChangeNotifier.getUser()!.getUserName(),
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 30,
                       fontWeight: FontWeight.bold
@@ -178,7 +173,7 @@ class UserBoxState extends State<UserBox> with TickerProviderStateMixin {
 
   Widget avatarOverviewMobile() {
     return Container(
-      padding: EdgeInsets.all(10),
+      padding: const EdgeInsets.all(10),
       child: Column(
         children: [
           avatarBox(200, 200, userBoxChangeNotifier.getUser()!.getAvatar()!),
@@ -192,7 +187,7 @@ class UserBoxState extends State<UserBox> with TickerProviderStateMixin {
                     children: [
                       TextSpan(
                         text: userBoxChangeNotifier.getUser()!.getUserName(),
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 30,
                           fontWeight: FontWeight.bold
@@ -210,7 +205,7 @@ class UserBoxState extends State<UserBox> with TickerProviderStateMixin {
   }
 
   Widget messageUserButton(double buttonWidth, double buttonHeight, double fontSize) {
-    return Container(
+    return SizedBox(
       width: buttonWidth,
       height: buttonHeight,
       child: ElevatedButton(
@@ -230,7 +225,7 @@ class UserBoxState extends State<UserBox> with TickerProviderStateMixin {
   }
 
   Widget addFriendButton(double buttonWidth, double buttonHeight, double fontSize) {
-    return Container(
+    return SizedBox(
       width: buttonWidth,
       height: buttonHeight,
       child: ElevatedButton(
@@ -250,12 +245,12 @@ class UserBoxState extends State<UserBox> with TickerProviderStateMixin {
   }
 
   Widget userSocialBox(double userSocialBoxWidth) {
-    return Container(
+    return SizedBox(
       width: userSocialBoxWidth,
       child: Column(
         children: [
           messageUserButton(userSocialBoxWidth, 40, 16),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           addFriendButton(userSocialBoxWidth, 40, 16),
         ],
       ),
@@ -263,7 +258,7 @@ class UserBoxState extends State<UserBox> with TickerProviderStateMixin {
   }
 
   Widget userSocialBoxMe(double userSocialBoxWidth) {
-    return Container(
+    return SizedBox(
       width: userSocialBoxWidth,
       child: Align(
         alignment: Alignment.center,
@@ -313,7 +308,7 @@ class UserBoxState extends State<UserBox> with TickerProviderStateMixin {
     }
 
     return Container(
-      padding: EdgeInsets.only(left: 10, right: 10),
+      padding: const EdgeInsets.only(left: 10, right: 10),
       width: width,
       height: height,
       color: Colors.grey,

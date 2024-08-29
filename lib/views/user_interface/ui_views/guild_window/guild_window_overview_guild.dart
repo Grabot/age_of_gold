@@ -167,7 +167,7 @@ class GuildWindowOverviewGuildState extends State<GuildWindowOverviewGuild> {
         child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              SizedBox(width: 1),
+              const SizedBox(width: 1),
               Row(
                 children: [
                   Text(
@@ -178,7 +178,7 @@ class GuildWindowOverviewGuildState extends State<GuildWindowOverviewGuild> {
                   ),
                 ],
               ),
-              SizedBox(width: 1),
+              const SizedBox(width: 1),
             ]
         ),
       ),
@@ -212,7 +212,7 @@ class GuildWindowOverviewGuildState extends State<GuildWindowOverviewGuild> {
         child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              SizedBox(width: 1),
+              const SizedBox(width: 1),
               Row(
                 children: [
                   Text(
@@ -223,7 +223,7 @@ class GuildWindowOverviewGuildState extends State<GuildWindowOverviewGuild> {
                   ),
                 ],
               ),
-              SizedBox(width: 1),
+              const SizedBox(width: 1),
             ]
         ),
       ),
@@ -257,12 +257,12 @@ class GuildWindowOverviewGuildState extends State<GuildWindowOverviewGuild> {
         child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              SizedBox(width: 1),
+              const SizedBox(width: 1),
               Stack(
                 children: [
                   Row(
                     children: [
-                      SizedBox(
+                      const SizedBox(
                         width: 12,
                         height: 50,
                       ),
@@ -281,7 +281,7 @@ class GuildWindowOverviewGuildState extends State<GuildWindowOverviewGuild> {
                   ) : Container(),
                 ]
               ),
-              SizedBox(width: 1),
+              const SizedBox(width: 1),
             ]
         ),
       ),

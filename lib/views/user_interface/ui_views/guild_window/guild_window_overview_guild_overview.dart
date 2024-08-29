@@ -348,8 +348,8 @@ class GuildWindowOverviewGuildOverviewState extends State<GuildWindowOverviewGui
                 crestHeight,
                 guild.getGuildCrest()
               ),
-              SizedBox(width: 20),
-              Container(
+              const SizedBox(width: 20),
+              SizedBox(
                 width: widget.overviewWidth - crestWidth-20,
                 height: crestHeight-100,
                 child: Column(
@@ -376,7 +376,7 @@ class GuildWindowOverviewGuildOverviewState extends State<GuildWindowOverviewGui
                         ),
                       ]
                     ),
-                    SizedBox(height: 15),
+                    const SizedBox(height: 15),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -409,7 +409,7 @@ class GuildWindowOverviewGuildOverviewState extends State<GuildWindowOverviewGui
               ),
             ],
           ),
-          SizedBox(height: 5),
+          const SizedBox(height: 5),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -448,8 +448,8 @@ class GuildWindowOverviewGuildOverviewState extends State<GuildWindowOverviewGui
               ),
             ]
           ),
-          SizedBox(height: 20),
-          Container(
+          const SizedBox(height: 20),
+          SizedBox(
             width: widget.overviewWidth,
             height: remainingHeight,
             child: SingleChildScrollView(
@@ -538,8 +538,8 @@ Widget getPopupItems(BuildContext context, bool isAdministrator) {
               onPressed: () {
                 buttonLeaveGuild(context);
               },
-              child: Row(
-                children:const [
+              child: const Row(
+                children:[
                   Text(
                     'Leave guild',
                     textAlign: TextAlign.left,
@@ -555,8 +555,8 @@ Widget getPopupItems(BuildContext context, bool isAdministrator) {
               onPressed: () {
                 buttonChangeGuildCrest(context);
               },
-              child: Row(
-                  children: const [
+              child: const Row(
+                  children: [
                     Text(
                       "Change guild crest",
                       textAlign: TextAlign.left,

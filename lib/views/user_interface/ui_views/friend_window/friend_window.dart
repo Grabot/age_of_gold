@@ -1,5 +1,4 @@
 import 'package:age_of_gold/age_of_gold.dart';
-import 'package:age_of_gold/services/models/friend.dart';
 import 'package:age_of_gold/services/models/user.dart';
 import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/services/socket_services.dart';
@@ -185,11 +184,11 @@ class FriendWindowState extends State<FriendWindow> {
         child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              SizedBox(width: 1),
+              const SizedBox(width: 1),
               Row(
                 children: [
                   addIcon(iconSize, Icons.people, Colors.orange),
-                  SizedBox(width: 5),
+                  const SizedBox(width: 5),
                   Text(
                     "Friend list",
                     style: simpleTextStyle(
@@ -198,7 +197,7 @@ class FriendWindowState extends State<FriendWindow> {
                   ),
                 ],
               ),
-              SizedBox(width: 1),
+              const SizedBox(width: 1),
             ]
         ),
       ),
@@ -232,13 +231,13 @@ class FriendWindowState extends State<FriendWindow> {
         child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              SizedBox(width: 1),
+              const SizedBox(width: 1),
               Stack(
                   children: [
                     Row(
                       children: [
                         addIcon(iconSize, Icons.person_add_alt_1, Colors.orange),
-                        SizedBox(width: 5),
+                        const SizedBox(width: 5),
                         Text(
                           "Friend Requests",
                           style: simpleTextStyle(
@@ -254,7 +253,7 @@ class FriendWindowState extends State<FriendWindow> {
                     ) : Container(),
                   ]
               ),
-              SizedBox(width: 1),
+              const SizedBox(width: 1),
             ]
         ),
       ),
@@ -288,11 +287,11 @@ class FriendWindowState extends State<FriendWindow> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            SizedBox(width: 1),
+            const SizedBox(width: 1),
             Row(
               children: [
                 addIcon(iconSize, Icons.add, Colors.orange),
-                SizedBox(width: 5),
+                const SizedBox(width: 5),
                 Text(
                   "Add new friend",
                   style: simpleTextStyle(
@@ -301,7 +300,7 @@ class FriendWindowState extends State<FriendWindow> {
                 ),
               ],
             ),
-            SizedBox(width: 1),
+            const SizedBox(width: 1),
           ]
         ),
       ),

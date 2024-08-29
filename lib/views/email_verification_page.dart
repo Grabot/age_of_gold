@@ -14,9 +14,9 @@ class EmailVerification extends StatefulWidget {
   final AgeOfGold game;
 
   const EmailVerification({
-    Key? key,
+    super.key,
     required this.game
-  }) : super(key: key);
+  });
 
   @override
   State<EmailVerification> createState() => _EmailVerificationState();
@@ -72,7 +72,7 @@ class _EmailVerificationState extends State<EmailVerification> {
           style: TextStyle(color: Colors.white, fontSize: fontSize*2),
           textAlign: TextAlign.center,
         ),
-        SizedBox(height: 10),
+        const SizedBox(height: 10),
         Text(
           "Your email address could not be verified",
           style: TextStyle(color: Colors.white70, fontSize: fontSize),
@@ -90,7 +90,7 @@ class _EmailVerificationState extends State<EmailVerification> {
           style: TextStyle(color: Colors.white, fontSize: fontSize*2),
           textAlign: TextAlign.center,
         ),
-        SizedBox(height: 10),
+        const SizedBox(height: 10),
         Text(
           "Your email address has successfully been verified",
           style: TextStyle(color: Colors.white70, fontSize: fontSize),
@@ -108,7 +108,7 @@ class _EmailVerificationState extends State<EmailVerification> {
           style: TextStyle(color: Colors.white, fontSize: fontSize*2),
           textAlign: TextAlign.center,
         ),
-        SizedBox(height: 10),
+        const SizedBox(height: 10),
         Text(
           "Your email address was already verified",
           style: TextStyle(color: Colors.white70, fontSize: fontSize),
@@ -139,7 +139,7 @@ class _EmailVerificationState extends State<EmailVerification> {
         color: Colors.orange,
         child: SingleChildScrollView(
             child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 30),
+                padding: const EdgeInsets.symmetric(horizontal: 30),
                 child: Column(
                     children: [
                       Container(

@@ -64,7 +64,7 @@ class ChatBoxState extends State<ChatBox> {
     _focusChatBox.addListener(_onFocusChange);
     chatMessages.setActiveChatTab("");
 
-    chatBoxTimer = Timer(Duration(seconds: 0), () {});
+    chatBoxTimer = Timer(const Duration(seconds: 0), () {});
     super.initState();
   }
 
@@ -183,8 +183,8 @@ class ChatBoxState extends State<ChatBox> {
       style: buttonStyle(buttonActive, Colors.green),
       child: Row(
         children: [
-          hasUnreadMessages ? Text("!  ") : Text("   "),
-          Container(
+          hasUnreadMessages ? const Text("!  ") : const Text("   "),
+          SizedBox(
             width: 50,
             child: Text(tabName),
           ),
@@ -225,7 +225,7 @@ class ChatBoxState extends State<ChatBox> {
 
   Widget showOrHideChatBox(double iconSize) {
     if (tileBoxVisible) {
-      return Container(
+      return SizedBox(
           width: iconSize,
           height: iconSize,
           child: IconButton(
@@ -241,7 +241,7 @@ class ChatBoxState extends State<ChatBox> {
         ),
       );
     } else {
-      return Container(
+      return SizedBox(
         width: iconSize,
         height: iconSize,
         child: IconButton(
@@ -261,9 +261,9 @@ class ChatBoxState extends State<ChatBox> {
 
   Widget chatDropDownRegionTopBar() {
     return Container(
-      padding: EdgeInsets.only(left: 5, right: 5),
+      padding: const EdgeInsets.only(left: 5, right: 5),
       child: GestureDetector(
-        child: Container(
+        child: SizedBox(
           height: 34,
           width: 120,
           child: chatDropDownRegion(),
@@ -294,7 +294,7 @@ class ChatBoxState extends State<ChatBox> {
   }
 
   Widget showMesssageWindow(double iconSize) {
-    return Container(
+    return SizedBox(
       width: iconSize,
       height: iconSize,
       child: IconButton(
@@ -423,7 +423,7 @@ class ChatBoxState extends State<ChatBox> {
     bool showMessageField = (tileBoxVisible || !normalMode);
 
     setChatMessages();
-    return Container(
+    return SizedBox(
       width: chatBoxWidth,
       child: Column(
         children: [

@@ -1,6 +1,5 @@
 import 'package:age_of_gold/age_of_gold.dart';
 import 'package:age_of_gold/util/render_objects.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/change_guild_crest_box/change_guild_crest_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_information.dart';
 import 'package:flutter/material.dart';
 

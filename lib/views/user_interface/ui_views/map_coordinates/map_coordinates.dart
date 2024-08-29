@@ -70,7 +70,7 @@ class MapCoordinatesState extends State<MapCoordinates> {
           ),
           Text(
             coordinate,
-            style: TextStyle(
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 20,
             ),

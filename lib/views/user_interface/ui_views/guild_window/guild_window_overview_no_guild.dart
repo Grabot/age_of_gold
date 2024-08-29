@@ -1,7 +1,6 @@
 import 'package:age_of_gold/age_of_gold.dart';
 import 'package:age_of_gold/services/models/user.dart';
 import 'package:age_of_gold/util/util.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/change_guild_crest_box/change_guild_crest_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_information.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window_overview_no_guild_create.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window_overview_no_guild_find.dart';
@@ -151,7 +150,7 @@ class GuildWindowOverviewNoGuildState extends State<GuildWindowOverviewNoGuild> 
         child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              SizedBox(width: 1),
+              const SizedBox(width: 1),
               Row(
                 children: [
                   Text(
@@ -162,7 +161,7 @@ class GuildWindowOverviewNoGuildState extends State<GuildWindowOverviewNoGuild> 
                   ),
                 ],
               ),
-              SizedBox(width: 1),
+              const SizedBox(width: 1),
             ]
         ),
       ),
@@ -196,7 +195,7 @@ class GuildWindowOverviewNoGuildState extends State<GuildWindowOverviewNoGuild> 
         child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              SizedBox(width: 1),
+              const SizedBox(width: 1),
               Row(
                 children: [
                   Text(
@@ -207,7 +206,7 @@ class GuildWindowOverviewNoGuildState extends State<GuildWindowOverviewNoGuild> 
                   ),
                 ],
               ),
-              SizedBox(width: 1),
+              const SizedBox(width: 1),
             ]
         ),
       ),
@@ -241,12 +240,12 @@ class GuildWindowOverviewNoGuildState extends State<GuildWindowOverviewNoGuild> 
         child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              SizedBox(width: 1),
+              const SizedBox(width: 1),
               Stack(
                 children: [
                   Row(
                     children: [
-                      SizedBox(
+                      const SizedBox(
                         width: 12,
                         height: 50,
                       ),
@@ -265,7 +264,7 @@ class GuildWindowOverviewNoGuildState extends State<GuildWindowOverviewNoGuild> 
                   ) : Container(),
                 ]
               ),
-              SizedBox(width: 1),
+              const SizedBox(width: 1),
             ]
         ),
       ),

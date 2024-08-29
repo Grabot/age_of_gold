@@ -300,7 +300,7 @@ class GuildWindowOverviewGuildNewMembersState extends State<GuildWindowOverviewG
                     ),
                   ),
                 ),
-                SizedBox(width: 5),
+                const SizedBox(width: 5),
                 Tooltip(
                   message: "deny request",
                   child: InkWell(
@@ -443,7 +443,7 @@ class GuildWindowOverviewGuildNewMembersState extends State<GuildWindowOverviewG
                   Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        SizedBox(width: 10),
+                        const SizedBox(width: 10),
                         SizedBox(
                           width: widget.overviewWidth - 150,
                           height: 50,
@@ -485,10 +485,10 @@ class GuildWindowOverviewGuildNewMembersState extends State<GuildWindowOverviewG
                               )
                           ),
                         ),
-                        SizedBox(width: 10),
+                        const SizedBox(width: 10),
                       ]
                   ),
-                  SizedBox(height: 40),
+                  const SizedBox(height: 40),
                   newMemberBox(120),
                   Column(
                     children: memberRequestsGotBox()

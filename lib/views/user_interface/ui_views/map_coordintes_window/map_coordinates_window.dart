@@ -45,10 +45,6 @@ class MapCoordinatesWindowState extends State<MapCoordinatesWindow> with TickerP
     super.initState();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
 
   mapCoordinatesChangeListener() {
     if (mounted) {

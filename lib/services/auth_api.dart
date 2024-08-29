@@ -61,8 +61,8 @@ class AppInterceptors extends Interceptor {
 
           if (refreshToken == "") {
             // We don't have a refresh token. We should log the user out.
-            DioError dioError = DioError(requestOptions: options,
-                type: DioErrorType.cancel,
+            DioException dioError = DioException(requestOptions: options,
+                type: DioExceptionType.cancel,
                 error: "User not authorized");
             return handler.reject(dioError, true);
           } else {
@@ -92,8 +92,8 @@ class AppInterceptors extends Interceptor {
               accessToken = loginRefresh.getAccessToken();
               successfulLogin(loginRefresh);
             } else {
-              DioError dioError = DioError(requestOptions: options,
-                  type: DioErrorType.cancel,
+              DioException dioError = DioException(requestOptions: options,
+                  type: DioExceptionType.cancel,
                   error: "User not authorized");
               return handler.reject(dioError, true);
             }
@@ -108,14 +108,14 @@ class AppInterceptors extends Interceptor {
   }
 
   @override
-  void onError(DioError err, ErrorInterceptorHandler handler) {
+  void onError(DioException err, ErrorInterceptorHandler handler) {
     print("on error! :(");
     switch (err.type) {
-      case DioErrorType.connectionTimeout:
-      case DioErrorType.sendTimeout:
-      case DioErrorType.receiveTimeout:
+      case DioExceptionType.connectionTimeout:
+      case DioExceptionType.sendTimeout:
+      case DioExceptionType.receiveTimeout:
         throw DeadlineExceededException(err.requestOptions);
-      case DioErrorType.badResponse:
+      case DioExceptionType.badResponse:
         if (err.response == null) {
           throw BadRequestException(err.requestOptions);
         }
@@ -132,13 +132,13 @@ class AppInterceptors extends Interceptor {
             throw InternalServerErrorException(err.requestOptions);
         }
         break;
-      case DioErrorType.cancel:
+      case DioExceptionType.cancel:
         throw BadRequestException(err.requestOptions);
-      case DioErrorType.unknown:
+      case DioExceptionType.unknown:
         throw NoInternetConnectionException(err.requestOptions);
-      case DioErrorType.badCertificate:
+      case DioExceptionType.badCertificate:
         throw BadRequestException(err.requestOptions);
-      case DioErrorType.connectionError:
+      case DioExceptionType.connectionError:
         throw NoInternetConnectionException(err.requestOptions);
     }
 
@@ -146,7 +146,7 @@ class AppInterceptors extends Interceptor {
   }
 }
 
-class BadRequestException extends DioError {
+class BadRequestException extends DioException {
   BadRequestException(RequestOptions r) : super(requestOptions: r);
 
   @override
@@ -155,7 +155,7 @@ class BadRequestException extends DioError {
   }
 }
 
-class InternalServerErrorException extends DioError {
+class InternalServerErrorException extends DioException {
   InternalServerErrorException(RequestOptions r) : super(requestOptions: r);
 
   @override
@@ -164,7 +164,7 @@ class InternalServerErrorException extends DioError {
   }
 }
 
-class ConflictException extends DioError {
+class ConflictException extends DioException {
   ConflictException(RequestOptions r) : super(requestOptions: r);
 
   @override
@@ -173,7 +173,7 @@ class ConflictException extends DioError {
   }
 }
 
-class UnauthorizedException extends DioError {
+class UnauthorizedException extends DioException {
   UnauthorizedException(RequestOptions r) : super(requestOptions: r);
 
   @override
@@ -182,7 +182,7 @@ class UnauthorizedException extends DioError {
   }
 }
 
-class NotFoundException extends DioError {
+class NotFoundException extends DioException {
   NotFoundException(RequestOptions r) : super(requestOptions: r);
 
   @override
@@ -191,7 +191,7 @@ class NotFoundException extends DioError {
   }
 }
 
-class NoInternetConnectionException extends DioError {
+class NoInternetConnectionException extends DioException {
   NoInternetConnectionException(RequestOptions r) : super(requestOptions: r);
 
   @override
@@ -200,7 +200,7 @@ class NoInternetConnectionException extends DioError {
   }
 }
 
-class DeadlineExceededException extends DioError {
+class DeadlineExceededException extends DioException {
   DeadlineExceededException(RequestOptions r) : super(requestOptions: r);
 
   @override

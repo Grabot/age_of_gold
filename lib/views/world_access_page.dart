@@ -5,9 +5,6 @@ import 'package:age_of_gold/views/user_interface/ui_views/login_view/login_windo
 import 'package:flutter/material.dart';
 import '../age_of_gold.dart';
 import 'package:age_of_gold/constants/route_paths.dart' as routes;
-import 'package:flutter/scheduler.dart';
-
-import '../util/util.dart';
 
 
 class WorldAccess extends StatefulWidget {
@@ -15,9 +12,9 @@ class WorldAccess extends StatefulWidget {
   final AgeOfGold game;
 
   const WorldAccess({
-    Key? key,
+    super.key,
     required this.game
-  }) : super(key: key);
+  });
 
   @override
   State<WorldAccess> createState() => _WorldAccessState();
@@ -38,15 +35,11 @@ class _WorldAccessState extends State<WorldAccess> {
       AuthServiceLogin authService = AuthServiceLogin();
       authService.getRefresh(accessToken, refreshToken).then((loginResponse) {
         if (loginResponse.getResult()) {
-          print("it was a success");
           setState(() {
             LoginWindowChangeNotifier().setLoginWindowVisible(false);
           });
-        } else {
-          print("it failed");
         }
-        Future.delayed(const Duration(milliseconds: 500), ()
-        {
+        Future.delayed(const Duration(milliseconds: 500), () {
           _navigationService.navigateTo(routes.HomeRoute);
         });
       });

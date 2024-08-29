@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:typed_data';
 import 'package:age_of_gold/services/auth_service_guild.dart';
 import 'package:age_of_gold/services/models/user.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_information.dart';
@@ -8,7 +7,6 @@ import 'package:flutter/services.dart';
 import 'package:image/image.dart' as image;
 
 import 'package:age_of_gold/age_of_gold.dart';
-import 'package:age_of_gold/services/auth_service_setting.dart';
 import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/util/render_objects.dart';
 import 'package:age_of_gold/util/util.dart';
@@ -79,10 +77,6 @@ class ChangeGuildCrestBoxState extends State<ChangeGuildCrestBox> with TickerPro
     }
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
 
   imageLoaded() async {
     LoadingBoxChangeNotifier loadingBoxChangeNotifier = LoadingBoxChangeNotifier();
@@ -210,16 +204,16 @@ class ChangeGuildCrestBoxState extends State<ChangeGuildCrestBox> with TickerPro
               children: [
                 Column(
                   children: [
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     cropWidget(cropWidth),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     uploadNewImageButton(buttonWidth, 50, fontSize),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                   ],
                 ),
                 Column(
                   children: [
-                    Container(
+                    SizedBox(
                       height: 20,
                       child: Text(
                         "Result:",
@@ -234,9 +228,9 @@ class ChangeGuildCrestBoxState extends State<ChangeGuildCrestBox> with TickerPro
                         cropWidth * 1.125,
                         imageCrop
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     selectImageButton(buttonWidth, 50, fontSize),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     resetDefaultImageButton(buttonWidth, 50, fontSize),
                   ],
                 )
@@ -284,7 +278,7 @@ class ChangeGuildCrestBoxState extends State<ChangeGuildCrestBox> with TickerPro
   }
 
   Widget uploadNewImageButton(double buttonWidth, double buttonHeight, double fontSize) {
-    return Container(
+    return SizedBox(
       width: buttonWidth,
       height: buttonHeight,
       child: ElevatedButton(
@@ -304,7 +298,7 @@ class ChangeGuildCrestBoxState extends State<ChangeGuildCrestBox> with TickerPro
   }
 
   Widget resetDefaultImageButton(double buttonWidth, double buttonHeight, double fontSize) {
-    return changeGuildCrestChangeNotifier.getDefault() == false ? Container(
+    return changeGuildCrestChangeNotifier.getDefault() == false ? SizedBox(
       width: buttonWidth,
       height: buttonHeight,
       child: ElevatedButton(
@@ -328,7 +322,7 @@ class ChangeGuildCrestBoxState extends State<ChangeGuildCrestBox> with TickerPro
     if (!changeGuildCrestChangeNotifier.getCreateCrest()) {
       saveText = "Save new guild crest image";
     }
-    return Container(
+    return SizedBox(
       width: buttonWidth,
       height: buttonHeight,
       child: ElevatedButton(
@@ -364,14 +358,14 @@ class ChangeGuildCrestBoxState extends State<ChangeGuildCrestBox> with TickerPro
           children: [
             changeGuildCrestHeader(width, headerHeight, fontSize),
             cropWidget(cropHeight),
-            Container(
+            SizedBox(
               height: avatarHeight,
               width: width,
               child: Row(
                 children:[
                   Column(
                     children: [
-                      Text("Result:"),
+                      const Text("Result:"),
                       guildAvatarBox(
                           width,
                           width * 1.125,
@@ -398,7 +392,7 @@ class ChangeGuildCrestBoxState extends State<ChangeGuildCrestBox> with TickerPro
   }
 
   Widget changeGuildCrestHeader(double headerWidth, double headerHeight, double fontSize) {
-    return Container(
+    return SizedBox(
       width: headerWidth,
       height: headerHeight,
       child: Row(

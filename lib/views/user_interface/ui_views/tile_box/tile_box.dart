@@ -135,10 +135,6 @@ class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
     }
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
 
   changeTileType(String tileName, int tileType) {
     if (settings.getUser() == null) {
@@ -233,7 +229,7 @@ class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
   }
 
   Widget tileDetail(double tileDetailWidth, double tileDetailHeight) {
-    return Container(
+    return SizedBox(
       width: tileDetailWidth,
       height: tileDetailHeight,
       child: Column(
@@ -241,7 +237,7 @@ class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text("Tile:  "),
+              const Text("Tile:  "),
               Column(
                 children: [
                   Text("Q: ${selectedTileInfo.selectedTile!.tileQ}"),
@@ -269,24 +265,22 @@ class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
 
   viewUser() {
     String userName = selectedTileInfo.getTileChangedBy()!;
-    if (userName != null) {
-      AuthServiceWorld().getUser(userName).then((value) {
-        if (value != null) {
-          setState(() {
-            selectedTileInfo.selectedTile = null;
-          });
-          UserBoxChangeNotifier().setUser(value);
-          UserBoxChangeNotifier().setUserBoxVisible(true);
-        }
-      });
+    AuthServiceWorld().getUser(userName).then((value) {
+      if (value != null) {
+        setState(() {
+          selectedTileInfo.selectedTile = null;
+        });
+        UserBoxChangeNotifier().setUser(value);
+        UserBoxChangeNotifier().setUserBoxVisible(true);
+      }
+    });
     }
-  }
 
   Widget changedDetail(double changedDetailWidth, double changedDetailHeight) {
     double avatarBoxHeight = 69;
     double changedAtHeight = 15;
     double changedHeight = changedDetailHeight - avatarBoxHeight - changedAtHeight - 20;
-    return Container(
+    return SizedBox(
       width: changedDetailWidth,
       height: changedDetailHeight,
       child: Column(
@@ -294,7 +288,7 @@ class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
           SizedBox(
             width: changedDetailWidth,
             height: changedHeight,
-            child: Text("Last changed by:")
+            child: const Text("Last changed by:")
           ),
           InkWell(
             onTap: () {
@@ -319,7 +313,7 @@ class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
                 children: [
                   avatarBox(avatarBoxHeight, avatarBoxHeight, selectedTileInfo.getLastChangedByAvatar()!),
                   Expanded(
-                    child: Container(
+                    child: SizedBox(
                         width: changedDetailWidth - avatarBoxHeight,
                         child: RichText(
                             maxLines: 1,
@@ -335,13 +329,13 @@ class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
               ),
             ),
           ),
-          SizedBox(height: 10),
-          Container(
+          const SizedBox(height: 10),
+          SizedBox(
               width: changedDetailWidth,
               height: changedAtHeight,
               child: Text(selectedTileInfo.getChangedAt()!)
           ),
-          SizedBox(height: 10)
+          const SizedBox(height: 10)
         ],
       ),
     );
@@ -372,7 +366,7 @@ class TileBoxState extends State<TileBox> with TickerProviderStateMixin {
             if (selectedTileInfo.getLastChangedBy() != null && selectedTileInfo.getLastChangedByAvatar() != null)
               changedDetail(tileBoxWidth, changedDetailHeight),
             if (selectedTileInfo.getLastChangedBy() == null)
-                Text("Tile untouched"),
+                const Text("Tile untouched"),
             dropdownThing(tileBoxWidth, dropDownHeight),
           ]
         ),

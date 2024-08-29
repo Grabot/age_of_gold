@@ -156,7 +156,7 @@ class FriendWindowFindFriendState extends State<FriendWindowFindFriend> {
       if (newFriendOption.getFriendName() != null) {
         friendName = newFriendOption.getFriendName()!;
       }
-      Uint8List? friendAvatar = null;
+      Uint8List? friendAvatar;
       if (newFriendOption.getFriendAvatar() != null) {
         friendAvatar = newFriendOption.getFriendAvatar()!;
       }
@@ -204,7 +204,7 @@ class FriendWindowFindFriendState extends State<FriendWindowFindFriend> {
                   Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        SizedBox(width: 10),
+                        const SizedBox(width: 10),
                         SizedBox(
                           width: addFriendWindowWidth - 150,
                           height: 50,
@@ -246,10 +246,10 @@ class FriendWindowFindFriendState extends State<FriendWindowFindFriend> {
                               )
                           ),
                         ),
-                        SizedBox(width: 10),
+                        const SizedBox(width: 10),
                       ]
                   ),
-                  SizedBox(height: 40),
+                  const SizedBox(height: 40),
                   friendBox(possibleNewFriend, 120, addFriendWindowWidth, fontSize),
                 ]
             ),

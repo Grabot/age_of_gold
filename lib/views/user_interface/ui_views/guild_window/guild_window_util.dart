@@ -1,11 +1,9 @@
 
 import 'dart:convert';
 
-import 'package:age_of_gold/services/auth_service_guild.dart';
 import 'package:age_of_gold/services/auth_service_social.dart';
 import 'package:age_of_gold/services/models/guild_member.dart';
 import 'package:age_of_gold/services/models/user.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/change_guild_crest_box/change_guild_crest_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_information.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window_change_notifier.dart';
 

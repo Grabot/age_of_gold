@@ -1,13 +1,10 @@
 import 'package:age_of_gold/age_of_gold.dart';
-import 'package:age_of_gold/services/models/friend.dart';
-import 'package:age_of_gold/services/models/user.dart';
 import 'package:age_of_gold/services/settings.dart';
 import 'package:age_of_gold/services/socket_services.dart';
 import 'package:age_of_gold/util/countdown.dart';
 import 'package:age_of_gold/util/navigation_service.dart';
 import 'package:age_of_gold/util/render_objects.dart';
 import 'package:age_of_gold/util/util.dart';
-import 'package:age_of_gold/views/user_interface/ui_util/chat_messages.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/clear_ui.dart';
 import 'package:age_of_gold/views/user_interface/ui_util/selected_tile_info.dart';
 import 'package:age_of_gold/locator.dart';
@@ -96,21 +93,21 @@ class ProfileOverviewState extends State<ProfileOverview> with TickerProviderSta
   // Only show logout dialog when user presses back button
   showAlertDialog(BuildContext context) {  // set up the buttons
     Widget cancelButton = ElevatedButton(
-      child: Text("Cancel"),
+      child: const Text("Cancel"),
       onPressed:  () {
         Navigator.pop(context);
       },
     );
     Widget continueButton = ElevatedButton(
-      child: Text("Logout"),
+      child: const Text("Logout"),
       onPressed:  () {
         Navigator.pop(context);
         logoutUser(Settings(), _navigationService);
       },
     );  // set up the AlertDialog
     AlertDialog alert = AlertDialog(
-      title: Text("Leave?"),
-      content: Text("Do you want to logout of Age of Gold?"),
+      title: const Text("Leave?"),
+      content: const Text("Do you want to logout of Age of Gold?"),
       actions: [
         cancelButton,
         continueButton,
@@ -278,7 +275,7 @@ class ProfileOverviewState extends State<ProfileOverview> with TickerProviderSta
                   profileWidget(profileOverviewWidth, profileOverviewHeight),
                 ],
               ),
-              SizedBox(width: 5),
+              const SizedBox(width: 5),
             ]
           ),
         ]

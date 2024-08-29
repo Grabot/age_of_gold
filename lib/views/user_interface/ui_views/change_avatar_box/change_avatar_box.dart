@@ -73,10 +73,6 @@ class ChangeAvatarBoxState extends State<ChangeAvatarBox> with TickerProviderSta
     }
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
 
   imageLoaded() async {
     LoadingBoxChangeNotifier loadingBoxChangeNotifier = LoadingBoxChangeNotifier();
@@ -186,16 +182,16 @@ class ChangeAvatarBoxState extends State<ChangeAvatarBox> with TickerProviderSta
               children: [
                 Column(
                   children: [
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     cropWidget(cropWidth),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     uploadNewImageButton(buttonWidth, 50, fontSize),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                   ],
                 ),
                 Column(
                   children: [
-                    Container(
+                    SizedBox(
                       height: 20,
                       child: Text(
                         "Result:",
@@ -210,9 +206,9 @@ class ChangeAvatarBoxState extends State<ChangeAvatarBox> with TickerProviderSta
                         cropWidth,
                         imageCrop
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     saveImageButton(buttonWidth, 50, fontSize),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     resetDefaultImageButton(buttonWidth, 50, fontSize),
                   ],
                 )
@@ -258,7 +254,7 @@ class ChangeAvatarBoxState extends State<ChangeAvatarBox> with TickerProviderSta
   }
 
   Widget uploadNewImageButton(double buttonWidth, double buttonHeight, double fontSize) {
-    return Container(
+    return SizedBox(
       width: buttonWidth,
       height: buttonHeight,
       child: ElevatedButton(
@@ -278,7 +274,7 @@ class ChangeAvatarBoxState extends State<ChangeAvatarBox> with TickerProviderSta
   }
 
   Widget resetDefaultImageButton(double buttonWidth, double buttonHeight, double fontSize) {
-    return isDefault == false ? Container(
+    return isDefault == false ? SizedBox(
       width: buttonWidth,
       height: buttonHeight,
       child: ElevatedButton(
@@ -298,7 +294,7 @@ class ChangeAvatarBoxState extends State<ChangeAvatarBox> with TickerProviderSta
   }
 
   Widget saveImageButton(double buttonWidth, double buttonHeight, double fontSize) {
-    return Container(
+    return SizedBox(
       width: buttonWidth,
       height: buttonHeight,
       child: ElevatedButton(
@@ -334,14 +330,14 @@ class ChangeAvatarBoxState extends State<ChangeAvatarBox> with TickerProviderSta
           children: [
             changeAvatarHeader(width, headerHeight, fontSize),
             cropWidget(cropHeight),
-            Container(
+            SizedBox(
               height: avatarHeight,
               width: width,
               child: Row(
                 children:[
                   Column(
                     children: [
-                      Text("Result:"),
+                      const Text("Result:"),
                       avatarBox(
                           avatarSize,
                           avatarSize,
@@ -368,7 +364,7 @@ class ChangeAvatarBoxState extends State<ChangeAvatarBox> with TickerProviderSta
   }
 
   Widget changeAvatarHeader(double headerWidth, double headerHeight, double fontSize) {
-    return Container(
+    return SizedBox(
       width: headerWidth,
       height: headerHeight,
       child: Row(

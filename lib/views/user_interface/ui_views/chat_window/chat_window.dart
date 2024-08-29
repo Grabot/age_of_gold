@@ -274,7 +274,7 @@ class ChatWindowState extends State<ChatWindow> {
             children: [
               Row(
                 children: [
-                  SizedBox(width: 15),
+                  const SizedBox(width: 15),
                   SizedBox(
                     width: 40,
                     height: 40,
@@ -324,7 +324,7 @@ class ChatWindowState extends State<ChatWindow> {
       style: buttonStyle(false, buttonColour),
       child: Row(
         children: [
-          Container(
+          const SizedBox(
             width: 40,
             height: 50,
             child: Icon(
@@ -410,7 +410,7 @@ class ChatWindowState extends State<ChatWindow> {
             children: [
               Row(
                 children: [
-                  SizedBox(width: 15),
+                  const SizedBox(width: 15),
                   SizedBox(
                     width: 40,
                     height: 50,
@@ -496,7 +496,7 @@ class ChatWindowState extends State<ChatWindow> {
   }
 
   Widget personalChatHeader(double leftColumnWidth, double personalChatHeaderHeight, double fontSize) {
-    return Container(
+    return SizedBox(
       height: personalChatHeaderHeight,
       child: Column(
         children: [
@@ -538,7 +538,7 @@ class ChatWindowState extends State<ChatWindow> {
     if (hasPersonalChats) {
       return Column(
         children: [
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           personalChatHeader(leftColumnWidth, personalChatHeaderHeight, fontSize),
           Container(
             constraints: BoxConstraints(minHeight: personalChatHeaderHeight, maxHeight: personalChatHeight - 20 - personalChatHeaderHeight),
@@ -567,7 +567,7 @@ class ChatWindowState extends State<ChatWindow> {
     }
     return Column(
       children: [
-        Container(
+        SizedBox(
           height: 30,
           child: Row(
             children: [
@@ -589,7 +589,7 @@ class ChatWindowState extends State<ChatWindow> {
                 children: [
                   Row(
                     children: [
-                      SizedBox(width: 15),
+                      const SizedBox(width: 15),
                       SizedBox(
                         width: 40,
                         height: 40 * 1.125,
@@ -646,7 +646,7 @@ class ChatWindowState extends State<ChatWindow> {
     double remainingHeight = leftColumnHeight - worldChatButtonHeight - guildChatButtonHeight - eventsButtonHeight;
     return Column(
       children: [
-        Container(
+        SizedBox(
           height: leftColumnHeight-50,
           child: Column(
             children: [
@@ -673,7 +673,7 @@ class ChatWindowState extends State<ChatWindow> {
     setChatMessages();
     return Column(
       children: [
-        Container(
+        SizedBox(
             width: rightColumnWidth,
             height: rightColumnHeight - chatTextFieldHeight,
             child: messageList(chatMessages.shownMessages, messageScrollController, userInteraction, chatMessages.getSelectedChatData(), isEvent, true, fontSize, false)

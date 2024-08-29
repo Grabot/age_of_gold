@@ -14,7 +14,7 @@ class Countdown extends AnimatedWidget {
 
     return Text(
       "Tile lock\n$timerText\nremaining",
-      style: TextStyle(
+      style: const TextStyle(
         fontSize: 20,
         color: Colors.white54,
       ),

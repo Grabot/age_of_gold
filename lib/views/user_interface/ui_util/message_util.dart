@@ -104,10 +104,10 @@ class MessageTileState extends State<MessageTile> {
     return Container(
       alignment: Alignment.bottomRight,
       child: Container(
-        padding: new EdgeInsets.only(left: 10.0, right: 10),
+        padding: const EdgeInsets.only(left: 10.0, right: 10),
         decoration: BoxDecoration(
-          borderRadius: new BorderRadius.circular(20.0),
-          color: Color(0xFF009E00).withOpacity(0.6),
+          borderRadius: BorderRadius.circular(20.0),
+          color: const Color(0xFF009E00).withOpacity(0.6),
         ),
         child: RichText(
           textAlign: TextAlign.right,
@@ -129,9 +129,9 @@ class MessageTileState extends State<MessageTile> {
     return Container(
         alignment: Alignment.bottomLeft,
         child: Container(
-          padding: new EdgeInsets.only(left: 10.0, right: 10),
+          padding: const EdgeInsets.only(left: 10.0, right: 10),
           decoration: BoxDecoration(
-            borderRadius: new BorderRadius.circular(20.0),
+            borderRadius: BorderRadius.circular(20.0),
             color: textColour.withOpacity(0.6),
           ),
           child: RichText(

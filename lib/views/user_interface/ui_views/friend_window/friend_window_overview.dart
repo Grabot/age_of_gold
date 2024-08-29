@@ -103,7 +103,7 @@ class FriendWindowOverviewState extends State<FriendWindowOverview> {
   }
 
   Widget friendInteraction(Friend friend, double avatarBoxSize, double newFriendOptionWidth, double fontSize) {
-    return Container(
+    return SizedBox(
       width: newFriendOptionWidth,
       height: 40,
       child: Row(
@@ -119,7 +119,7 @@ class FriendWindowOverviewState extends State<FriendWindowOverview> {
                     child: addIcon(40, Icons.message, Colors.green)
                 )
             ),
-            SizedBox(width: 10),
+            const SizedBox(width: 10),
             InkWell(
               onTap: () {
                 setState(() {
