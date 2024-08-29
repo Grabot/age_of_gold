@@ -468,9 +468,6 @@ String getTileColour(int tileType) {
 goToGame(NavigationService navigationService, AgeOfGold game) {
   // If the game was already mounted we want to reload the initialization
   // If it is not mounted it will be loaded in the onLoad
-  if (game.isMounted) {
-    game.startGame();
-  }
   navigationService.navigateTo(routes.HomeRoute);
 }
 

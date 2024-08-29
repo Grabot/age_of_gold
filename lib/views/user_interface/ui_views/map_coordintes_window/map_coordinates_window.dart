@@ -97,7 +97,7 @@ class MapCoordinatesWindowState extends State<MapCoordinatesWindow> with TickerP
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Container(
-          margin: const EdgeInsets.all(20),
+          margin: const EdgeInsets.all(10),
           child: Text(
             "Jump to map Coordinates",
             style: simpleTextStyle(fontSize)
@@ -131,7 +131,7 @@ class MapCoordinatesWindowState extends State<MapCoordinatesWindow> with TickerP
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 SizedBox(
-                  width: 20,
+                  width: width/12,
                   height: mapCoordinatesHeight,
                   child: Text("Q: ", style: simpleTextStyle(fontSize*1.5)),
                 ),
@@ -159,7 +159,7 @@ class MapCoordinatesWindowState extends State<MapCoordinatesWindow> with TickerP
                 ),
                 const SizedBox(width: 40),
                 SizedBox(
-                  width: 20,
+                  width: width/12,
                   height: mapCoordinatesHeight,
                   child: Text("R: ", style: simpleTextStyle(fontSize*1.5)),
                 ),
@@ -195,7 +195,7 @@ class MapCoordinatesWindowState extends State<MapCoordinatesWindow> with TickerP
 
   Widget jumpToCoordinatesButton(double width, double jumpToCoordinatesButtonHeight, double fontSize) {
     return SizedBox(
-        width: width/3,
+        width: width/2,
         height: jumpToCoordinatesButtonHeight,
         child: ElevatedButton(
           onPressed: () {
