@@ -1,19 +1,19 @@
 import 'dart:typed_data';
-
 import 'package:age_of_gold/age_of_gold.dart';
-import 'package:age_of_gold/services/auth_service_world.dart';
-import 'package:age_of_gold/services/models/user.dart';
-import 'package:age_of_gold/services/settings.dart';
-import 'package:age_of_gold/services/socket_services.dart';
-import 'package:age_of_gold/util/render_objects.dart';
-import 'package:age_of_gold/util/util.dart';
-import 'package:age_of_gold/views/user_interface/ui_util/chat_messages.dart';
-import 'package:age_of_gold/views/user_interface/ui_util/clear_ui.dart';
-import 'package:age_of_gold/views/user_interface/ui_util/message_util.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/chat_box/chat_box_change_notifier.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/chat_window/chat_window_change_notifier.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/user_box/user_box_change_notifier.dart';
 import 'package:flutter/material.dart';
+
+import '../../../../services/auth_service_world.dart';
+import '../../../../services/models/user.dart';
+import '../../../../services/settings.dart';
+import '../../../../services/socket_services.dart';
+import '../../../../util/render_objects.dart';
+import '../../../../util/util.dart';
+import '../../ui_util/chat_messages.dart';
+import '../../ui_util/clear_ui.dart';
+import '../../ui_util/message_util.dart';
+import '../chat_box/chat_box_change_notifier.dart';
+import '../user_box/user_box_change_notifier.dart';
+import 'chat_window_change_notifier.dart';
 
 
 class ChatWindow extends StatefulWidget {
@@ -360,7 +360,6 @@ class ChatWindowState extends State<ChatWindow> {
 
   pressedPersonalButton(ChatData chatData) {
     setState(() {
-      print("setting personal stuff");
       chatTitle = chatData.name;
       isEvent = false;
       isWorld = false;
@@ -388,9 +387,7 @@ class ChatWindowState extends State<ChatWindow> {
     }
     if (messageScrollController.offset <= messageScrollController.position.minScrollExtent &&
         !messageScrollController.position.outOfRange) {
-      setState(() {
-        print("reach the top");
-      });
+      setState(() {});
     }
   }
 

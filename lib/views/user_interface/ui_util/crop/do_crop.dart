@@ -3,7 +3,6 @@ import 'package:image/image.dart' as image;
 
 
 Uint8List doCrop(List<dynamic> cropData) {
-  print("do crop mobile");
   final originalImage = cropData[0] as image.Image;
   final rect = cropData[1] as List;
   return Uint8List.fromList(

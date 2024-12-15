@@ -1,4 +1,3 @@
-
 import 'package:flutter/foundation.dart';
 import 'package:isolated_worker/js_isolated_worker.dart';
 import 'models/user.dart';
@@ -14,7 +13,8 @@ class Settings extends ChangeNotifier {
 
   User? user;
 
-  // String? avatar;
+  int rotation = 0;
+
   Uint8List? avatar;
 
   bool loggingIn = false;
@@ -24,9 +24,8 @@ class Settings extends ChangeNotifier {
       // This script had lots of compiled code, so it is not included in the git repo.
       // The file can be viewed in a previous commit
       // https://github.com/Grabot/age_of_gold/blob/cf11e6b237caa4bc67fecd7a9bd9250d8b8fe918/web/crop_web.js
-      JsIsolatedWorker().importScripts(['crop/crop_web.js']).then((value) {
-        print("importScripts");
-      });
+      JsIsolatedWorker().importScripts(['crop/crop_web.js']).then((value) {});
+      print("imported crop_web.js");
     }
   }
 
@@ -101,5 +100,12 @@ class Settings extends ChangeNotifier {
 
   int getRefreshTokenExpiration() {
     return refreshTokenExpiration;
+  }
+
+  setRotation(int rotation) {
+    this.rotation = rotation;
+  }
+  getRotation() {
+    return rotation;
   }
 }

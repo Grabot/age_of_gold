@@ -1,11 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
-
-import 'package:age_of_gold/services/models/base_response.dart';
-import 'package:age_of_gold/services/models/guild.dart';
 import 'package:dio/dio.dart';
 
 import 'auth_api.dart';
+import 'models/base_response.dart';
+import 'models/guild.dart';
 import 'models/user.dart';
 
 

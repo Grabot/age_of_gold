@@ -1,8 +1,9 @@
 import 'package:age_of_gold/age_of_gold.dart';
-import 'package:age_of_gold/services/settings.dart';
-import 'package:age_of_gold/util/util.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../services/settings.dart';
+import '../../../../util/util.dart';
 import 'map_coordinates_change_notifier.dart';
 
 
@@ -83,7 +84,7 @@ class MapCoordinatesWindowState extends State<MapCoordinatesWindow> with TickerP
       int r = int.parse(rController.text);
       qController.text = "";
       rController.text = "";
-      widget.game.jumpToCoordinates(q, r);
+      widget.game.jumpToCoordinates(q, r, true);
       goBack();
     }
   }
@@ -113,7 +114,117 @@ class MapCoordinatesWindowState extends State<MapCoordinatesWindow> with TickerP
     );
   }
 
+  Widget mapCoordinatesExplanation(double headerWidth, double headerHeight, double fontSize) {
+    return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Expanded(
+            child: RichText(
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                text: TextSpan(
+                    children: [
+                      TextSpan(
+                          text: "Fill in a Q and R coordinate to jump to that corresponding map tile.",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: fontSize,
+                              fontWeight: FontWeight.bold
+                          )
+                      )
+                    ]
+                )
+            ),
+          ),
+        ]
+    );
+  }
+
+
   bool isInteger(String value) => int.tryParse(value) != null;
+
+  Widget mapCoordinatesMobile(double width, double mapCoordinatesHeight, double fontSize) {
+    return Form(
+      key: formKeyMapCoordinates,
+      child: Column(
+        children: [
+          SizedBox(
+              width: width,
+              height: mapCoordinatesHeight,
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: width/12,
+                      height: mapCoordinatesHeight,
+                      child: Text("Q: ", style: simpleTextStyle(fontSize*1.5)),
+                    ),
+                    const SizedBox(width: 5),
+                    SizedBox(
+                      width: width/2,
+                      height: mapCoordinatesHeight,
+                      child: TextFormField(
+                        controller: qController,
+                        validator: (val) {
+                          if (val == null || val.isEmpty) {
+                            return "Fill in a number";
+                          } else {
+                            if (isInteger(val)) {
+                              return null;
+                            } else {
+                              return "Fill in a number";
+                            }
+                          }
+                        },
+                        style: simpleTextStyle(fontSize),
+                        decoration: const InputDecoration(
+                            errorStyle: TextStyle(color: Colors.red)),
+                      ),
+                    ),
+                  ]
+              )
+          ),
+          SizedBox(height: 20),
+          SizedBox(
+            width: width,
+            height: mapCoordinatesHeight,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(
+                  width: width/12,
+                  height: mapCoordinatesHeight,
+                  child: Text("R: ", style: simpleTextStyle(fontSize*1.5)),
+                ),
+                const SizedBox(width: 5),
+                SizedBox(
+                  width: width/2,
+                  height: mapCoordinatesHeight,
+                  child: TextFormField(
+                    controller: rController,
+                    validator: (val) {
+                      if (val == null || val.isEmpty) {
+                        return "Fill in a number";
+                      } else {
+                        if (isInteger(val)) {
+                          return null;
+                        } else {
+                          return "Fill in a number";
+                        }
+                      }
+                    },
+                    style: simpleTextStyle(fontSize),
+                    decoration: const InputDecoration(
+                        errorStyle: TextStyle(color: Colors.red)),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget mapCoordinates(double width, double mapCoordinatesHeight, double fontSize) {
     return Form(
@@ -207,6 +318,13 @@ class MapCoordinatesWindowState extends State<MapCoordinatesWindow> with TickerP
   }
 
   Widget mapCoordinatesWindow(double width, double loginBoxSize, double fontSize) {
+    double coordinateButtonWidth = width/2;
+    bool normalMode = true;
+    if (width <= 800) {
+      // Don't show social buttons when not logged in or on mobile
+      normalMode = false;
+      coordinateButtonWidth = width;
+    }
     return SingleChildScrollView(
       child: Container(
         color: Colors.amber,
@@ -215,9 +333,11 @@ class MapCoordinatesWindowState extends State<MapCoordinatesWindow> with TickerP
           children: [
             mapCoordinatesHeader(width, 40, fontSize),
             const SizedBox(height: 40),
-            mapCoordinates(width, 40, fontSize),
+            mapCoordinatesExplanation(width, 40, fontSize),
             const SizedBox(height: 40),
-            jumpToCoordinatesButton(width, 60, fontSize),
+            normalMode ? mapCoordinates(width, 40, fontSize) : mapCoordinatesMobile(width, 40, fontSize),
+            const SizedBox(height: 40),
+            jumpToCoordinatesButton(coordinateButtonWidth, 60, fontSize),
             const SizedBox(height: 100),
           ],
         ),

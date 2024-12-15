@@ -1,17 +1,20 @@
-import 'package:age_of_gold/component/tile.dart';
-import 'package:age_of_gold/util/render_hexagons.dart';
-import 'package:age_of_gold/util/tapped_map.dart';
-import 'package:age_of_gold/views/user_interface/ui_util/clear_ui.dart';
-import 'package:age_of_gold/views/user_interface/ui_util/selected_tile_info.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/map_coordinates/map_coordinates_change_notifier.dart';
+import 'package:flame/palette.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
+
 import '../component/hexagon.dart';
-import '../services/auth_service_world.dart';
+import '../component/tile.dart';
 import '../constants/global.dart';
-import '../util/hexagon_list.dart';
-import '../util/selected_tile.dart';
+import '../services/auth_service_world.dart';
+import '../services/settings.dart';
 import '../services/socket_services.dart';
+import '../util/hexagon_list.dart';
+import '../util/render_hexagons.dart';
+import '../util/selected_tile.dart';
+import '../util/tapped_map.dart';
+import '../views/user_interface/ui_util/clear_ui.dart';
+import '../views/user_interface/ui_util/selected_tile_info.dart';
+import '../views/user_interface/ui_views/map_coordinates/map_coordinates_change_notifier.dart';
 
 
 class HexWorld extends Component {
@@ -24,8 +27,6 @@ class HexWorld extends Component {
 
   Tile? mouseTile;
 
-  int currentVariant = 0;
-
   late SocketServices socketServices;
   late SelectedTileInfo selectedTileInfo;
 
@@ -35,6 +36,8 @@ class HexWorld extends Component {
   late MapCoordinatesChangeNotifier mapCoordinatesChangeNotifier = MapCoordinatesChangeNotifier();
 
   HexWorld(this.startHexQ, this.startHexR);
+
+  int rotation = 0;
 
   @override
   Future<void> onLoad() async {
@@ -47,16 +50,18 @@ class HexWorld extends Component {
     hexagonList = HexagonList();
     hexagonList.setSocketService(socketServices);
     hexagonList.retrieveHexagons(startHexQ, startHexR);
+
+    rotation = Settings().getRotation();
   }
 
   @override
   void render(Canvas canvas) {
     super.render(canvas);
 
-    renderHexagons(canvas, cameraPosition, hexagonList, screen, currentVariant, socketServices);
+    renderHexagons(canvas, cameraPosition, hexagonList, screen, socketServices, rotation);
 
     if (mouseTile != null) {
-      tileSelected(mouseTile!, canvas);
+      tileSelected(mouseTile!, canvas, rotation);
     }
   }
 
@@ -71,7 +76,7 @@ class HexWorld extends Component {
   }
 
   void onTappedUp(Vector2 mouseTapped, Vector2 screenPos) {
-    List<int> tileProperties = getTileFromPos(mouseTapped.x, mouseTapped.y);
+    List<int> tileProperties = getTileFromPos(mouseTapped.x, mouseTapped.y, rotation);
     int q = tileProperties[0];
     int r = tileProperties[1];
 
@@ -91,23 +96,17 @@ class HexWorld extends Component {
     AuthServiceWorld().getTileInfo(tile, screenPos).then((value) {
       if (value != "success") {
         // TODO: What to do when it is not successful
-      } else {
-        print("success!");
       }
     }).onError((error, stackTrace) {
       // TODO: What to do on an error?
     });
   }
 
-  updateVariant(int variant) {
-    currentVariant = variant;
-  }
-
   int currentCameraQ = 0;
   int currentCameraR = 0;
 
-  void checkCameraPos(Vector2 cameraPos) {
-    List<int> tileProperties = getTileFromPos(cameraPos.x, cameraPos.y);
+  void checkCameraPos() {
+    List<int> tileProperties = getTileFromPos(cameraPosition.x, cameraPosition.y, rotation);
     int q = tileProperties[0];
     int r = tileProperties[1];
     if (q != currentCameraQ || r != currentCameraR) {
@@ -127,7 +126,7 @@ class HexWorld extends Component {
 
   updateWorld(Vector2 cameraPos, double zoomLevel, Vector2 worldSize) {
     cameraPosition = cameraPos;
-    checkCameraPos(cameraPos);
+    checkCameraPos();
 
     zoom = zoomLevel;
 
@@ -177,5 +176,29 @@ class HexWorld extends Component {
       }
     }
     return null;
+  }
+
+  bool checkForWrap() {
+    List<int> tileProperties = getTileFromPos(cameraPosition.x, cameraPosition.y, rotation);
+    int q = tileProperties[0];
+    int r = tileProperties[1];
+
+    Tile? cameraTile = hexagonList.getTileFromCoordinates(q, r);
+    if (cameraTile != null) {
+      if (cameraTile.q != cameraTile.tileQ || cameraTile.r != cameraTile.tileR) {
+        // A simple wrap check is to see if the q is different from tileQ or r is different from tileR.
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      // Can't find a camera tile? Just do the reset by returning true.
+      return true;
+    }
+  }
+
+  rotateWorld(int rotation) {
+    this.rotation = rotation;
+    hexagonList.rotateHexagonsAndTiles(rotation);
   }
 }

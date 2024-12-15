@@ -1,17 +1,16 @@
 import 'dart:convert';
 import 'dart:io';
-
-import 'package:age_of_gold/services/models/base_response.dart';
-import 'package:age_of_gold/services/settings.dart';
-import 'package:age_of_gold/views/user_interface/ui_util/chat_messages.dart';
-import 'package:age_of_gold/views/user_interface/ui_util/messages/global_message.dart';
-import 'package:age_of_gold/views/user_interface/ui_util/messages/guild_message.dart';
-import 'package:age_of_gold/views/user_interface/ui_util/messages/message.dart';
-import 'package:age_of_gold/views/user_interface/ui_util/messages/personal_message.dart';
 import 'package:dio/dio.dart';
 
+import '../views/user_interface/ui_util/chat_messages.dart';
+import '../views/user_interface/ui_util/messages/global_message.dart';
+import '../views/user_interface/ui_util/messages/guild_message.dart';
+import '../views/user_interface/ui_util/messages/message.dart';
+import '../views/user_interface/ui_util/messages/personal_message.dart';
 import 'auth_api.dart';
+import 'models/base_response.dart';
 import 'models/user.dart';
+import 'settings.dart';
 
 
 class AuthServiceSocial {

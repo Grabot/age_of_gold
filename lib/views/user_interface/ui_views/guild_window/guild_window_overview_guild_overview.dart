@@ -1,20 +1,20 @@
 import 'dart:typed_data';
-
 import 'package:age_of_gold/age_of_gold.dart';
-import 'package:age_of_gold/services/auth_service_guild.dart';
-import 'package:age_of_gold/services/models/guild.dart';
-import 'package:age_of_gold/services/models/guild_member.dart';
-import 'package:age_of_gold/services/models/user.dart';
-import 'package:age_of_gold/util/render_objects.dart';
-import 'package:age_of_gold/util/util.dart';
-import 'package:age_of_gold/views/user_interface/ui_util/chat_messages.dart';
-import 'package:age_of_gold/views/user_interface/ui_util/clear_ui.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/are_you_sure_box/are_you_sure_change_notifier.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/change_guild_crest_box/change_guild_crest_change_notifier.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/chat_window/chat_window_change_notifier.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_information.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window_overview_change_ranks.dart';
 import 'package:flutter/material.dart';
+
+import '../../../../services/auth_service_guild.dart';
+import '../../../../services/models/guild.dart';
+import '../../../../services/models/guild_member.dart';
+import '../../../../services/models/user.dart';
+import '../../../../util/render_objects.dart';
+import '../../../../util/util.dart';
+import '../../ui_util/chat_messages.dart';
+import '../../ui_util/clear_ui.dart';
+import '../are_you_sure_box/are_you_sure_change_notifier.dart';
+import '../change_guild_crest_box/change_guild_crest_change_notifier.dart';
+import '../chat_window/chat_window_change_notifier.dart';
+import 'guild_information.dart';
+import 'guild_window_overview_change_ranks.dart';
 
 
 class GuildWindowOverviewGuildOverview extends StatefulWidget {
@@ -327,9 +327,153 @@ class GuildWindowOverviewGuildOverviewState extends State<GuildWindowOverviewGui
     }
   }
 
-  Widget guildOverviewContent(Guild guild) {
+  Widget guildOverviewTopContentNormal(double crestWidth, double crestHeight, Guild guild) {
     String guildName = guild.getGuildName();
 
+    return Row(
+      children: [
+        guildAvatarBox(
+            crestWidth,
+            crestHeight,
+            guild.getGuildCrest()
+        ),
+        const SizedBox(width: 20),
+        SizedBox(
+          width: widget.overviewWidth - crestWidth-20,
+          height: crestHeight - 80,
+          child: Column(
+            children: [
+              Row(
+                  children: [
+                    Expanded(
+                      child: RichText(
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          text: TextSpan(
+                              children: [
+                                TextSpan(
+                                    text: guildName,
+                                    style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 30,
+                                        fontWeight: FontWeight.bold
+                                    )
+                                )
+                              ]
+                          )
+                      ),
+                    ),
+                  ]
+              ),
+              const SizedBox(height: 15),
+              Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                        "Your guild rank: ${guild.getMyGuildRank()}",
+                        style: simpleTextStyle(widget.fontSize)
+                    ),
+                    Container(),
+                  ]
+              ),
+              Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Text(
+                    //     "Guild score: ${guild.getGuildScore()}",
+                    //     style: simpleTextStyle(widget.fontSize)
+                    // ),
+                    IconButton(
+                        key: guildSettingsKey,
+                        iconSize: 40.0,
+                        icon: const Icon(Icons.settings),
+                        color: Colors.orangeAccent.shade200,
+                        tooltip: 'Settings',
+                        onPressed: _showPopupMenu
+                    ),
+                  ]
+              )
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget guildOverviewTopContentMobile(double crestWidth, double crestHeight, Guild guild) {
+    String guildName = guild.getGuildName();
+
+    return Column(
+      children: [
+        guildAvatarBox(
+            crestWidth,
+            crestHeight,
+            guild.getGuildCrest()
+        ),
+        const SizedBox(width: 20),
+        SizedBox(
+          width: widget.overviewWidth,
+          height: crestHeight - 80,
+          child: Column(
+            children: [
+              Row(
+                  children: [
+                    Expanded(
+                      child: RichText(
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          text: TextSpan(
+                              children: [
+                                TextSpan(
+                                    text: guildName,
+                                    style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 30,
+                                        fontWeight: FontWeight.bold
+                                    )
+                                )
+                              ]
+                          )
+                      ),
+                    ),
+                  ]
+              ),
+              const SizedBox(height: 15),
+              Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                        "Your guild rank: ${guild.getMyGuildRank()}",
+                        style: simpleTextStyle(widget.fontSize)
+                    ),
+                    Container(),
+                  ]
+              ),
+              Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Text(
+                    //     "Guild score: ${guild.getGuildScore()}",
+                    //     style: simpleTextStyle(widget.fontSize)
+                    // ),
+                    IconButton(
+                        key: guildSettingsKey,
+                        iconSize: 40.0,
+                        icon: const Icon(Icons.settings),
+                        color: Colors.orangeAccent.shade200,
+                        tooltip: 'Settings',
+                        onPressed: _showPopupMenu
+                    ),
+                  ]
+              )
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget guildOverviewContent(Guild guild) {
     double crestWidth = 200;
     double crestHeight = 225;
     double membersTextHeight = 30;
@@ -341,74 +485,9 @@ class GuildWindowOverviewGuildOverviewState extends State<GuildWindowOverviewGui
     }
     return Column(
         children: [
-          Row(
-            children: [
-              guildAvatarBox(
-                crestWidth,
-                crestHeight,
-                guild.getGuildCrest()
-              ),
-              const SizedBox(width: 20),
-              SizedBox(
-                width: widget.overviewWidth - crestWidth-20,
-                height: crestHeight-100,
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: RichText(
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            text: TextSpan(
-                              children: [
-                                TextSpan(
-                                  text: guildName,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 30,
-                                    fontWeight: FontWeight.bold
-                                  )
-                                )
-                              ]
-                            )
-                          ),
-                        ),
-                      ]
-                    ),
-                    const SizedBox(height: 15),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                            "Your guild rank: ${guild.getMyGuildRank()}",
-                            style: simpleTextStyle(widget.fontSize)
-                        ),
-                        Container(),
-                      ]
-                    ),
-                    Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                              "Guild score: ${guild.getGuildScore()}",
-                              style: simpleTextStyle(widget.fontSize)
-                          ),
-                          IconButton(
-                              key: guildSettingsKey,
-                              iconSize: 40.0,
-                              icon: const Icon(Icons.settings),
-                              color: Colors.orangeAccent.shade200,
-                              tooltip: 'Settings',
-                              onPressed: _showPopupMenu
-                          ),
-                        ]
-                    )
-                  ],
-                ),
-              ),
-            ],
-          ),
+          widget.normalMode
+              ? guildOverviewTopContentNormal(crestWidth, crestHeight, guild)
+              : guildOverviewTopContentMobile(crestWidth, crestHeight, guild),
           const SizedBox(height: 5),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,

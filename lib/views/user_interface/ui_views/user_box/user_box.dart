@@ -1,14 +1,15 @@
 import 'package:age_of_gold/age_of_gold.dart';
-import 'package:age_of_gold/services/auth_service_social.dart';
-import 'package:age_of_gold/services/models/friend.dart';
-import 'package:age_of_gold/services/models/user.dart';
-import 'package:age_of_gold/services/settings.dart';
-import 'package:age_of_gold/util/render_objects.dart';
-import 'package:age_of_gold/util/util.dart';
-import 'package:age_of_gold/views/user_interface/ui_util/chat_messages.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/chat_window/chat_window_change_notifier.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/user_box/user_box_change_notifier.dart';
 import 'package:flutter/material.dart';
+
+import '../../../../services/auth_service_social.dart';
+import '../../../../services/models/friend.dart';
+import '../../../../services/models/user.dart';
+import '../../../../services/settings.dart';
+import '../../../../util/render_objects.dart';
+import '../../../../util/util.dart';
+import '../../ui_util/chat_messages.dart';
+import '../chat_window/chat_window_change_notifier.dart';
+import 'user_box_change_notifier.dart';
 
 
 class UserBox extends StatefulWidget {

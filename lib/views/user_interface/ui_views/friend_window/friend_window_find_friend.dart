@@ -1,14 +1,14 @@
 import 'dart:typed_data';
-
 import 'package:age_of_gold/age_of_gold.dart';
-import 'package:age_of_gold/services/auth_service_social.dart';
-import 'package:age_of_gold/services/models/friend.dart';
-import 'package:age_of_gold/services/models/user.dart';
-import 'package:age_of_gold/util/render_objects.dart';
-import 'package:age_of_gold/util/util.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/friend_window/friend_window_change_notifier.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/profile_box/profile_change_notifier.dart';
 import 'package:flutter/material.dart';
+
+import '../../../../services/auth_service_social.dart';
+import '../../../../services/models/friend.dart';
+import '../../../../services/models/user.dart';
+import '../../../../util/render_objects.dart';
+import '../../../../util/util.dart';
+import '../profile_box/profile_change_notifier.dart';
+import 'friend_window_change_notifier.dart';
 
 
 class FriendWindowFindFriend extends StatefulWidget {
@@ -63,11 +63,8 @@ class FriendWindowFindFriendState extends State<FriendWindowFindFriend> {
   }
 
   searchForFriend(String possibleFriend) {
-    print("searching for friend $possibleFriend");
     AuthServiceSocial().searchPossibleFriend(possibleFriend).then((value) {
-      print("search result $value");
       if (value != null) {
-        print("found friend");
         nothingFound = false;
         User newFriend = value;
         setState(() {

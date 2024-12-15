@@ -1,5 +1,6 @@
-import 'package:age_of_gold/locator.dart';
 import 'package:flutter/cupertino.dart';
+
+import '../locator.dart';
 
 
 class NavigationService {

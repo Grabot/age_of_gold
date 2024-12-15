@@ -1,8 +1,9 @@
 import 'package:age_of_gold/age_of_gold.dart';
-import 'package:age_of_gold/services/settings.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/map_coordinates/map_coordinates_change_notifier.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/map_coordintes_window/map_coordinates_change_notifier.dart';
 import 'package:flutter/material.dart';
+
+import '../../../../services/settings.dart';
+import '../map_coordintes_window/map_coordinates_change_notifier.dart';
+import 'map_coordinates_change_notifier.dart';
 
 
 class MapCoordinates extends StatefulWidget {

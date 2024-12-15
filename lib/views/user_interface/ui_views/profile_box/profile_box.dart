@@ -1,17 +1,19 @@
 import 'package:age_of_gold/age_of_gold.dart';
-import 'package:age_of_gold/locator.dart';
-import 'package:age_of_gold/services/auth_service_login.dart';
-import 'package:age_of_gold/services/auth_service_setting.dart';
-import 'package:age_of_gold/services/settings.dart';
-import 'package:age_of_gold/util/countdown.dart';
-import 'package:age_of_gold/util/navigation_service.dart';
-import 'package:age_of_gold/util/render_objects.dart';
-import 'package:age_of_gold/util/util.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/are_you_sure_box/are_you_sure_change_notifier.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/change_avatar_box/change_avatar_change_notifier.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/login_view/login_window_change_notifier.dart';
 import 'package:age_of_gold/views/user_interface/ui_views/profile_box/profile_change_notifier.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+
+import '../../../../locator.dart';
+import '../../../../services/auth_service_login.dart';
+import '../../../../services/auth_service_setting.dart';
+import '../../../../services/settings.dart';
+import '../../../../util/countdown.dart';
+import '../../../../util/navigation_service.dart';
+import '../../../../util/render_objects.dart';
+import '../../../../util/util.dart';
+import '../are_you_sure_box/are_you_sure_change_notifier.dart';
+import '../change_avatar_box/change_avatar_change_notifier.dart';
+import '../login_view/login_window_change_notifier.dart';
 
 
 class ProfileBox extends StatefulWidget {
@@ -138,6 +140,29 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
     }
   }
 
+  Widget otherPlatformInfo(double width, double fontSize) {
+    return Container(
+      margin: const EdgeInsets.all(20),
+      width: width,
+      child: Row(
+        children: [
+          Expanded(
+              child: Text.rich(
+                  TextSpan(
+                    text: kIsWeb
+                        ? "Also try Hex Place on Android or IOS!"
+                        : "Also try Hex Place in your browser on hexplace.eu",
+                    style: TextStyle(
+                        fontSize: fontSize*1.5
+                    ),
+                  )
+              )
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget profile() {
     // normal mode is for desktop, mobile mode is for mobile.
     bool normalMode = true;
@@ -153,20 +178,21 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
     }
     double headerHeight = 40;
 
-    return SingleChildScrollView(
-      child: Container(
-        width: width,
-        height: height,
-        color: Colors.grey,
+    return Container(
+      width: width,
+      height: height,
+      color: Colors.cyan,
+      child: SingleChildScrollView(
         child: Column(
             children:
             [
               profileHeader(width, headerHeight, fontSize),
               const SizedBox(height: 20),
               userInformationBox(width, fontSize, normalMode),
+              otherPlatformInfo(width, fontSize),
             ]
         ),
-      )
+      ),
     );
   }
 
@@ -506,7 +532,7 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
         child: Column(
             children: [
           settings.getAvatar() != null
-              ? avatarBox(avatarWidth, avatarWidth, settings.getAvatar()!)
+              ? avatarBox(avatarWidth-40, avatarWidth-40, settings.getAvatar()!)
               : Container(),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,

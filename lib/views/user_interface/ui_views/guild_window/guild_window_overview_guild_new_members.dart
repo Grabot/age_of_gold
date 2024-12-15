@@ -1,16 +1,16 @@
 import 'dart:typed_data';
-
 import 'package:age_of_gold/age_of_gold.dart';
-import 'package:age_of_gold/services/auth_service_guild.dart';
-import 'package:age_of_gold/services/auth_service_social.dart';
-import 'package:age_of_gold/services/models/guild.dart';
-import 'package:age_of_gold/services/models/guild_member.dart';
-import 'package:age_of_gold/services/models/user.dart';
-import 'package:age_of_gold/util/render_objects.dart';
-import 'package:age_of_gold/util/util.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_information.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/profile_box/profile_change_notifier.dart';
 import 'package:flutter/material.dart';
+
+import '../../../../services/auth_service_guild.dart';
+import '../../../../services/auth_service_social.dart';
+import '../../../../services/models/guild.dart';
+import '../../../../services/models/guild_member.dart';
+import '../../../../services/models/user.dart';
+import '../../../../util/render_objects.dart';
+import '../../../../util/util.dart';
+import '../profile_box/profile_change_notifier.dart';
+import 'guild_information.dart';
 
 
 class GuildWindowOverviewGuildNewMembers extends StatefulWidget {
@@ -114,12 +114,10 @@ class GuildWindowOverviewGuildNewMembersState extends State<GuildWindowOverviewG
     }
     AuthServiceGuild().askNewMember(newMember.id, widget.guild.guildId).then((response) {
       if (response.getResult()) {
-        print("doing call asked join");
         showToastMessage("Request send to user ${newMember.getUserName()}");
         setState(() {
           widget.guildInformation.addAskedMember(newMember);
         });
-        print("doing call asked join DONE");
       } else {
         showToastMessage(response.getMessage());
       }
@@ -399,6 +397,68 @@ class GuildWindowOverviewGuildNewMembersState extends State<GuildWindowOverviewG
     }
   }
 
+  Widget newMembersGuildTopContentNormal(Guild guild) {
+    return Row(
+      children: [
+        guildAvatarBox(
+            200,
+            225,
+            guild.getGuildCrest()
+        ),
+        Expanded(
+          child: RichText(
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              text: TextSpan(
+                  children: [
+                    TextSpan(
+                        text: guild.getGuildName(),
+                        style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 30,
+                            fontWeight: FontWeight.bold
+                        )
+                    )
+                  ]
+              )
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget newMembersGuildTopContentMobile(Guild guild) {
+    return Column(
+      children: [
+        guildAvatarBox(
+            200,
+            225,
+            guild.getGuildCrest()
+        ),
+        SizedBox(
+          width: widget.overviewWidth,
+          height: 40,
+          child: RichText(
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              text: TextSpan(
+                  children: [
+                    TextSpan(
+                        text: guild.getGuildName(),
+                        style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 30,
+                            fontWeight: FontWeight.bold
+                        )
+                    )
+                  ]
+              )
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget newMembersGuildContent(Guild guild) {
 
     double crestHeight = 225;
@@ -407,33 +467,9 @@ class GuildWindowOverviewGuildNewMembersState extends State<GuildWindowOverviewG
 
     return Column(
       children: [
-        Row(
-          children: [
-            guildAvatarBox(
-                200,
-                225,
-                guild.getGuildCrest()
-            ),
-            Expanded(
-              child: RichText(
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  text: TextSpan(
-                      children: [
-                        TextSpan(
-                            text: guild.getGuildName(),
-                            style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 30,
-                                fontWeight: FontWeight.bold
-                            )
-                        )
-                      ]
-                  )
-              ),
-            ),
-          ],
-        ),
+        widget.normalMode
+            ? newMembersGuildTopContentNormal(guild)
+            : newMembersGuildTopContentMobile(guild),
         SizedBox(
           width: widget.overviewWidth,
           height: remainingHeight,

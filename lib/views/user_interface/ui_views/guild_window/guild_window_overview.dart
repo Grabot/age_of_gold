@@ -1,11 +1,12 @@
 import 'package:age_of_gold/age_of_gold.dart';
-import 'package:age_of_gold/services/models/user.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_information.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window_change_notifier.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window_overview_guild.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window_overview_no_guild.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window_util.dart';
 import 'package:flutter/material.dart';
+
+import '../../../../services/models/user.dart';
+import 'guild_information.dart';
+import 'guild_window_change_notifier.dart';
+import 'guild_window_overview_guild.dart';
+import 'guild_window_overview_no_guild.dart';
+import 'guild_window_util.dart';
 
 
 class GuildWindowOverview extends StatefulWidget {
@@ -65,7 +66,6 @@ class GuildWindowOverviewState extends State<GuildWindowOverview> {
   }
 
   leaveGuild() {
-    print("pressed the leave guild button");
     // The information should be set on the "user" object so just refresh the state
     setState(() {});
   }

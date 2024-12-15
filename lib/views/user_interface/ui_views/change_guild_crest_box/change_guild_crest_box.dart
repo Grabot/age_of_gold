@@ -1,21 +1,21 @@
 import 'dart:convert';
-import 'package:age_of_gold/services/auth_service_guild.dart';
-import 'package:age_of_gold/services/models/user.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_information.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window_change_notifier.dart';
+import 'package:age_of_gold/age_of_gold.dart';
 import 'package:flutter/services.dart';
 import 'package:image/image.dart' as image;
-
-import 'package:age_of_gold/age_of_gold.dart';
-import 'package:age_of_gold/services/settings.dart';
-import 'package:age_of_gold/util/render_objects.dart';
-import 'package:age_of_gold/util/util.dart';
-import 'package:age_of_gold/views/user_interface/ui_util/crop/controller.dart';
-import 'package:age_of_gold/views/user_interface/ui_util/crop/crop.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/change_guild_crest_box/change_guild_crest_change_notifier.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/loading_box/loading_box_change_notifier.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+
+import '../../../../services/auth_service_guild.dart';
+import '../../../../services/models/user.dart';
+import '../../../../services/settings.dart';
+import '../../../../util/render_objects.dart';
+import '../../../../util/util.dart';
+import '../../ui_util/crop/controller.dart';
+import '../../ui_util/crop/crop.dart';
+import '../guild_window/guild_information.dart';
+import '../guild_window/guild_window_change_notifier.dart';
+import '../loading_box/loading_box_change_notifier.dart';
+import 'change_guild_crest_change_notifier.dart';
 
 
 class ChangeGuildCrestBox extends StatefulWidget {
@@ -176,7 +176,6 @@ class ChangeGuildCrestBoxState extends State<ChangeGuildCrestBox> with TickerPro
   }
 
   resetDefaultImage() {
-    print("resetting default image");
     rootBundle.load('assets/images/ui/icon/shield_default.png').then((data) {
       Uint8List defaultImage = data.buffer.asUint8List();
       changeGuildCrestChangeNotifier.setDefault(true);
@@ -243,7 +242,7 @@ class ChangeGuildCrestBoxState extends State<ChangeGuildCrestBox> with TickerPro
   }
 
   Widget cropWidget(double cropHeight) {
-    return SizedBox(
+    return Container(
       width: cropHeight,
       height: cropHeight,
       child: imageMain != null ? Crop(
@@ -251,7 +250,6 @@ class ChangeGuildCrestBoxState extends State<ChangeGuildCrestBox> with TickerPro
         controller: cropController,
         hexCrop: false,
         onStatusChanged: (status) {
-          print("status changed $status");
           if (status == CropStatus.cropping || status == CropStatus.loading) {
             LoadingBoxChangeNotifier().setLoadingBoxVisible(true);
           } else if (status == CropStatus.ready) {
@@ -344,49 +342,35 @@ class ChangeGuildCrestBoxState extends State<ChangeGuildCrestBox> with TickerPro
   Widget changeGuildCrestMobile(double width, double height, double fontSize) {
     double sidePadding = 20;
     double headerHeight = height / 9;
-    double cropHeight = (height / 9) * 4;
-    double avatarHeight = (height / 9) * 3;
-    double avatarSize = (width - 2 * sidePadding) / 2;
     double buttonWidth = (width - 2 * sidePadding) / 2;
+    double cropResultWidth = width/2;
+    double avatarHeight = cropResultWidth * 1.125;
     double totalButtonHeight = avatarHeight;
     double buttonHeight = totalButtonHeight / 4;
 
     return Container(
       margin: EdgeInsets.only(left: sidePadding, right: sidePadding),
-      width: width,
       child: Column(
-          children: [
-            changeGuildCrestHeader(width, headerHeight, fontSize),
-            cropWidget(cropHeight),
-            SizedBox(
-              height: avatarHeight,
-              width: width,
-              child: Row(
-                children:[
-                  Column(
-                    children: [
-                      const Text("Result:"),
-                      guildAvatarBox(
-                          width,
-                          width * 1.125,
-                          imageCrop
-                      ),
-                    ],
-                  ),
-                  Column(
-                    children: [
-                      SizedBox(height: buttonHeight/3),
-                      uploadNewImageButton(buttonWidth, buttonHeight, 16),
-                      SizedBox(height: buttonHeight/3),
-                      selectImageButton(buttonWidth, buttonHeight, 16),
-                      SizedBox(height: buttonHeight/3),
-                      resetDefaultImageButton(buttonWidth, buttonHeight, 16),
-                    ],
-                  )
-                ]
-              ),
-            ),
-          ]
+        children: [
+          changeGuildCrestHeader(width, headerHeight, fontSize),
+          cropWidget(cropResultWidth),
+          SizedBox(
+              width: cropResultWidth,
+              height: 40,
+              child: const Text("Result:")
+          ),
+          guildAvatarBox(
+              cropResultWidth,
+              cropResultWidth * 1.125,
+              imageCrop
+          ),
+          SizedBox(height: buttonHeight/3),
+          uploadNewImageButton(buttonWidth, buttonHeight, 16),
+          SizedBox(height: buttonHeight/3),
+          selectImageButton(buttonWidth, buttonHeight, 16),
+          SizedBox(height: buttonHeight/3),
+          resetDefaultImageButton(buttonWidth, buttonHeight, 16),
+        ]
       ),
     );
   }
@@ -419,13 +403,13 @@ class ChangeGuildCrestBoxState extends State<ChangeGuildCrestBox> with TickerPro
 
   Widget changeGuildCrestBox() {
     // normal mode is for desktop, mobile mode is for mobile.
-    bool normalMode = true;
     double fontSize = 16;
     double width = 800;
     double height = (MediaQuery.of(context).size.height / 10) * 9;
     // When the width is smaller than this we assume it's mobile.
+    bool normalMode = true;
     if (MediaQuery.of(context).size.width <= 800) {
-      width = MediaQuery.of(context).size.width - 50;
+      width = MediaQuery.of(context).size.width;
       fontSize = 10;
       normalMode = false;
     }
@@ -434,11 +418,11 @@ class ChangeGuildCrestBoxState extends State<ChangeGuildCrestBox> with TickerPro
         width: width,
         height: height,
         color: Colors.cyan,
-        child: Container(
-        child: normalMode
-            ? changeGuildCrestNormal(width, fontSize)
-            : changeGuildCrestMobile(width, height, fontSize),
-      )
+        child: SingleChildScrollView(
+          child: normalMode
+                ? changeGuildCrestNormal(width, fontSize)
+                : changeGuildCrestMobile(width, height, fontSize),
+        )
     );
   }
 

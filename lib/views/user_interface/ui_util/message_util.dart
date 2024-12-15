@@ -1,11 +1,12 @@
-import 'package:age_of_gold/services/auth_service_social.dart';
-import 'package:age_of_gold/services/models/user.dart';
-import 'package:age_of_gold/services/settings.dart';
-import 'package:age_of_gold/views/user_interface/ui_util/chat_messages.dart';
-import 'package:age_of_gold/views/user_interface/ui_util/messages/message.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+
+import '../../../services/auth_service_social.dart';
+import '../../../services/models/user.dart';
+import '../../../services/settings.dart';
+import 'chat_messages.dart';
+import 'messages/message.dart';
 
 
 Widget messageList(List<Message> messages, ScrollController messageScrollController, Function(bool, int, String) userInteraction, ChatData? selectedChatData, bool isEvent, bool show, double fontSize, bool minimized) {

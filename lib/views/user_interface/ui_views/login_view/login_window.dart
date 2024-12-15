@@ -1,19 +1,19 @@
 import 'dart:async';
 import 'dart:io';
-
 import 'package:age_of_gold/age_of_gold.dart';
-import 'package:age_of_gold/constants/url_base.dart';
-import 'package:age_of_gold/services/auth_service_login.dart';
-import 'package:age_of_gold/services/models/login_request.dart';
-import 'package:age_of_gold/services/models/register_request.dart';
-import 'package:age_of_gold/util/util.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/login_view/login_window_change_notifier.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import '../../../../constants/url_base.dart';
+import '../../../../services/auth_service_login.dart';
+import '../../../../services/models/login_request.dart';
+import '../../../../services/models/register_request.dart';
+import '../../../../util/util.dart';
+import 'login_window_change_notifier.dart';
 
 class LoginWindow extends StatefulWidget {
 
@@ -786,13 +786,62 @@ class LoginWindowState extends State<LoginWindow> {
     );
   }
 
-  Widget ageOfGoldName() {
+  Widget hexPlaceName() {
     return Text(
-      "Age of Gold",
+      "Hex Place",
       style: TextStyle(
           color: Colors.white,
           fontSize: fontSize*2
       ),
+    );
+  }
+
+  Widget goToMap(double width) {
+    return Column(
+      children: [
+        Row(
+            children: [
+              Expanded(
+                child: Container(
+                    margin: const EdgeInsets.only(left: 10.0, right: 20.0),
+                    child: const Divider(
+                      color: Colors.white,
+                      height: 36,
+                    )),
+              ),
+              Text(
+                "or",
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: fontSize
+                ),
+              ),
+              Expanded(
+                child: Container(
+                    margin: const EdgeInsets.only(left: 20.0, right: 10.0),
+                    child: const Divider(
+                      color: Colors.white,
+                      height: 36,
+                    )),
+              ),
+            ]
+        ),
+        ElevatedButton(
+          onPressed: () {
+            goBack();
+          },
+          style: buttonStyle(false, Colors.blue),
+          child: Container(
+            alignment: Alignment.center,
+            width: width,
+            height: 50,
+            child: Text(
+              'Go to map',
+              style: simpleTextStyle(fontSize),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -806,7 +855,7 @@ class LoginWindowState extends State<LoginWindow> {
             children: [
               loginHeader(40),
               const SizedBox(height: 10),
-              ageOfGoldName(),
+              hexPlaceName(),
               const SizedBox(height: 10),
               ageOfGoldLogo(loginWidth, normalMode),
               signUpMode == 0 ? login(loginWidth - (30 * 2)) : Container(),
@@ -814,6 +863,7 @@ class LoginWindowState extends State<LoginWindow> {
               signUpMode == 2 && !passwordResetSend ? resetPassword(loginWidth - (30 * 2)) : Container(),
               signUpMode == 2 && passwordResetSend ? resetPasswordEmailSend(loginWidth - (30 * 2)) : Container(),
               signUpMode != 2 ? loginAlternatives(loginBoxSize) : Container(),
+              goToMap(loginWidth - (30 * 2)),
               const SizedBox(height: 40),
             ],
           ),

@@ -1,11 +1,11 @@
 import 'dart:convert';
 import 'dart:typed_data';
-
-import 'package:age_of_gold/services/auth_service_guild.dart';
-import 'package:age_of_gold/services/auth_service_social.dart';
-import 'package:age_of_gold/services/models/guild.dart';
-import 'package:age_of_gold/services/models/user.dart';
 import 'package:flutter/material.dart';
+
+import '../../../../services/auth_service_guild.dart';
+import '../../../../services/auth_service_social.dart';
+import '../../../../services/models/guild.dart';
+import '../../../../services/models/user.dart';
 
 
 class GuildInformation extends ChangeNotifier {
@@ -109,10 +109,8 @@ class GuildInformation extends ChangeNotifier {
 
   Future<bool> getRequestedUserSend() async {
     if (guildSendRequestsRetrieved) {
-      print("not doing got");
       return false;
     } else {
-      print("going to retreive got");
       List<Guild>? response = await AuthServiceGuild().getRequestedUserSend();
       if (response != null) {
         guildsSendRequests = response;
@@ -126,10 +124,8 @@ class GuildInformation extends ChangeNotifier {
 
   Future<bool> getRequestedUserGot(bool minimal) async {
     if (guildsGotRequestsRetrieved) {
-      print("not doing got");
       return false;
     } else {
-      print("going to retreive got");
       List<Guild>? response = await AuthServiceGuild().getRequestedUserGot(minimal);
       if (response != null) {
         guildsGotRequests = response;

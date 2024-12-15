@@ -1,11 +1,11 @@
-
 import 'dart:convert';
 
-import 'package:age_of_gold/services/auth_service_social.dart';
-import 'package:age_of_gold/services/models/guild_member.dart';
-import 'package:age_of_gold/services/models/user.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_information.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window_change_notifier.dart';
+import '../../../../services/auth_service_social.dart';
+import '../../../../services/models/guild_member.dart';
+import '../../../../services/models/user.dart';
+import 'guild_information.dart';
+import 'guild_window_change_notifier.dart';
+
 
 retrieveGuildMembers(User me) {
   if (me.getGuild() != null) {

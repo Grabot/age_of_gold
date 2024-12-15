@@ -1,17 +1,17 @@
 import 'dart:convert';
 import 'dart:typed_data';
-
 import 'package:age_of_gold/age_of_gold.dart';
-import 'package:age_of_gold/services/auth_service_guild.dart';
-import 'package:age_of_gold/services/models/guild.dart';
-import 'package:age_of_gold/services/models/guild_member.dart';
-import 'package:age_of_gold/services/models/user.dart';
-import 'package:age_of_gold/util/render_objects.dart';
-import 'package:age_of_gold/util/util.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/change_guild_crest_box/change_guild_crest_change_notifier.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_information.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/profile_box/profile_change_notifier.dart';
 import 'package:flutter/material.dart';
+
+import '../../../../services/auth_service_guild.dart';
+import '../../../../services/models/guild.dart';
+import '../../../../services/models/guild_member.dart';
+import '../../../../services/models/user.dart';
+import '../../../../util/render_objects.dart';
+import '../../../../util/util.dart';
+import '../change_guild_crest_box/change_guild_crest_change_notifier.dart';
+import '../profile_box/profile_change_notifier.dart';
+import 'guild_information.dart';
 
 
 class GuildWindowOverviewNoGuildCreate extends StatefulWidget {
@@ -96,6 +96,60 @@ class GuildWindowOverviewNoGuildCreateState extends State<GuildWindowOverviewNoG
     }
   }
 
+  Widget createGuildOptionsNormal(double crestHeight) {
+    return Row(
+      children: [
+        guildAvatarBox(
+            200,
+            crestHeight,
+            widget.guildInformation.getGuildCrest()
+        ),
+        const SizedBox(width: 10),
+        ElevatedButton(
+          onPressed: () {
+            changeGuildCrestAction();
+          },
+          style: buttonStyle(true, Colors.blue),
+          child: Container(
+            alignment: Alignment.center,
+            width: 200,
+            child: Text(
+              "Change crest image",
+              style: simpleTextStyle(widget.fontSize),
+            ),
+          ),
+        )
+      ],
+    );
+  }
+
+  Widget createGuildOptionsMobile(double crestHeight) {
+    return Column(
+      children: [
+        guildAvatarBox(
+            200,
+            crestHeight,
+            widget.guildInformation.getGuildCrest()
+        ),
+        const SizedBox(width: 10),
+        ElevatedButton(
+          onPressed: () {
+            changeGuildCrestAction();
+          },
+          style: buttonStyle(true, Colors.blue),
+          child: Container(
+            alignment: Alignment.center,
+            width: 200,
+            child: Text(
+              "Change crest image",
+              style: simpleTextStyle(widget.fontSize),
+            ),
+          ),
+        )
+      ],
+    );
+  }
+
   Widget createGuild() {
     double guildTextHeight = 30;
     double guildTextFieldHeight = 60;
@@ -151,30 +205,9 @@ class GuildWindowOverviewNoGuildCreateState extends State<GuildWindowOverviewNoG
               )
             ],
           ),
-          Row(
-            children: [
-              guildAvatarBox(
-                  200,
-                  crestHeight,
-                  widget.guildInformation.getGuildCrest()
-              ),
-              const SizedBox(width: 10),
-              ElevatedButton(
-                onPressed: () {
-                  changeGuildCrestAction();
-                },
-                style: buttonStyle(true, Colors.blue),
-                child: Container(
-                  alignment: Alignment.center,
-                  width: 200,
-                  child: Text(
-                    "Change crest image",
-                    style: simpleTextStyle(widget.fontSize),
-                  ),
-                ),
-              )
-            ],
-          ),
+          widget.normalMode
+              ? createGuildOptionsNormal(crestHeight)
+              : createGuildOptionsMobile(crestHeight),
           SizedBox(height: smallPadding*2),
           Row(
             children: [

@@ -1,13 +1,14 @@
 import 'package:age_of_gold/age_of_gold.dart';
-import 'package:age_of_gold/services/auth_service_guild.dart';
-import 'package:age_of_gold/services/models/guild.dart';
-import 'package:age_of_gold/services/models/user.dart';
-import 'package:age_of_gold/util/util.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_information.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window_overview_change_ranks.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window_overview_guild_new_members.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window_overview_guild_overview.dart';
 import 'package:flutter/material.dart';
+
+import '../../../../services/auth_service_guild.dart';
+import '../../../../services/models/guild.dart';
+import '../../../../services/models/user.dart';
+import '../../../../util/util.dart';
+import 'guild_information.dart';
+import 'guild_window_overview_change_ranks.dart';
+import 'guild_window_overview_guild_new_members.dart';
+import 'guild_window_overview_guild_overview.dart';
 
 
 class GuildWindowOverviewGuild extends StatefulWidget {

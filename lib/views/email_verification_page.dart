@@ -1,11 +1,11 @@
-import 'package:age_of_gold/locator.dart';
-import 'package:age_of_gold/services/auth_service_login.dart';
-import 'package:age_of_gold/util/navigation_service.dart';
+import 'package:age_of_gold/age_of_gold.dart';
 import 'package:flutter/material.dart';
-import '../age_of_gold.dart';
 import 'package:age_of_gold/constants/route_paths.dart' as routes;
 import 'package:flutter/scheduler.dart';
 
+import '../locator.dart';
+import '../services/auth_service_login.dart';
+import '../util/navigation_service.dart';
 import '../util/util.dart';
 
 
@@ -35,14 +35,8 @@ class _EmailVerificationState extends State<EmailVerification> {
   @override
   void initState() {
     super.initState();
-    String baseUrl = Uri.base.toString();
-    String path = Uri.base.path;
     accessToken = Uri.base.queryParameters["access_token"];
     refreshToken = Uri.base.queryParameters["refresh_token"];
-
-    print("base: $baseUrl");
-    print("path: $path");
-    print("access token: $accessToken");
 
     if (accessToken != null && refreshToken != null) {
       AuthServiceLogin authService = AuthServiceLogin();

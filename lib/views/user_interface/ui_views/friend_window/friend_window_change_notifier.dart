@@ -1,9 +1,9 @@
 import 'dart:convert';
-
-import 'package:age_of_gold/services/auth_service_social.dart';
-import 'package:age_of_gold/services/models/friend.dart';
-import 'package:age_of_gold/services/models/user.dart';
 import 'package:flutter/material.dart';
+
+import '../../../../services/auth_service_social.dart';
+import '../../../../services/models/friend.dart';
+import '../../../../services/models/user.dart';
 
 
 class FriendWindowChangeNotifier extends ChangeNotifier {

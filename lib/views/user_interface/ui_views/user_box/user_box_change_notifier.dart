@@ -1,5 +1,6 @@
-import 'package:age_of_gold/services/models/user.dart';
 import 'package:flutter/material.dart';
+
+import '../../../../services/models/user.dart';
 
 
 class UserBoxChangeNotifier extends ChangeNotifier {

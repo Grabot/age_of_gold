@@ -1,5 +1,6 @@
-import 'package:age_of_gold/util/util.dart';
 
+
+import '../../util/util.dart';
 
 class LoginRequest {
   late String emailOrUserName;

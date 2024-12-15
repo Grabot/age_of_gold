@@ -1,17 +1,17 @@
 import 'dart:typed_data';
-
 import 'package:age_of_gold/age_of_gold.dart';
-import 'package:age_of_gold/services/auth_service_social.dart';
-import 'package:age_of_gold/services/models/friend.dart';
-import 'package:age_of_gold/services/models/user.dart';
-import 'package:age_of_gold/util/render_objects.dart';
-import 'package:age_of_gold/util/util.dart';
-import 'package:age_of_gold/views/user_interface/ui_util/chat_messages.dart';
-import 'package:age_of_gold/views/user_interface/ui_util/clear_ui.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/chat_window/chat_window_change_notifier.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/friend_window/friend_window_change_notifier.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/profile_box/profile_change_notifier.dart';
 import 'package:flutter/material.dart';
+
+import '../../../../services/auth_service_social.dart';
+import '../../../../services/models/friend.dart';
+import '../../../../services/models/user.dart';
+import '../../../../util/render_objects.dart';
+import '../../../../util/util.dart';
+import '../../ui_util/chat_messages.dart';
+import '../../ui_util/clear_ui.dart';
+import '../chat_window/chat_window_change_notifier.dart';
+import '../profile_box/profile_change_notifier.dart';
+import 'friend_window_change_notifier.dart';
 
 
 class FriendWindowOverview extends StatefulWidget {
@@ -85,7 +85,6 @@ class FriendWindowOverviewState extends State<FriendWindowOverview> {
   }
 
   removeFriend(Friend friend) {
-    print("cancel request!");
     AuthServiceSocial().denyRequest(friend.getFriendId()).then((value) {
       if (value.getResult()) {
         setState(() {

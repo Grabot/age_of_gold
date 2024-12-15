@@ -1,11 +1,10 @@
 import 'dart:math';
-
-import 'package:age_of_gold/views/user_interface/ui_util/crop/controller.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image/image.dart' as image;
 import 'package:isolated_worker/js_isolated_worker.dart';
 
+import 'controller.dart';
 import 'do_crop.dart';
 
 const dotTotalSize = 50.0;
@@ -610,7 +609,6 @@ class DotControl extends StatelessWidget {
 
 // decode orientation awared Image.
 image.Image _fromByteData(Uint8List data) {
-  print("from bytes mobile");
   return image.decodeImage(data)!;
 }
 

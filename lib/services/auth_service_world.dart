@@ -1,16 +1,16 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:age_of_gold/views/user_interface/ui_util/selected_tile_info.dart';
 import 'package:flame/components.dart';
-import 'package:age_of_gold/services/settings.dart';
-import 'package:age_of_gold/services/socket_services.dart';
 import 'package:dio/dio.dart';
 import 'package:tuple/tuple.dart';
 import '../component/tile.dart';
 import '../util/hexagon_list.dart';
 import '../util/util.dart';
+import '../views/user_interface/ui_util/selected_tile_info.dart';
 import 'auth_api.dart';
 import 'models/user.dart';
+import 'settings.dart';
+import 'socket_services.dart';
 
 
 class AuthServiceWorld {
@@ -40,7 +40,9 @@ class AuthServiceWorld {
         // update the lock time of the user.
         Settings settings = Settings();
         if (json.containsKey("tile_lock") && settings.getUser() != null) {
-          settings.getUser()!.updateTileLock(json["tile_lock"]);
+          if (!settings.getUser()!.isAdmin()) {
+            settings.getUser()!.updateTileLock(json["tile_lock"]);
+          }
           return "success";
         } else {
           return "error occurred";
@@ -106,7 +108,6 @@ class AuthServiceWorld {
       if (json["result"]) {
         Map<String, dynamic> jsonTile = json["tile"];
         SelectedTileInfo selectedTileInfo = SelectedTileInfo();
-        print("screenPos: $screenPos");
         selectedTileInfo.setTapPos(screenPos);
         if (jsonTile["last_changed_by"] != null && jsonTile["last_changed_time"] != null) {
           // update Selected Tile info

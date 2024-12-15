@@ -14,7 +14,6 @@ class LoadingBoxChangeNotifier extends ChangeNotifier {
   }
 
   setLoadingBoxVisible(bool visible) {
-    print("setLoadingBoxVisible: $visible");
     showLoading = visible;
     notifyListeners();
   }

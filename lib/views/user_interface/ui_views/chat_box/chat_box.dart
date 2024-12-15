@@ -1,19 +1,21 @@
 import 'dart:async';
 
 import 'package:age_of_gold/age_of_gold.dart';
-import 'package:age_of_gold/services/auth_service_world.dart';
-import 'package:age_of_gold/services/models/user.dart';
-import 'package:age_of_gold/services/settings.dart';
-import 'package:age_of_gold/services/socket_services.dart';
-import 'package:age_of_gold/util/util.dart';
-import 'package:age_of_gold/views/user_interface/ui_util/chat_messages.dart';
-import 'package:age_of_gold/views/user_interface/ui_util/clear_ui.dart';
-import 'package:age_of_gold/views/user_interface/ui_util/message_util.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/chat_box/chat_box_change_notifier.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/chat_window/chat_window_change_notifier.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/user_box/user_box_change_notifier.dart';
+import 'package:flutter/foundation.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
+
+import '../../../../services/auth_service_world.dart';
+import '../../../../services/models/user.dart';
+import '../../../../services/settings.dart';
+import '../../../../services/socket_services.dart';
+import '../../../../util/util.dart';
+import '../../ui_util/chat_messages.dart';
+import '../../ui_util/clear_ui.dart';
+import '../../ui_util/message_util.dart';
+import '../chat_window/chat_window_change_notifier.dart';
+import '../user_box/user_box_change_notifier.dart';
+import 'chat_box_change_notifier.dart';
 
 
 class ChatBox extends StatefulWidget {
@@ -156,7 +158,6 @@ class ChatBoxState extends State<ChatBox> {
   }
 
   pressedChatTab(String tabName) {
-    print("pressed chat tab");
     resetTimer();
     if (!tileBoxVisible) {
       tileBoxOpen();
@@ -466,7 +467,7 @@ class ChatBoxState extends State<ChatBox> {
   bool normalMode = true;
   Widget chatBoxWidget() {
     normalMode = true;
-    double chatBoxWidth = 500;
+    double chatBoxWidth = 600;
     double fontSize = 18;
     if (MediaQuery.of(context).size.width <= 800) {
       // Here we assume that it is a phone and we set the width to the total
@@ -475,12 +476,18 @@ class ChatBoxState extends State<ChatBox> {
       fontSize = 12;
     }
 
-    return Align(
+    bool showSocials = true;
+    if (Settings().getUser() == null || !kIsWeb) {
+      // Don't show social buttons when not logged in or on mobile
+      showSocials = false;
+    }
+
+    return showSocials ? Align(
       alignment: FractionalOffset.bottomLeft,
       child: normalMode
           ? chatBoxNormal(chatBoxWidth, fontSize)
           : chatBoxMobile(chatBoxWidth, fontSize)
-    );
+    ) : Container();
   }
 
   Widget chatDropDownRegion() {

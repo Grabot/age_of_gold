@@ -1,6 +1,7 @@
 import 'package:age_of_gold/age_of_gold.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/loading_box/loading_box_change_notifier.dart';
 import 'package:flutter/material.dart';
+
+import 'loading_box_change_notifier.dart';
 
 
 class LoadingBox extends StatefulWidget {

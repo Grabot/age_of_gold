@@ -1,19 +1,20 @@
 import 'package:age_of_gold/age_of_gold.dart';
-import 'package:age_of_gold/services/settings.dart';
-import 'package:age_of_gold/services/socket_services.dart';
-import 'package:age_of_gold/util/countdown.dart';
-import 'package:age_of_gold/util/navigation_service.dart';
-import 'package:age_of_gold/util/render_objects.dart';
-import 'package:age_of_gold/util/util.dart';
-import 'package:age_of_gold/views/user_interface/ui_util/clear_ui.dart';
-import 'package:age_of_gold/views/user_interface/ui_util/selected_tile_info.dart';
-import 'package:age_of_gold/locator.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/chat_box/chat_box_change_notifier.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/chat_window/chat_window_change_notifier.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/friend_window/friend_window_change_notifier.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/profile_box/profile_change_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:back_button_interceptor/back_button_interceptor.dart';
+
+import '../../../../locator.dart';
+import '../../../../services/settings.dart';
+import '../../../../services/socket_services.dart';
+import '../../../../util/countdown.dart';
+import '../../../../util/navigation_service.dart';
+import '../../../../util/render_objects.dart';
+import '../../../../util/util.dart';
+import '../../ui_util/clear_ui.dart';
+import '../../ui_util/selected_tile_info.dart';
+import '../chat_box/chat_box_change_notifier.dart';
+import '../chat_window/chat_window_change_notifier.dart';
+import '../friend_window/friend_window_change_notifier.dart';
+import '../profile_box/profile_change_notifier.dart';
 
 
 class ProfileOverview extends StatefulWidget {
@@ -107,7 +108,7 @@ class ProfileOverviewState extends State<ProfileOverview> with TickerProviderSta
     );  // set up the AlertDialog
     AlertDialog alert = AlertDialog(
       title: const Text("Leave?"),
-      content: const Text("Do you want to logout of Age of Gold?"),
+      content: const Text("Do you want to logout of Hex Place?"),
       actions: [
         cancelButton,
         continueButton,
@@ -253,9 +254,10 @@ class ProfileOverviewState extends State<ProfileOverview> with TickerProviderSta
 
   Widget profileOverviewNormal(double profileOverviewWidth, double profileOverviewHeight, double fontSize) {
     double profileAvatarHeight = 100;
-    return Container(
+    return SizedBox(
       child: Column(
         children: [
+          SizedBox(height: MediaQuery.of(context).viewPadding.top),
           profileWidget(profileOverviewWidth, profileAvatarHeight),
         ]
       ),

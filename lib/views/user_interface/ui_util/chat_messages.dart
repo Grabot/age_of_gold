@@ -1,19 +1,20 @@
-import 'package:age_of_gold/services/auth_service_guild.dart';
-import 'package:age_of_gold/services/auth_service_social.dart';
-import 'package:age_of_gold/services/models/friend.dart';
-import 'package:age_of_gold/services/models/user.dart';
-import 'package:age_of_gold/services/settings.dart';
-import 'package:age_of_gold/util/util.dart';
-import 'package:age_of_gold/views/user_interface/ui_util/messages/event_message.dart';
-import 'package:age_of_gold/views/user_interface/ui_util/messages/global_message.dart';
-import 'package:age_of_gold/views/user_interface/ui_util/messages/guild_message.dart';
-import 'package:age_of_gold/views/user_interface/ui_util/messages/message.dart';
-import 'package:age_of_gold/views/user_interface/ui_util/messages/personal_message.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/chat_box/chat_box_change_notifier.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/chat_window/chat_window_change_notifier.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/profile_box/profile_change_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+
+import '../../../services/auth_service_guild.dart';
+import '../../../services/auth_service_social.dart';
+import '../../../services/models/friend.dart';
+import '../../../services/models/user.dart';
+import '../../../services/settings.dart';
+import '../../../util/util.dart';
+import '../ui_views/chat_box/chat_box_change_notifier.dart';
+import '../ui_views/chat_window/chat_window_change_notifier.dart';
+import '../ui_views/profile_box/profile_change_notifier.dart';
+import 'messages/event_message.dart';
+import 'messages/global_message.dart';
+import 'messages/guild_message.dart';
+import 'messages/message.dart';
+import 'messages/personal_message.dart';
 
 class ChatMessages extends ChangeNotifier {
   List<Message> chatMessages = [];
@@ -80,7 +81,7 @@ class ChatMessages extends ChangeNotifier {
 
   initializeChatMessages() {
     DateTime firstTime = DateTime(2023);
-    String message = "Welcome to the Age of Gold chat!";
+    String message = "Welcome to the Hex Place chat!";
     Message newMessage = Message(-1, "Server", message, false, firstTime, true);
     chatMessages.add(newMessage);
     String messageEvent = "Here you can see any event that happened in your view!";
@@ -169,7 +170,6 @@ class ChatMessages extends ChangeNotifier {
     bool found = false;
     for (ChatData chatData in regions) {
       if (chatData.name == other) {
-        print("change region");
         // If the chatbox is open on this user we don't set the unreadMessage
         if (!checkIfPersonalMessageIsRead(other, null)) {
           chatData.unreadMessages += 1;
@@ -179,7 +179,6 @@ class ChatMessages extends ChangeNotifier {
       }
     }
     if (!found) {
-      print("create region");
       ChatData newChatData = ChatData(3, senderId, other, 1, false);
       regions.add(newChatData);
     }
@@ -377,7 +376,6 @@ class ChatMessages extends ChangeNotifier {
         retrievePersonalMessages(selectedChatData!);
       }
     }
-    print("retrieving more messages");
   }
 
   checkReadPersonalMessage(int fromId) {
@@ -564,6 +562,13 @@ class ChatMessages extends ChangeNotifier {
     activateChatTab = "World";
   }
 
+  leaveGuild() {
+    guildMessages = [];
+    unreadGuildMessages = false;
+    chatMessages.removeWhere((element) => element is GuildMessage);
+    unreadGuildMessages = false;
+  }
+
   initializeChatRegions() {
     User? currentUser = Settings().getUser();
     if (currentUser != null) {
@@ -625,7 +630,6 @@ class ChatMessages extends ChangeNotifier {
   }
 
   addNewRegion(ChatData newRegion) {
-    print("adding region");
     regions.add(newRegion);
 
     if (!personalMessages.containsKey(newRegion.name)) {
@@ -636,7 +640,6 @@ class ChatMessages extends ChangeNotifier {
   }
 
   removeOldRegion(ChatData oldRegion) {
-    print("removing region");
     regions.remove(oldRegion);
     dropdownMenuItems = buildDropdownMenuItems();
   }

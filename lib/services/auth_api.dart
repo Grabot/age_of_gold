@@ -1,10 +1,10 @@
 import 'dart:io';
-import 'package:age_of_gold/services/settings.dart';
-import 'package:age_of_gold/util/web_storage.dart';
 import 'package:dio/dio.dart';
 import '../constants/url_base.dart';
 import '../util/util.dart';
+import '../util/web_storage.dart';
 import 'models/login_response.dart';
+import 'settings.dart';
 
 
 class AuthApi {
@@ -109,7 +109,6 @@ class AppInterceptors extends Interceptor {
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
-    print("on error! :(");
     switch (err.type) {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.sendTimeout:

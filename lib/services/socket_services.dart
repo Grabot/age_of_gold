@@ -1,26 +1,26 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
-import 'package:age_of_gold/services/models/guild.dart';
-import 'package:age_of_gold/services/models/guild_member.dart';
-import 'package:age_of_gold/services/models/user.dart';
-import 'package:age_of_gold/services/settings.dart';
-import 'package:age_of_gold/util/util.dart';
-import 'package:age_of_gold/views/user_interface/ui_util/chat_messages.dart';
-import 'package:age_of_gold/views/user_interface/ui_util/selected_tile_info.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/friend_window/friend_window_change_notifier.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_information.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window_change_notifier.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/profile_box/profile_change_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
+import 'package:tuple/tuple.dart';
 import '../component/hexagon.dart';
 import '../component/tile.dart';
 import '../constants/url_base.dart';
 import '../util/hexagon_list.dart';
-import 'package:tuple/tuple.dart';
+import '../util/util.dart';
+import '../views/user_interface/ui_util/chat_messages.dart';
+import '../views/user_interface/ui_util/selected_tile_info.dart';
+import '../views/user_interface/ui_views/friend_window/friend_window_change_notifier.dart';
+import '../views/user_interface/ui_views/guild_window/guild_information.dart';
+import '../views/user_interface/ui_views/guild_window/guild_window_change_notifier.dart';
+import '../views/user_interface/ui_views/profile_box/profile_change_notifier.dart';
 import 'auth_service_world.dart';
 import 'models/friend.dart';
+import 'models/guild.dart';
+import 'models/guild_member.dart';
+import 'models/user.dart';
+import 'settings.dart';
 
 
 class SocketServices extends ChangeNotifier {
@@ -70,12 +70,10 @@ class SocketServices extends ChangeNotifier {
     });
 
     socket.onConnect((_) {
-      print("on connect");
       socket.emit('message_event', 'Connected!');
     });
 
     socket.onDisconnect((_) {
-      print("on disconnect");
       socket.emit('message_event', 'Disconnected!');
     });
 
@@ -98,15 +96,12 @@ class SocketServices extends ChangeNotifier {
       }
     }).onError((error, stackTrace) {
       // TODO: What to do on an error? Reset?
-      print("error: $error");
     });
   }
 
   void checkMessageEvent(data) {
     if (data == "Avatar creation done!") {
       retrieveAvatar();
-    } else {
-      // print("message_event: $data");
     }
   }
 
@@ -122,7 +117,6 @@ class SocketServices extends ChangeNotifier {
   }
 
   emitHexJoin(int q, int r) {
-    // print("joining hex q: $q r:$r");
     socket.emit(
       "join_hex",
       {
@@ -144,7 +138,6 @@ class SocketServices extends ChangeNotifier {
   }
 
   emitHexLeave(int q, int r) {
-    // print("leaving hex q: ${q} r:${r}");
     socket.emit(
       "leave_hex",
       {
@@ -166,7 +159,6 @@ class SocketServices extends ChangeNotifier {
     // After we have joined the room, we also want to listen to server events
     socket.on('send_hexagon_fail', (data) {
       showToastMessage("hexagon getting failed!");
-      // print(data);
     });
     socket.on('send_hexagon_success', (data) {
       addHexagon(hexagonList, this, data);
@@ -247,7 +239,6 @@ class SocketServices extends ChangeNotifier {
       notifyListeners();
     });
     socket.on('send_message_personal', (data) {
-      print("received a personal message! :D");
       String from = data["sender_name"];
       int senderId = data["sender_id"];
       String to = data["receiver_name"];
@@ -259,12 +250,10 @@ class SocketServices extends ChangeNotifier {
   }
 
   void receivedMessage(String from, int senderId, String message, String timestamp) {
-    print("received message $senderId");
     chatMessages.addMessage(from, senderId, message, timestamp);
   }
 
   void receivedMessageGuild(int? senderId, String? senderName, String message, String timestamp) {
-    print("received guild message $message from $senderName");
     chatMessages.addGuildMessage(senderId, senderName, message, timestamp);
   }
 
@@ -289,7 +278,6 @@ class SocketServices extends ChangeNotifier {
       notifyListeners();
     });
     socket.on('accept_friend_request', (data) {
-      print("accept friend request $data");
       Map<String, dynamic> from = data["from"];
       acceptFriendRequest(from);
       notifyListeners();
@@ -336,7 +324,6 @@ class SocketServices extends ChangeNotifier {
   }
 
   joinGuildInformation(int guildId) {
-    print("joining guild room: $guildId");
     socket.emit(
       "join_guild",
       {
@@ -344,7 +331,6 @@ class SocketServices extends ChangeNotifier {
       },
     );
     socket.on('send_message_guild', (data) {
-      print("gotten message");
       int? senderId = data["sender_id"];
       String? senderName = data["sender_name"];
       String message = data["message"];
@@ -353,7 +339,6 @@ class SocketServices extends ChangeNotifier {
       notifyListeners();
     });
     socket.on('guild_new_member', (data) {
-      print("newGuildMember $data");
       addNewGuildMember(data["member"]);
       notifyListeners();
     });
@@ -384,7 +369,6 @@ class SocketServices extends ChangeNotifier {
   }
 
   leaveGuildInformation(int guildId) {
-    print("leaving guild room: $guildId");
     if (socket.connected) {
       socket.emit("leave_guild", {
         'guild_id': guildId,
@@ -434,7 +418,6 @@ class SocketServices extends ChangeNotifier {
   }
 
   requestGuildCancelled(Map<String, dynamic> memberCancelled) {
-    print("request guild cancelled! $memberCancelled");
     User? currentUser = Settings().getUser();
     if (currentUser != null) {
       if (currentUser.getGuild() != null) {
@@ -449,7 +432,6 @@ class SocketServices extends ChangeNotifier {
   }
 
   requestGuildToJoin(Map<String, dynamic> memberRequested) {
-    print("requestGuildToJoin! $memberRequested");
     User? currentUser = Settings().getUser();
     if (currentUser != null) {
       if (currentUser.getGuild() != null) {
@@ -620,12 +602,8 @@ class SocketServices extends ChangeNotifier {
       if (value != "success") {
         // put the hexagons back to be retrieved
         hexagonList.setBackToRetrieve();
-      } else {
-        print("success getting hexes!");
       }
     }).onError((error, stackTrace) {
-      // TODO: What to do on an error? Reset?
-      print("error: $error");
       // put the hexagons back to be retrieved
       hexagonList.setBackToRetrieve();
     });
@@ -659,7 +637,7 @@ class SocketServices extends ChangeNotifier {
     Tile? currentTile = getTile(hexagonList, wrapCoordinates, data);
     if (currentTile != null) {
       currentTile.setTileType(newTileType);
-      currentTile.hexagon!.updateHexagon();
+      currentTile.hexagon!.updateHexagon(Settings().getRotation());
 
       addTileInfo(data, currentTile);
     }

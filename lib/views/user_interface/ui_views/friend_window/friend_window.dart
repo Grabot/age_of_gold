@@ -1,13 +1,14 @@
 import 'package:age_of_gold/age_of_gold.dart';
-import 'package:age_of_gold/services/models/user.dart';
-import 'package:age_of_gold/services/settings.dart';
-import 'package:age_of_gold/services/socket_services.dart';
-import 'package:age_of_gold/util/util.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/friend_window/friend_window_change_notifier.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/friend_window/friend_window_find_friend.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/friend_window/friend_window_friend_requests.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/friend_window/friend_window_overview.dart';
 import 'package:flutter/material.dart';
+
+import '../../../../services/models/user.dart';
+import '../../../../services/settings.dart';
+import '../../../../services/socket_services.dart';
+import '../../../../util/util.dart';
+import 'friend_window_change_notifier.dart';
+import 'friend_window_find_friend.dart';
+import 'friend_window_friend_requests.dart';
+import 'friend_window_overview.dart';
 
 
 class FriendWindow extends StatefulWidget {

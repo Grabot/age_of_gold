@@ -1,12 +1,5 @@
 import 'dart:math';
-
-import 'package:age_of_gold/component/hexagon.dart';
-import 'package:age_of_gold/services/settings.dart';
-import 'package:age_of_gold/services/socket_services.dart';
-import 'package:age_of_gold/util/util.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/login_view/login_window_change_notifier.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/profile_box/profile_change_notifier.dart';
-import 'package:age_of_gold/world/hex_world.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
 import 'package:flame/input.dart';
@@ -14,13 +7,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:universal_html/html.dart' as html;
 
+import 'component/hexagon.dart';
 import 'constants/global.dart';
+import 'services/settings.dart';
+import 'services/socket_services.dart';
 import 'util/game_start_login.dart';
 import 'util/tapped_map.dart';
+import 'util/util.dart';
+import 'views/user_interface/ui_views/loading_box/loading_box_change_notifier.dart';
+import 'views/user_interface/ui_views/login_view/login_window_change_notifier.dart';
+import 'views/user_interface/ui_views/map_coordinates/map_coordinates_change_notifier.dart';
+import 'views/user_interface/ui_views/profile_box/profile_change_notifier.dart';
+import 'views/user_interface/ui_views/zoom_widget/zoom_widget_change_notifier.dart';
+import 'world/hex_world.dart';
 
 
 // flutter run -d chrome --release --web-hostname localhost --web-port 7357
-class AgeOfGold extends FlameGame with DragCallbacks, KeyboardEvents, ScrollDetector, TapDetector {
+class AgeOfGold extends FlameGame with DragCallbacks, KeyboardEvents, ScrollDetector, TapDetector, DoubleTapCallbacks {
 
   bool playFieldFocus = true;
   FocusNode gameFocus;
@@ -28,13 +31,16 @@ class AgeOfGold extends FlameGame with DragCallbacks, KeyboardEvents, ScrollDete
   SocketServices? socket;
 
   Vector2 cameraVelocity = Vector2.zero();
+  late ZoomWidgetChangeNotifier zoomWidgetChangeNotifier;
 
   late Settings settings;
+
   @override
   Future<void> onLoad() async {
     await super.onLoad();
     socket = SocketServices();
     socket!.addListener(socketListener);
+    zoomWidgetChangeNotifier = ZoomWidgetChangeNotifier();
     settings = Settings();
     html.window.onBeforeUnload.listen((event) async {
       if (settings.getUser() != null) {
@@ -59,6 +65,7 @@ class AgeOfGold extends FlameGame with DragCallbacks, KeyboardEvents, ScrollDete
   startGame() async {
     gameWorld = HexWorld(0, 0);
     world.add(gameWorld!);
+    camera.viewfinder.zoom = 1;
     gameSize = camera.viewport.size / camera.viewfinder.zoom;
     checkHexagonArraySize();
   }
@@ -83,10 +90,11 @@ class AgeOfGold extends FlameGame with DragCallbacks, KeyboardEvents, ScrollDete
     double zoomIncrease = (info.raw.scrollDelta.dy/1000);
     camera.viewfinder.zoom *= (1 - zoomIncrease);
 
-    clampZoom();
+    camera.viewfinder.zoom = camera.viewfinder.zoom.clamp(zoomWidgetChangeNotifier.minZoom, zoomWidgetChangeNotifier.maxZoom);
 
     gameSize = camera.viewport.size / camera.viewfinder.zoom;
     checkHexagonArraySize();
+    zoomWidgetChangeNotifier.setZoomValue(camera.viewfinder.zoom);
   }
 
   Vector2 gameSize = Vector2(0, 0);
@@ -113,7 +121,6 @@ class AgeOfGold extends FlameGame with DragCallbacks, KeyboardEvents, ScrollDete
 
     if (frameTimes >= 1) {
       fps = frames;
-      print("fps: $fps");
       frameTimes = 0;
       frames = 0;
     }
@@ -165,7 +172,24 @@ class AgeOfGold extends FlameGame with DragCallbacks, KeyboardEvents, ScrollDete
     Vector2 screenPos = info.eventPosition.global;
     gameWorld!.onTappedUp(tapPos, screenPos);
     gameWorld!.focusWorld();
+
     super.onTapUp(info);
+  }
+
+  bool doubleTapDrag = false;
+  double? dragZoomPosStartY;
+  double? dragZoomPosEndY;
+
+  @override
+  void onDoubleTapUp(DoubleTapEvent event) {
+    super.onDoubleTapUp(event);
+    doubleTapDrag = false;
+  }
+
+  @override
+  void onDoubleTapDown(DoubleTapDownEvent event) {
+    super.onDoubleTapDown(event);
+    doubleTapDrag = true;
   }
 
   // We use the pointer variables to determine regular or multidrag
@@ -187,21 +211,26 @@ class AgeOfGold extends FlameGame with DragCallbacks, KeyboardEvents, ScrollDete
   @override
   void onDragStart(DragStartEvent event) {
     super.onDragStart(event);
-
     // All distances need to be normalized using the current zoom.
     double cameraZoom = camera.viewfinder.zoom;
-    // Vector2 dragStart = (event.localPosition) * cameraZoom;
-    start = event.localPosition / cameraZoom;
-    start!.sub((gameSize / cameraZoom) / 2);
-    // We need to move the pointer according to the current camera position
+    Vector2 tapPos = event.localPosition / cameraZoom;
+    tapPos.sub((gameSize / cameraZoom) / 2);
 
-    gameWorld!.resetClick();
-    gameWorld!.focusWorld();
+    if (doubleTapDrag) {
+      dragZoomPosStartY = event.localPosition.y;
+    } else {
+      // Vector2 dragStart = (event.localPosition) * cameraZoom;
+      start = tapPos;
+      // We need to move the pointer according to the current camera position
 
-    if (pointerId1 == -1) {
-      pointerId1 = event.pointerId;
-    } else if (pointerId1 != -1 && pointerId2 == -1) {
-      pointerId2 = event.pointerId;
+      gameWorld!.resetClick();
+      gameWorld!.focusWorld();
+
+      if (pointerId1 == -1) {
+        pointerId1 = event.pointerId;
+      } else if (pointerId1 != -1 && pointerId2 == -1) {
+        pointerId2 = event.pointerId;
+      }
     }
   }
 
@@ -211,31 +240,43 @@ class AgeOfGold extends FlameGame with DragCallbacks, KeyboardEvents, ScrollDete
   @override
   void onDragUpdate(DragUpdateEvent event) {
     super.onDragUpdate(event);
-
     double cameraZoom = camera.viewfinder.zoom;
-    end = event.localEndPosition / cameraZoom;
-    end!.sub((gameSize / cameraZoom) / 2);
+    Vector2 tapPos = event.localEndPosition / cameraZoom;
+    tapPos.sub((gameSize / cameraZoom) / 2);
+    if (doubleTapDrag) {
+      dragZoomPosEndY = event.localEndPosition.y;
+      double distance = (dragZoomPosStartY! - dragZoomPosEndY!).clamp(-5, 5);
+      dragZoomPosStartY = dragZoomPosEndY;
 
-    if (pointerId1 != -1 && pointerId2 == -1) {
-      Vector2 distance = (start! - end!);
-      start = event.localEndPosition / cameraZoom;
-      start!.sub((gameSize / cameraZoom) / 2);
+      double zoomIncrease = (distance/200);
+      camera.viewfinder.zoom *= (1 - zoomIncrease);
 
-      dragTo.add(distance);
-    } else if (pointerId1 != -1 && pointerId2 != -1) {
+      camera.viewfinder.zoom = camera.viewfinder.zoom.clamp(zoomWidgetChangeNotifier.minZoom, zoomWidgetChangeNotifier.maxZoom);
+      zoomWidgetChangeNotifier.setZoomValue(camera.viewfinder.zoom);
+    } else {
+      double cameraZoom = camera.viewfinder.zoom;
+      end = tapPos;
 
-      if (event.pointerId == pointerId1) {
-        firstFinger = (event.localEndPosition) * cameraZoom;
-        firstFinger!.sub((camera.viewfinder.position) * cameraZoom);
-        finger1 = true;
-      } else if (event.pointerId == pointerId2) {
-        secondFinger = (event.localEndPosition) * cameraZoom;
-        secondFinger!.sub((camera.viewfinder.position) * cameraZoom);
-        finger2 = true;
-      }
-      // Once 2 fingers have been detected and updated we do the pinch zoom
-      if (finger1 && finger2) {
-        pinchZoom();
+      if (pointerId1 != -1 && pointerId2 == -1 && !pinched) {
+        Vector2 distance = (start! - end!);
+        start = event.localEndPosition / cameraZoom;
+        start!.sub((gameSize / cameraZoom) / 2);
+
+        dragTo.add(distance);
+      } else if (pointerId1 != -1 && pointerId2 != -1) {
+        if (event.pointerId == pointerId1) {
+          firstFinger = (event.localEndPosition) * cameraZoom;
+          firstFinger!.sub((camera.viewfinder.position) * cameraZoom);
+          finger1 = true;
+        } else if (event.pointerId == pointerId2) {
+          secondFinger = (event.localEndPosition) * cameraZoom;
+          secondFinger!.sub((camera.viewfinder.position) * cameraZoom);
+          finger2 = true;
+        }
+        // Once 2 fingers have been detected and updated we do the pinch zoom
+        if (finger1 && finger2) {
+          pinchZoom();
+        }
       }
     }
   }
@@ -247,10 +288,11 @@ class AgeOfGold extends FlameGame with DragCallbacks, KeyboardEvents, ScrollDete
   }
 
   resetDrag() {
-    if (pinched) {
+    if (pinched || doubleTapDrag) {
       gameSize = camera.viewport.size / camera.viewfinder.zoom;
       checkHexagonArraySize();
       pinched = false;
+      doubleTapDrag = false;
     }
     start = null;
     end = null;
@@ -261,6 +303,9 @@ class AgeOfGold extends FlameGame with DragCallbacks, KeyboardEvents, ScrollDete
     distanceBetweenFingers = null;
     pointerId1 = -1;
     pointerId2 = -1;
+    doubleTapDrag = false;
+    dragZoomPosStartY = null;
+    dragZoomPosEndY = null;
     // _world!.focusWorld();
   }
 
@@ -272,9 +317,10 @@ class AgeOfGold extends FlameGame with DragCallbacks, KeyboardEvents, ScrollDete
       double currentDistance = distanceBetweenFingers!;
       distanceBetweenFingers = firstFinger!.distanceTo(secondFinger!);
       double movementFingers = currentDistance - distanceBetweenFingers!;
-      double zoomIncrease = (movementFingers / 200).clamp(-0.04, 0.04);
+      double zoomIncrease = ((movementFingers / 1000) / camera.viewfinder.zoom).clamp(-0.04, 0.04);
       camera.viewfinder.zoom *= (1 - zoomIncrease);
-      clampZoom();
+      camera.viewfinder.zoom = camera.viewfinder.zoom.clamp(zoomWidgetChangeNotifier.minZoom, zoomWidgetChangeNotifier.maxZoom);
+      zoomWidgetChangeNotifier.setZoomValue(camera.viewfinder.zoom);
     }
     finger1 = false;
     finger2 = false;
@@ -282,12 +328,8 @@ class AgeOfGold extends FlameGame with DragCallbacks, KeyboardEvents, ScrollDete
     secondFinger = null;
   }
 
-  void clampZoom() {
-    camera.viewfinder.zoom = camera.viewfinder.zoom.clamp(0.1, 4);
-  }
-
   List<int>? getCameraPos() {
-    List<int> tileProperties = getTileFromPos(camera.viewfinder.position.x, camera.viewfinder.position.y);
+    List<int> tileProperties = getTileFromPos(camera.viewfinder.position.x, camera.viewfinder.position.y, gameWorld!.rotation);
     int q = tileProperties[0];
     int r = tileProperties[1];
 
@@ -319,13 +361,13 @@ class AgeOfGold extends FlameGame with DragCallbacks, KeyboardEvents, ScrollDete
       }
 
       if (event.logicalKey == LogicalKeyboardKey.keyA) {
-        dragAccelerateKey.x = isKeyDown ? mouseSpeed : 0;
-      } else if (event.logicalKey == LogicalKeyboardKey.keyD) {
         dragAccelerateKey.x = isKeyDown ? -mouseSpeed : 0;
+      } else if (event.logicalKey == LogicalKeyboardKey.keyD) {
+        dragAccelerateKey.x = isKeyDown ? mouseSpeed : 0;
       } else if (event.logicalKey == LogicalKeyboardKey.keyW) {
-        dragAccelerateKey.y = isKeyDown ? mouseSpeed : 0;
-      } else if (event.logicalKey == LogicalKeyboardKey.keyS) {
         dragAccelerateKey.y = isKeyDown ? -mouseSpeed : 0;
+      } else if (event.logicalKey == LogicalKeyboardKey.keyS) {
+        dragAccelerateKey.y = isKeyDown ? mouseSpeed : 0;
       }
 
       if (event.logicalKey == LogicalKeyboardKey.keyP && isKeyDown) {
@@ -353,6 +395,10 @@ class AgeOfGold extends FlameGame with DragCallbacks, KeyboardEvents, ScrollDete
     double currentZoom = camera.viewfinder.zoom;
     double currentWidth = gameSize.x;
     double currentHeight = gameSize.y;
+    // TODO: Remove after testing
+    if (currentZoom > 5) {
+      return;
+    }
     if (gameWorld != null) {
       int hexArraySize = 0;
       if (currentWidth < 2000 && currentHeight < 1100) {
@@ -374,7 +420,11 @@ class AgeOfGold extends FlameGame with DragCallbacks, KeyboardEvents, ScrollDete
       }
       if (currentHexSize != hexArraySize) {
         currentHexSize = hexArraySize;
-        gameWorld!.setHexagonArraySize(hexArraySize);
+        LoadingBoxChangeNotifier().setLoadingBoxVisible(true);
+        Future.delayed(const Duration(milliseconds: 20), () {
+          gameWorld!.setHexagonArraySize(hexArraySize);
+          LoadingBoxChangeNotifier().setLoadingBoxVisible(false);
+        });
       }
     }
   }
@@ -415,13 +465,15 @@ class AgeOfGold extends FlameGame with DragCallbacks, KeyboardEvents, ScrollDete
   }
 
 
-  jumpToCoordinates(int tileQ, int tileR) {
+  jumpToCoordinates(int tileQ, int tileR, bool reset) {
     if (gameWorld != null) {
-      // reset the camera zoom and hexagon array size.
-      camera.viewfinder.zoom = 1;
-      gameSize = camera.viewport.size / camera.viewfinder.zoom;
-      checkHexagonArraySize();
-      // Revert the transformations applied in getTileFromPos
+      if (reset) {
+        // reset the camera zoom and hexagon array size.
+        camera.viewfinder.zoom = 1;
+        zoomWidgetChangeNotifier.setZoomValue(1);
+        gameSize = camera.viewport.size / camera.viewfinder.zoom;
+        checkHexagonArraySize();
+      }
 
       int hexQ = convertTileToHexQ(tileQ, tileR);
       int hexR = convertTileToHexR(tileQ, tileR);
@@ -434,7 +486,6 @@ class AgeOfGold extends FlameGame with DragCallbacks, KeyboardEvents, ScrollDete
       int wrapQ = wraparounds1[1];
       int actualHexR = wraparounds1[2];
       int wrapR = wraparounds1[3];
-      print("hexQ: $hexQ  hexR: $hexR  actualHexQ: $actualHexQ  actualHexR: $actualHexR  wrapQ: $wrapQ  wrapR: $wrapR");
 
       if (wrapQ != 0 || wrapR != 0) {
         // `wrapQ` or `wrapR` are not 0 so we are jumping to the point on the map that is wrapped around.
@@ -452,15 +503,51 @@ class AgeOfGold extends FlameGame with DragCallbacks, KeyboardEvents, ScrollDete
         showToastMessage("Given coordinates q: $tileQ and r: $tileR are out of bounds, jumping to wrapped coordinates: $newTileQ, $newTileR");
       }
 
-      // We use the tile values to calculate the camera position.
-      double cameraX = xSize * ((3/2) * newTileQ) + xSize;
-      double cameraY = ySize * (sqrt(3)/2 * newTileQ + sqrt(3) * newTileR) * -1;
-
+      int rotation = Settings().getRotation();
+      Vector2 pos = getTilePosition(newTileQ, newTileR, rotation);
+      double cameraX = pos.x + xSize;
+      double cameraY = pos.y + ySize;
       // We position the camera to that position and also the dragTo position.
       camera.viewfinder.position = Vector2(cameraX, cameraY);
       dragTo = Vector2(cameraX, cameraY);
-      // We reset the world to the new position so that it will retrieve the new hexagons.
-      gameWorld!.resetWorld(actualHexQ, actualHexR);
+      // We don't reset when the user is rotation, because the correct hexagons should already be retrieved.
+      if (reset) {
+        // We reset the world to the new position so that it will retrieve the new hexagons.
+        gameWorld!.resetWorld(actualHexQ, actualHexR);
+      }
     }
+  }
+
+  // These functions are used by the zoom widget to change the zoom level.
+  setZoomValue(double zoomLevel) {
+    camera.viewfinder.zoom = zoomLevel;
+  }
+  setZoomValueEnd(double zoomLevel) {
+    camera.viewfinder.zoom = zoomLevel;
+    gameSize = camera.viewport.size / camera.viewfinder.zoom;
+    checkHexagonArraySize();
+  }
+
+  rotateWorld(int rotation) {
+    // First we rotate and then we jump to the current Q and R position.
+    List<int> coordinates = MapCoordinatesChangeNotifier().getCoordinates();
+    int q = coordinates[0];
+    int r = coordinates[1];
+    if (gameWorld!.checkForWrap()) {
+      // With the reset the camera zoom will be set to 1.
+      // We keep the current zoom and reset it back after all is done.
+      double cameraZoom = camera.viewfinder.zoom;
+      jumpToCoordinates(q, r, true);
+      gameWorld!.rotateWorld(rotation);
+      jumpToCoordinates(q, r, false);
+
+      camera.viewfinder.zoom = cameraZoom;
+      zoomWidgetChangeNotifier.setZoomValue(cameraZoom);
+    } else {
+      gameWorld!.rotateWorld(rotation);
+      jumpToCoordinates(q, r, false);
+    }
+    gameSize = camera.viewport.size / camera.viewfinder.zoom;
+    checkHexagonArraySize();
   }
 }

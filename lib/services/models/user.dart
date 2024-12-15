@@ -1,11 +1,12 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:age_of_gold/services/models/friend.dart';
-import 'package:age_of_gold/services/models/guild.dart';
-import 'package:age_of_gold/services/models/guild_member.dart';
-import 'package:age_of_gold/services/socket_services.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_information.dart';
+import '../../views/user_interface/ui_views/guild_window/guild_information.dart';
+import '../socket_services.dart';
+import 'friend.dart';
+import 'guild.dart';
+import 'guild_member.dart';
+
 
 class User {
 
@@ -13,6 +14,7 @@ class User {
   late String userName;
   late DateTime tileLock;
   bool verified = false;
+  bool admin = false;
   late List<Friend> friends;
   Uint8List? avatar;
   Guild? guild;
@@ -48,6 +50,10 @@ class User {
 
   bool isVerified() {
     return verified;
+  }
+
+  bool isAdmin() {
+    return admin;
   }
 
   Uint8List? getAvatar() {
@@ -174,6 +180,9 @@ class User {
     if (json.containsKey("verified")) {
       verified = json["verified"];
     }
+    if (json.containsKey("is_admin")) {
+      admin = json["is_admin"];
+    }
     if (json.containsKey("friends")) {
       friends = [];
       for (var friend in json["friends"]) {
@@ -191,7 +200,7 @@ class User {
       }
       tileLock = DateTime.parse(timeLock).toLocal();
     } else {
-      // If the timeLlock is not present it will not be used.
+      // If the timeLock is not present it will not be used.
       tileLock = DateTime.now();
     }
 

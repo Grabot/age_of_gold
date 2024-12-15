@@ -1,5 +1,6 @@
-import 'package:age_of_gold/services/models/user.dart';
 
+
+import 'user.dart';
 
 class LoginResponse {
   late bool result;

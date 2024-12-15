@@ -1,8 +1,9 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:age_of_gold/services/models/guild_member.dart';
-import 'package:age_of_gold/util/util.dart';
+import '../../util/util.dart';
+import 'guild_member.dart';
+
 
 class Guild {
 

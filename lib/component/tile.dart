@@ -1,16 +1,15 @@
-import 'dart:math';
-import 'package:age_of_gold/component/get_texture.dart';
-import 'package:age_of_gold/component/hexagon.dart';
 import 'package:flame/components.dart';
 import 'package:flame/extensions.dart';
 import 'package:flame/sprite.dart';
-import '../constants/global.dart';
+import '../services/settings.dart';
 import '../util/util.dart';
+import 'get_texture.dart';
+import 'hexagon.dart';
 
 
 class Tile {
 
-  late Vector2 position;
+  late Vector2 tilePosition;
   late int q;
   late int r;
   late int tileType;
@@ -28,9 +27,8 @@ class Tile {
 
   Hexagon? hexagon;
 
-  // We assume the condition r + s + q = 0 is true.
   Tile(this.q, this.r, this.tileType, this.tileQ, this.tileR) {
-    setPosition();
+    setPosition(Settings().getRotation());
   }
 
   setHexagon(Hexagon hexagonTile) {
@@ -38,18 +36,7 @@ class Tile {
   }
 
   Vector2 getPos() {
-    return Vector2(position.x, position.y);
-  }
-
-  // size = 16.
-  // flat
-  // width = 2 * size
-  // height = sqrt(3) * size / 2   divided by 2 to give the isometric view
-  // point
-  // width = sqrt(3) * size
-  // height = 2 * size / 2   divided by 2 to give the isometric view
-  Vector2 getSize() {
-    return Vector2(2 * xSize, sqrt(3) * ySize);
+    return Vector2(tilePosition.x, tilePosition.y);
   }
 
   int getTileType() {
@@ -60,20 +47,22 @@ class Tile {
     this.tileType = tileType;
   }
 
-  updateTile(List<SpriteBatch?> batches) {
-    for (int variation = 0; variation < batches.length; variation++) {
-      if (batches[variation] != null) {
-        batches[variation]!.add(
-            source: tileTextures[tileType][variation],
-            offset: getPos(),
-            scale: scaleX
-        );
-      }
+  updateTile(SpriteBatch? batches, int rotation) {
+    int variant = 0;
+    if (rotation % 2 == 1) {
+      variant = 1;
+    }
+    if (batches != null) {
+      batches.add(
+          source: tileTextures[tileType][variant],
+          offset: getPos(),
+          scale: scaleX
+      );
     }
   }
 
-  setPosition() {
-    position = getTilePosition(q, r);
+  setPosition(rotation) {
+    tilePosition = getTilePosition(q, r, rotation);
   }
 
   Tile.fromJson(data) {
@@ -85,6 +74,6 @@ class Tile {
     tileQ = data["q"];
     tileR = data["r"];
 
-    position = Vector2(0, 0);
+    tilePosition = Vector2(0, 0);
   }
 }

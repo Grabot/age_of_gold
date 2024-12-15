@@ -1,12 +1,13 @@
-import 'package:age_of_gold/views/user_interface/ui_views/change_avatar_box/change_avatar_change_notifier.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/change_guild_crest_box/change_guild_crest_change_notifier.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/chat_window/chat_window_change_notifier.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/friend_window/friend_window_change_notifier.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_window_change_notifier.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/loading_box/loading_box_change_notifier.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/profile_box/profile_change_notifier.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/user_box/user_box_change_notifier.dart';
 import 'package:flutter/material.dart';
+
+import '../ui_views/change_avatar_box/change_avatar_change_notifier.dart';
+import '../ui_views/change_guild_crest_box/change_guild_crest_change_notifier.dart';
+import '../ui_views/chat_window/chat_window_change_notifier.dart';
+import '../ui_views/friend_window/friend_window_change_notifier.dart';
+import '../ui_views/guild_window/guild_window_change_notifier.dart';
+import '../ui_views/loading_box/loading_box_change_notifier.dart';
+import '../ui_views/profile_box/profile_change_notifier.dart';
+import '../ui_views/user_box/user_box_change_notifier.dart';
 
 
 class ClearUI extends ChangeNotifier {

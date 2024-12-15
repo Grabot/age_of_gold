@@ -1,8 +1,9 @@
-import 'package:age_of_gold/component/hexagon.dart';
-import 'package:age_of_gold/component/tile.dart';
-import 'package:age_of_gold/services/socket_services.dart';
-import 'package:age_of_gold/util/util.dart';
 import 'package:tuple/tuple.dart';
+
+import '../component/hexagon.dart';
+import '../component/tile.dart';
+import '../services/socket_services.dart';
+import 'util.dart';
 
 class HexagonList {
   static final HexagonList _instance = HexagonList._internal();
@@ -47,7 +48,6 @@ class HexagonList {
   }
 
   retrieveHexagons(int startHexQ, int startHexR) {
-    print("Retrieving hexagons q: $startHexQ r: $startHexR");
     int currentSizeHex = hexagons.length;
     int currentSizeTile = currentSizeHex * 14 + 50;
     hexagons = List.generate(currentSizeHex, (_) =>
@@ -218,4 +218,19 @@ class HexagonList {
       }
     }
   }
+
+  rotateHexagonsAndTiles(int rotation) {
+    for (int q = 0; q < hexagons.length; q++) {
+      for (int r = 0; r < hexagons[0].length; r++) {
+        if (hexagons[q][r] != null) {
+          hexagons[q][r]!.setPosition(rotation);
+          for (Tile? tile in hexagons[q][r]!.hexagonTiles) {
+            tile!.setPosition(rotation);
+          }
+          hexagons[q][r]!.updateHexagon(rotation);
+        }
+      }
+    }
+  }
+
 }

@@ -1,15 +1,15 @@
-import 'package:age_of_gold/util/hexagon_list.dart';
-import 'package:age_of_gold/services/socket_services.dart';
-import 'package:age_of_gold/util/tapped_map.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import '../component/hexagon.dart';
+import '../services/socket_services.dart';
 import 'check_offset.dart';
+import 'hexagon_list.dart';
+import 'tapped_map.dart';
 
 
-renderHexagons(Canvas canvas, Vector2 camera, HexagonList hexagonList, Rect screen, int variation, SocketServices socketServices) {
+renderHexagons(Canvas canvas, Vector2 camera, HexagonList hexagonList, Rect screen, SocketServices socketServices, int rotation) {
 
-  List<int> tileProperties = getTileFromPos(camera.x, camera.y);
+  List<int> tileProperties = getTileFromPos(camera.x, camera.y, rotation);
   int q = tileProperties[0];
   int r = tileProperties[1];
 
@@ -17,7 +17,7 @@ renderHexagons(Canvas canvas, Vector2 camera, HexagonList hexagonList, Rect scre
 
   offsetMap(q, r, hexagonList, socketServices);
 
-  drawHexagons(canvas, variation, screen, hexagonList, socketServices);
+  drawHexagons(canvas, screen, hexagonList, socketServices, rotation);
 }
 
 checkVisible(HexagonList hexagonList, Rect screen, SocketServices socketServices) {
@@ -57,7 +57,7 @@ checkVisible(HexagonList hexagonList, Rect screen, SocketServices socketServices
   }
 }
 
-drawHexagons(Canvas canvas, int variation, Rect screen, HexagonList hexagonList, SocketServices socketServices) {
+drawHexagons(Canvas canvas, Rect screen, HexagonList hexagonList, SocketServices socketServices, int rotation) {
   // draw from top to bottom
   for (int top = 0; top <= hexagonList.hexagons.length - 1; top++) {
     Hexagon? currentHexagon;
@@ -68,7 +68,7 @@ drawHexagons(Canvas canvas, int variation, Rect screen, HexagonList hexagonList,
             && currentHexagon.center.x < screen.right
             && currentHexagon.center.y > screen.top
             && currentHexagon.center.y < screen.bottom) {
-          currentHexagon.renderHexagon(canvas, variation);
+          currentHexagon.renderHexagon(canvas, rotation);
         }
       }
     }

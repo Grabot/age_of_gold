@@ -1,13 +1,16 @@
 import 'package:age_of_gold/age_of_gold.dart';
-import 'package:age_of_gold/services/auth_service_guild.dart';
-import 'package:age_of_gold/services/models/user.dart';
-import 'package:age_of_gold/services/settings.dart';
-import 'package:age_of_gold/util/navigation_service.dart';
-import 'package:age_of_gold/util/util.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/are_you_sure_box/are_you_sure_change_notifier.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_information.dart';
 import 'package:flutter/material.dart';
-import 'package:age_of_gold/locator.dart';
+
+import '../../../../locator.dart';
+import '../../../../services/auth_service_guild.dart';
+import '../../../../services/models/user.dart';
+import '../../../../services/settings.dart';
+import '../../../../util/navigation_service.dart';
+import '../../../../util/util.dart';
+import '../../ui_util/chat_messages.dart';
+import '../guild_window/guild_information.dart';
+import '../profile_box/profile_change_notifier.dart';
+import 'are_you_sure_change_notifier.dart';
 
 
 class AreYouSureBox extends StatefulWidget {
@@ -83,11 +86,12 @@ class AreYouSureBoxState extends State<AreYouSureBox> {
     } else {
       AuthServiceGuild().leaveGuild(userId, guildId).then((value) {
         if (value.getResult()) {
-          print("leave guild success");
           me.setGuild(null);
           GuildInformation guildInformation = GuildInformation();
           guildInformation.setGuildCrest(null);
           guildInformation.setCrestIsDefault(true);
+          ChatMessages().leaveGuild();
+          ProfileChangeNotifier().notify();
           areYouSureBoxChangeNotifier.setAreYouSureBoxVisible(false);
         } else {
           showToastMessage(value.getMessage());

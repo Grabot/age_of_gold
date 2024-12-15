@@ -1,8 +1,8 @@
-import 'package:age_of_gold/services/socket_services.dart';
-import 'package:age_of_gold/util/util.dart';
 import '../component/hexagon.dart';
 import '../component/tile.dart';
+import '../services/socket_services.dart';
 import 'hexagon_list.dart';
+import 'util.dart';
 
 
 offsetMap(int q, int r, HexagonList hexagonList, SocketServices socketServices) {

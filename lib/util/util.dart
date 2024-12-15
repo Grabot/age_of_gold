@@ -1,29 +1,27 @@
 import 'dart:convert';
 import 'dart:math';
-
 import 'package:age_of_gold/age_of_gold.dart';
-import 'package:age_of_gold/component/tile.dart';
 import 'package:age_of_gold/constants/route_paths.dart' as routes;
-import 'package:age_of_gold/services/auth_service_guild.dart';
-import 'package:age_of_gold/services/auth_service_login.dart';
-import 'package:age_of_gold/services/models/login_response.dart';
-import 'package:age_of_gold/services/socket_services.dart';
-import 'package:age_of_gold/util/hexagon_list.dart';
 import 'package:age_of_gold/util/web_storage.dart';
-import 'package:age_of_gold/views/user_interface/ui_util/chat_messages.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/are_you_sure_box/are_you_sure_change_notifier.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/guild_window/guild_information.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/profile_box/profile_change_notifier.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:tuple/tuple.dart';
-
 import '../component/hexagon.dart';
+import '../component/tile.dart';
 import '../constants/global.dart';
+import '../services/auth_service_guild.dart';
+import '../services/auth_service_login.dart';
+import '../services/models/login_response.dart';
 import '../services/models/user.dart';
 import '../services/settings.dart';
+import '../services/socket_services.dart';
+import '../views/user_interface/ui_util/chat_messages.dart';
+import '../views/user_interface/ui_views/are_you_sure_box/are_you_sure_change_notifier.dart';
+import '../views/user_interface/ui_views/guild_window/guild_information.dart';
+import '../views/user_interface/ui_views/profile_box/profile_change_notifier.dart';
+import 'hexagon_list.dart';
 import 'navigation_service.dart';
 
 
@@ -50,17 +48,75 @@ List removeDuplicates(List hexToRetrieve) {
 }
 
 
-getTilePosition(int q, int r) {
-  double xPos = xSize * 3 / 2 * q - xSize;
-  double yTr1 = ySize * (sqrt(3) / 2 * q);
-  yTr1 *= -1; // The y axis gets positive going down, so we flip it.
-  double yTr2 = ySize * (sqrt(3) * r);
-  yTr2 *= -1; // The y axis gets positive going down, so we flip it.
-  double yPos = yTr1 + yTr2 - ySize;
+Vector2 getTilePosition(int q, int r, int rotation) {
+  double xPos = 0;
+  double yPos = 0;
+  int s = -q - r;
 
-  // slight offset to put the center in the center and not a corner.
-  xPos += xSize;
-  yPos += ySize;
+  if (rotation % 2 == 0) {
+
+    if (rotation == 2) {
+      int rTemp = r;
+      r = -s;
+      q = -rTemp;
+    } else if (rotation == 4) {
+      // // s,  q
+      int qTemp = q;
+      q = s;
+      r = qTemp;
+    } else if (rotation == 6) {
+      // s,  q
+      q = -q;
+      r = -r;
+    } else if (rotation == 8) {
+      int rTemp = r;
+      r = s;
+      q = rTemp;
+    } else if (rotation == 10) {
+      r = -q;
+      q = -s;
+    }
+
+    xPos = xSize * 3 / 2 * q - xSize;
+    double yTr1 = ySize * (sqrt(3) / 2) * q;
+    double yTr2 = ySize * (sqrt(3) * r);
+    yPos = yTr1 + yTr2 - ySize;
+    xPos *= -1;
+    yPos *= -1;
+    yPos -= (ySize * 2);
+    xPos -= (xSize * 2);
+  } else {
+
+    // We calculate as if [q, s]
+    int rTemp = r;
+    r = s;
+    s = rTemp;
+    if (rotation == 1) {
+    } else if (rotation == 3) {
+      r = -q;
+      q = -rTemp;
+    } else if (rotation == 5) {
+      q = r;
+      r = s;
+    } else if (rotation == 7) {
+      q = -q;
+      r = -r;
+    } else if (rotation == 9) {
+      r = q;
+      q = s;
+    } else if (rotation == 11) {
+      q = -r;
+      r = -rTemp;
+    }
+
+    double xTr1Point = xSize * sqrt(3) * q;
+    double xTr2Point = xSize * (sqrt(3) / 2) * r;
+    double xPosPoint = xTr1Point + xTr2Point - xSize;
+    double yPosPoint = ySize * 3 / 2 * r - ySize;
+    xPos = xPosPoint * -1;
+    yPos = yPosPoint;
+    xPos -= (xSize * 2);
+  }
 
   return Vector2(xPos, yPos);
 }
@@ -113,8 +169,6 @@ additionalLoginInformation(User me) {
       if (response != null) {
         me.setGuildInvites(response);
         ProfileChangeNotifier().notify();
-      } else {
-        print("no requests got");
       }
     });
   } else {
@@ -122,8 +176,6 @@ additionalLoginInformation(User me) {
       if (response != null) {
         GuildInformation().requestedMembers = response;
         ProfileChangeNotifier().notify();
-      } else {
-        print("no requests");
       }
     });
   }
@@ -285,7 +337,7 @@ addHexagon(HexagonList hexagonList, SocketServices socketServices, data) {
     }
   }
 
-  hexagon.updateHexagon();
+  hexagon.updateHexagon(Settings().getRotation());
   int qHex = hexagonList.hexQ + hexagon.hexQArray - hexagonList.currentHexQ;
   int rHex = hexagonList.hexR + hexagon.hexRArray - hexagonList.currentHexR;
   if (qHex < 0 || qHex >= hexagonList.hexagons.length

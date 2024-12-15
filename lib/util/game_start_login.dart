@@ -1,10 +1,9 @@
-
-
-import 'package:age_of_gold/services/auth_service_login.dart';
-import 'package:age_of_gold/services/models/login_response.dart';
-import 'package:age_of_gold/util/util.dart';
-import 'package:age_of_gold/util/web_storage.dart';
 import 'package:jwt_decode/jwt_decode.dart';
+
+import '../services/auth_service_login.dart';
+import '../services/models/login_response.dart';
+import 'util.dart';
+import 'web_storage.dart';
 
 Future<bool> loginCheck() async {
   SecureStorage secureStorage = SecureStorage();
@@ -12,7 +11,6 @@ Future<bool> loginCheck() async {
   int current = (DateTime.now().millisecondsSinceEpoch / 1000).round();
 
   if (accessToken != null && accessToken != "") {
-    print("access token!");
     int expiration = Jwt.parseJwt(accessToken)['exp'];
     if ((expiration - current) > 0) {
       // token valid! Attempt to login with it.
@@ -25,7 +23,6 @@ Future<bool> loginCheck() async {
     // If there is an access token but it is not valid we might be able to refresh the tokens.
     String? refreshToken = await secureStorage.getRefreshToken();
     if (refreshToken != null && refreshToken != "") {
-      print("refresh token!");
       int expirationRefresh = Jwt.parseJwt(refreshToken)['exp'];
       if ((expirationRefresh - current) > 0) {
         // refresh token valid! Attempt to refresh tokens and login with it.
