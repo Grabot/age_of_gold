@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:age_of_gold/services/auth_api_clean.dart';
 import 'package:dio/dio.dart';
 import '../util/util.dart';
 import 'auth_api.dart';
@@ -66,6 +67,22 @@ class AuthServiceLogin {
     return baseResponse;
   }
 
+  Future<LoginResponse> getRedditCallback(String code) async {
+    Settings().setLoggingIn(true);
+    String endPoint = "/login/reddit/callback?state=x&code=$code";
+    var response = await AuthApiClean().dio.get(endPoint,
+      options: Options(headers: {
+        HttpHeaders.contentTypeHeader: "application/json",
+      }),
+    );
+
+    LoginResponse loginResponse = LoginResponse.fromJson(response.data);
+    if (loginResponse.getResult()) {
+      successfulLogin(loginResponse);
+    }
+    return loginResponse;
+  }
+
   Future<LoginResponse> getRefresh(String accessToken, String refreshToken) async {
     Settings().setLoggingIn(true);
     String endPoint = "refresh";
@@ -77,7 +94,7 @@ class AuthServiceLogin {
           "access_token": accessToken,
           "refresh_token": refreshToken
         }
-      )
+        )
     );
 
     LoginResponse loginResponse = LoginResponse.fromJson(response.data);
@@ -227,15 +244,32 @@ class AuthServiceLogin {
     return loginResponse;
   }
 
-  Future<BaseResponse> removeAccount(String accessToken, String refreshToken) async {
+  Future<LoginResponse> getLoginApple(String authorizationCode) async {
+    Settings().setLoggingIn(true);
+    String endPoint = "/login/apple/verify?code=$authorizationCode";
+    var response = await AuthApiClean().dio.get(endPoint,
+      options: Options(headers: {
+        HttpHeaders.contentTypeHeader: "application/json",
+      }),
+    );
+
+    LoginResponse loginResponse = LoginResponse.fromJson(response.data);
+    if (loginResponse.getResult()) {
+      successfulLogin(loginResponse);
+    }
+    return loginResponse;
+  }
+
+  Future<BaseResponse> removeAccount(String accessToken, String refreshToken, String origin) async {
     String endPoint = "remove/account/verify";
     var response = await AuthApi().dio.post(endPoint,
         options: Options(headers: {
           HttpHeaders.contentTypeHeader: "application/json",
         }),
-        data: jsonEncode(<String, String> {
+        data: jsonEncode(<String, dynamic> {
           "access_token": accessToken,
-          "refresh_token": refreshToken
+          "refresh_token": refreshToken,
+          "origin": origin
         })
     );
 

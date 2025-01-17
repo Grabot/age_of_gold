@@ -1,11 +1,11 @@
 import 'package:age_of_gold/age_of_gold.dart';
+import 'package:age_of_gold/views/user_interface/ui_views/login_view/login_window_change_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:age_of_gold/constants/route_paths.dart' as routes;
 
 import '../locator.dart';
 import '../services/auth_service_login.dart';
 import '../util/navigation_service.dart';
-import 'user_interface/ui_views/login_view/login_window_change_notifier.dart';
 
 
 class WorldAccess extends StatefulWidget {

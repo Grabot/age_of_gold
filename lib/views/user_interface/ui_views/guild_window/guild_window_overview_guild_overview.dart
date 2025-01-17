@@ -108,6 +108,7 @@ class GuildWindowOverviewGuildOverviewState extends State<GuildWindowOverviewGui
     AreYouSureBoxChangeNotifier areYouSureBoxChangeNotifier = AreYouSureBoxChangeNotifier();
     areYouSureBoxChangeNotifier.setUserId(widget.me!.getId());
     areYouSureBoxChangeNotifier.setGuildId(widget.guild.getGuildId());
+    areYouSureBoxChangeNotifier.setShowDelete(false);
     areYouSureBoxChangeNotifier.setShowLogout(false);
     areYouSureBoxChangeNotifier.setShowLeaveGuild(true);
     areYouSureBoxChangeNotifier.setAreYouSureBoxVisible(true);

@@ -1,10 +1,10 @@
+import 'package:age_of_gold/util/tapped_map.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import '../component/hexagon.dart';
 import '../services/socket_services.dart';
 import 'check_offset.dart';
 import 'hexagon_list.dart';
-import 'tapped_map.dart';
 
 
 renderHexagons(Canvas canvas, Vector2 camera, HexagonList hexagonList, Rect screen, SocketServices socketServices, int rotation) {

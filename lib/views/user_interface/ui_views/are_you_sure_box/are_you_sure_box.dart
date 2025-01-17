@@ -1,8 +1,10 @@
 import 'package:age_of_gold/age_of_gold.dart';
 import 'package:flutter/material.dart';
+import 'package:oktoast/oktoast.dart';
 
 import '../../../../locator.dart';
 import '../../../../services/auth_service_guild.dart';
+import '../../../../services/auth_service_setting.dart';
 import '../../../../services/models/user.dart';
 import '../../../../services/settings.dart';
 import '../../../../util/navigation_service.dart';
@@ -34,6 +36,9 @@ class AreYouSureBoxState extends State<AreYouSureBox> {
   late AreYouSureBoxChangeNotifier areYouSureBoxChangeNotifier;
 
   final NavigationService _navigationService = locator<NavigationService>();
+
+  final deleteKeyRegister = GlobalKey<FormState>();
+  TextEditingController emailController = TextEditingController();
 
   @override
   void initState() {
@@ -157,14 +162,94 @@ class AreYouSureBoxState extends State<AreYouSureBox> {
     );
   }
 
+  deleteUser() {
+    if (deleteKeyRegister.currentState!.validate()) {
+      String email = emailController.text;
+      AuthServiceSetting().deleteAccountLoggedIn(email).then((response) {
+        if (response.getResult()) {
+          showToast("email sent to finalize account deletion");
+          logoutAction();
+        } else {
+          showToast("Failed to delete account: ${response.getMessage()}");
+        }
+      }).onError((error, stackTrace) {
+        showToast("Failed to delete account: ${error.toString()}");
+      });
+    }
+  }
+
+  Widget areYouSureDelete() {
+    return TapRegion(
+      onTapOutside: (tap) {
+        cancelButtonAction();
+      },
+      child: AlertDialog(
+        title: const Text("Delete account?"),
+        content: Form(
+          key: deleteKeyRegister,
+          child: SizedBox(
+            height: 100,
+            child: Column(
+              children: [
+                const Text("Are you sure you want to delete your account?\nFill in the email of this account and press \"Delete\" to confirm."),
+                SizedBox(
+                  width: 400,
+                  height: 50,
+                  child: TextFormField(
+                    controller: emailController,
+                    validator: (val) {
+                      if (val != null && val.isNotEmpty) {
+                        if (!emailValid(val)) {
+                          return "Email not formatted correctly";
+                        }
+                      }
+                      return val == null || val.isEmpty
+                          ? "Please provide an Email"
+                          : null;
+                    },
+                    decoration: InputDecoration(hintText: "Enter your email here"),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        actions: [
+          ElevatedButton(
+            child: const Text("Cancel"),
+            onPressed:  () {
+              cancelButtonAction();
+            },
+          ),
+          ElevatedButton(
+            child: const Text("Delete"),
+            onPressed:  () {
+              deleteUser();
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget areYouSureBox(BuildContext context) {
     bool showLeaveGuild = areYouSureBoxChangeNotifier.getShowLeaveGuild();
+    bool showLogout = areYouSureBoxChangeNotifier.getShowLogout();
+    bool showDelete = areYouSureBoxChangeNotifier.getShowDelete();
+    Widget areYouSureBox = Container();
+    if (showLeaveGuild) {
+      areYouSureBox = areYouSureLeaveGuild();
+    } else if (showLogout) {
+      areYouSureBox = areYouSureLogout();
+    } else if (showDelete) {
+      areYouSureBox = areYouSureDelete();
+    }
     return Container(
       width: MediaQuery.of(context).size.width,
       height: MediaQuery.of(context).size.height,
       color: Colors.black.withOpacity(0.7),
       child: Center(
-        child: showLeaveGuild ? areYouSureLeaveGuild() : areYouSureLogout()
+        child: areYouSureBox
       )
     );
   }

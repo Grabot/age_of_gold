@@ -1,6 +1,5 @@
-
-
 import 'user.dart';
+
 
 class LoginResponse {
   late bool result;

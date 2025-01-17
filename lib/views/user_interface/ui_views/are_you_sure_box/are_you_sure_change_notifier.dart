@@ -8,6 +8,7 @@ class AreYouSureBoxChangeNotifier extends ChangeNotifier {
   // this controls what kind of are you sure box is shown
   bool showLeaveGuild = false;
   bool showLogout = false;
+  bool showDelete = false;
 
   int? userId;
   int? guildId;
@@ -43,6 +44,14 @@ class AreYouSureBoxChangeNotifier extends ChangeNotifier {
 
   getShowLogout() {
     return showLogout;
+  }
+
+  setShowDelete(bool showDelete) {
+    this.showDelete = showDelete;
+  }
+
+  getShowDelete() {
+    return showDelete;
   }
 
   setUserId(int? userId) {

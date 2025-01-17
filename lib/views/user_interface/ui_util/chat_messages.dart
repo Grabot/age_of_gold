@@ -560,6 +560,7 @@ class ChatMessages extends ChangeNotifier {
     messageUser = null;
     regions = [];
     activateChatTab = "World";
+    notifyListeners();
   }
 
   leaveGuild() {

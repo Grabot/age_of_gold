@@ -78,6 +78,7 @@ class ChangeAvatarBoxState extends State<ChangeAvatarBox> with TickerProviderSta
   imageLoaded() async {
     LoadingBoxChangeNotifier loadingBoxChangeNotifier = LoadingBoxChangeNotifier();
     // Set the loading screen. It will be removed when cropping status is done
+    loadingBoxChangeNotifier.setWithBlackout(true);
     loadingBoxChangeNotifier.setLoadingBoxVisible(true);
     FilePickerResult? picked = await FilePicker.platform.pickFiles(withData: true);
 
@@ -110,7 +111,9 @@ class ChangeAvatarBoxState extends State<ChangeAvatarBox> with TickerProviderSta
 
   saveNewAvatar() {
     setState(() {
-      LoadingBoxChangeNotifier().setLoadingBoxVisible(true);
+      LoadingBoxChangeNotifier loadingBoxChangeNotifier = LoadingBoxChangeNotifier();
+      loadingBoxChangeNotifier.setWithBlackout(true);
+      loadingBoxChangeNotifier.setLoadingBoxVisible(true);
     });
     // Again a very slight delay, too get the loading screen visible.
     Future.delayed(const Duration(milliseconds: 50), () {
@@ -146,7 +149,9 @@ class ChangeAvatarBoxState extends State<ChangeAvatarBox> with TickerProviderSta
 
   resetDefaultImage() {
     setState(() {
-      LoadingBoxChangeNotifier().setLoadingBoxVisible(true);
+      LoadingBoxChangeNotifier loadingBoxChangeNotifier = LoadingBoxChangeNotifier();
+      loadingBoxChangeNotifier.setWithBlackout(true);
+      loadingBoxChangeNotifier.setLoadingBoxVisible(true);
     });
     // Again a very slight delay, too get the loading screen visible.
     Future.delayed(const Duration(milliseconds: 50), () {
@@ -231,7 +236,9 @@ class ChangeAvatarBoxState extends State<ChangeAvatarBox> with TickerProviderSta
         hexCrop: true,
         onStatusChanged: (status) {
           if (status == CropStatus.cropping || status == CropStatus.loading) {
-            LoadingBoxChangeNotifier().setLoadingBoxVisible(true);
+            LoadingBoxChangeNotifier loadingBoxChangeNotifier = LoadingBoxChangeNotifier();
+            loadingBoxChangeNotifier.setWithBlackout(true);
+            loadingBoxChangeNotifier.setLoadingBoxVisible(true);
           } else if (status == CropStatus.ready) {
             LoadingBoxChangeNotifier().setLoadingBoxVisible(false);
           }

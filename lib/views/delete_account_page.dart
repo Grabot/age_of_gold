@@ -28,6 +28,7 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
 
   String? accessToken;
   String? refreshToken;
+  String? origin;
 
   bool busy = true;
   bool invalid = true;
@@ -37,11 +38,12 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
     super.initState();
     accessToken = Uri.base.queryParameters["access_token"];
     refreshToken = Uri.base.queryParameters["refresh_token"];
+    origin = Uri.base.queryParameters["origin"];
 
     invalid = true;
-    if (accessToken != null && refreshToken != null) {
+    if (accessToken != null && refreshToken != null && origin != null) {
       // Check if the token from the mail is still valid.
-      AuthServiceLogin().removeAccount(accessToken!, refreshToken!).then((deleteAccountResponse) {
+      AuthServiceLogin().removeAccount(accessToken!, refreshToken!, origin!).then((deleteAccountResponse) {
         busy = false;
         setState(() {
           invalid = !deleteAccountResponse.getResult();

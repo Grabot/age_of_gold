@@ -1,6 +1,10 @@
+import 'dart:math';
+import 'package:flame/palette.dart';
+import 'package:flutter/material.dart';
 import 'package:flame/components.dart';
 import 'package:flame/extensions.dart';
 import 'package:flame/sprite.dart';
+import '../constants/global.dart';
 import '../services/settings.dart';
 import '../util/util.dart';
 import 'get_texture.dart';

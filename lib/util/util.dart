@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:math';
 import 'package:age_of_gold/age_of_gold.dart';
 import 'package:age_of_gold/constants/route_paths.dart' as routes;
-import 'package:age_of_gold/util/web_storage.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import 'package:jwt_decode/jwt_decode.dart';
@@ -23,6 +22,7 @@ import '../views/user_interface/ui_views/guild_window/guild_information.dart';
 import '../views/user_interface/ui_views/profile_box/profile_change_notifier.dart';
 import 'hexagon_list.dart';
 import 'navigation_service.dart';
+import 'web_storage.dart';
 
 
 List removeDuplicates(List hexToRetrieve) {
@@ -573,7 +573,7 @@ int getRankId(String guildRank) {
 Widget ageOfGoldLogo(double width, bool normalMode) {
   return Container(
       padding: normalMode
-          ? EdgeInsets.only(left: width/4, right: width/4)
+          ? EdgeInsets.only(left: width/3, right: width/3)
           : EdgeInsets.only(left: width/8, right: width/8),
       alignment: Alignment.center,
       child: Image.asset("assets/images/hex_place_logo.png")

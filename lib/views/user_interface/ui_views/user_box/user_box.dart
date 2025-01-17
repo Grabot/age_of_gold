@@ -1,4 +1,5 @@
 import 'package:age_of_gold/age_of_gold.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../services/auth_service_social.dart';
@@ -246,11 +247,16 @@ class UserBoxState extends State<UserBox> with TickerProviderStateMixin {
   }
 
   Widget userSocialBox(double userSocialBoxWidth) {
+    bool showSocials = true;
+    if (Settings().getUser() == null || !kIsWeb) {
+      // Don't show social stuff when not logged in or on mobile
+      showSocials = false;
+    }
     return SizedBox(
       width: userSocialBoxWidth,
       child: Column(
         children: [
-          messageUserButton(userSocialBoxWidth, 40, 16),
+          showSocials ? messageUserButton(userSocialBoxWidth, 40, 16) : Container(),
           const SizedBox(height: 10),
           addFriendButton(userSocialBoxWidth, 40, 16),
         ],

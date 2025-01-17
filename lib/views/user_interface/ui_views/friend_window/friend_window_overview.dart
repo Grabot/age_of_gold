@@ -1,10 +1,11 @@
 import 'dart:typed_data';
 import 'package:age_of_gold/age_of_gold.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-
 import '../../../../services/auth_service_social.dart';
 import '../../../../services/models/friend.dart';
 import '../../../../services/models/user.dart';
+import '../../../../services/settings.dart';
 import '../../../../util/render_objects.dart';
 import '../../../../util/util.dart';
 import '../../ui_util/chat_messages.dart';
@@ -102,12 +103,17 @@ class FriendWindowOverviewState extends State<FriendWindowOverview> {
   }
 
   Widget friendInteraction(Friend friend, double avatarBoxSize, double newFriendOptionWidth, double fontSize) {
+    bool showSocials = true;
+    if (Settings().getUser() == null || !kIsWeb) {
+      // Don't show social stuff when not logged in or on mobile
+      showSocials = false;
+    }
     return SizedBox(
       width: newFriendOptionWidth,
       height: 40,
       child: Row(
           children: [
-            InkWell(
+            showSocials ? InkWell(
                 onTap: () {
                   setState(() {
                     messageFriend(friend);
@@ -117,7 +123,7 @@ class FriendWindowOverviewState extends State<FriendWindowOverview> {
                     message: 'Message user',
                     child: addIcon(40, Icons.message, Colors.green)
                 )
-            ),
+            ) : Container(),
             const SizedBox(width: 10),
             InkWell(
               onTap: () {

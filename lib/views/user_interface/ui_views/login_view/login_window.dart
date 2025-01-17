@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'package:age_of_gold/age_of_gold.dart';
 import 'package:flutter/foundation.dart';
@@ -6,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../constants/url_base.dart';
@@ -13,6 +15,8 @@ import '../../../../services/auth_service_login.dart';
 import '../../../../services/models/login_request.dart';
 import '../../../../services/models/register_request.dart';
 import '../../../../util/util.dart';
+import '../loading_box/loading_box_change_notifier.dart';
+import '../web_view/web_view_box_change_notifier.dart';
 import 'login_window_change_notifier.dart';
 
 class LoginWindow extends StatefulWidget {
@@ -94,8 +98,10 @@ class LoginWindowState extends State<LoginWindow> {
 
   goBack() {
     setState(() {
-      LoginWindowChangeNotifier().setLoginWindowVisible(false);
-      widget.game.windowFocus(false);
+      if (!WebViewBoxChangeNotifier().getWebViewBoxVisible()) {
+        LoginWindowChangeNotifier().setLoginWindowVisible(false);
+        widget.game.windowFocus(false);
+      }
     });
   }
 
@@ -267,6 +273,30 @@ class LoginWindowState extends State<LoginWindow> {
                   ),
                   Text(
                     "Google",
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: fontSize
+                    ),
+                  )
+                ]
+            ),
+            const SizedBox(width: 10),
+            Column(
+                children: [
+                  InkWell(
+                    onTap: () {
+                      _handleSignInApple();
+                    },
+                    child: SizedBox(
+                      height: loginBoxSize,
+                      width: loginBoxSize,
+                      child: Image.asset(
+                          "assets/images/apple_button.png"
+                      ),
+                    ),
+                  ),
+                  Text(
+                    "Apple",
                     style: TextStyle(
                         color: Colors.white,
                         fontSize: fontSize
@@ -922,12 +952,64 @@ class LoginWindowState extends State<LoginWindow> {
         throw 'Could not launch $url';
       }
     } else {
-      if (!await launchUrl(
-          url,
-          mode: LaunchMode.externalApplication
-      )) {
-        throw 'Could not launch $url';
+      // We also set the loadingbox, this is to not allow any tapping while the url is loading.
+      LoadingBoxChangeNotifier loadingBoxChangeNotifier = LoadingBoxChangeNotifier();
+      loadingBoxChangeNotifier.setWithBlackout(true);
+      loadingBoxChangeNotifier.setLoadingBoxVisible(true);
+
+      WebViewBoxChangeNotifier webViewBoxChangeNotifier = WebViewBoxChangeNotifier();
+      webViewBoxChangeNotifier.setWebViewBoxUri(url);
+      webViewBoxChangeNotifier.setWebViewBoxVisible(true);
+    }
+  }
+
+  Future<void> _handleSignInApple() async {
+    if (!kIsWeb) {
+      // We also set the loadingbox, this is to not allow any tapping while the url is loading.
+      LoadingBoxChangeNotifier loadingBoxChangeNotifier = LoadingBoxChangeNotifier();
+      loadingBoxChangeNotifier.setWithBlackout(true);
+      loadingBoxChangeNotifier.setLoadingBoxVisible(true);
+
+      String appleLogin = "$appleLoginUrl?response_type=code&client_id=$appleClientId&redirect_uri=$appleRedirectUri&scope=email%20name&state=random_generated_state&response_mode=form_post";
+      WebViewBoxChangeNotifier webViewBoxChangeNotifier = WebViewBoxChangeNotifier();
+      webViewBoxChangeNotifier.setWebViewBoxUrl(appleLogin);
+      webViewBoxChangeNotifier.setWebViewBoxVisible(true);
+
+      return;
+    } else {
+      isLoading = true;
+      final AuthorizationCredentialAppleID credential;
+      try {
+        credential = await SignInWithApple.getAppleIDCredential(
+          scopes: [
+            AppleIDAuthorizationScopes.email,
+            AppleIDAuthorizationScopes.fullName,
+          ],
+          webAuthenticationOptions: WebAuthenticationOptions(
+            clientId: appleClientId,
+            redirectUri: Uri.parse(
+              appleRedirectUri,
+            ),
+          ),
+        );
+      } catch (error) {
+        isLoading = false;
+        return;
       }
+
+      AuthServiceLogin().getLoginApple(credential.authorizationCode).then((
+          loginResponse) {
+        if (loginResponse.getResult()) {
+          goBack();
+          isLoading = false;
+          setState(() {});
+        } else if (!loginResponse.getResult()) {
+          showToastMessage(loginResponse.getMessage());
+        }
+      }).onError((error, stackTrace) {
+        showToastMessage(error.toString());
+      });
+      isLoading = false;
     }
   }
 

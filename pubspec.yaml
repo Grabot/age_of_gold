@@ -56,6 +56,8 @@ dependencies:
   flutter_keyboard_visibility: ^6.0.0
   flutter_launcher_icons: ^0.14.1
   syncfusion_flutter_sliders: ^27.1.56
+  sign_in_with_apple: ^6.1.4
+  webview_flutter: ^4.10.0
 
 dev_dependencies:
   flutter_test:
@@ -130,6 +132,7 @@ flutter:
     - assets/images/brocast_transparent.png
     - assets/images/Github_logo_PNG1.png
     - assets/images/google_button.png
+    - assets/images/apple_button.png
     - assets/images/reddit_button.png
     - assets/images/gogle_button.png
     - assets/images/github_button.png

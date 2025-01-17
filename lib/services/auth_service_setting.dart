@@ -96,6 +96,22 @@ class AuthServiceSetting {
     return baseResponse;
   }
 
+  Future<BaseResponse> deleteAccountLoggedIn(String email) async {
+    String endPoint = "remove/account/token";
+    var response = await AuthApi().dio.post(endPoint,
+        options: Options(headers: {
+          HttpHeaders.contentTypeHeader: "application/json",
+        }),
+        data: jsonEncode(<String, String>{
+          "email": email
+        }
+      )
+    );
+
+    BaseResponse baseResponse = BaseResponse.fromJson(response.data);
+    return baseResponse;
+  }
+
   Future<BaseResponse> deleteAccount(String email) async {
     String endPoint = "remove/account";
     var response = await AuthApi().dio.post(endPoint,

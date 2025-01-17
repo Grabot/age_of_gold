@@ -81,6 +81,7 @@ class ChangeGuildCrestBoxState extends State<ChangeGuildCrestBox> with TickerPro
   imageLoaded() async {
     LoadingBoxChangeNotifier loadingBoxChangeNotifier = LoadingBoxChangeNotifier();
     // Set the loading screen. It will be removed when cropping status is done
+    loadingBoxChangeNotifier.setWithBlackout(true);
     loadingBoxChangeNotifier.setLoadingBoxVisible(true);
     FilePickerResult? picked = await FilePicker.platform.pickFiles(withData: true);
 
@@ -114,7 +115,9 @@ class ChangeGuildCrestBoxState extends State<ChangeGuildCrestBox> with TickerPro
 
   selectNewAvatar() {
     setState(() {
-      LoadingBoxChangeNotifier().setLoadingBoxVisible(true);
+      LoadingBoxChangeNotifier loadingBoxChangeNotifier = LoadingBoxChangeNotifier();
+      loadingBoxChangeNotifier.setWithBlackout(true);
+      loadingBoxChangeNotifier.setLoadingBoxVisible(true);
     });
     // Again a very slight delay, too get the loading screen visible.
     Future.delayed(const Duration(milliseconds: 50), () {
@@ -251,7 +254,9 @@ class ChangeGuildCrestBoxState extends State<ChangeGuildCrestBox> with TickerPro
         hexCrop: false,
         onStatusChanged: (status) {
           if (status == CropStatus.cropping || status == CropStatus.loading) {
-            LoadingBoxChangeNotifier().setLoadingBoxVisible(true);
+            LoadingBoxChangeNotifier loadingBoxChangeNotifier = LoadingBoxChangeNotifier();
+            loadingBoxChangeNotifier.setWithBlackout(true);
+            loadingBoxChangeNotifier.setLoadingBoxVisible(true);
           } else if (status == CropStatus.ready) {
             LoadingBoxChangeNotifier().setLoadingBoxVisible(false);
           }

@@ -1,19 +1,18 @@
 import 'package:age_of_gold/age_of_gold.dart';
-import 'package:age_of_gold/views/user_interface/ui_views/profile_box/profile_change_notifier.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import '../../../../locator.dart';
 import '../../../../services/auth_service_login.dart';
 import '../../../../services/auth_service_setting.dart';
+import '../../../../services/models/user.dart';
 import '../../../../services/settings.dart';
 import '../../../../util/countdown.dart';
-import '../../../../util/navigation_service.dart';
 import '../../../../util/render_objects.dart';
 import '../../../../util/util.dart';
 import '../are_you_sure_box/are_you_sure_change_notifier.dart';
 import '../change_avatar_box/change_avatar_change_notifier.dart';
 import '../login_view/login_window_change_notifier.dart';
+import 'profile_change_notifier.dart';
 
 
 class ProfileBox extends StatefulWidget {
@@ -32,10 +31,7 @@ class ProfileBox extends StatefulWidget {
 class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
 
   // Used if any text fields are added to the profile.
-  final FocusNode _focusProfileBox = FocusNode();
   late ProfileChangeNotifier profileChangeNotifier;
-
-  final NavigationService _navigationService = locator<NavigationService>();
 
   Settings settings = Settings();
 
@@ -73,10 +69,9 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
     _controller.forward();
     updateTimeLock();
 
-    _focusProfileBox.addListener(_onFocusChange);
     settings.addListener(settingsChangeListener);
-    _focusUsernameChange.addListener(_onFocusChange);
-    _focusPasswordChange.addListener(_onFocusChange);
+    _focusUsernameChange.addListener(_onFocusChangeUsername);
+    _focusPasswordChange.addListener(_onFocusChangePassword);
 
     setState(() {
 
@@ -106,7 +101,11 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
     }
   }
 
-  _onFocusChange() {
+  _onFocusChangeUsername() {
+    widget.game.windowFocus(_focusUsernameChange.hasFocus);
+  }
+
+  _onFocusChangePassword() {
     widget.game.windowFocus(_focusPasswordChange.hasFocus);
   }
 
@@ -222,27 +221,6 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
     });
   }
 
-  // Widget verifyEmailButton(double width, double fontSize) {
-  //   return Container(
-  //     margin: EdgeInsets.only(top: 20),
-  //     child: ElevatedButton(
-  //       onPressed: () {
-  //         verifyEmail();
-  //       },
-  //       style: buttonStyle(false, Colors.blue),
-  //       child: Container(
-  //         alignment: Alignment.center,
-  //         width: 400,
-  //         height: 50,
-  //         child: Text(
-  //           'Verify email',
-  //           style: simpleTextStyle(fontSize),
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
-
   goBack() {
     setState(() {
       profileChangeNotifier.setProfileVisible(false);
@@ -314,11 +292,11 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
           child: settings.getUser() == null
               ? Text(
             "No user logged in",
-            style: simpleTextStyle(fontSize),
+            style: simpleTextStyle(fontSize*1.5),
           )
             : Text(
             "Profile Page",
-            style: simpleTextStyle(fontSize)
+            style: simpleTextStyle(fontSize*1.5)
           ),
         ),
         IconButton(
@@ -353,7 +331,7 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
               height: 50,
               child: Text(
                 'Go to log in screen',
-                style: simpleTextStyle(fontSize),
+                style: simpleTextStyle(fontSize*1.5),
               ),
             ),
           ),
@@ -645,9 +623,14 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
     final RenderBox overlay =
     Overlay.of(context).context.findRenderObject() as RenderBox;
 
+    User? me = settings.getUser();
+    bool isOrigin = false;
+    if (me != null) {
+      isOrigin = me.origin;
+    }
     showMenu(
         context: context,
-        items: [SettingPopup(key: UniqueKey())],
+        items: [SettingPopup(key: UniqueKey(), showPasswordChange: isOrigin)],
         position: RelativeRect.fromRect(
             _tapPosition! & const Size(40, 40), Offset.zero & overlay.size))
         .then((int? delta) {
@@ -663,7 +646,14 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
       } else if (delta == 3) {
         // logout user
         AreYouSureBoxChangeNotifier areYouSureBoxChangeNotifier = AreYouSureBoxChangeNotifier();
+        areYouSureBoxChangeNotifier.setShowDelete(false);
         areYouSureBoxChangeNotifier.setShowLogout(true);
+        areYouSureBoxChangeNotifier.setShowLeaveGuild(false);
+        areYouSureBoxChangeNotifier.setAreYouSureBoxVisible(true);
+      } else if (delta == 4) {
+        AreYouSureBoxChangeNotifier areYouSureBoxChangeNotifier = AreYouSureBoxChangeNotifier();
+        areYouSureBoxChangeNotifier.setShowDelete(true);
+        areYouSureBoxChangeNotifier.setShowLogout(false);
         areYouSureBoxChangeNotifier.setShowLeaveGuild(false);
         areYouSureBoxChangeNotifier.setAreYouSureBoxVisible(true);
       }
@@ -681,7 +671,12 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
 
 class SettingPopup extends PopupMenuEntry<int> {
 
-  const SettingPopup({required Key key}) : super(key: key);
+  final bool showPasswordChange;
+
+  const SettingPopup({
+    required Key key,
+    required this.showPasswordChange
+  }) : super(key: key);
 
   @override
   bool represents(int? n) => n == 1 || n == -1;
@@ -696,7 +691,7 @@ class SettingPopup extends PopupMenuEntry<int> {
 class SettingPopupState extends State<SettingPopup> {
   @override
   Widget build(BuildContext context) {
-    return getPopupItems(context);
+    return getPopupItems(context, widget.showPasswordChange);
   }
 }
 
@@ -715,8 +710,11 @@ void buttonChangePassword(BuildContext context) {
 void buttonLogout(BuildContext context) {
   Navigator.pop<int>(context, 3);
 }
+void buttonDeleteAccount(BuildContext context) {
+  Navigator.pop<int>(context, 4);
+}
 
-Widget getPopupItems(BuildContext context) {
+Widget getPopupItems(BuildContext context, bool showPasswordChange) {
   return Column(
     children: [
       Container(
@@ -753,7 +751,7 @@ Widget getPopupItems(BuildContext context) {
             )
         ),
       ),
-      Container(
+      showPasswordChange ? Container(
         alignment: Alignment.centerLeft,
         child: TextButton(
             onPressed: () {
@@ -769,7 +767,7 @@ Widget getPopupItems(BuildContext context) {
               ]
           )
         ),
-      ),
+      ) : Container(),
       Container(
         alignment: Alignment.centerLeft,
         child: TextButton(
@@ -780,6 +778,23 @@ Widget getPopupItems(BuildContext context) {
               children: [
                 Text(
                   "Logout",
+                  textAlign: TextAlign.left,
+                  style: TextStyle(color: Colors.white, fontSize: 14),
+                )
+              ],
+            )
+        ),
+      ),
+      Container(
+        alignment: Alignment.centerLeft,
+        child: TextButton(
+            onPressed: () {
+              buttonDeleteAccount(context);
+            },
+            child: const Row(
+              children: [
+                Text(
+                  "Delete account",
                   textAlign: TextAlign.left,
                   style: TextStyle(color: Colors.white, fontSize: 14),
                 )

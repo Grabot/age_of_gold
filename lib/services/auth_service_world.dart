@@ -114,17 +114,17 @@ class AuthServiceWorld {
           User user = User.fromJson(jsonTile["last_changed_by"]);
           String nameLastChanged = user.getUserName();
           String lastChanged = jsonTile["last_changed_time"];
-          selectedTileInfo.setLastChangedBy(nameLastChanged);
-          selectedTileInfo.setLastChangedTime(DateTime.parse(lastChanged).toLocal());
-          selectedTileInfo.setLastChangedByAvatar(user.getAvatar()!);
           if (!lastChanged.endsWith("Z")) {
             // The server has utc timestamp, but it's not formatted with the 'Z'.
             lastChanged += "Z";
           }
+          selectedTileInfo.setLastChangedBy(nameLastChanged);
+          selectedTileInfo.setLastChangedTime(DateTime.parse(lastChanged).toLocal());
+          selectedTileInfo.setLastChangedByAvatar(user.getAvatar()!);
         } else {
           selectedTileInfo.untouched();
         }
-        selectedTileInfo.notifyListeners();
+        selectedTileInfo.notify();
         return "success";
       } else {
         return json["message"];
