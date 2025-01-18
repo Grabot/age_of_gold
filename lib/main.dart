@@ -111,7 +111,7 @@ Future<void> main() async {
       OKToast(
         child: MaterialApp(
           debugShowCheckedModeBanner: false,
-          title: "Hex Place",
+          title: "Age of Gold",
           navigatorKey: locator<NavigationService>().navigatorKey,
           theme: ThemeData(
             // Define the default brightness and colors.

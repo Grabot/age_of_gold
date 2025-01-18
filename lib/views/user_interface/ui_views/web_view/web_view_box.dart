@@ -48,7 +48,7 @@ class WebViewBoxState extends State<WebViewBox> {
           onWebResourceError: (WebResourceError error) {
           },
           onNavigationRequest: (NavigationRequest request) {
-            if (request.url.startsWith('https://hexplace.eu/worldaccess?') || request.url.startsWith('https://www.hexplace.eu/worldaccess?')) {
+            if (request.url.startsWith('https://ageof.gold/worldaccess?') || request.url.startsWith('https://www.ageof.gold/worldaccess?')) {
               LoadingBoxChangeNotifier loadingBoxChangeNotifier = LoadingBoxChangeNotifier();
               loadingBoxChangeNotifier.setWithBlackout(false);
               loadingBoxChangeNotifier.setLoadingBoxVisible(true);

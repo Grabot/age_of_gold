@@ -149,8 +149,8 @@ class ProfileBoxState extends State<ProfileBox> with TickerProviderStateMixin {
               child: Text.rich(
                   TextSpan(
                     text: kIsWeb
-                        ? "Also try Hex Place on Android or IOS!"
-                        : "Also try Hex Place in your browser on hexplace.eu",
+                        ? "Also try Age of Gold on Android or IOS!"
+                        : "Also try Age of Gold in your browser on ageof.gold",
                     style: TextStyle(
                         fontSize: fontSize*1.5
                     ),

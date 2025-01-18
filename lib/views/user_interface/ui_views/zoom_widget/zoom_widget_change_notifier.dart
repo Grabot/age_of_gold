@@ -7,8 +7,8 @@ class ZoomWidgetChangeNotifier extends ChangeNotifier {
   bool showZoomWidget = false;
   double zoomValue = 1;
 
-  double maxZoom = 2;
-  double minZoom = 0.2;
+  double maxZoom = 4;
+  double minZoom = 0.4;
 
   static final ZoomWidgetChangeNotifier _instance = ZoomWidgetChangeNotifier._internal();
 

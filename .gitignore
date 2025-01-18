@@ -51,3 +51,6 @@ base_url.dart
 web/crop/
 
 pubspec.lock
+
+web/.well-known/assetlinks.json
+web/.well-known/apple-app-site-association

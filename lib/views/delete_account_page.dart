@@ -73,7 +73,7 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
             Column(
               children: [
                 Text(
-                  "Your Hex Place account has been deleted.",
+                  "Your Age of Gold account has been deleted.",
                   style: TextStyle(color: Colors.white70, fontSize: fontSize),
                   textAlign: TextAlign.center,
                 ),

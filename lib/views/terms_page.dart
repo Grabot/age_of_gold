@@ -48,12 +48,12 @@ class _TermsPageState extends State<TermsPage> {
                     ),
                     SizedBox(height: 10),
                     Text(
-                        "Please read this EULA agreement carefully before completing the installation process and using the Age of Gold software. It provides a license to use the Hex Place software and contains warranty information and liability disclaimers.",
+                        "Please read this EULA agreement carefully before completing the installation process and using the Age of Gold software. It provides a license to use the Age of Gold software and contains warranty information and liability disclaimers.",
                         style: TextStyle(color: Color(0xfff1f1f1), fontSize: 16)
                     ),
                     SizedBox(height: 10),
                     Text(
-                        "If you register for a free trial of the Age of Gold software, this EULA agreement will also govern that trial. By clicking \"accept\" or installing and/or using the Hex Place software, you are confirming your acceptance of the Software and agreeing to become bound by the terms of this EULA agreement.",
+                        "If you register for a free trial of the Age of Gold software, this EULA agreement will also govern that trial. By clicking \"accept\" or installing and/or using the Age of Gold software, you are confirming your acceptance of the Software and agreeing to become bound by the terms of this EULA agreement.",
                         style: TextStyle(color: Color(0xfff1f1f1), fontSize: 16)
                     ),
                     SizedBox(height: 10),
