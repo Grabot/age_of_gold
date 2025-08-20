@@ -1,9 +1,0 @@
-const String HomeRoute = '/';
-const String WorldAccessRoute = '/worldaccess';
-const String ProfileRoute = "/profile";
-const String PasswordResetRoute = "/password";
-const String EmailVerificationRoute = "/email_verification";
-const String PrivacyRoute = "/privacy";
-const String TermsRoute = "/terms";
-const String DeleteRoute = "/delete";
-const String DeleteAccountRoute = "/deletion";
